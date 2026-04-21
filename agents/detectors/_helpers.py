@@ -141,3 +141,44 @@ def apply_universal_modifiers(
 
 def cap_pqs(pqs_base: int, modifiers: dict[str, int]) -> int:
     return min(100, pqs_base + sum(modifiers.values()))
+
+
+# --------------------------------------------------------------------------- #
+# Swing detection — shared by every pattern that compares two pivots
+# --------------------------------------------------------------------------- #
+
+
+def swing_low_indices(
+    lows: pd.Series, left: int = 2, right: int = 2,
+) -> list[int]:
+    """Indices of swing lows in the series.
+
+    A swing low at index i requires every value in (i-left..i) and
+    (i..i+right) to be strictly higher than lows[i]. Ties are ignored
+    on the strict-higher side so flat bottoms don't register as two
+    pivots.
+    """
+    out: list[int] = []
+    vals = lows.values
+    n = len(vals)
+    for i in range(left, n - right):
+        v = vals[i]
+        if all(vals[i - k] > v for k in range(1, left + 1)) and \
+           all(vals[i + k] > v for k in range(1, right + 1)):
+            out.append(i)
+    return out
+
+
+def swing_high_indices(
+    highs: pd.Series, left: int = 2, right: int = 2,
+) -> list[int]:
+    """Mirror of ``swing_low_indices`` for swing highs."""
+    out: list[int] = []
+    vals = highs.values
+    n = len(vals)
+    for i in range(left, n - right):
+        v = vals[i]
+        if all(vals[i - k] < v for k in range(1, left + 1)) and \
+           all(vals[i + k] < v for k in range(1, right + 1)):
+            out.append(i)
+    return out

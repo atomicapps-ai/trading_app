@@ -27,36 +27,12 @@ from agents.detectors._helpers import (
     last_row,
     safe,
     slice_as_of,
+    swing_high_indices,
+    swing_low_indices,
 )
 from models.pattern import PatternResult
 
 PATTERN_NAME = "rsi_divergence"
-
-
-def _swing_low_index(lows: pd.Series, left: int = 2, right: int = 2) -> list[int]:
-    """Indices of swing lows: a bar lower than ``left`` bars before and
-    ``right`` bars after. Pure function of the series."""
-    out: list[int] = []
-    vals = lows.values
-    n = len(vals)
-    for i in range(left, n - right):
-        v = vals[i]
-        if all(vals[i - k] > v for k in range(1, left + 1)) and \
-           all(vals[i + k] > v for k in range(1, right + 1)):
-            out.append(i)
-    return out
-
-
-def _swing_high_index(highs: pd.Series, left: int = 2, right: int = 2) -> list[int]:
-    out: list[int] = []
-    vals = highs.values
-    n = len(vals)
-    for i in range(left, n - right):
-        v = vals[i]
-        if all(vals[i - k] < v for k in range(1, left + 1)) and \
-           all(vals[i + k] < v for k in range(1, right + 1)):
-            out.append(i)
-    return out
 
 
 def detect_rsi_divergence(
@@ -87,7 +63,7 @@ def detect_rsi_divergence(
         return None
 
     # ---- Bullish divergence search --------------------------------------
-    lows_idx = _swing_low_index(window["low"])
+    lows_idx = swing_low_indices(window["low"])
     bull: PatternResult | None = None
     if len(lows_idx) >= 2:
         l2 = lows_idx[-1]
@@ -151,7 +127,7 @@ def detect_rsi_divergence(
                             )
 
     # ---- Bearish divergence search --------------------------------------
-    highs_idx = _swing_high_index(window["high"])
+    highs_idx = swing_high_indices(window["high"])
     bear: PatternResult | None = None
     if len(highs_idx) >= 2:
         h2 = highs_idx[-1]
