@@ -16,19 +16,22 @@ Implemented:
   * vwap_reclaim                    — above → break → consolidate → reclaim
   * double_bottom_top               — two-pivot reversal with neckline break
   * ascending_descending_triangle   — flat level + rising/falling pivots
+  * cup_and_handle                  — rounded base + small handle + pivot breakout
+  * wyckoff_accumulation            — Spring entry off SC/AR trading range
 
 Remaining:
-  * bear_flag (mirror of bull_flag)
-  * cup_and_handle
-  * wyckoff_accumulation
+  * bear_flag (mirror of bull_flag) — deferred; spec mostly handled by
+    the short paths inside the implemented reversal/continuation detectors
 """
 from agents.detectors.ascending_triangle import detect_ascending_descending_triangle
 from agents.detectors.bull_flag import detect_bull_flag
+from agents.detectors.cup_and_handle import detect_cup_and_handle
 from agents.detectors.double_bottom_top import detect_double_bottom_top
 from agents.detectors.inside_bar_nr7 import detect_inside_bar_nr7
 from agents.detectors.rsi_divergence import detect_rsi_divergence
 from agents.detectors.volatility_squeeze import detect_volatility_squeeze
 from agents.detectors.vwap_reclaim import detect_vwap_reclaim
+from agents.detectors.wyckoff_accumulation import detect_wyckoff_accumulation
 
 # Map name -> callable for the analyst to iterate
 ALL_DETECTORS = {
@@ -39,15 +42,19 @@ ALL_DETECTORS = {
     "vwap_reclaim": detect_vwap_reclaim,
     "double_bottom_top": detect_double_bottom_top,
     "ascending_descending_triangle": detect_ascending_descending_triangle,
+    "cup_and_handle": detect_cup_and_handle,
+    "wyckoff_accumulation": detect_wyckoff_accumulation,
 }
 
 __all__ = [
     "ALL_DETECTORS",
     "detect_ascending_descending_triangle",
     "detect_bull_flag",
+    "detect_cup_and_handle",
     "detect_double_bottom_top",
     "detect_inside_bar_nr7",
     "detect_rsi_divergence",
     "detect_volatility_squeeze",
     "detect_vwap_reclaim",
+    "detect_wyckoff_accumulation",
 ]
