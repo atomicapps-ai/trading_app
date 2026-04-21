@@ -1,0 +1,76 @@
+strategy_name: swing_momentum
+version: "1.0"
+description: Multi-pattern swing strategy, 2-10 day holds
+universe_filter_preset: liquid_momentum_core
+mode: paper
+active: true
+holding_period: swing_days
+
+# Minimum PQS (normalized 0-1) for a detector hit to emit a Signal.
+# 0.55 == PQS 55 per phase4 spec.
+min_signal_strength: 0.55
+
+risk:
+  max_risk_pct_per_trade: 0.50
+  max_position_pct_of_equity: 8.0
+  min_rr_ratio: 2.0
+
+pattern_thresholds:
+
+  bull_flag:
+    flagpole_min_atr_multiple: 3.0
+    flag_retracement_min_pct: 30.0
+    flag_retracement_max_pct: 60.0
+    flag_duration_min_bars: 3
+    flag_duration_max_bars: 20
+    trigger_volume_ratio_min: 1.5
+
+  inside_bar_nr7:
+    mother_candle_min_atr_ratio: 0.75
+    max_bars_before_trigger: 5
+
+  volatility_squeeze:
+    bb_period: 20
+    bb_mult: 2.0
+    kc_period: 20
+    kc_mult: 1.5
+    min_squeeze_bars: 6
+
+  # The following thresholds ship as placeholders for the six detectors
+  # implemented in follow-up sessions — kept here so a single edit lands
+  # the tuning once each detector arrives.
+  double_bottom:
+    prior_downtrend_min_pct: 15.0
+    second_low_tolerance_pct: 3.0
+    rsi_divergence_min_diff: 3.0
+    breakout_volume_ratio_min: 1.5
+
+  rsi_divergence:
+    rsi_period: 14
+    min_rsi_diff: 3.0
+    max_rsi_at_low: 40.0
+    class_a_rsi_ceiling: 30.0
+
+  ascending_triangle:
+    min_resistance_touches: 2
+    resistance_tolerance_pct: 0.5
+    breakout_zone_min_pct: 50.0
+    breakout_volume_ratio_min: 1.5
+
+  cup_and_handle:
+    cup_depth_min_pct: 15.0
+    cup_depth_max_pct: 50.0
+    cup_duration_min_weeks: 7
+    handle_depth_max_pct: 20.0
+    breakout_volume_ratio_min: 1.5
+
+  vwap_reclaim:
+    min_bars_above_vwap_before_break: 8
+    max_consolidation_bars: 8
+    reclaim_volume_ratio_min: 1.5
+
+  wyckoff_accumulation:
+    sc_volume_min_ratio: 2.0
+    spring_max_undercut_pct: 5.0
+    spring_volume_max_ratio: 0.75
+    range_min_weeks: 6

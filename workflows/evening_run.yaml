@@ -1,0 +1,36 @@
+workflow_id: evening_run
+description: >
+  Post-market full analysis. Produces the signals for the next session.
+  Uses a 72-hour news window and a 14-day filings window so the analyst's
+  sentiment and fundamental lenses have enough context to differentiate
+  catalyst-driven moves from ordinary drift.
+default_mode: paper
+schedule: "30 16 * * 1-5"  # 16:30 ET Mon-Fri
+
+steps:
+  - id: filter_universe
+    kind: filter_universe
+    params:
+      preset: liquid_momentum_core
+      shortlist_size: 50
+  - id: fetch_news
+    kind: fetch_news
+    params:
+      lookback_hours: 72
+    depends_on: [filter_universe]
+  - id: fetch_filings
+    kind: fetch_filings
+    params:
+      lookback_days: 14
+    depends_on: [filter_universe]
+  - id: compute_macro
+    kind: compute_macro
+    depends_on: [filter_universe]
+  - id: analyze
+    kind: analyze
+    params:
+      lenses: [technical, fundamental, sentiment, macro]
+    depends_on: [fetch_news, fetch_filings, compute_macro]
+  - id: plan
+    kind: plan
+    depends_on: [analyze]

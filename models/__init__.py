@@ -35,7 +35,15 @@ from models.trade_plan import (
     TradePlan,
     TrailingStop,
 )
+from models.pattern import PatternResult
 from models.trade_record import TradeRecord
+from models.universe import (
+    PrescreenCriteria,
+    PrescreenScore,
+    PresetTickers,
+    PresetTickersFile,
+    UniverseFilterResult,
+)
 from models.verdicts import (
     ComplianceGate,
     ComplianceVerdict,
@@ -62,7 +70,12 @@ __all__ = [
     "OrderAck",
     "OrderSide",
     "OrderType",
+    "PatternResult",
     "Position",
+    "PrescreenCriteria",
+    "PrescreenScore",
+    "PresetTickers",
+    "PresetTickersFile",
     "Quote",
     "RiskGate",
     "RiskVerdict",
@@ -80,5 +93,6 @@ __all__ = [
     "TradePlan",
     "TradeRecord",
     "TrailingStop",
+    "UniverseFilterResult",
     "Urgency",
 ]

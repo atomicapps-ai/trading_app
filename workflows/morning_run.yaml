@@ -1,0 +1,29 @@
+workflow_id: morning_run
+description: >
+  Pre-market refresh. Re-scores the shortlist with updated bars and a fresh
+  18-hour news window to catch anything that broke overnight.
+default_mode: paper
+schedule: "30 8 * * 1-5"   # 08:30 ET Mon-Fri (scheduler normalizes timezone)
+
+steps:
+  - id: filter_universe
+    kind: filter_universe
+    params:
+      preset: liquid_momentum_core
+      shortlist_size: 50
+  - id: fetch_news
+    kind: fetch_news
+    params:
+      lookback_hours: 18
+    depends_on: [filter_universe]
+  - id: compute_macro
+    kind: compute_macro
+    depends_on: [filter_universe]
+  - id: analyze
+    kind: analyze
+    params:
+      lenses: [technical, fundamental, sentiment, macro]
+    depends_on: [fetch_news, compute_macro]
+  - id: plan
+    kind: plan
+    depends_on: [analyze]

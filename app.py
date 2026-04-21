@@ -17,7 +17,15 @@ from dotenv import load_dotenv
 from fastapi import Depends, FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from routers import broker, dashboard, pending, settings as settings_router, stubs, trades
+from routers import (
+    broker,
+    dashboard,
+    pending,
+    settings as settings_router,
+    stubs,
+    trades,
+    workflows,
+)
 from services.broker_service import connect_adapter, get_adapter
 from services.settings_service import (
     ENV_FILE,
@@ -84,6 +92,7 @@ app.include_router(pending.router)
 app.include_router(trades.router)
 app.include_router(settings_router.router)
 app.include_router(broker.router)
+app.include_router(workflows.router)
 app.include_router(stubs.router)
 
 
