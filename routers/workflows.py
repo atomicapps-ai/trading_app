@@ -19,12 +19,12 @@ import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
+from services import pipeline_service
 from services.settings_service import Settings, get_settings
 from services.workflow_engine import (
     PIPELINE_STATUS_FILE,
     UNIVERSE_LATEST_FILE,
     WorkflowEngine,
-    WorkflowRunResult,
 )
 
 logger = logging.getLogger(__name__)
@@ -73,13 +73,19 @@ async def get_workflow(
 async def run_workflow(
     workflow_id: str,
     mode: str | None = Query(default=None),
-    engine: WorkflowEngine = Depends(_engine),
-) -> WorkflowRunResult:
+    s: Settings = Depends(get_settings),
+) -> dict:
+    """Production workflow run: engine + compliance/risk gates + DB persist.
+
+    Returns a summary dict; individual plans (with verdicts) land in the
+    pending_approvals SQLite table for the ``/pending`` page to read.
+    """
     try:
-        wf = await engine.load_by_id(workflow_id)
+        return await pipeline_service.run_workflow_by_id(
+            workflow_id, mode=mode, settings=s,
+        )
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    return await engine.run(wf, mode=mode)
 
 
 @router.get("/api/pipeline/status")
@@ -90,6 +96,12 @@ async def pipeline_status() -> dict:
         return json.loads(PIPELINE_STATUS_FILE.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         return {"status": "error", "detail": "pipeline_status.json unreadable"}
+
+
+@router.get("/api/pipeline/runs")
+async def pipeline_runs(limit: int = 20) -> dict:
+    runs = await pipeline_service.list_runs(limit=limit)
+    return {"runs": runs}
 
 
 @router.get("/api/universe/latest")

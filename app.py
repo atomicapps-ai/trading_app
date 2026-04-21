@@ -26,6 +26,7 @@ from routers import (
     trades,
     workflows,
 )
+from services import db_service
 from services.broker_service import connect_adapter, get_adapter
 from services.settings_service import (
     ENV_FILE,
@@ -59,6 +60,10 @@ async def lifespan(_: FastAPI):
     logger.info(
         "TradeAgent starting | mode=%s | project_root=%s", s.app.mode, PROJECT_ROOT
     )
+    try:
+        await db_service.ensure_tables()
+    except Exception as exc:
+        logger.error("SQLite ensure_tables failed: %s", exc)
     try:
         ok = await connect_adapter()
         logger.info("Broker adapter: %s", "connected" if ok else "failed")
