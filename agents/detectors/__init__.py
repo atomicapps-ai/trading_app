@@ -8,34 +8,40 @@ detector needs.
 This contract is the foundation of Phase 5 backtesting — the same
 detector runs live and across 10+ years of historical bars.
 
-Implemented in Phase 4 (this session):
+Implemented:
   * volatility_squeeze  — uses indicator_service squeeze columns
   * inside_bar_nr7      — narrowest range of last 7 + inside prior bar
   * bull_flag           — flagpole / flag / breakout detection
+  * rsi_divergence      — bullish + bearish class A/B/C divergence
+  * vwap_reclaim        — above-VWAP → break → consolidate → reclaim
 
-Remaining (follow-up sessions):
+Remaining:
   * bear_flag (mirror of bull_flag)
   * double_bottom_top
-  * rsi_divergence
   * ascending_descending_triangle
   * cup_and_handle
-  * vwap_reclaim
   * wyckoff_accumulation
 """
 from agents.detectors.bull_flag import detect_bull_flag
 from agents.detectors.inside_bar_nr7 import detect_inside_bar_nr7
+from agents.detectors.rsi_divergence import detect_rsi_divergence
 from agents.detectors.volatility_squeeze import detect_volatility_squeeze
+from agents.detectors.vwap_reclaim import detect_vwap_reclaim
 
 # Map name -> callable for the analyst to iterate
 ALL_DETECTORS = {
     "volatility_squeeze": detect_volatility_squeeze,
     "inside_bar_nr7": detect_inside_bar_nr7,
     "bull_flag": detect_bull_flag,
+    "rsi_divergence": detect_rsi_divergence,
+    "vwap_reclaim": detect_vwap_reclaim,
 }
 
 __all__ = [
     "ALL_DETECTORS",
     "detect_bull_flag",
     "detect_inside_bar_nr7",
+    "detect_rsi_divergence",
     "detect_volatility_squeeze",
+    "detect_vwap_reclaim",
 ]
