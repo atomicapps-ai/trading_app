@@ -177,54 +177,54 @@ def run_compliance() -> int:
 
     # baseline pass
     v = officer.check(make_plan(), make_account(), make_market())
-    expect(v.result == "pass", f"baseline: expected pass, got {v.result}")
+    expect(v.result == "approved", f"baseline: expected pass, got {v.result}")
     expect(v.gates_evaluated == ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
            f"baseline: all 8 gates should evaluate, got {v.gates_evaluated}")
     print("  [baseline]           pass (all 8 gates evaluated)")
 
     # C1 — halt blocks in paper
     v = officer.check(make_plan(), make_account(), make_market(halt_status=True))
-    expect(v.result == "block" and v.block_reason == "symbol_halted",
+    expect(v.result == "rejected" and v.block_reason == "symbol_halted",
            f"C1: expected halt block, got {v.result} / {v.block_reason}")
     print("  [C1 halt paper]      block symbol_halted")
 
     # C1 — halt is advisory in research mode
     v = officer.check(make_plan(mode="research"), make_account(),
                       make_market(halt_status=True))
-    expect(v.result == "pass", f"C1 research: expected pass, got {v.result}")
+    expect(v.result == "approved", f"C1 research: expected pass, got {v.result}")
     print("  [C1 halt research]   advisory (pass)")
 
     # C2 — entry outside LULD blocks in paper
     band = LULDBand(lower=95.0, upper=99.0)  # entry 100 > upper
     v = officer.check(make_plan(), make_account(), make_market(luld_band=band))
-    expect(v.result == "block" and v.block_reason == "price_outside_luld_band",
+    expect(v.result == "rejected" and v.block_reason == "price_outside_luld_band",
            f"C2: expected luld block, got {v.block_reason}")
     print("  [C2 LULD paper]      block price_outside_luld_band")
 
     # C2 — LULD advisory in research
     v = officer.check(make_plan(mode="research"), make_account(),
                       make_market(luld_band=band))
-    expect(v.result == "pass", "C2 research: should be advisory")
+    expect(v.result == "approved", "C2 research: should be advisory")
     print("  [C2 LULD research]   advisory (pass)")
 
     # C3 — SSR active + short blocks
     v = officer.check(make_plan(direction="short"), make_account(),
                       make_market(ssr_active=True))
-    expect(v.result == "block" and v.block_reason == "ssr_active_no_short_on_downtick",
+    expect(v.result == "rejected" and v.block_reason == "ssr_active_no_short_on_downtick",
            f"C3: expected ssr block, got {v.block_reason}")
     print("  [C3 SSR short]       block ssr_active_no_short_on_downtick")
 
     # C3 — SSR active but long → pass (SSR only gates shorts)
     v = officer.check(make_plan(direction="long"), make_account(),
                       make_market(ssr_active=True))
-    expect(v.result == "pass", "C3 long+ssr: should pass (SSR only gates shorts)")
+    expect(v.result == "approved", "C3 long+ssr: should pass (SSR only gates shorts)")
     print("  [C3 SSR long]        pass (long unaffected)")
 
     # C4 — wash sale window blocks long
     v = officer.check(make_plan(symbol="NVDA"),
                       make_account(wash_sale_window=["NVDA"]),
                       make_market())
-    expect(v.result == "block" and v.block_reason == "wash_sale_window_active",
+    expect(v.result == "rejected" and v.block_reason == "wash_sale_window_active",
            f"C4: expected wash-sale block, got {v.block_reason}")
     print("  [C4 wash sale long]  block wash_sale_window_active")
 
@@ -232,7 +232,7 @@ def run_compliance() -> int:
     v = officer.check(make_plan(symbol="NVDA", direction="short"),
                       make_account(wash_sale_window=["NVDA"]),
                       make_market())
-    expect(v.result == "pass", "C4 short: wash sale only gates longs")
+    expect(v.result == "approved", "C4 short: wash sale only gates longs")
     print("  [C4 wash sale short] pass (shorts unaffected)")
 
     # C5 — PDT: margin < 25k, 3 day trades, intraday hold → block
@@ -242,7 +242,7 @@ def run_compliance() -> int:
                      day_trade_count_rolling_5d=3),
         make_market(),
     )
-    expect(v.result == "block" and v.block_reason == "pdt_rule_day_trade_limit_reached",
+    expect(v.result == "rejected" and v.block_reason == "pdt_rule_day_trade_limit_reached",
            f"C5: expected PDT block, got {v.block_reason}")
     print("  [C5 PDT intraday]    block pdt_rule_day_trade_limit_reached")
 
@@ -253,7 +253,7 @@ def run_compliance() -> int:
                      day_trade_count_rolling_5d=3),
         make_market(),
     )
-    expect(v.result == "pass", "C5 swing: should skip PDT for swing")
+    expect(v.result == "approved", "C5 swing: should skip PDT for swing")
     print("  [C5 PDT swing]       pass (swing skips PDT)")
 
     # C5 — cash account skips PDT
@@ -263,7 +263,7 @@ def run_compliance() -> int:
                      day_trade_count_rolling_5d=10),
         make_market(),
     )
-    expect(v.result == "pass", "C5 cash: PDT only applies to margin")
+    expect(v.result == "approved", "C5 cash: PDT only applies to margin")
     print("  [C5 PDT cash]        pass (cash skips PDT)")
 
     # C6 — restricted list blocks
@@ -271,21 +271,21 @@ def run_compliance() -> int:
     settings_restricted.compliance.restricted_symbols = ["tsla"]  # case-insensitive
     officer_r = ComplianceOfficer(settings_restricted)
     v = officer_r.check(make_plan(symbol="TSLA"), make_account(), make_market())
-    expect(v.result == "block" and v.block_reason == "on_restricted_list",
+    expect(v.result == "rejected" and v.block_reason == "on_restricted_list",
            f"C6: expected restricted block, got {v.block_reason}")
     print("  [C6 restricted]      block on_restricted_list (case-insensitive)")
 
     # C7 — earnings blackout blocks
     v = officer.check(make_plan(), make_account(),
                       make_market(earnings_within_hours=12.0))
-    expect(v.result == "block" and v.block_reason == "earnings_blackout_window",
+    expect(v.result == "rejected" and v.block_reason == "earnings_blackout_window",
            f"C7: expected earnings block, got {v.block_reason}")
     print("  [C7 earnings 12h]    block earnings_blackout_window")
 
     # C7 — earnings outside window passes
     v = officer.check(make_plan(), make_account(),
                       make_market(earnings_within_hours=48.0))
-    expect(v.result == "pass", "C7: 48h > 24h → pass")
+    expect(v.result == "approved", "C7: 48h > 24h → pass")
     print("  [C7 earnings 48h]    pass (outside blackout)")
 
     # C7 — disabled in settings
@@ -294,14 +294,14 @@ def run_compliance() -> int:
     officer_nb = ComplianceOfficer(settings_noblackout)
     v = officer_nb.check(make_plan(), make_account(),
                          make_market(earnings_within_hours=1.0))
-    expect(v.result == "pass", "C7 disabled: should pass regardless")
+    expect(v.result == "approved", "C7 disabled: should pass regardless")
     print("  [C7 disabled]        pass (blackout off)")
 
     # C8 — zero entry price blocks (need to bypass pydantic)
     plan = make_plan()
     plan.setup.entry.price = 0.0  # post-construction mutation
     v = officer.check(plan, make_account(), make_market())
-    expect(v.result == "block" and "setup.entry.price" in (v.block_reason or ""),
+    expect(v.result == "rejected" and "setup.entry.price" in (v.block_reason or ""),
            f"C8: expected incomplete plan, got {v.block_reason}")
     print("  [C8 zero entry]      block incomplete_trade_plan (setup.entry.price)")
 
@@ -309,7 +309,7 @@ def run_compliance() -> int:
     plan = make_plan()
     plan.risk["r_per_share"] = 0
     v = officer.check(plan, make_account(), make_market())
-    expect(v.result == "block" and "risk.r_per_share" in (v.block_reason or ""),
+    expect(v.result == "rejected" and "risk.r_per_share" in (v.block_reason or ""),
            f"C8: expected missing r_per_share, got {v.block_reason}")
     print("  [C8 zero R]          block incomplete_trade_plan (risk.r_per_share)")
 
@@ -335,7 +335,7 @@ def run_risk() -> int:
     # notional = 50*100 = $5,000; equity 100k × 10% = $10,000 cap → under
     # ADV participation 50,000,000 × 2% = 1,000,000 shares → way over 50
     v = risk.pre_trade_check(plan, make_account(), make_market())
-    expect(v.result == "approve",
+    expect(v.result == "approved",
            f"baseline: expected approve, got {v.result} ({v.reject_reason})")
     expect(v.approved_size_shares == 50, f"approve size: got {v.approved_size_shares}")
     expect(v.gates_evaluated == ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9"],
@@ -349,7 +349,7 @@ def run_risk() -> int:
                      entry_price=50.0, r_multiple_to_tp1=2.0)
     # notional 1000*50=50,000; cap 10% of 100k=10,000 → R2 cuts to 200 (even more)
     v = risk.pre_trade_check(plan, make_account(), make_market())
-    expect(v.result == "resize", f"R1/R2: expected resize, got {v.result}")
+    expect(v.result == "resized", f"R1/R2: expected resize, got {v.result}")
     expect("R1" in v.gates_triggered and "R2" in v.gates_triggered,
            f"R1+R2: expected both triggered, got {v.gates_triggered}")
     # min(R1=250, R2=200) = 200
@@ -365,7 +365,7 @@ def run_risk() -> int:
     v = risk.pre_trade_check(plan,
                              make_account(realized_pnl_today=-2_500),
                              make_market())
-    expect(v.result == "reject" and v.reject_reason == "daily_loss_cap_reached",
+    expect(v.result == "rejected" and v.reject_reason == "daily_loss_cap_reached",
            f"R3: expected reject daily_loss_cap_reached, got {v.reject_reason}")
     print("  [R3 daily loss]      reject daily_loss_cap_reached")
 
@@ -378,7 +378,7 @@ def run_risk() -> int:
     v = risk.pre_trade_check(make_plan(position_size_shares=50),
                              make_account(open_positions=positions),
                              make_market())
-    expect(v.result == "reject" and "max_open_positions" in (v.reject_reason or ""),
+    expect(v.result == "rejected" and "max_open_positions" in (v.reject_reason or ""),
            f"R4: expected reject, got {v.reject_reason}")
     print(f"  [R4 {rd.max_open_positions} positions]    reject max_open_positions_reached")
 
@@ -386,7 +386,7 @@ def run_risk() -> int:
     v = risk.pre_trade_check(make_plan(position_size_shares=50),
                              make_account(trades_today=rd.max_daily_trades),
                              make_market())
-    expect(v.result == "reject" and "max_daily_trades" in (v.reject_reason or ""),
+    expect(v.result == "rejected" and "max_daily_trades" in (v.reject_reason or ""),
            f"R5: expected reject, got {v.reject_reason}")
     print(f"  [R5 {rd.max_daily_trades} trades today] reject max_daily_trades_reached")
 
@@ -400,14 +400,14 @@ def run_risk() -> int:
                      r_per_share=1.0, r_multiple_to_tp1=2.0)
     v = risk.pre_trade_check(plan, make_account(open_positions=heavy_tech),
                              make_market())
-    expect(v.result == "reject" and "sector_concentration" in (v.reject_reason or ""),
+    expect(v.result == "rejected" and "sector_concentration" in (v.reject_reason or ""),
            f"R6: expected sector reject, got {v.reject_reason}")
     print("  [R6 sector 35%]      reject sector_concentration_exceeded")
 
     # R7: R:R below 2.0 min → reject
     plan = make_plan(position_size_shares=50, r_multiple_to_tp1=1.5)
     v = risk.pre_trade_check(plan, make_account(), make_market())
-    expect(v.result == "reject" and "insufficient_risk_reward" in (v.reject_reason or ""),
+    expect(v.result == "rejected" and "insufficient_risk_reward" in (v.reject_reason or ""),
            f"R7: expected reject, got {v.reject_reason}")
     print("  [R7 R:R 1.5]         reject insufficient_risk_reward")
 
@@ -417,7 +417,7 @@ def run_risk() -> int:
                      r_multiple_to_tp1=2.0)
     v = risk.pre_trade_check(plan, make_account(),
                              make_market(adv=1_000, current_spread_bps=5.0))
-    expect(v.result == "resize" and "R8" in v.gates_triggered,
+    expect(v.result == "resized" and "R8" in v.gates_triggered,
            f"R8: expected resize, got {v.result} triggered={v.gates_triggered}")
     expect(v.approved_size_shares == 20,
            f"R8 resize: expected 20 (= 1000 × 2%), got {v.approved_size_shares}")
@@ -427,7 +427,7 @@ def run_risk() -> int:
     plan = make_plan(position_size_shares=50)
     v = risk.pre_trade_check(plan, make_account(),
                              make_market(current_spread_bps=30.0))
-    expect(v.result == "reject" and "spread_too_wide" in (v.reject_reason or ""),
+    expect(v.result == "rejected" and "spread_too_wide" in (v.reject_reason or ""),
            f"R9 paper: expected spread reject, got {v.reject_reason}")
     print("  [R9 spread 30bps]    reject spread_too_wide (paper)")
 
@@ -435,7 +435,7 @@ def run_risk() -> int:
     plan = make_plan(mode="research", position_size_shares=50)
     v = risk.pre_trade_check(plan, make_account(),
                              make_market(current_spread_bps=30.0))
-    expect(v.result == "approve",
+    expect(v.result == "approved",
            f"R9 research: expected approve (skipped), got {v.result}")
     print("  [R9 research 30bps]  approve (R9 skipped in research)")
 
@@ -444,7 +444,7 @@ def run_risk() -> int:
     plan = make_plan(position_size_shares=50)
     v = risk.pre_trade_check(plan, make_account(),
                              make_market(adv=1, current_spread_bps=5.0))
-    expect(v.result == "reject" and v.reject_reason == "sizing_reduced_to_zero",
+    expect(v.result == "rejected" and v.reject_reason == "sizing_reduced_to_zero",
            f"zero-size: expected reject, got {v.reject_reason}")
     print("  [R8 ADV=1 -> 0]      reject sizing_reduced_to_zero")
 

@@ -12,7 +12,7 @@ Gate behavior
 * **R8 (participation cap)** may further resize against ADV.
 * **R3, R4, R5, R6, R7, R9** reject outright — no resize.
 * If any resize drives approved shares to 0, the plan is rejected
-  (``result="reject"``, reason ``sizing_reduced_to_zero``).
+  (``result="rejected"``, reason ``sizing_reduced_to_zero``).
 
 Mode sensitivity
 ----------------
@@ -70,7 +70,7 @@ class RiskManager:
             # by zero in the cap math below. Kick it back as reject.
             return RiskVerdict(
                 plan_id=plan.plan_id,
-                result="reject",
+                result="rejected",
                 original_size_shares=original_size,
                 approved_size_shares=0,
                 gates_evaluated=evaluated,
@@ -189,10 +189,10 @@ class RiskManager:
         approved_risk = approved * r_per_share
         approved_notional = approved * entry_price
         if approved == original_size and not triggered:
-            result = "approve"
+            result = "approved"
             resize_reason = None
         else:
-            result = "resize"
+            result = "resized"
             resize_reason = "; ".join(reasons) if reasons else None
 
         logger.info(
@@ -304,7 +304,7 @@ def _reject(
     )
     return RiskVerdict(
         plan_id=plan.plan_id,
-        result="reject",
+        result="rejected",
         original_size_shares=original_size,
         approved_size_shares=0,
         gates_evaluated=evaluated,

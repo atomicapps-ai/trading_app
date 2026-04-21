@@ -80,7 +80,7 @@ class ComplianceOfficer:
                 return verdict
         return ComplianceVerdict(
             plan_id=plan.plan_id,
-            result="pass",
+            result="approved",
             gates_evaluated=list(evaluated),
         )
 
@@ -106,7 +106,7 @@ class ComplianceOfficer:
             return None
         return ComplianceVerdict(
             plan_id=plan.plan_id,
-            result="block",
+            result="rejected",
             gates_evaluated=[],
             gates_failed=["C1"],
             block_reason="symbol_halted",
@@ -134,7 +134,7 @@ class ComplianceOfficer:
             return None
         return ComplianceVerdict(
             plan_id=plan.plan_id,
-            result="block",
+            result="rejected",
             gates_evaluated=[],
             gates_failed=["C2"],
             block_reason="price_outside_luld_band",
@@ -157,7 +157,7 @@ class ComplianceOfficer:
             return None
         return ComplianceVerdict(
             plan_id=plan.plan_id,
-            result="block",
+            result="rejected",
             gates_evaluated=[],
             gates_failed=["C3"],
             block_reason="ssr_active_no_short_on_downtick",
@@ -181,7 +181,7 @@ class ComplianceOfficer:
         if symbol and symbol in account.wash_sale_window:
             return ComplianceVerdict(
                 plan_id=plan.plan_id,
-                result="block",
+                result="rejected",
                 gates_evaluated=[],
                 gates_failed=["C4"],
                 block_reason="wash_sale_window_active",
@@ -209,7 +209,7 @@ class ComplianceOfficer:
             return None
         return ComplianceVerdict(
             plan_id=plan.plan_id,
-            result="block",
+            result="rejected",
             gates_evaluated=[],
             gates_failed=["C5"],
             block_reason="pdt_rule_day_trade_limit_reached",
@@ -229,7 +229,7 @@ class ComplianceOfficer:
         if symbol.upper() in restricted:
             return ComplianceVerdict(
                 plan_id=plan.plan_id,
-                result="block",
+                result="rejected",
                 gates_evaluated=[],
                 gates_failed=["C6"],
                 block_reason="on_restricted_list",
@@ -256,7 +256,7 @@ class ComplianceOfficer:
             return None
         return ComplianceVerdict(
             plan_id=plan.plan_id,
-            result="block",
+            result="rejected",
             gates_evaluated=[],
             gates_failed=["C7"],
             block_reason="earnings_blackout_window",
@@ -297,7 +297,7 @@ class ComplianceOfficer:
             return None
         return ComplianceVerdict(
             plan_id=plan.plan_id,
-            result="block",
+            result="rejected",
             gates_evaluated=[],
             gates_failed=["C8"],
             block_reason=f"incomplete_trade_plan: {', '.join(missing)}",

@@ -110,12 +110,12 @@ class Executioner:
             return self._reject(plan, "ack_stale", ack)
 
         # ---- Verdict gates --------------------------------------------
-        if compliance_verdict is None or compliance_verdict.result != "pass":
+        if compliance_verdict is None or compliance_verdict.result != "approved":
             reason = (
-                f"compliance_not_pass (result={getattr(compliance_verdict, 'result', None)!r})"
+                f"compliance_not_approved (result={getattr(compliance_verdict, 'result', None)!r})"
             )
             return self._reject(plan, reason, ack)
-        if risk_verdict is None or risk_verdict.result not in ("approve", "resize"):
+        if risk_verdict is None or risk_verdict.result not in ("approved", "resized"):
             reason = (
                 f"risk_not_approved (result={getattr(risk_verdict, 'result', None)!r})"
             )

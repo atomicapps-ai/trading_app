@@ -23,7 +23,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, Form, Request
+from fastapi import APIRouter, Depends, Form, Query, Request
 from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.templating import Jinja2Templates
 
@@ -38,6 +38,10 @@ router = APIRouter()
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 
+_VALID_STATUSES = ("pending", "approved", "executed", "rejected",
+                   "order_rejected", "expired", "all")
+
+
 def _decorate(p: dict) -> dict:
     """Attach UI-friendly derived fields to a pending plan dict."""
     if not p:
@@ -49,9 +53,41 @@ def _decorate(p: dict) -> dict:
     return {**p, "ts_ago": ts_ago}
 
 
+async def _filter_rows(status: str) -> list[dict]:
+    if status == "all":
+        return await db_service.get_pending_plans(status_filter=None)
+    return await db_service.get_pending_plans(status_filter=status)
+
+
+async def _status_counts() -> dict[str, int]:
+    """Count rows for every filter state — drives the tab-bar badges."""
+    counts = {
+        "pending": 0, "approved": 0, "executed": 0, "rejected": 0,
+        "order_rejected": 0, "expired": 0, "all": 0,
+    }
+    all_rows = await db_service.get_pending_plans(status_filter=None, limit=500)
+    for r in all_rows:
+        s = r.get("status") or "pending"
+        counts[s] = counts.get(s, 0) + 1
+        counts["all"] += 1
+    return counts
+
+
+def _normalize_status(status: str | None) -> str:
+    if not status or status not in _VALID_STATUSES:
+        return "pending"
+    return status
+
+
 @router.get("/pending", response_class=HTMLResponse)
-async def pending_page(request: Request, s: Settings = Depends(get_settings)):
-    rows = await db_service.get_pending_plans(status_filter="pending")
+async def pending_page(
+    request: Request,
+    status: str | None = Query(default="pending"),
+    s: Settings = Depends(get_settings),
+):
+    status = _normalize_status(status)
+    rows = await _filter_rows(status)
+    counts = await _status_counts()
     return templates.TemplateResponse(
         request=request,
         name="pending.html",
@@ -61,16 +97,22 @@ async def pending_page(request: Request, s: Settings = Depends(get_settings)):
             "active_page": "pending",
             "pending": [_decorate(p) for p in rows],
             "selected": None,
+            "filter_status": status,
+            "status_counts": counts,
         },
     )
 
 
 @router.get("/pending/{plan_id}", response_class=HTMLResponse)
 async def pending_detail(
-    plan_id: str, request: Request, s: Settings = Depends(get_settings),
+    plan_id: str, request: Request,
+    status: str | None = Query(default="pending"),
+    s: Settings = Depends(get_settings),
 ):
-    rows = await db_service.get_pending_plans(status_filter="pending")
+    status = _normalize_status(status)
+    rows = await _filter_rows(status)
     selected = await db_service.get_plan_by_id(plan_id)
+    counts = await _status_counts()
     return templates.TemplateResponse(
         request=request,
         name="pending.html",
@@ -81,6 +123,8 @@ async def pending_detail(
             "pending": [_decorate(p) for p in rows],
             "selected": _decorate(selected) if selected else None,
             "not_found": selected is None,
+            "filter_status": status,
+            "status_counts": counts,
         },
     )
 

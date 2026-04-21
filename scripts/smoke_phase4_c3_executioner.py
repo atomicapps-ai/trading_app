@@ -111,13 +111,13 @@ def _clean_verdicts(plan_id: str, size: int, mode_label: str):
     ts = datetime.now(timezone.utc).isoformat()
     compliance = {
         "verdict_id": f"cv-{plan_id}", "plan_id": plan_id, "ts": ts,
-        "result": "pass",
+        "result": "approved",
         "gates_evaluated": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
         "gates_failed": [],
     }
     risk = {
         "verdict_id": f"rv-{plan_id}", "plan_id": plan_id, "ts": ts,
-        "result": "approve",
+        "result": "approved",
         "original_size_shares": size, "approved_size_shares": size,
         "gates_evaluated": ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9"],
         "gates_triggered": [],

@@ -107,7 +107,7 @@ async def run_workflow_by_id(
 
         # ---- Compliance -----------------------------------------------
         compliance_verdict = compliance.check(plan, account, market_state)
-        if compliance_verdict.result == "block":
+        if compliance_verdict.result == "rejected":
             await db_service.upsert_pending_plan(
                 plan_dict,
                 compliance_verdict=compliance_verdict.model_dump(),
@@ -129,7 +129,7 @@ async def run_workflow_by_id(
 
         # ---- Risk -----------------------------------------------------
         risk_verdict = risk.pre_trade_check(plan, account, market_state)
-        if risk_verdict.result == "reject":
+        if risk_verdict.result == "rejected":
             await db_service.upsert_pending_plan(
                 plan_dict,
                 compliance_verdict=compliance_verdict.model_dump(),
@@ -152,7 +152,7 @@ async def run_workflow_by_id(
         # Pass / resize → queue for human approval. resized verdicts
         # mutate the plan's risk block so downstream callers see the
         # approved size, not the originally-proposed one.
-        if risk_verdict.result == "resize":
+        if risk_verdict.result == "resized":
             plan_dict = _apply_resize(plan_dict, risk_verdict.model_dump())
 
         await db_service.upsert_pending_plan(

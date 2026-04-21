@@ -5,10 +5,40 @@
 
   {# ===== Left: queue ===== #}
   <aside class="split-left">
-    <div class="card-header" style="margin-bottom: 12px;">
-      <span class="card-title">Approval queue
+    <div class="card-header" style="margin-bottom: 8px;">
+      <span class="card-title">
+        {% if filter_status == 'pending' %}Approval queue
+        {% elif filter_status == 'executed' %}Executed
+        {% elif filter_status == 'approved' %}Approved (awaiting fill)
+        {% elif filter_status == 'rejected' %}Rejected by gates
+        {% elif filter_status == 'order_rejected' %}Order rejections
+        {% elif filter_status == 'expired' %}Expired
+        {% elif filter_status == 'all' %}All plans
+        {% else %}Plans
+        {% endif %}
         <span class="badge badge-amber" style="margin-left: 6px;">{{ pending|length }}</span>
       </span>
+    </div>
+
+    {# Filter tab bar #}
+    <div class="pending-row" style="gap: 6px; flex-wrap: wrap; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border);">
+      {% set tabs = [
+        ('pending', 'Pending'),
+        ('executed', 'Executed'),
+        ('order_rejected', 'Order rejected'),
+        ('rejected', 'Rejected'),
+        ('expired', 'Expired'),
+        ('all', 'All')
+      ] %}
+      {% for key, label in tabs %}
+        {% set n = status_counts.get(key, 0) %}
+        <a href="/pending?status={{ key }}"
+           class="badge {% if filter_status == key %}badge-amber{% else %}badge-gray{% endif %}"
+           style="text-decoration: none; cursor: pointer;">
+          {{ label }}
+          {% if n > 0 %}<span style="opacity: 0.7;">({{ n }})</span>{% endif %}
+        </a>
+      {% endfor %}
     </div>
 
     {% if pending %}
@@ -34,11 +64,11 @@
             <span class="mono">Risk ${{ "%.0f"|format(p.risk_usd) }} · R:R {{ "%.1f"|format(p.rr_tp1) }}R</span>
           </div>
           <div class="pending-row" style="gap: 6px;">
-            <span class="{% if p.compliance == 'pass' %}gate-pass{% else %}gate-block{% endif %}">
+            <span class="{% if p.compliance == 'approved' %}gate-pass{% else %}gate-block{% endif %}">
               {{ p.compliance|upper }}
             </span>
-            <span class="{% if p.risk_result == 'approve' %}gate-pass
-                         {% elif p.risk_result == 'resize' %}gate-resize
+            <span class="{% if p.risk_result == 'approved' %}gate-pass
+                         {% elif p.risk_result == 'resized' %}gate-resize
                          {% else %}gate-block{% endif %}">
               {{ p.risk_result|upper }}
             </span>
@@ -46,7 +76,16 @@
         </div>
       {% endfor %}
     {% else %}
-      <div class="text-secondary text-sm">No trades awaiting approval.</div>
+      <div class="text-secondary text-sm">
+        {% if filter_status == 'pending' %}No trades awaiting approval.
+        {% elif filter_status == 'executed' %}No executed orders yet.
+        {% elif filter_status == 'order_rejected' %}No broker-level order rejections.
+        {% elif filter_status == 'rejected' %}No plans rejected by compliance/risk.
+        {% elif filter_status == 'expired' %}No expired plans.
+        {% elif filter_status == 'all' %}No plans recorded yet.
+        {% else %}No plans match.
+        {% endif %}
+      </div>
     {% endif %}
   </aside>
 
@@ -146,35 +185,77 @@
         <div class="card-header"><span class="card-title">Gate results</span></div>
         <div class="flex items-center gap-12 mb-8">
           <span class="text-secondary" style="width: 110px;">Compliance</span>
-          <span class="{% if p.compliance == 'pass' %}gate-pass{% else %}gate-block{% endif %}">{{ p.compliance|upper }}</span>
+          <span class="{% if p.compliance == 'approved' %}gate-pass{% else %}gate-block{% endif %}">{{ p.compliance|upper }}</span>
           <span class="text-sm text-secondary">
-            {% if p.compliance == 'pass' %}All 8 gates passed{% else %}Blocked — see reason{% endif %}
+            {% if p.compliance == 'approved' %}All 8 gates approved{% else %}Rejected — see reason{% endif %}
           </span>
         </div>
         <div class="flex items-center gap-12">
           <span class="text-secondary" style="width: 110px;">Risk</span>
-          <span class="{% if p.risk_result == 'approve' %}gate-pass{% elif p.risk_result == 'resize' %}gate-resize{% else %}gate-block{% endif %}">{{ p.risk_result|upper }}</span>
-          {% if p.risk_result == 'resize' %}
+          <span class="{% if p.risk_result == 'approved' %}gate-pass{% elif p.risk_result == 'resized' %}gate-resize{% else %}gate-block{% endif %}">{{ p.risk_result|upper }}</span>
+          {% if p.risk_result == 'resized' %}
             <span class="text-sm text-secondary">Resized to {{ p.position_size }} shares (R1: per-trade cap)</span>
-          {% elif p.risk_result == 'approve' %}
-            <span class="text-sm text-secondary">All 9 gates passed</span>
+          {% elif p.risk_result == 'approved' %}
+            <span class="text-sm text-secondary">All 9 gates approved</span>
           {% endif %}
         </div>
       </div>
 
-      {# Approval actions ─ sticky #}
-      <div class="approval-actions">
-        <button class="btn btn-success"
-                onclick="ackAction('{{ p.plan_id }}', 'approve')">Approve</button>
-        <button class="btn btn-danger"
-                onclick="ackAction('{{ p.plan_id }}', 'reject')">Reject</button>
-        <button class="btn"
-                onclick="ackAction('{{ p.plan_id }}', 'modify')">Modify</button>
-        <span id="ack-status" class="text-sm"></span>
-        <span class="approval-countdown"
-              data-created="{{ p.ts_created }}"
-              id="ack-countdown">--:--</span>
-      </div>
+      {# Approval actions ─ pending rows show ack buttons; everything else
+         shows an execution summary instead (historical view). #}
+      {% if p.status == 'pending' %}
+        <div class="approval-actions">
+          <button class="btn btn-success"
+                  onclick="ackAction('{{ p.plan_id }}', 'approve')">Approve</button>
+          <button class="btn btn-danger"
+                  onclick="ackAction('{{ p.plan_id }}', 'reject')">Reject</button>
+          <button class="btn"
+                  onclick="ackAction('{{ p.plan_id }}', 'modify')">Modify</button>
+          <span id="ack-status" class="text-sm"></span>
+          <span class="approval-countdown"
+                data-created="{{ p.ts_created }}"
+                id="ack-countdown">--:--</span>
+        </div>
+      {% else %}
+        <div class="card mt-24">
+          <div class="card-header">
+            <span class="card-title">
+              Final status
+              <span class="badge
+                {% if p.status == 'executed' %}badge-green
+                {% elif p.status == 'approved' %}badge-amber
+                {% elif p.status in ('rejected', 'order_rejected') %}badge-red
+                {% else %}badge-gray{% endif %}"
+                style="margin-left: 8px;">{{ p.status|replace('_',' ')|upper }}</span>
+            </span>
+          </div>
+          {% if p.status == 'executed' and p.broker_order_id %}
+            <div class="mb-8">
+              <span class="text-secondary">Broker order ID</span>
+              <span class="mono">{{ p.broker_order_id }}</span>
+            </div>
+          {% endif %}
+          {% if p.execution_ts %}
+            <div class="mb-8">
+              <span class="text-secondary">Execution time</span>
+              <span class="mono">{{ p.execution_ts }}</span>
+            </div>
+          {% endif %}
+          {% if p.execution_reject_reason %}
+            <div class="mb-8">
+              <span class="text-secondary">Reason</span>
+              <span>{{ p.execution_reject_reason }}</span>
+            </div>
+          {% endif %}
+          {% if p.ack_action %}
+            <div class="mb-8">
+              <span class="text-secondary">Human ack</span>
+              <span class="badge badge-gray">{{ p.ack_action|upper }}</span>
+              <span class="text-sm text-tertiary">at {{ p.ack_ts }}</span>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
     {% endif %}
   </section>
 </div>
