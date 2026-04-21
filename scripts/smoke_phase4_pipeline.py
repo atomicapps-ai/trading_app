@@ -192,18 +192,22 @@ async def main() -> int:
                     status_filter="pending",
                 )
 
+            # We use 'reject' here rather than 'approve' because, as of
+            # C3, approve runs the real executioner and would try to
+            # place an order on Alpaca. This test is about the ack
+            # router + DB update path, so reject is the right exercise.
+            # The C3 smoke test covers the approve -> executioner path.
             p = pending_rows[0]
             ack_url = f"/pending/{p['plan_id']}/ack"
-            r = await c.post(ack_url, data={"action": "approve"})
+            r = await c.post(ack_url, data={"action": "reject"})
             expect(r.status_code == 200, f"ack: {r.status_code}")
-            # Confirm status flipped
             after = await db_service.get_plan_by_id(p["plan_id"])
             expect(after is not None, "plan disappeared after ack")
-            expect(after["status"] == "approved",
-                   f"status not approved: {after['status']}")
-            expect(after["ack_action"] == "approve",
+            expect(after["status"] == "rejected",
+                   f"status not rejected: {after['status']}")
+            expect(after["ack_action"] == "reject",
                    f"ack_action: {after['ack_action']}")
-            print(f"  OK - /pending/.../ack flipped status "
+            print(f"  OK - /pending/.../ack reject flipped status "
                   f"{p['status']!r} -> {after['status']!r}")
 
     finally:

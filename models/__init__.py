@@ -35,6 +35,7 @@ from models.trade_plan import (
     TradePlan,
     TrailingStop,
 )
+from models.execution import ExecutionResult
 from models.pattern import PatternResult
 from models.trade_record import TradeRecord
 from models.universe import (
@@ -60,6 +61,7 @@ __all__ = [
     "EntryOrder",
     "Evidence",
     "EventType",
+    "ExecutionResult",
     "Fill",
     "HumanAckRecord",
     "KeyLevels",

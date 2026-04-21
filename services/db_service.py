@@ -59,7 +59,12 @@ _SCHEMA = [
         status TEXT DEFAULT 'pending',
         ack_action TEXT,
         ack_ts TEXT,
-        mode TEXT NOT NULL
+        mode TEXT NOT NULL,
+        ack_json TEXT,
+        execution_json TEXT,
+        broker_order_id TEXT,
+        execution_ts TEXT,
+        execution_reject_reason TEXT
     )
     """,
     # Pipeline run history
@@ -117,12 +122,36 @@ _SCHEMA = [
 ]
 
 
+# Columns that must exist on pending_approvals — for DBs created by an
+# earlier version of this module, we add any missing ones at startup.
+_PENDING_EXPECTED_COLUMNS = {
+    "ack_json", "execution_json", "broker_order_id",
+    "execution_ts", "execution_reject_reason",
+}
+
+
+async def _migrate_pending_approvals(db: aiosqlite.Connection) -> None:
+    """Best-effort additive migration. Doesn't drop anything."""
+    cursor = await db.execute("PRAGMA table_info(pending_approvals)")
+    rows = await cursor.fetchall()
+    existing = {r[1] for r in rows}
+    for col in _PENDING_EXPECTED_COLUMNS - existing:
+        try:
+            await db.execute(f"ALTER TABLE pending_approvals ADD COLUMN {col} TEXT")
+            logger.info("db_service: added column pending_approvals.%s", col)
+        except aiosqlite.OperationalError as e:
+            # Race on concurrent starts — fine, another process added it
+            if "duplicate column" not in str(e).lower():
+                logger.warning("db_service: migrate add %s failed: %s", col, e)
+
+
 async def ensure_tables() -> None:
     """Create tables + indexes if they don't exist. Idempotent."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     async with aiosqlite.connect(DB_PATH) as db:
         for stmt in _SCHEMA:
             await db.execute(stmt)
+        await _migrate_pending_approvals(db)
         await db.commit()
     logger.info("db_service: tables ensured at %s", DB_PATH)
 
@@ -204,22 +233,63 @@ async def get_plan_by_id(plan_id: str) -> dict | None:
     return _row_to_ui_dict(row) if row else None
 
 
-async def ack_plan(plan_id: str, action: str) -> bool:
-    """Record a human ack; transition status based on action."""
+async def ack_plan(
+    plan_id: str,
+    action: str,
+    ack_record: dict | None = None,
+) -> bool:
+    """Record a human ack; transition status based on action.
+
+    ``ack_record`` — optional full HumanAckRecord JSON (stored verbatim
+    so the executioner and later auditors can verify the exact ack that
+    triggered an order placement).
+    """
     new_status = {
         "approve": "approved",
         "reject": "rejected",
         "modify": "pending",  # stays in queue; modify lands with a new plan
     }.get(action, "pending")
-    ack_ts = datetime.now(timezone.utc).isoformat()
+    ack_ts = (ack_record or {}).get("ts") or datetime.now(timezone.utc).isoformat()
+    ack_json = json.dumps(ack_record) if ack_record else None
     async with aiosqlite.connect(DB_PATH) as db:
         cur = await db.execute(
             """
             UPDATE pending_approvals
-               SET status = ?, ack_action = ?, ack_ts = ?
+               SET status = ?, ack_action = ?, ack_ts = ?, ack_json = ?
              WHERE plan_id = ?
             """,
-            (new_status, action, ack_ts, plan_id),
+            (new_status, action, ack_ts, ack_json, plan_id),
+        )
+        await db.commit()
+        return cur.rowcount > 0
+
+
+async def record_execution(plan_id: str, execution: dict) -> bool:
+    """Persist the ExecutionResult for a plan and set its final status.
+
+    Sets status to 'executed' on placed=True, 'order_rejected' otherwise.
+    """
+    placed = bool(execution.get("placed"))
+    status = "executed" if placed else "order_rejected"
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute(
+            """
+            UPDATE pending_approvals
+               SET execution_json = ?,
+                   broker_order_id = ?,
+                   execution_ts = ?,
+                   execution_reject_reason = ?,
+                   status = ?
+             WHERE plan_id = ?
+            """,
+            (
+                json.dumps(execution),
+                execution.get("broker_order_id"),
+                execution.get("ts"),
+                execution.get("reject_reason"),
+                status,
+                plan_id,
+            ),
         )
         await db.commit()
         return cur.rowcount > 0
@@ -341,6 +411,17 @@ def _row_to_ui_dict(row: Any) -> dict:
     risk_v = (
         json.loads(row["risk_verdict_json"]) if row["risk_verdict_json"] else None
     )
+    # New columns may not be present on rows read from older DBs — use
+    # dict-style access via keys() so missing columns don't explode.
+    keys = set(row.keys())
+    execution = (
+        json.loads(row["execution_json"])
+        if "execution_json" in keys and row["execution_json"] else None
+    )
+    ack_obj = (
+        json.loads(row["ack_json"])
+        if "ack_json" in keys and row["ack_json"] else None
+    )
     setup = plan.get("setup", {})
     entry = setup.get("entry", {}) or {}
     stop_loss = setup.get("stop_loss", {}) or {}
@@ -390,6 +471,19 @@ def _row_to_ui_dict(row: Any) -> dict:
         "similar_setups": thesis.get("similar_past_setups") or [],
         "tradingview_chart_url": plan.get("tradingview_chart_url", ""),
         "instrument": instrument,
+
+        # Execution surface
+        "execution": execution,
+        "broker_order_id": (
+            row["broker_order_id"] if "broker_order_id" in keys else None
+        ),
+        "execution_ts": (
+            row["execution_ts"] if "execution_ts" in keys else None
+        ),
+        "execution_reject_reason": (
+            row["execution_reject_reason"] if "execution_reject_reason" in keys else None
+        ),
+        "ack_record": ack_obj,
 
         # Full raw plan for callers that need everything
         "plan_json": plan,
