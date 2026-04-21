@@ -192,6 +192,16 @@ input, select, textarea { font: inherit; color: inherit; }
 .gate-resize  { background: var(--tint-amber); color: var(--accent-amber); padding: 2px 9px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 500; }
 .gate-skipped { background: var(--tint-gray);  color: var(--text-tertiary); padding: 2px 9px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 500; }
 
+/* Inline icons ------------------------------------------------------- */
+/* Baseline-aligned with surrounding text, colored via currentColor so
+   gate-pass/gate-block/badge-* classes style them automatically. */
+.icon           { display: inline-block; vertical-align: -2px; }
+.icon-sm        { width: 12px; height: 12px; }
+.icon-lg        { width: 18px; height: 18px; vertical-align: -4px; }
+/* Compact gate badge: icon + text pair with a tight gap. */
+.gate-badge     { display: inline-flex; align-items: center; gap: 4px; }
+.gate-label     { display: inline-flex; align-items: center; gap: 3px; color: var(--text-tertiary); font-size: 11px; }
+
 /* Buttons ------------------------------------------------------------- */
 .btn {
   display: inline-flex;
