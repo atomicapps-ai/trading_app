@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — TradeAgent{% endblock %}
+{% block content %}
+<div class="two-col">
+
+  {# ===== Left column ===== #}
+  <div>
+
+    {# Stat row — loaded via HTMX on page open #}
+    <div hx-get="/api/dashboard/stats" hx-trigger="load" hx-swap="innerHTML">
+      <div class="stat-grid">
+        <div class="stat-card"><span class="stat-label">Loading…</span></div>
+        <div class="stat-card"><span class="stat-label">Loading…</span></div>
+        <div class="stat-card"><span class="stat-label">Loading…</span></div>
+        <div class="stat-card"><span class="stat-label">Loading…</span></div>
+      </div>
+    </div>
+
+    {# Pending approvals #}
+    <div class="card mt-24">
+      <div class="card-header">
+        <span class="card-title">Pending approvals
+          <span class="badge badge-amber" style="margin-left: 8px;">{{ pending|length }}</span>
+        </span>
+        <a href="/pending" class="text-sm text-secondary">View all →</a>
+      </div>
+      {% if pending %}
+        {% for p in pending[:3] %}
+          <div class="pending-card" onclick="location.href='/pending/{{ p.plan_id }}'">
+            <div class="pending-row">
+              <span class="pending-symbol">{{ p.symbol }}</span>
+              <span class="badge {% if p.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ p.direction|upper }}</span>
+              <span class="badge badge-gray">{{ p.strategy }}</span>
+              <span class="pending-meta">{{ p.ts_created[11:16] }} ET · {{ (p.conviction * 100)|round|int }}% conv</span>
+            </div>
+            <div class="pending-row pending-prices">
+              Entry <span class="mono">${{ "%.2f"|format(p.entry) }}</span>
+              · Stop <span class="mono">${{ "%.2f"|format(p.stop) }}</span>
+              · TP1 <span class="mono">${{ "%.2f"|format(p.tp1) }}</span>
+              · Risk <span class="mono">${{ "%.0f"|format(p.risk_usd) }}</span>
+              <a href="/pending/{{ p.plan_id }}" class="btn btn-primary" style="margin-left: auto; padding: 4px 12px; font-size: 12px;">Review</a>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="text-secondary text-sm" style="padding: 16px 0;">No trades awaiting approval.</div>
+      {% endif %}
+    </div>
+
+    {# Open positions table #}
+    <div class="card mt-24">
+      <div class="card-header">
+        <span class="card-title">Open positions ({{ open_positions|length }})</span>
+      </div>
+      {% if open_positions %}
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Symbol</th><th>Dir</th>
+              <th class="num">Entry</th><th class="num">Current</th>
+              <th class="num">P&amp;L $</th><th class="num">P&amp;L %</th><th class="num">R</th>
+              <th class="num">Stop</th><th>Strategy</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pos in open_positions %}
+              <tr>
+                <td><span class="mono">{{ pos.symbol }}</span></td>
+                <td><span class="badge {% if pos.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ pos.direction|upper }}</span></td>
+                <td class="num mono">${{ "%.2f"|format(pos.entry) }}</td>
+                <td class="num mono">${{ "%.2f"|format(pos.current) }}</td>
+                <td class="num mono {% if pos.pnl_usd >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(pos.pnl_usd) }}</td>
+                <td class="num mono {% if pos.pnl_pct >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(pos.pnl_pct) }}%</td>
+                <td class="num mono {% if pos.pnl_r >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(pos.pnl_r) }}R</td>
+                <td class="num mono text-secondary">${{ "%.2f"|format(pos.stop) }}</td>
+                <td class="text-secondary text-sm">{{ pos.strategy }}</td>
+                <td><button class="btn" disabled title="Manual close: use broker platform">Close</button></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="empty">No open positions.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  {# ===== Right column ===== #}
+  <div>
+
+    {# Agent status — HTMX loaded #}
+    <div class="card">
+      <div class="card-header"><span class="card-title">Agent status</span></div>
+      <div hx-get="/api/dashboard/agents" hx-trigger="load" hx-swap="innerHTML">
+        <div class="text-secondary text-sm" style="padding: 12px 0;">Loading agents…</div>
+      </div>
+    </div>
+
+    {# Today's activity — auto-refresh every 60s #}
+    <div class="card mt-24">
+      <div class="card-header"><span class="card-title">Today's activity</span></div>
+      <div hx-get="/api/dashboard/activity" hx-trigger="load, every 60s" hx-swap="innerHTML">
+        <div class="text-secondary text-sm" style="padding: 12px 0;">Loading…</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

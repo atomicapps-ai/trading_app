@@ -1,0 +1,49 @@
+{% if rows %}
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Symbol</th>
+      <th>Dir</th>
+      <th>Strategy</th>
+      <th class="num">Entry</th>
+      <th class="num">Exit</th>
+      <th class="num">P&amp;L $</th>
+      <th class="num">P&amp;L R</th>
+      <th class="num">MFE R</th>
+      <th class="num">MAE R</th>
+      <th>Hold</th>
+      <th>Exit reason</th>
+      <th>Mode</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in rows %}
+      <tr>
+        <td class="text-secondary text-sm">{{ t.date_fmt }}</td>
+        <td class="mono">{{ t.symbol }}</td>
+        <td><span class="badge {% if t.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ t.direction|upper }}</span></td>
+        <td class="text-secondary text-sm">{{ t.strategy }}</td>
+        <td class="num mono">${{ "%.2f"|format(t.entry) }}</td>
+        <td class="num mono">${{ "%.2f"|format(t.exit_avg) }}</td>
+        <td class="num mono {% if t.pnl_usd >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(t.pnl_usd) }}</td>
+        <td class="num mono {% if t.pnl_r >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(t.pnl_r) }}R</td>
+        <td class="num mono text-tertiary text-sm">{{ "%+.1f"|format(t.mfe_r) }}R</td>
+        <td class="num mono text-tertiary text-sm">{{ "%+.1f"|format(t.mae_r) }}R</td>
+        <td class="text-secondary text-sm">{{ t.hold_fmt }}</td>
+        <td><span class="badge {{ t.exit_badge }}">{{ t.exit_reason }}</span></td>
+        <td><span class="badge badge-gray">{{ t.mode }}</span></td>
+        <td><a href="/trades/{{ t.trade_id }}" class="text-accent-blue" title="Detail (Phase 6)">→</a></td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty">
+  No trades match the current filters.
+  <div class="text-tertiary text-xs" style="margin-top: 6px;">
+    No trades recorded yet? Complete the agent setup to begin paper trading.
+  </div>
+</div>
+{% endif %}

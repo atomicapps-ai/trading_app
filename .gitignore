@@ -1,0 +1,107 @@
+# =============================================================================
+# TradeAgent — .gitignore
+# =============================================================================
+# Principle: commit the source and the templates. Everything generated,
+# sensitive, or large stays local and moves between machines via other
+# channels (see CLAUDE.md storage table).
+# =============================================================================
+
+# --- Secrets & per-machine config (commit *.example templates instead) ------
+.env
+.env.*
+!.env.example
+settings.yaml
+!settings.example.yaml
+
+# --- Python venv & bytecode -------------------------------------------------
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# --- Python packaging & tooling ---------------------------------------------
+*.egg
+*.egg-info/
+.eggs/
+build/
+dist/
+wheels/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.cache/
+
+# --- Jupyter / IPython ------------------------------------------------------
+.ipynb_checkpoints/
+profile_default/
+ipython_config.py
+
+# --- Trade logs & DB --------------------------------------------------------
+# trade_logs/ is the ML data pool — preserved across machines via
+# scripts/backup_trade_logs.ps1, NOT via git. Commit an empty
+# trade_logs/.gitkeep so the dir exists on fresh clones.
+trade_logs/*.jsonl
+data/claude_trading_app.db
+data/claude_trading_app.db-journal
+data/claude_trading_app.db-wal
+data/claude_trading_app.db-shm
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# --- Regenerable data caches ------------------------------------------------
+# Bar CSVs, news archives, sentiment blobs, EDGAR cache — all can be
+# rebuilt from primary sources (yfinance, Alpaca, SEC).
+data/historical/
+data/news_cache/
+data/edgar_cache/
+data/sentiment_cache/
+data/edgar_cik_map.json
+data/av_call_count.json
+data/universe_latest.json
+data/pipeline_status.json
+data/logs/
+
+# --- Claude Code ------------------------------------------------------------
+# settings.local.json holds per-machine allow-lists with absolute paths;
+# never commit. settings.json (without .local) IS commit-safe — use it
+# for team/project-wide permission defaults.
+.claude/settings.local.json
+.claude/todos/
+
+# --- IDE / editor -----------------------------------------------------------
+.vscode/
+!.vscode/settings.example.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# --- OS noise ---------------------------------------------------------------
+desktop.ini
+$RECYCLE.BIN/
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# --- Logs & local scratch ---------------------------------------------------
+*.log
+scratch/
+tmp/
+.tmp/

@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}Settings — TradeAgent{% endblock %}
+{% block content %}
+<div style="max-width: 760px; margin: 0 auto;">
+  <h2 style="font-size: 18px; font-weight: 500; margin-bottom: 4px;">Settings</h2>
+  <p class="text-secondary text-sm" style="margin-bottom: 24px;">
+    Edit live. Saved values persist to <span class="mono">settings.yaml</span> in the project root.
+  </p>
+
+  <form hx-post="/settings"
+        hx-target="#save-status"
+        hx-swap="innerHTML">
+
+    {# ---- Section 1: Application ---- #}
+    <div class="card">
+      <div class="card-header"><span class="card-title">Application</span></div>
+
+      <div class="input-row">
+        <label>Mode</label>
+        <div class="segmented" id="mode-segmented">
+          {% for m in ["research", "paper", "live"] %}
+            <input type="radio" name="mode" id="mode-{{ m }}" value="{{ m }}"
+                   {% if settings.app.mode == m %}checked{% endif %}>
+            <label for="mode-{{ m }}">{{ m }}</label>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="text-xs text-accent-red"
+           id="live-warning"
+           style="margin-left: 240px; margin-top: -8px; margin-bottom: 14px;
+                  display: {% if settings.app.mode == 'live' %}block{% else %}none{% endif %};">
+        Real money — all trades require human approval.
+      </div>
+
+      <div class="input-row">
+        <label>Port</label>
+        <input class="input" type="number" name="port" value="{{ settings.app.port }}" min="1" max="65535">
+      </div>
+      <div class="input-row">
+        <label>Tailscale hostname</label>
+        <input class="input" type="text" name="tailscale_hostname" value="{{ settings.app.tailscale_hostname }}">
+      </div>
+    </div>
+
+    {# ---- Section 2: Risk defaults ---- #}
+    <div class="card">
+      <div class="card-header"><span class="card-title">Risk defaults</span></div>
+
+      {% set risk_fields = [
+        ("max_risk_pct_per_trade",     "Max risk per trade %",   0.1, 5.0,  settings.risk_defaults.max_risk_pct_per_trade),
+        ("max_position_pct_of_equity", "Max position % equity",  0.5, 100,  settings.risk_defaults.max_position_pct_of_equity),
+        ("max_daily_loss_pct",         "Max daily loss %",       0.1, 20,   settings.risk_defaults.max_daily_loss_pct),
+        ("max_open_positions",         "Max open positions",     1,   20,   settings.risk_defaults.max_open_positions),
+        ("max_daily_trades",           "Max daily trades",       1,   50,   settings.risk_defaults.max_daily_trades),
+        ("min_rr_ratio",               "Min R:R ratio",          0.1, 10,   settings.risk_defaults.min_rr_ratio),
+        ("participation_cap_pct_adv",  "Participation cap % ADV",0.5, 50,   settings.risk_defaults.participation_cap_pct_adv),
+        ("max_spread_bps_to_cross",    "Max spread (bps)",       1,   200,  settings.risk_defaults.max_spread_bps_to_cross),
+        ("max_sector_concentration_pct","Max sector concentration %", 1.0, 100, settings.risk_defaults.max_sector_concentration_pct),
+      ] %}
+      {% for name, label, step, max_, val in risk_fields %}
+        <div class="input-row">
+          <label>{{ label }}</label>
+          <input class="input" type="number" name="{{ name }}" value="{{ val }}" step="{{ step }}" max="{{ max_ }}" min="0">
+        </div>
+      {% endfor %}
+    </div>
+
+    {# ---- Section 3: Compliance ---- #}
+    <div class="card">
+      <div class="card-header"><span class="card-title">Compliance</span></div>
+
+      <div class="input-row">
+        <label>Earnings blackout (hours)</label>
+        <input class="input" type="number" name="earnings_blackout_hours" value="{{ settings.compliance.earnings_blackout_hours }}" step="1" min="0">
+      </div>
+      <div class="input-row">
+        <label>Earnings blackout enabled</label>
+        <label class="text-sm" style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" name="earnings_blackout_enabled" value="true"
+                 {% if settings.compliance.earnings_blackout_enabled %}checked{% endif %}>
+          Block trades within blackout window
+        </label>
+      </div>
+      <div class="input-row">
+        <label>Wash sale tracking</label>
+        <label class="text-sm" style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" name="wash_sale_tracking_enabled" value="true"
+                 {% if settings.compliance.wash_sale_tracking_enabled %}checked{% endif %}>
+          Block re-entry within 30 days of a loss sale (IRC §1091)
+        </label>
+      </div>
+      <div class="input-row" style="align-items: flex-start;">
+        <label style="padding-top: 8px;">Restricted symbols</label>
+        <textarea class="textarea" name="restricted_symbols" placeholder="One symbol per line">{{ settings.compliance.restricted_symbols | join('\n') }}</textarea>
+      </div>
+    </div>
+
+    {# ---- Section 4: Notifications (ntfy) ---- #}
+    <div class="card">
+      <div class="card-header"><span class="card-title">Notifications (ntfy)</span></div>
+      <div class="input-row">
+        <label>ntfy server URL</label>
+        <input class="input" type="url" name="ntfy_server" value="{{ settings.ntfy.server }}">
+      </div>
+      <div class="input-row">
+        <label>ntfy topic</label>
+        <input class="input" type="text" name="ntfy_topic" value="{{ settings.ntfy.topic }}">
+      </div>
+      <div class="input-row">
+        <label></label>
+        <div class="flex items-center gap-12">
+          <button type="button" class="btn"
+                  hx-post="/api/ntfy/test"
+                  hx-target="#ntfy-test-status"
+                  hx-swap="innerHTML">Send test notification</button>
+          <span id="ntfy-test-status"></span>
+        </div>
+      </div>
+    </div>
+
+    {# ---- Section 5: Data paths (read-only) ---- #}
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Data paths</span>
+        <span class="card-subtitle">Read-only — edit <span class="mono">settings.yaml</span> directly</span>
+      </div>
+      <table style="width: 100%; font-size: 12px;">
+        <tbody>
+          {% for label, path in [
+            ("Settings file",    paths.settings_file),
+            ("Trade logs",       paths.trade_logs),
+            ("Universe filters", paths.universe_filters),
+            ("Strategy configs", paths.strategy_configs),
+            ("Local DB",         paths.local_db),
+          ] %}
+            <tr>
+              <td class="text-secondary" style="padding: 4px 0; width: 200px;">{{ label }}</td>
+              <td class="mono" style="padding: 4px 0; word-break: break-all;">{{ path }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {# ---- Footer ---- #}
+    <div class="flex items-center gap-16" style="margin-top: 24px;">
+      <button type="submit" class="btn btn-primary">Save settings</button>
+      <span id="save-status" class="text-sm text-secondary">
+        {% if last_saved %}Last saved {{ last_saved }}{% else %}Not yet saved{% endif %}
+      </span>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Toggle the LIVE-mode warning when the operator picks live.
+  (function () {
+    const seg = document.getElementById('mode-segmented');
+    const warn = document.getElementById('live-warning');
+    if (!seg || !warn) return;
+    seg.addEventListener('change', (e) => {
+      if (e.target.name === 'mode') {
+        warn.style.display = (e.target.value === 'live') ? 'block' : 'none';
+      }
+    });
+  })();
+</script>
+{% endblock %}

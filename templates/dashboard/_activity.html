@@ -1,0 +1,19 @@
+{% set kind_colors = {
+  "fill":       ("badge-green", "●"),
+  "approve":    ("badge-blue",  "✓"),
+  "risk":       ("badge-amber", "⚠"),
+  "compliance": ("badge-blue",  "✓"),
+  "plan":       ("badge-gray",  "○"),
+  "signal":     ("badge-gray",  "↗"),
+  "universe":   ("badge-gray",  "▣"),
+  "block":      ("badge-red",   "✕"),
+} %}
+<ul style="list-style: none; padding: 0; margin: 0;">
+{% for ev in activity %}
+  <li style="display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 0.5px solid var(--row-border); font-size: 12px;">
+    <span class="text-tertiary mono" style="flex: 0 0 38px;">{{ ev.ts }}</span>
+    <span class="badge {{ kind_colors.get(ev.kind, ('badge-gray','·'))[0] }}" style="flex: 0 0 auto;">{{ ev.kind }}</span>
+    <span style="flex: 1; color: var(--text-primary);">{{ ev.text }}</span>
+  </li>
+{% endfor %}
+</ul>

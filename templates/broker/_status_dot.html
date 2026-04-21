@@ -1,0 +1,12 @@
+<div class="topbar-status"
+     hx-get="/api/broker/status"
+     hx-trigger="every 30s"
+     hx-target="this"
+     hx-swap="outerHTML"
+     title="{{ status.broker_name }}">
+  {% if status.connected %}
+    <span class="dot green"></span><span>{{ status.broker_name }}</span>
+  {% else %}
+    <span class="dot red"></span><span>Broker offline</span>
+  {% endif %}
+</div>

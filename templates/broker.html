@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}Broker — TradeAgent{% endblock %}
+{% block content %}
+<div style="max-width: 800px;">
+
+  <div class="flex items-center gap-12 mb-16">
+    <h2 style="font-size: 18px; font-weight: 500;">Broker</h2>
+    <span class="badge {% if 'historical' in broker_name %}badge-blue{% else %}badge-gray{% endif %}">{{ broker_name }}</span>
+    <span class="mode-badge {{ settings.app.mode }}">{{ settings.app.mode }}</span>
+  </div>
+
+  {# ===== 1. Connection status ===== #}
+  <div class="card">
+    <div class="card-header"><span class="card-title">Connection</span></div>
+    <div id="connect-block">
+      <div class="flex items-center gap-12 mb-16">
+        <span class="dot {% if connected %}green{% else %}red{% endif %}"></span>
+        <span class="mono">{% if connected %}Connected{% else %}Disconnected{% endif %}</span>
+        <span class="text-tertiary text-xs">last check {{ ('now' if connected else '—') }}</span>
+      </div>
+      <div class="flex items-center gap-12">
+        <button type="button" class="btn btn-primary"
+                onclick="callBroker('/api/broker/connect')">Connect</button>
+        <button type="button" class="btn"
+                onclick="callBroker('/api/broker/disconnect')">Disconnect</button>
+        <span id="connect-status" class="text-sm"></span>
+      </div>
+    </div>
+  </div>
+
+  {# ===== 2. Account snapshot ===== #}
+  <div class="card">
+    <div class="card-header"><span class="card-title">Account snapshot</span></div>
+    <div id="account-snapshot"
+         hx-get="/api/broker/account-card"
+         hx-trigger="load, every 30s"
+         hx-swap="innerHTML">
+      <div class="text-secondary text-sm">Loading…</div>
+    </div>
+  </div>
+
+  {# ===== 3. TradeStation configuration (display only) ===== #}
+  {% if 'tradestation' in broker_name %}
+    <div class="card">
+      <div class="card-header"><span class="card-title">TradeStation configuration</span></div>
+      <table style="width: 100%; font-size: 13px;">
+        <tbody>
+          <tr><td class="text-secondary" style="width: 220px; padding: 4px 0;">Account ID</td>
+              <td class="mono">{% if ts_account_last4 %}****{{ ts_account_last4 }}{% else %}<span class="text-tertiary">(set TS_ACCOUNT_ID)</span>{% endif %}</td></tr>
+          <tr><td class="text-secondary" style="padding: 4px 0;">Endpoint</td>
+              <td class="mono">{% if ts_sim %}Sim{% else %}Live{% endif %}
+                  <span class="text-tertiary">(controlled by <span class="mono">TS_SIM</span> in <span class="mono">.env</span>)</span></td></tr>
+        </tbody>
+      </table>
+      <div class="text-tertiary text-xs mt-12">
+        Credentials are stored in <span class="mono">.env</span> at the project root —
+        edit directly to change. Restart the app to pick up new values.
+      </div>
+    </div>
+  {% endif %}
+
+  {# ===== 4. Emergency controls (HALT) ===== #}
+  <div class="card" style="border-color: var(--accent-red);">
+    <div class="card-header"><span class="card-title">Emergency controls</span></div>
+
+    <div class="text-secondary text-sm mb-16">
+      HALT cancels all open orders and prevents new executions. To resume,
+      restart the app or toggle mode in Settings.
+    </div>
+
+    <button type="button" class="btn btn-danger" id="halt-trigger"
+            onclick="document.getElementById('halt-confirm').style.display='block';">
+      HALT
+    </button>
+    <span id="halt-result" class="text-sm" style="margin-left: 12px;"></span>
+
+    {# Flow-positioned overlay (NOT position:fixed — iframe viewport rule) #}
+    <div id="halt-confirm"
+         style="display: none; margin-top: 16px; padding: 16px;
+                background: var(--bg-stat); border: 0.5px solid var(--accent-red);
+                border-radius: 8px; min-height: 80px;">
+      <div class="mb-16 text-accent-red" style="font-weight: 500;">
+        Confirm HALT — cancel all open orders?
+      </div>
+      <div class="flex items-center gap-12">
+        <button type="button" class="btn btn-danger" onclick="confirmHalt()">Yes, HALT</button>
+        <button type="button" class="btn"
+                onclick="document.getElementById('halt-confirm').style.display='none';">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  {# ===== 5. Connection log (stubbed in Phase 3) ===== #}
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Connection log</span>
+      <span class="card-subtitle">last 10 events · stubbed in Phase 3, real log in Phase 6</span>
+    </div>
+    <ul style="list-style: none; padding: 0; margin: 0;">
+      {% for ev in [
+        ("11:42:08", "halt fired"),
+        ("11:38:14", "auth refreshed"),
+        ("11:18:14", "auth refreshed"),
+        ("10:58:14", "auth refreshed"),
+        ("10:38:14", "auth refreshed"),
+        ("10:18:14", "auth refreshed"),
+        ("09:58:14", "auth refreshed"),
+        ("09:38:14", "auth refreshed"),
+        ("09:30:00", "connected"),
+        ("09:29:55", "starting up"),
+      ] %}
+        <li style="display: flex; gap: 12px; padding: 5px 0; font-size: 12px;
+                   border-bottom: 0.5px solid var(--row-border);">
+          <span class="text-tertiary mono" style="flex: 0 0 80px;">{{ ev[0] }}</span>
+          <span>{{ ev[1] }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  {# ===== 6. Setup guide (collapsible) ===== #}
+  <details class="card" style="margin-top: 24px;">
+    <summary style="cursor: pointer; font-size: 13px; font-weight: 500;">
+      TradeStation OAuth setup guide (one-time)
+    </summary>
+    <ol class="text-sm text-secondary" style="margin-top: 12px; padding-left: 20px; line-height: 1.7;">
+      <li>Go to <span class="mono">developer.tradestation.com</span></li>
+      <li>Create an app — note <span class="mono">Client ID</span> and <span class="mono">Client Secret</span></li>
+      <li>Set redirect URI to <span class="mono">http://localhost:5000/oauth/callback</span></li>
+      <li>To get your initial refresh token, visit (replace <span class="mono">YOUR_CLIENT_ID</span>):
+        <div class="mono mt-12" style="background: var(--bg-base); padding: 8px 12px; border-radius: 6px; word-break: break-all;">
+          https://signin.tradestation.com/oauth/authorize?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=http://localhost:5000/oauth/callback&audience=https://api.tradestation.com&scope=openid%20profile%20MarketData%20ReadAccount%20Trade
+        </div>
+      </li>
+      <li>After login, copy the <span class="mono">code</span> from the redirect URL</li>
+      <li>POST to <span class="mono">https://signin.tradestation.com/oauth/token</span> with
+          <span class="mono">grant_type=authorization_code, code=…, client_id=…, client_secret=…, redirect_uri=…</span></li>
+      <li>Save the <span class="mono">refresh_token</span> from the response into <span class="mono">.env</span> as <span class="mono">TS_REFRESH_TOKEN</span></li>
+      <li>The app auto-rotates the refresh token on each connect.</li>
+    </ol>
+  </details>
+
+</div>
+
+<script>
+  async function callBroker(path) {
+    const r = await fetch(path, { method: 'POST' });
+    const body = await r.json();
+    const el = document.getElementById('connect-status');
+    if (r.ok && body.connected) {
+      el.innerHTML = '<span class="toast toast-ok">Connected · ' + body.broker_name + '</span>';
+    } else if (r.ok && body.connected === false) {
+      el.innerHTML = '<span class="toast toast-fail">Disconnected.</span>';
+    } else {
+      el.innerHTML = '<span class="toast toast-fail">Failed.</span>';
+    }
+    // Reload status panels
+    if (window.htmx) htmx.trigger('#account-snapshot', 'load');
+  }
+
+  async function confirmHalt() {
+    document.getElementById('halt-confirm').style.display = 'none';
+    const r = await fetch('/broker/halt', { method: 'POST' });
+    const body = await r.json();
+    const el = document.getElementById('halt-result');
+    if (r.ok && body.halted) {
+      el.innerHTML = '<span class="toast toast-fail">HALT executed — '
+                   + body.cancelled_orders + ' orders cancelled.</span>';
+    } else {
+      el.innerHTML = '<span class="toast toast-fail">HALT failed.</span>';
+    }
+  }
+</script>
+{% endblock %}

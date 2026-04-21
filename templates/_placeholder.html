@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — TradeAgent{% endblock %}
+{% block content %}
+<div style="max-width: 720px;">
+  <div class="flex items-center gap-12 mb-16">
+    <h2 style="font-size: 18px; font-weight: 500;">{{ title }}</h2>
+    <span class="badge badge-blue">{{ phase }}</span>
+  </div>
+  <div class="card">
+    <div class="text-secondary">Coming in {{ phase }}.</div>
+    <div class="text-sm mt-12">{{ description }}</div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Trade History — TradeAgent{% endblock %}
+{% block content %}
+<h2 style="font-size: 18px; font-weight: 500; margin-bottom: 4px;">Trade history</h2>
+<p class="text-secondary text-sm" style="margin-bottom: 16px;">
+  Phase 2 stub data. Real JSONL aggregation across <span class="mono">trade_logs/</span> arrives once trades exist.
+</p>
+
+<form class="filter-bar"
+      hx-get="/api/trades"
+      hx-target="#trades-table"
+      hx-swap="innerHTML"
+      hx-trigger="submit, change from:.segmented input">
+  <input class="input" type="text" name="symbol" placeholder="Symbol…" autocomplete="off">
+
+  <select class="select" name="strategy">
+    <option value="all">All strategies</option>
+    {% for st in strategies %}
+      <option value="{{ st }}">{{ st }}</option>
+    {% endfor %}
+  </select>
+
+  <div class="segmented">
+    <input type="radio" name="outcome" id="oc-all"  value="all"  checked>
+    <label for="oc-all">All</label>
+    <input type="radio" name="outcome" id="oc-win"  value="win">
+    <label for="oc-win">Wins</label>
+    <input type="radio" name="outcome" id="oc-loss" value="loss">
+    <label for="oc-loss">Losses</label>
+  </div>
+
+  <input class="input" type="date" name="date_from" style="max-width: 160px;">
+  <input class="input" type="date" name="date_to"   style="max-width: 160px;">
+
+  <button type="submit" class="btn btn-primary">Filter</button>
+  <button type="button" class="btn" disabled title="Coming soon">Export CSV</button>
+</form>
+
+<div class="card">
+  <div id="trades-table"
+       hx-get="/api/trades"
+       hx-trigger="load"
+       hx-swap="innerHTML">
+    <div class="empty">Loading…</div>
+  </div>
+</div>
+{% endblock %}

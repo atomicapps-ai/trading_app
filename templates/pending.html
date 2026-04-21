@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% block title %}Pending Approvals — TradeAgent{% endblock %}
+{% block content %}
+<div class="split-layout">
+
+  {# ===== Left: queue ===== #}
+  <aside class="split-left">
+    <div class="card-header" style="margin-bottom: 12px;">
+      <span class="card-title">Approval queue
+        <span class="badge badge-amber" style="margin-left: 6px;">{{ pending|length }}</span>
+      </span>
+    </div>
+
+    {% if pending %}
+      {% for p in pending %}
+        <div class="pending-card {% if selected and selected.plan_id == p.plan_id %}active{% endif %}"
+             onclick="location.href='/pending/{{ p.plan_id }}'">
+          <div class="pending-row">
+            <span class="pending-symbol">{{ p.symbol }}</span>
+            <span class="badge {% if p.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ p.direction|upper }}</span>
+            <span class="pending-meta">{{ p.ts_ago }}</span>
+          </div>
+          <div class="pending-row">
+            <span class="badge badge-gray">{{ p.strategy }}</span>
+            <span class="text-tertiary text-xs">conv {{ (p.conviction * 100)|round|int }}%</span>
+            <span class="conviction-track">
+              <span class="conviction-bar" style="width: {{ (p.conviction * 100)|round|int }}%; height: 100%; display: block;"></span>
+            </span>
+          </div>
+          <div class="pending-row pending-prices mono">
+            E ${{ "%.2f"|format(p.entry) }} · S ${{ "%.2f"|format(p.stop) }} · TP1 ${{ "%.2f"|format(p.tp1) }}
+          </div>
+          <div class="pending-row pending-prices">
+            <span class="mono">Risk ${{ "%.0f"|format(p.risk_usd) }} · R:R {{ "%.1f"|format(p.rr_tp1) }}R</span>
+          </div>
+          <div class="pending-row" style="gap: 6px;">
+            <span class="{% if p.compliance == 'pass' %}gate-pass{% else %}gate-block{% endif %}">
+              {{ p.compliance|upper }}
+            </span>
+            <span class="{% if p.risk_result == 'approve' %}gate-pass
+                         {% elif p.risk_result == 'resize' %}gate-resize
+                         {% else %}gate-block{% endif %}">
+              {{ p.risk_result|upper }}
+            </span>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="text-secondary text-sm">No trades awaiting approval.</div>
+    {% endif %}
+  </aside>
+
+  {# ===== Right: detail ===== #}
+  <section class="split-right" id="plan-detail">
+    {% if not_found %}
+      <div class="split-empty">Plan not found in queue.</div>
+    {% elif not selected %}
+      <div class="split-empty">Select a trade to review.</div>
+    {% else %}
+      {% set p = selected %}
+
+      <div class="flex items-center gap-12 mb-16">
+        <span style="font-size: 24px; font-weight: 500;">{{ p.symbol }}</span>
+        <span class="badge {% if p.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ p.direction|upper }}</span>
+        <span class="badge badge-gray">{{ p.strategy }}</span>
+        <span class="text-secondary text-sm">conviction {{ (p.conviction * 100)|round|int }}%</span>
+      </div>
+
+      {# TradingView embed #}
+      <iframe
+        class="tv-embed"
+        src="https://www.tradingview.com/widgetembed/?symbol=NASDAQ:{{ p.symbol }}&interval=60&theme=dark&style=1&locale=en&hide_top_toolbar=0&hide_legend=0"
+        loading="lazy"
+        referrerpolicy="no-referrer"
+        title="TradingView chart for {{ p.symbol }}"></iframe>
+
+      {# Trade setup table #}
+      <div class="card mt-24">
+        <div class="card-header"><span class="card-title">Trade setup</span></div>
+        <table style="width: 100%; font-size: 13px;">
+          <tbody>
+            {% set rows = [
+              ("Entry",            "$" ~ "%.2f"|format(p.entry) ~ " (limit)"),
+              ("Initial stop",     "$" ~ "%.2f"|format(p.stop) ~ " (hard)"),
+              ("Trail activates",  "After +1.0R (ATR 1.5×)"),
+              ("Time stop",        "14:00 ET if no progress"),
+              ("TP1 (50%)",        "$" ~ "%.2f"|format(p.tp1) ~ " — prior resistance"),
+              ("TP2 (50%)",        "$" ~ "%.2f"|format(p.tp2) ~ " — measured move"),
+              ("R per share",      "$" ~ "%.2f"|format((p.entry - p.stop)|abs)),
+              ("Position size",    p.position_size ~ " shares"),
+              ("Notional",         "$" ~ "{:,.0f}".format(p.notional)),
+              ("Risk USD",         "$" ~ "%.2f"|format(p.risk_usd) ~ " (" ~ "%.2f"|format(p.risk_pct) ~ "% equity)"),
+              ("R:R to TP1",       "%.1f"|format(p.rr_tp1) ~ "×"),
+              ("R:R to TP2",       "%.1f"|format(p.rr_tp2) ~ "×"),
+            ] %}
+            {% for k, v in rows %}
+              <tr>
+                <td class="text-secondary" style="padding: 6px 0; width: 200px;">{{ k }}</td>
+                <td class="mono">{{ v }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {# Thesis #}
+      <div class="card mt-24">
+        <div class="card-header"><span class="card-title">Thesis</span></div>
+        <div style="font-size: 13px; line-height: 1.6;">{{ p.thesis }}</div>
+        <div class="flex gap-8 mt-12" style="flex-wrap: wrap;">
+          {% for lens in p.lenses %}
+            <span class="badge badge-blue">{{ lens }}</span>
+          {% endfor %}
+        </div>
+        {% if p.similar_setups %}
+          <div class="text-secondary text-sm mt-16">Similar past setups</div>
+          <table style="width: 100%; font-size: 12px; margin-top: 6px;">
+            <tbody>
+              {% for s in p.similar_setups %}
+                <tr>
+                  <td class="mono text-secondary" style="padding: 3px 0; width: 140px;">{{ s.trade_id }}</td>
+                  <td class="mono {% if s.outcome_r >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}" style="width: 80px;">{{ "%+.1f"|format(s.outcome_r) }}R</td>
+                  <td class="text-tertiary">similarity {{ "%.0f"|format(s.similarity * 100) }}%</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+      </div>
+
+      {# Evidence #}
+      <div class="card mt-24">
+        <div class="card-header"><span class="card-title">Evidence</span></div>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          {% for ev in p.evidence %}
+            <li class="flex items-center gap-12" style="padding: 6px 0; border-bottom: 0.5px solid var(--row-border);">
+              <span class="badge badge-gray" style="flex: 0 0 auto;">{{ ev.type }}</span>
+              <span class="text-sm">{{ ev.ref }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      {# Gate results #}
+      <div class="card mt-24">
+        <div class="card-header"><span class="card-title">Gate results</span></div>
+        <div class="flex items-center gap-12 mb-8">
+          <span class="text-secondary" style="width: 110px;">Compliance</span>
+          <span class="{% if p.compliance == 'pass' %}gate-pass{% else %}gate-block{% endif %}">{{ p.compliance|upper }}</span>
+          <span class="text-sm text-secondary">
+            {% if p.compliance == 'pass' %}All 8 gates passed{% else %}Blocked — see reason{% endif %}
+          </span>
+        </div>
+        <div class="flex items-center gap-12">
+          <span class="text-secondary" style="width: 110px;">Risk</span>
+          <span class="{% if p.risk_result == 'approve' %}gate-pass{% elif p.risk_result == 'resize' %}gate-resize{% else %}gate-block{% endif %}">{{ p.risk_result|upper }}</span>
+          {% if p.risk_result == 'resize' %}
+            <span class="text-sm text-secondary">Resized to {{ p.position_size }} shares (R1: per-trade cap)</span>
+          {% elif p.risk_result == 'approve' %}
+            <span class="text-sm text-secondary">All 9 gates passed</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {# Approval actions ─ sticky #}
+      <div class="approval-actions">
+        <button class="btn btn-success"
+                onclick="ackAction('{{ p.plan_id }}', 'approve')">Approve</button>
+        <button class="btn btn-danger"
+                onclick="ackAction('{{ p.plan_id }}', 'reject')">Reject</button>
+        <button class="btn"
+                onclick="ackAction('{{ p.plan_id }}', 'modify')">Modify</button>
+        <span id="ack-status" class="text-sm"></span>
+        <span class="approval-countdown"
+              data-created="{{ p.ts_created }}"
+              id="ack-countdown">--:--</span>
+      </div>
+    {% endif %}
+  </section>
+</div>
+
+<script>
+  // Approval action — confirm + POST /pending/{id}/ack, swap status pill.
+  async function ackAction(planId, action) {
+    const verb = { approve: 'approve', reject: 'reject', modify: 'modify' }[action];
+    if (!confirm(`Confirm ${verb} for plan ${planId}?`)) return;
+    const r = await fetch(`/pending/${planId}/ack`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `action=${encodeURIComponent(action)}`,
+    });
+    document.getElementById('ack-status').innerHTML = await r.text();
+  }
+
+  // Countdown — 15 min from ts_created.
+  (function () {
+    const el = document.getElementById('ack-countdown');
+    if (!el) return;
+    const created = new Date(el.dataset.created).getTime();
+    const expiresAt = created + 15 * 60 * 1000;
+    function tick() {
+      const remaining = Math.max(0, expiresAt - Date.now());
+      const m = Math.floor(remaining / 60000);
+      const s = Math.floor((remaining % 60000) / 1000);
+      const text = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      el.textContent = remaining > 0 ? `Expires in ${text}` : 'Approval expired';
+      if (remaining <= 0) clearInterval(timer);
+    }
+    tick();
+    const timer = setInterval(tick, 1000);
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,22 @@
+<div class="stat-grid">
+  <div class="stat-card">
+    <span class="stat-label">Portfolio value</span>
+    <span class="stat-value mono {% if account.day_pnl_usd >= 0 %}text-accent-green{% endif %}">${{ "{:,.0f}".format(account.equity) }}</span>
+    <span class="stat-sub">unrealized {{ "%+.0f"|format(account.unrealized_pnl) }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Day P&amp;L</span>
+    <span class="stat-value mono {% if account.day_pnl_usd >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.0f"|format(account.day_pnl_usd) }}</span>
+    <span class="stat-sub {% if account.day_pnl_pct >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(account.day_pnl_pct) }}%</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Buying power</span>
+    <span class="stat-value mono">${{ "{:,.0f}".format(account.buying_power) }}</span>
+    <span class="stat-sub">{{ ((account.buying_power / account.equity) * 100)|round|int }}% of equity</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Open positions</span>
+    <span class="stat-value mono">{{ account.open_positions }}</span>
+    <span class="stat-sub">/ {{ account.max_positions }} max · {{ account.trades_today }} trades today</span>
+  </div>
+</div>

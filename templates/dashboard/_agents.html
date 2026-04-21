@@ -1,0 +1,7 @@
+{% for a in agents %}
+  <div class="agent-card">
+    <span class="dot {{ a.status }}"></span>
+    <span class="agent-name">{{ a.name }}</span>
+    <span class="agent-detail">{{ a.detail }}</span>
+  </div>
+{% endfor %}

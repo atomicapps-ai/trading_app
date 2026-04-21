@@ -1,0 +1,22 @@
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+jinja2>=3.1.4
+python-multipart>=0.0.9
+pydantic>=2.7.0
+pydantic-settings>=2.3.0
+httpx>=0.27.0
+python-dotenv>=1.0.1
+pyyaml>=6.0.1
+apscheduler>=3.10.4
+aiosqlite>=0.20.0
+pandas>=2.2.0
+numpy>=1.26.0
+yfinance>=0.2.40
+# ---- Phase 4 ----
+# Finviz scraper + EDGAR RSS + Alpaca News primary feed + VADER sentiment
+requests>=2.32.0
+beautifulsoup4>=4.12.0
+lxml>=5.2.0
+feedparser>=6.0.11
+alpaca-py>=0.30.0
+vaderSentiment>=3.3.2

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Analysis — TradeAgent{% endblock %}
+{% block content %}
+<div style="max-width: 720px;">
+  <h2 style="font-size: 18px; font-weight: 500; margin-bottom: 4px;">Analysis</h2>
+  <p class="text-secondary text-sm" style="margin-bottom: 20px;">
+    Win rate, average R, MFE/MAE, learning tags. Built in Phase 6 from real
+    <span class="mono">trade_logs/*.jsonl</span> data.
+  </p>
+  <div class="card">
+    <div class="text-secondary">Coming in Phase 6.</div>
+    <div class="text-tertiary text-sm mt-12">
+      Will surface: aggregate win rate, average R-multiple, MFE/MAE distribution,
+      learning-tag frequency in winners vs losers, parameter-adjustment suggestions.
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+# =============================================================================
+# TradeAgent — settings.example.yaml
+# =============================================================================
+# Copy this file to settings.yaml (gitignored) and edit for your machine.
+# Defaults here mirror services/settings_service.py Settings() so the app
+# will boot even if no settings.yaml exists — but you'll want to set at
+# least `app.mode`, `app.tailscale_hostname`, and `ntfy.topic`.
+# =============================================================================
+
+app:
+  # FastAPI bind address. 0.0.0.0 = listen on all interfaces (Tailscale-friendly).
+  host: 0.0.0.0
+  port: 5000
+  # Used for ntfy click-through URLs in push notifications.
+  tailscale_hostname: my-trading-pc
+  # research = no broker, historical data only
+  # paper    = full gates + sim broker
+  # live     = full gates + live broker + human ack required on every order
+  mode: paper
+
+ntfy:
+  server: https://ntfy.sh
+  # Change this to your own ntfy topic — anyone who knows it can see your
+  # pending approval alerts. Treat it like a password.
+  topic: trading-agent-CHANGE-ME
+  priority_map:
+    pending_approval: high
+    fill_received: default
+    daily_loss_cap_hit: urgent
+    agent_error: urgent
+
+risk_defaults:
+  # All pct values are in PERCENT, not basis points (0.50 = 0.5% of equity).
+  max_risk_pct_per_trade: 0.50
+  max_position_pct_of_equity: 10.0
+  max_daily_loss_pct: 2.0
+  max_open_positions: 8
+  max_daily_trades: 10
+  min_rr_ratio: 2.0
+  participation_cap_pct_adv: 2.0
+  max_spread_bps_to_cross: 20.0
+  max_sector_concentration_pct: 30.0
+
+compliance:
+  earnings_blackout_hours: 24.0
+  earnings_blackout_enabled: true
+  wash_sale_tracking_enabled: true
+  # Symbols here are hard-blocked by gate C6 regardless of signal quality.
+  restricted_symbols: []
+
+data:
+  # These are derived from PROJECT_ROOT at runtime — editing them here
+  # has no effect. Shown for visibility only (see settings_service.py
+  # path constants for the authoritative values).
+  trade_logs_path: trade_logs
+  universe_filters_path: universe_filters
+  strategy_configs_path: strategy_configs
+  local_db_path: data/claude_trading_app.db
+
+execution:
+  human_ack_required: true
+  human_ack_timeout_minutes: 15
+  stale_plan_timeout_minutes: 30
+  default_algo: vwap
+  # Windows when the executioner refuses to send new orders (ET times).
+  # Open and close 5-min windows avoid the most volatile auction periods.
+  do_not_trade_windows:
+    - label: open_5min
+      start: "09:30"
+      end: "09:35"
+    - label: close_5min
+      start: "15:55"
+      end: "16:00"

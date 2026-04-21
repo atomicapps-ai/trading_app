@@ -1,0 +1,6 @@
+{% if ok %}
+  <span class="toast toast-ok">{{ msg }}</span>
+  <span class="text-secondary text-sm" style="margin-left: 8px;">Last saved {{ last_saved }}</span>
+{% else %}
+  <span class="toast toast-fail">{{ msg }}</span>
+{% endif %}

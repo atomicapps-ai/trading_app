@@ -1,0 +1,32 @@
+{% if trading_halted %}
+  <div class="toast toast-fail mb-16">
+    Trading halted. Cancel-resume by restarting the app or toggling mode in Settings.
+  </div>
+{% endif %}
+
+{% if not connected %}
+  <div class="text-secondary text-sm">Not connected.</div>
+{% elif error %}
+  <div class="text-accent-red text-sm">{{ error }}</div>
+{% elif account %}
+  <table style="width: 100%; font-size: 13px;">
+    <tbody>
+      <tr><td class="text-secondary" style="width: 220px; padding: 4px 0;">Account ID</td>
+          <td class="mono">{{ account.account_id }}</td></tr>
+      <tr><td class="text-secondary" style="padding: 4px 0;">Type</td>
+          <td class="mono">{{ account.type }}</td></tr>
+      <tr><td class="text-secondary" style="padding: 4px 0;">Equity</td>
+          <td class="mono">${{ "{:,.2f}".format(account.equity) }}</td></tr>
+      <tr><td class="text-secondary" style="padding: 4px 0;">Buying power</td>
+          <td class="mono">${{ "{:,.2f}".format(account.buying_power) }}</td></tr>
+      <tr><td class="text-secondary" style="padding: 4px 0;">Open positions</td>
+          <td>{{ account.open_positions | length }}</td></tr>
+      <tr><td class="text-secondary" style="padding: 4px 0;">Realized P&amp;L today</td>
+          <td class="mono {% if account.realized_pnl_today >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">
+              {{ "%+.2f"|format(account.realized_pnl_today) }}</td></tr>
+      <tr><td class="text-secondary" style="padding: 4px 0;">Unrealized P&amp;L today</td>
+          <td class="mono {% if account.unrealized_pnl_today >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">
+              {{ "%+.2f"|format(account.unrealized_pnl_today) }}</td></tr>
+    </tbody>
+  </table>
+{% endif %}

@@ -1,0 +1,652 @@
+# Universe Filter Presets
+# Location: G:/_AgenticSkills/universe_filters/
+# Format: One file per preset. Loaded by universe_filter.py at runtime.
+# Vocabulary: All field names map directly to Finviz Screener parameters.
+# Reference: https://finviz.com/screener.ashx
+#
+# Global requirements applied to ALL presets (non-negotiable):
+#   - Price: $5.00 – $90.00
+#   - Avg daily volume: >= 10,000,000 shares
+#   - Company must be profitable and in business 10+ years
+#   - Biotech sector: NOT excluded but flagged elevated_risk = true
+#   - OTC / Pink sheets: always excluded
+#
+# Elevated risk flag: when elevated_risk = true is returned in
+# universe_result for a symbol, the analyst agent attaches a
+# risk modifier to any signal: conviction ceiling = 0.70,
+# position_risk_pct_of_equity ceiling = 0.35 (half the normal max).
+# The portfolio_manager will not generate a trade_plan for an
+# elevated_risk symbol without at least 3 confirming lenses.
+
+---
+# ============================================================
+# PRESET 1: liquid_momentum_core
+# Strategy affinity: momentum_breakout, bull_flag / bear_flag
+# ============================================================
+
+preset_name: liquid_momentum_core
+version: "1.0"
+schema_version: "1.0.0"
+description: >
+  Highly liquid, established companies showing strong price momentum.
+  The core preset for breakout and flag strategies. High volume
+  requirement ensures tight spreads and institutional participation.
+  Profitability filters remove speculative names.
+
+criteria:
+
+  # --- Price & Volume ---
+  price_min: 5.00
+  price_max: 90.00
+  avg_volume_min: 10000000           # 10M shares/day minimum (global rule)
+  avg_dollar_volume_min: 100000000   # $100M/day — ensures real institutional liquidity
+  relative_volume_min: 1.0           # At least average volume today (not dead)
+
+  # --- Size ---
+  market_cap: [mid, large, mega]     # No small/micro — need established names
+  asset_class: equity
+
+  # --- Profitability (10+ year business requirement) ---
+  eps_ttm_positive: true             # Trailing twelve months EPS > 0
+  eps_growth_qoq_min: 0             # Not shrinking earnings quarter over quarter
+  operating_margin_positive: true    # Operating margin > 0
+  roe_positive: true                 # Return on equity > 0
+  ipo_date_before: "2015-01-01"      # In business at least 10 years
+
+  # --- Technical state (momentum) ---
+  sma20_relation: above              # Price above 20-day SMA (short-term momentum)
+  sma50_relation: above              # Price above 50-day SMA (medium momentum)
+  sma200_relation: above             # Price above 200-day SMA (long-term uptrend)
+  rsi_min: 50                        # Not oversold — momentum is present
+  rsi_max: 80                        # Not extremely overbought — room to run
+  performance_week_min: 0.0          # Positive or flat on the week
+  performance_month_min: 3.0         # Up at least 3% in past month
+
+  # --- Volatility ---
+  beta_min: 0.8                      # Moves with the market (not too defensive)
+  beta_max: 3.0                      # Not wildly erratic
+  atr_pct_min: 1.5                   # Enough daily range to trade
+  atr_pct_max: 8.0                   # Not so volatile stops are enormous
+
+  # --- Short interest ---
+  short_float_max: 25.0              # Under 25% short — avoids squeeze dynamics
+                                     # affecting clean momentum reads
+
+  # --- Exchange & classification ---
+  exchange: [nasdaq, nyse]
+  exclude_otc: true
+  exclude_pink_sheets: true
+
+  # --- Sector handling ---
+  sector_exclude: []                 # No hard exclusions
+  elevated_risk_sectors:
+    - Biotechnology                  # Flag but do not exclude
+  elevated_risk_industries:
+    - Biotechnology
+    - Drug Manufacturers—Specialty & Generic
+
+output_tags:
+  - momentum
+  - breakout_ready
+  - institutional_liquidity
+
+notes: >
+  This is the workhorse preset. It will produce 80-300 symbols on most
+  days depending on market conditions. In a strong bull market the list
+  expands; in a risk-off environment it contracts naturally as names
+  fall below their SMAs. That contraction is a feature — fewer
+  opportunities in bad markets is correct behavior.
+
+---
+# ============================================================
+# PRESET 2: mean_reversion_oversold
+# Strategy affinity: mean_reversion_rsi, double_bottom,
+#                    RSI divergence (bullish)
+# ============================================================
+
+preset_name: mean_reversion_oversold
+version: "1.0"
+schema_version: "1.0.0"
+description: >
+  Established, profitable companies that have pulled back sharply
+  from a healthy base. These are NOT broken stocks — they are
+  temporarily oversold names with strong fundamentals that are
+  likely to revert. The quality filters are intentionally strict
+  because mean reversion only works on high-quality names.
+  Beaten-down speculative stocks do not revert — they continue lower.
+
+criteria:
+
+  # --- Price & Volume ---
+  price_min: 10.00                   # Slightly higher floor — quality names
+  price_max: 90.00
+  avg_volume_min: 10000000
+  avg_dollar_volume_min: 150000000   # $150M/day — need extra liquidity on rebounds
+  relative_volume_min: 0.8           # Slightly below avg acceptable (quiet pullback)
+
+  # --- Size ---
+  market_cap: [mid, large, mega]
+  asset_class: equity
+
+  # --- Profitability (strict for mean reversion) ---
+  eps_ttm_positive: true
+  eps_growth_yoy_min: 5.0            # Growing earnings year over year (5%+)
+  operating_margin_min: 5.0          # Real operating profitability (5%+ margin)
+  roe_min: 10.0                      # Quality business (10%+ ROE)
+  debt_to_equity_max: 1.5            # Not overleveraged (can weather the pullback)
+  ipo_date_before: "2015-01-01"
+
+  # --- Technical state (oversold but not broken) ---
+  sma200_relation: above             # CRITICAL: still above 200 SMA — not broken
+                                     # A stock below its 200 SMA is in a downtrend,
+                                     # not a pullback. Do not apply mean reversion there.
+  sma50_relation: below              # Pulled back below 50 SMA (the pullback)
+  sma20_relation: below              # Pulled back below 20 SMA
+  rsi_min: 20                        # Deep oversold territory
+  rsi_max: 42                        # But not so oversold it signals real breakdown
+  performance_week_max: -3.0         # Down at least 3% this week (the pullback)
+  performance_month_min: -20.0       # But not down more than 20% in a month
+                                     # (> 20% monthly drop = something is wrong)
+
+  # --- Distance from highs ---
+  week_52_high_pct_min: -30.0        # Within 30% of 52-week high
+                                     # More than 30% below = potential structural break
+
+  # --- Volatility ---
+  beta_min: 0.5
+  beta_max: 2.0
+  atr_pct_min: 1.0
+  atr_pct_max: 6.0
+
+  # --- Short interest ---
+  short_float_max: 15.0              # Lower threshold — high short interest
+                                     # can prevent a clean mean reversion
+
+  # --- Exchange & classification ---
+  exchange: [nasdaq, nyse]
+  exclude_otc: true
+  exclude_pink_sheets: true
+
+  # --- Sector handling ---
+  elevated_risk_sectors:
+    - Biotechnology
+  elevated_risk_industries:
+    - Biotechnology
+    - Drug Manufacturers—Specialty & Generic
+
+output_tags:
+  - oversold
+  - mean_reversion_candidate
+  - quality_pullback
+
+notes: >
+  Expect 20-80 symbols on most days. The list will be largest after
+  a market correction or sector rotation event. The 200 SMA requirement
+  above is the most important filter in this preset — it separates
+  temporary pullbacks in healthy companies from genuine downtrends.
+  When the overall market is in a downtrend (SPY below 200 SMA),
+  reduce position sizes on all signals from this preset by 50%.
+
+---
+# ============================================================
+# PRESET 3: volatility_compression
+# Strategy affinity: volatility_squeeze (TTM), inside_bar_NR7,
+#                    ascending_triangle, cup_and_handle
+# ============================================================
+
+preset_name: volatility_compression
+version: "1.0"
+schema_version: "1.0.0"
+description: >
+  Stocks in a state of volatility compression — low ATR relative
+  to their historical range, consolidating after a trend move.
+  These are the hunting grounds for squeeze setups, inside bars,
+  triangles, and cup formations. The key insight: we want names
+  that are quiet NOW but were active recently. Permanently quiet
+  stocks are not compressing — they are just illiquid.
+
+criteria:
+
+  # --- Price & Volume ---
+  price_min: 5.00
+  price_max: 90.00
+  avg_volume_min: 10000000
+  avg_dollar_volume_min: 75000000    # $75M/day — slightly lower, compression
+                                     # setups sometimes appear in mid-tier liquidity
+  relative_volume_min: 0.5           # Below-average volume is expected during
+                                     # compression — this is correct behavior
+
+  # --- Size ---
+  market_cap: [small, mid, large]    # Small cap included — compression setups
+                                     # appear across the size spectrum
+  asset_class: equity
+
+  # --- Profitability ---
+  eps_ttm_positive: true
+  operating_margin_positive: true
+  roe_positive: true
+  ipo_date_before: "2015-01-01"
+
+  # --- Technical state (compression signals) ---
+  sma200_relation: above             # In an uptrend context (compression in downtrend
+                                     # is less reliable — usually just accumulation
+                                     # before another leg down)
+  rsi_min: 40                        # Not deeply oversold (compression, not breakdown)
+  rsi_max: 65                        # Not overbought (if already extended, no room)
+  performance_month_min: -10.0       # Not in freefall
+  performance_month_max: 15.0        # Not already breaking out (too late)
+
+  # --- Volatility (the compression signature) ---
+  atr_pct_min: 0.5                   # Some movement required (not completely dead)
+  atr_pct_max: 4.0                   # Low ATR relative to normal — the compression
+  beta_min: 0.5
+  beta_max: 2.5
+
+  # --- Short interest ---
+  short_float_max: 20.0
+
+  # --- Exchange & classification ---
+  exchange: [nasdaq, nyse]
+  exclude_otc: true
+  exclude_pink_sheets: true
+
+  # --- Sector handling ---
+  elevated_risk_sectors:
+    - Biotechnology
+  elevated_risk_industries:
+    - Biotechnology
+    - Drug Manufacturers—Specialty & Generic
+
+output_tags:
+  - compression
+  - squeeze_candidate
+  - low_volatility_setup
+
+notes: >
+  This preset produces 50-150 symbols. The analyst agent must then
+  apply the squeeze detector and inside bar detector to narrow this
+  list — the preset gets you in the right neighborhood, the pattern
+  detector confirms the specific setup. Expect more signals from this
+  preset after strong trending periods (stocks digest gains quietly
+  before the next leg). Fewer signals in choppy, mean-reverting markets.
+
+---
+# ============================================================
+# PRESET 4: sentiment_catalyst
+# Strategy affinity: sentiment_driven (earnings, upgrades,
+#                    M&A, guidance), VWAP_reclaim post-event
+# ============================================================
+
+preset_name: sentiment_catalyst
+version: "1.0"
+schema_version: "1.0.0"
+description: >
+  Highly liquid names where a fresh catalyst has been detected by
+  the news_sentinel. Unlike the other presets which run pre-market,
+  this preset is designed to be triggered ON DEMAND by the analyst
+  agent when a high-novelty, high-relevance event is detected.
+  The filters are looser on technical state because the catalyst
+  overrides normal setup requirements — we need to be able to
+  get in and out cleanly, which demands extreme liquidity.
+
+criteria:
+
+  # --- Price & Volume ---
+  price_min: 5.00
+  price_max: 90.00
+  avg_volume_min: 10000000
+  avg_dollar_volume_min: 200000000   # $200M/day — strictest liquidity requirement
+                                     # Catalyst trades need maximum liquidity
+                                     # because we may need to exit fast
+  relative_volume_min: 2.0           # Current volume must be 2x average —
+                                     # the catalyst must already be driving volume
+
+  # --- Size ---
+  market_cap: [mid, large, mega]     # No small cap for catalyst trades —
+                                     # small caps have too much volatility risk
+                                     # around events
+  asset_class: equity
+
+  # --- Profitability ---
+  eps_ttm_positive: true
+  ipo_date_before: "2015-01-01"
+  # Note: looser fundamental filters here because the catalyst
+  # is the primary driver, not the fundamental quality
+
+  # --- Technical state (permissive — catalyst overrides) ---
+  # No SMA relationship requirements — a catalyst can fire from
+  # any technical position. The analyst agent will evaluate
+  # the post-catalyst technical structure independently.
+  rsi_min: 20                        # Only exclude extreme cases
+  rsi_max: 85
+
+  # --- Price extension check ---
+  # The analyst agent must verify: price not already extended
+  # more than 8% from the prior close before entry.
+  # This is enforced in analyst.py, not the screener.
+  performance_today_max: 15.0        # Don't chase stocks already up 15%+ today
+
+  # --- Volatility ---
+  atr_pct_min: 1.0
+  atr_pct_max: 12.0                  # Higher ceiling — catalyst events create
+                                     # temporary volatility expansion
+
+  # --- Short interest ---
+  short_float_max: 30.0              # Higher allowed — some catalysts specifically
+                                     # trigger short squeezes (M&A, massive beats)
+                                     # and high short interest amplifies the move
+
+  # --- Exchange & classification ---
+  exchange: [nasdaq, nyse]
+  exclude_otc: true
+  exclude_pink_sheets: true
+
+  # --- Sector handling ---
+  elevated_risk_sectors:
+    - Biotechnology
+  elevated_risk_industries:
+    - Biotechnology
+    - Drug Manufacturers—Specialty & Generic
+  # Note: Biotech catalysts (FDA approvals/rejections) are the
+  # highest-risk catalyst type. Elevated risk flag applies.
+  # Position size automatically halved for biotech catalyst trades.
+
+  # --- Catalyst-specific filters (applied by analyst agent, not screener) ---
+  # These are documented here for reference but enforced in code:
+  # novelty_score_min: 0.75
+  # relevance_score_min: 0.80
+  # source_tier: [primary, secondary]
+  # event_type_whitelist: [earnings, guidance, m_a, analyst_action, insider_tx]
+  # time_since_event_max_minutes: 90
+
+output_tags:
+  - catalyst
+  - event_driven
+  - high_liquidity_required
+
+notes: >
+  This preset is NOT run on a schedule. It is invoked by the analyst
+  agent when the news_sentinel emits an event_signal with urgency
+  >= "medium". The relative_volume_min: 2.0 filter is the most
+  important — if the market is not already reacting to the catalyst
+  with volume, the information is likely already priced in or the
+  novelty score is overstated. Do not enter catalyst trades in the
+  first 5 minutes of the session or the last 30 minutes.
+  Time stop is mandatory: exit by session close on day 2 at latest.
+
+---
+# ============================================================
+# PRESET 5: etf_sector_rotation
+# Strategy affinity: etf_sector_rotation, dual_momentum
+# ============================================================
+
+preset_name: etf_sector_rotation
+version: "1.0"
+schema_version: "1.0.0"
+description: >
+  US-listed sector and broad-market ETFs for the dual-momentum
+  rotation strategy. No profitability filters (ETFs are funds,
+  not companies). Filters focus on liquidity, tracking quality,
+  and exclusion of leveraged/inverse products unless explicitly
+  configured. Rebalance check runs weekly on Monday pre-market.
+
+criteria:
+
+  # --- Price & Volume ---
+  price_min: 5.00
+  price_max: 90.00
+  avg_volume_min: 10000000
+  avg_dollar_volume_min: 500000000   # $500M/day — ETFs must have deep liquidity
+                                     # Sector ETFs like XLK, XLF easily clear this
+
+  # --- Classification ---
+  asset_class: etf
+  exclude_otc: true
+  exchange: [nasdaq, nyse, arcx]     # ARCX = NYSE Arca (primary ETF exchange)
+
+  # --- ETF type ---
+  etf_leverage: 1x                   # Standard 1x only by default
+                                     # Change to [1x, 2x] to enable leveraged ETFs
+                                     # Do NOT enable without explicit user config
+
+  # --- No profitability filters for ETFs ---
+  eps_ttm_positive: false            # N/A for ETFs
+  operating_margin_positive: false   # N/A for ETFs
+  roe_positive: false                # N/A for ETFs
+  ipo_date_before: null              # N/A — use ETF inception date check instead
+  etf_inception_before: "2015-01-01" # Fund must have 10+ year track record
+
+  # --- Technical filters for rotation ---
+  # Dual momentum: absolute momentum (vs cash) AND relative momentum (vs peers)
+  # These are evaluated by the analyst macro lens, not the screener
+  # Screener provides the universe; analyst does the ranking
+  sma200_relation: above             # Absolute momentum filter:
+                                     # only hold ETFs in uptrend vs their own history
+  performance_3month_min: 0.0        # Positive absolute return over 3 months
+                                     # (cash beats this ETF = don't hold it)
+
+  # --- Volatility ---
+  atr_pct_min: 0.3                   # ETFs are less volatile than single stocks
+  atr_pct_max: 5.0
+  beta_min: 0.2                      # Can include defensive ETFs (utilities, staples)
+  beta_max: 2.0
+
+  # --- Sector handling ---
+  # No elevated risk sectors for ETFs — diversification within the fund
+  # reduces single-name biotech risk. Biotech ETFs (XBI, IBB) are allowed.
+  elevated_risk_sectors: []
+  elevated_risk_industries: []
+
+  # --- ETF whitelist (preferred universe — these are the target ETFs) ---
+  # The screener produces the full universe; this whitelist is applied
+  # as a secondary filter in universe_filter.py to keep only
+  # well-known sector ETFs with strong AUM and liquidity.
+  # Expansion requires explicit addition here.
+  etf_symbol_whitelist:
+    # Sector ETFs (SPDR)
+    - XLK    # Technology
+    - XLF    # Financials
+    - XLV    # Health Care
+    - XLE    # Energy
+    - XLI    # Industrials
+    - XLY    # Consumer Discretionary
+    - XLP    # Consumer Staples
+    - XLU    # Utilities
+    - XLB    # Materials
+    - XLRE   # Real Estate
+    - XLC    # Communication Services
+    # Broad market
+    - SPY    # S&P 500
+    - QQQ    # Nasdaq 100
+    - IWM    # Russell 2000
+    - DIA    # Dow Jones
+    # Factor ETFs
+    - VUG    # Growth
+    - VTV    # Value
+    - MTUM   # Momentum
+    - QUAL   # Quality
+    # International (optional — comment out if US-only)
+    # - EFA  # Developed markets ex-US
+    # - EEM  # Emerging markets
+
+output_tags:
+  - etf
+  - sector_rotation
+  - dual_momentum
+
+notes: >
+  This preset runs WEEKLY on Monday at 08:00 ET (not daily).
+  The rotation logic in the analyst macro lens ranks all ETFs
+  in the universe by: (1) 3-month absolute return vs cash,
+  (2) 1-month relative return vs SPY. Top 3 ETFs by combined
+  score are held. Bottom performers are sold. Transaction costs
+  matter for rotation — do not rotate unless the new ETF score
+  exceeds the current holding by at least 5 points on the
+  ranking scale (prevents excessive churn).
+
+---
+# ============================================================
+# PRESET 6: wyckoff_accumulation_watch
+# Strategy affinity: wyckoff_accumulation, cup_and_handle,
+#                    long-duration position trades
+# ============================================================
+
+preset_name: wyckoff_accumulation_watch
+version: "1.0"
+schema_version: "1.0.0"
+description: >
+  Identifies stocks potentially in a Wyckoff accumulation phase —
+  high-quality names that have undergone a significant decline from
+  a prior peak and are now range-bound with high volume on the
+  initial lows and declining volume during the consolidation.
+  This preset feeds the longest-duration trades (15-60 day holds).
+  Quality filters are the strictest of all presets because Wyckoff
+  only works reliably in fundamentally excellent companies.
+
+criteria:
+
+  # --- Price & Volume ---
+  price_min: 10.00                   # Higher floor — institutional quality names
+  price_max: 90.00
+  avg_volume_min: 10000000
+  avg_dollar_volume_min: 200000000   # $200M/day — need institutional-grade liquidity
+                                     # for position-size trades
+  relative_volume_min: 0.4           # Low volume acceptable — accumulation is quiet
+
+  # --- Size ---
+  market_cap: [mid, large, mega]
+  asset_class: equity
+
+  # --- Profitability (strictest filters) ---
+  eps_ttm_positive: true
+  eps_growth_yoy_min: 10.0           # Growing earnings 10%+ YoY — quality compounder
+  operating_margin_min: 10.0         # Meaningful operating profitability
+  roe_min: 15.0                      # High-quality business (15%+ ROE)
+  gross_margin_min: 30.0             # Pricing power (30%+ gross margin)
+  debt_to_equity_max: 1.0            # Conservative balance sheet
+  current_ratio_min: 1.0             # Can service short-term obligations
+  ipo_date_before: "2012-01-01"      # 13+ years in business (stricter for position)
+  insider_ownership_min: 3.0         # Management has skin in the game
+
+  # --- Technical state (range-bound after decline) ---
+  sma200_relation: below             # Has declined below 200 SMA (the prior downtrend)
+                                     # This is intentional — Wyckoff starts AFTER
+                                     # a significant decline, so the stock may be
+                                     # below its 200 SMA during the base building
+  performance_6month_min: -50.0      # Has declined (we want beaten-down quality)
+  performance_6month_max: -10.0      # But not more than 50% (catastrophic decline
+                                     # = fundamental problem, not opportunity)
+  performance_month_min: -5.0        # Not currently in freefall
+  performance_month_max: 5.0         # Not breaking out yet (would be too late)
+
+  # --- Wyckoff-specific filters ---
+  # These approximate the Wyckoff setup at screener level.
+  # The analyst agent pattern detector applies precise Wyckoff
+  # phase identification after the screener produces this universe.
+  week_52_high_pct_min: -60.0        # Within 60% of 52-week high
+                                     # (more than 60% down = broken)
+  week_52_high_pct_max: -15.0        # At least 15% off highs
+                                     # (less than 15% = barely pulled back)
+
+  # --- Volatility ---
+  atr_pct_min: 0.8                   # Some daily range (not completely dead)
+  atr_pct_max: 5.0                   # Not wildly erratic
+  beta_min: 0.5
+  beta_max: 2.5
+
+  # --- Short interest (higher allowed for Wyckoff) ---
+  short_float_max: 30.0              # Higher short interest can amplify the
+                                     # move when accumulation completes
+                                     # (short covering adds fuel)
+
+  # --- Exchange & classification ---
+  exchange: [nasdaq, nyse]
+  exclude_otc: true
+  exclude_pink_sheets: true
+
+  # --- Sector handling ---
+  sector_exclude:
+    - Biotechnology                  # Hard exclude for this preset —
+                                     # Wyckoff accumulation in biotech is
+                                     # unreliable (binary event risk)
+  elevated_risk_sectors: []          # Biotech excluded entirely here
+
+output_tags:
+  - wyckoff_candidate
+  - base_building
+  - position_trade
+  - high_quality_fundamental
+
+notes: >
+  This is the slowest-moving preset. Run it weekly on Sunday evening
+  to build the Wyckoff watchlist for the coming week. Expect 15-60
+  symbols. The analyst agent applies the full Wyckoff phase
+  identification algorithm to each symbol — this is compute-intensive
+  and should not run during market hours. The spring and LPS signals
+  from the Wyckoff detector update in real-time during the session.
+  Biotech is hard-excluded here (not just flagged) because FDA binary
+  events destroy Wyckoff setups unpredictably.
+
+---
+# ============================================================
+# GLOBAL PRESET CONFIGURATION
+# Applied by universe_filter.py to all presets at runtime
+# ============================================================
+
+global_config:
+  schema_version: "1.0.0"
+
+  # Hard rules applied after every preset filter run
+  always_exclude:
+    - otc: true
+    - pink_sheets: true
+    - exchange_not_in: [nasdaq, nyse, arcx]
+
+  # Biotech elevated risk handling (applied to all presets
+  # except wyckoff_accumulation_watch which hard-excludes)
+  elevated_risk_handler:
+    trigger_sectors: [Biotechnology]
+    trigger_industries:
+      - Biotechnology
+      - Drug Manufacturers—Specialty & Generic
+    output_flag: elevated_risk
+    analyst_conviction_ceiling: 0.70
+    risk_pct_per_trade_ceiling: 0.35   # Half the normal max
+    min_confirming_lenses: 3           # Needs 3 lenses to agree (vs normal 2)
+
+  # Run schedules (used by services/scheduler.py)
+  schedules:
+    liquid_momentum_core:
+      frequency: daily
+      time_et: "08:00"
+      days: [mon, tue, wed, thu, fri]
+    mean_reversion_oversold:
+      frequency: daily
+      time_et: "08:00"
+      days: [mon, tue, wed, thu, fri]
+    volatility_compression:
+      frequency: daily
+      time_et: "08:00"
+      days: [mon, tue, wed, thu, fri]
+    sentiment_catalyst:
+      frequency: on_demand            # Triggered by news_sentinel
+      time_et: null
+    etf_sector_rotation:
+      frequency: weekly
+      time_et: "08:00"
+      days: [mon]
+    wyckoff_accumulation_watch:
+      frequency: weekly
+      time_et: "19:00"               # Sunday evening
+      days: [sun]
+
+  # Universe size warnings (logged by universe_filter.py)
+  universe_size_warnings:
+    min_warn_threshold: 10           # Warn if universe < 10 symbols
+    min_halt_threshold: 3            # Halt and require human confirmation if < 3
+    max_warn_threshold: 500          # Warn if universe > 500 (criteria may be too loose)
+
+  # Freeze rule: universe is frozen for the session
+  # once it is generated. Intra-session re-runs require
+  # explicit POST /universe/run with force=true parameter.
+  freeze_universe_for_session: true
