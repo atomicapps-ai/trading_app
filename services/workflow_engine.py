@@ -37,9 +37,12 @@ import pandas as pd
 import yaml
 from pydantic import BaseModel, Field, field_validator
 
-from agents.analyst import run_analyst_on_shortlist
+from agents.analyst import load_strategy_config, run_analyst_on_shortlist
 from agents.macro import compute_macro_context
+from agents.portfolio_manager import PortfolioManager
 from agents.universe_filter import UniverseFilter
+from models.signal import Signal
+from services.broker_service import get_adapter
 from services.settings_service import DATA_DIR, PROJECT_ROOT, Settings
 
 logger = logging.getLogger(__name__)
@@ -131,7 +134,7 @@ class WorkflowEngine:
             "fetch_news": self._stub_fetch_news,
             "fetch_filings": self._stub_fetch_filings,
             "analyze": self._run_analyze,
-            "plan": self._stub_plan,
+            "plan": self._run_plan,
         }
 
     # ------------------------------------------------------------------ #
@@ -376,11 +379,71 @@ class WorkflowEngine:
         logger.info("[stub] fetch_filings — returning empty filings map")
         return {"filings_by_symbol": {}, "stub": True}
 
-    async def _stub_plan(
+    async def _run_plan(
         self, step: WorkflowStep, ctx: "WorkflowContext",
     ) -> dict[str, Any]:
-        logger.info("[stub] plan — portfolio_manager not yet built")
-        return {"plans": [], "plans_proposed": 0, "stub": True}
+        """Turn analyst signals into real TradePlan objects.
+
+        Phase 4 scope: PortfolioManager builds plans; we do NOT yet persist
+        to SQLite or run compliance/risk here. Gate routing + DB write land
+        in C2 together. For now we emit plans as dicts in the run result so
+        the UI and smoke tests can see what would get proposed.
+        """
+        analyze_out = ctx.outputs.get("analyze", {})
+        raw_signals: dict[str, list[dict]] = analyze_out.get("signals") or {}
+        if not raw_signals:
+            logger.info("plan: no signals from analyze step — nothing to do")
+            return {"plans": [], "plans_proposed": 0}
+
+        # Pull account state once per run — portfolio_manager needs equity
+        # for position sizing. HistoricalAdapter returns a sensible stub in
+        # research mode, so this works without a broker connection.
+        adapter = get_adapter()
+        if not adapter.connected:
+            try:
+                await adapter.connect()
+            except Exception as e:  # noqa: BLE001
+                logger.warning("plan: could not connect broker: %s", e)
+        try:
+            account = await adapter.get_account_state()
+        except Exception as e:  # noqa: BLE001
+            logger.error("plan: cannot fetch account state: %s", e)
+            return {"plans": [], "plans_proposed": 0, "error": str(e)}
+        existing_positions = [p.symbol for p in account.open_positions]
+
+        strategy_name = step.params.get("strategy", "swing_momentum")
+        strategy_config = load_strategy_config(strategy_name)
+        pm = PortfolioManager(self._settings, strategy_config=strategy_config)
+
+        plans_out: list[dict[str, Any]] = []
+        pending = 0
+        for symbol, signal_dicts in raw_signals.items():
+            try:
+                sigs = [Signal.model_validate(s) for s in signal_dicts]
+            except Exception as e:  # noqa: BLE001
+                logger.warning("plan: could not parse signals for %s: %s", symbol, e)
+                continue
+            plan = await pm.process_signals(
+                symbol=symbol,
+                signals=sigs,
+                account=account,
+                existing_positions=existing_positions,
+                mode=ctx.mode,
+                pending_count=pending,
+            )
+            if plan is None:
+                continue
+            pending += 1
+            plans_out.append(plan.model_dump())
+
+        logger.info(
+            "plan: %d symbols with signals → %d plans proposed",
+            len(raw_signals), len(plans_out),
+        )
+        return {
+            "plans": plans_out,
+            "plans_proposed": len(plans_out),
+        }
 
     # ------------------------------------------------------------------ #
     # DAG / validation

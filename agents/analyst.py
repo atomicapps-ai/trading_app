@@ -130,6 +130,11 @@ def pattern_to_signal(
         ),
         evidence=evidence_objs,
         invalidation_condition=pattern.invalidation_condition,
+        pattern_name=pattern.pattern_name,
+        entry_price=pattern.entry_price,
+        stop_price=pattern.stop_price,
+        tp1_price=pattern.tp1_price,
+        tp2_price=pattern.tp2_price,
     )
 
 

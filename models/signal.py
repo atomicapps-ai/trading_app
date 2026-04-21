@@ -55,3 +55,12 @@ class Signal(BaseModel):
     evidence: list[Evidence] = []
     invalidation_condition: str
     sentiment: SentimentBlock | None = None
+
+    # Price suggestions from the source detector (technical lens sets these;
+    # fundamental / sentiment lenses leave them None). portfolio_manager
+    # picks the strongest signal with non-None prices as the plan's anchor.
+    pattern_name: str | None = None
+    entry_price: float | None = None
+    stop_price: float | None = None
+    tp1_price: float | None = None
+    tp2_price: float | None = None
