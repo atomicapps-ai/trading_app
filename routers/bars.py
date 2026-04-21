@@ -1,0 +1,95 @@
+"""bars router — OHLCV data for the chart widget on /pending.
+
+One endpoint: ``GET /api/bars/{symbol}?interval=<1h|2h|4h|1d>&limit=N``.
+
+Resampling
+----------
+``data_service`` caches two native intervals: ``1d`` and ``1h``. Any
+request for ``2h`` or ``4h`` is resampled from the 1h cache here, so we
+don't have to touch yfinance or store extra CSVs. ``1d`` is served
+directly. Sub-hourly intervals (``5m`` / ``15m`` / ``30m``) are out of
+scope until we wire Alpaca's bar endpoint — they'd need new data.
+
+Response shape matches what ``lightweight-charts`` expects:
+
+    [
+        { "time": 1709251200, "open": 100.0, "high": 101.5,
+          "low": 99.8, "close": 100.7, "volume": 1234567 },
+        ...
+    ]
+
+``time`` is a UNIX epoch second (UTC). Lightweight Charts will plot
+these as UTC bars — which for daily equities charts is what you want
+(each day's session shows up as one candle regardless of viewer TZ).
+"""
+from __future__ import annotations
+
+import logging
+from typing import Literal
+
+import pandas as pd
+from fastapi import APIRouter, HTTPException, Query
+
+from services.data_service import DataNotAvailableError, get_bars
+
+logger = logging.getLogger(__name__)
+router = APIRouter()
+
+SupportedInterval = Literal["1h", "2h", "4h", "1d"]
+_RESAMPLE_RULE = {"1h": "1h", "2h": "2h", "4h": "4h", "1d": "1D"}
+
+
+@router.get("/api/bars/{symbol}")
+async def get_bars_json(
+    symbol: str,
+    interval: str = Query("1h"),
+    limit: int = Query(500, ge=10, le=5000),
+) -> dict:
+    if interval not in _RESAMPLE_RULE:
+        raise HTTPException(
+            status_code=400,
+            detail=f"unsupported interval {interval!r}; expected one of "
+                   f"{list(_RESAMPLE_RULE.keys())}",
+        )
+
+    # Pick source cache: native for 1h/1d; for 2h/4h we pull 1h and resample.
+    source_interval = "1d" if interval == "1d" else "1h"
+
+    try:
+        df = await get_bars(symbol.upper(), source_interval, min_bars=50)
+    except DataNotAvailableError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+    if interval in ("2h", "4h"):
+        df = _resample(df, _RESAMPLE_RULE[interval])
+
+    df = df.tail(limit)
+
+    out = []
+    for ts, row in df.iterrows():
+        out.append({
+            "time": int(ts.timestamp()),
+            "open": float(row["open"]),
+            "high": float(row["high"]),
+            "low": float(row["low"]),
+            "close": float(row["close"]),
+            "volume": float(row["volume"]),
+        })
+    return {
+        "symbol": symbol.upper(),
+        "interval": interval,
+        "count": len(out),
+        "bars": out,
+    }
+
+
+def _resample(df: pd.DataFrame, rule: str) -> pd.DataFrame:
+    """Pandas OHLCV resample. Drops empty intervals."""
+    resampled = df.resample(rule, label="right", closed="right").agg({
+        "open": "first",
+        "high": "max",
+        "low": "min",
+        "close": "last",
+        "volume": "sum",
+    }).dropna()
+    return resampled

@@ -18,6 +18,7 @@ from fastapi import Depends, FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from routers import (
+    bars,
     broker,
     dashboard,
     pending,
@@ -98,6 +99,7 @@ app.include_router(trades.router)
 app.include_router(settings_router.router)
 app.include_router(broker.router)
 app.include_router(workflows.router)
+app.include_router(bars.router)
 app.include_router(stubs.router)
 
 

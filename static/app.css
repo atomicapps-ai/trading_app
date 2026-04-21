@@ -386,6 +386,55 @@ input, select, textarea { font: inherit; color: inherit; }
 /* TradingView embed wrapper */
 .tv-embed { width: 100%; height: 320px; border: 0; border-radius: 8px; background: var(--bg-stat); }
 
+/* Dual linked chart ---------------------------------------------------- */
+.dual-chart-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  background: var(--bg-stat);
+  border-radius: 8px;
+}
+.chart-pane {
+  display: flex;
+  flex-direction: column;
+  background: #0d1117;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.chart-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: #161b22;
+  border-bottom: 1px solid var(--border);
+}
+.chart-canvas {
+  height: 260px;
+  width: 100%;
+  position: relative;
+}
+.chart-tf-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.chart-tf-btn:hover { background: var(--bg-stat); color: var(--text-primary); }
+.chart-tf-btn.active {
+  background: var(--tint-blue);
+  color: var(--accent-blue);
+  border-color: var(--accent-blue);
+}
+.flex-1 { flex: 1; }
+
 /* Approval action sticky row */
 .approval-actions {
   position: sticky;
