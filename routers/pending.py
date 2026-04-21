@@ -21,7 +21,7 @@ ack is stale.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, Form, Query, Request
 from fastapi.responses import HTMLResponse, PlainTextResponse
@@ -42,15 +42,38 @@ _VALID_STATUSES = ("pending", "approved", "executed", "rejected",
                    "order_rejected", "expired", "all")
 
 
-def _decorate(p: dict) -> dict:
-    """Attach UI-friendly derived fields to a pending plan dict."""
+def _is_stale(ts_created: str, timeout_minutes: int) -> bool:
+    """True if the plan's creation time is older than the ack window.
+
+    Used both to guard the server-side approve path and to drive the
+    UI's Approve-button disabled state.
+    """
+    if not ts_created:
+        return False
+    try:
+        created = datetime.fromisoformat(ts_created.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return (datetime.now(timezone.utc) - created) > timedelta(minutes=timeout_minutes)
+
+
+def _decorate(p: dict, *, stale_minutes: int) -> dict:
+    """Attach UI-friendly derived fields to a pending plan dict.
+
+    ``is_stale`` — true when ``ts_created`` is older than the approval
+    window. The template uses this to disable the Approve button.
+    """
     if not p:
         return p
     try:
         ts_ago = time_ago(p["ts_created"])
     except Exception:
         ts_ago = ""
-    return {**p, "ts_ago": ts_ago}
+    return {
+        **p,
+        "ts_ago": ts_ago,
+        "is_stale": _is_stale(p.get("ts_created") or "", stale_minutes),
+    }
 
 
 async def _filter_rows(status: str) -> list[dict]:
@@ -85,6 +108,8 @@ async def pending_page(
     status: str | None = Query(default="pending"),
     s: Settings = Depends(get_settings),
 ):
+    stale_minutes = s.execution.stale_plan_timeout_minutes
+    await db_service.expire_stale_plans(timeout_minutes=stale_minutes)
     status = _normalize_status(status)
     rows = await _filter_rows(status)
     counts = await _status_counts()
@@ -95,10 +120,11 @@ async def pending_page(
             "settings": s,
             "app_version": "0.1.0",
             "active_page": "pending",
-            "pending": [_decorate(p) for p in rows],
+            "pending": [_decorate(p, stale_minutes=stale_minutes) for p in rows],
             "selected": None,
             "filter_status": status,
             "status_counts": counts,
+            "stale_minutes": stale_minutes,
         },
     )
 
@@ -109,6 +135,8 @@ async def pending_detail(
     status: str | None = Query(default="pending"),
     s: Settings = Depends(get_settings),
 ):
+    stale_minutes = s.execution.stale_plan_timeout_minutes
+    await db_service.expire_stale_plans(timeout_minutes=stale_minutes)
     status = _normalize_status(status)
     rows = await _filter_rows(status)
     selected = await db_service.get_plan_by_id(plan_id)
@@ -120,11 +148,12 @@ async def pending_detail(
             "settings": s,
             "app_version": "0.1.0",
             "active_page": "pending",
-            "pending": [_decorate(p) for p in rows],
-            "selected": _decorate(selected) if selected else None,
+            "pending": [_decorate(p, stale_minutes=stale_minutes) for p in rows],
+            "selected": _decorate(selected, stale_minutes=stale_minutes) if selected else None,
             "not_found": selected is None,
             "filter_status": status,
             "status_counts": counts,
+            "stale_minutes": stale_minutes,
         },
     )
 
@@ -136,10 +165,18 @@ async def pending_ack(
     s: Settings = Depends(get_settings),
 ):
     """Record the ack. ``approve`` additionally runs the executioner to
-    submit the order to the broker."""
-    if action not in {"approve", "reject", "modify"}:
+    submit the order to the broker.
+
+    ``modify`` is intentionally NOT supported as a distinct flow today —
+    the modify UI lands with the memory service in a later phase. If the
+    client sends it we refuse with a clear message rather than silently
+    leave the plan in pending.
+    """
+    if action not in {"approve", "reject"}:
         return HTMLResponse(
-            f'<span class="toast toast-fail">Unknown action: {action}</span>',
+            f'<span class="toast toast-fail">Unsupported action: {action}. '
+            f'Modify is not implemented yet — reject and re-run the '
+            f'pipeline if you need different parameters.</span>',
             status_code=400,
         )
 
@@ -158,6 +195,22 @@ async def pending_ack(
             status_code=409,
         )
 
+    # Server-side stale guard: if the plan is older than the approval
+    # window, refuse the approval even if the UI let the button slip
+    # through (race between countdown and click). Reject is always fine.
+    if action == "approve" and _is_stale(
+        row["ts_created"], s.execution.stale_plan_timeout_minutes,
+    ):
+        await db_service.expire_stale_plans(
+            timeout_minutes=s.execution.stale_plan_timeout_minutes,
+        )
+        return HTMLResponse(
+            f'<span class="toast toast-fail">Plan {plan_id} has expired '
+            f'({s.execution.stale_plan_timeout_minutes}-minute window '
+            f'closed). Re-run the pipeline to re-propose.</span>',
+            status_code=410,
+        )
+
     # Build the HumanAckRecord — persisted on the row regardless of action.
     ack = HumanAckRecord(
         plan_id=plan_id,
@@ -167,11 +220,10 @@ async def pending_ack(
     )
     await db_service.ack_plan(plan_id, action, ack_record=ack.model_dump())
 
-    # Reject / Modify are terminal for this router — no broker touch.
-    if action != "approve":
-        color = "toast-fail" if action == "reject" else "toast-ok"
+    # Reject is terminal here — no broker touch.
+    if action == "reject":
         return HTMLResponse(
-            f'<span class="toast {color}">Action <strong>{action}</strong> recorded for {plan_id}.</span>'
+            f'<span class="toast toast-fail">Plan {plan_id} rejected.</span>'
         )
 
     # Approve → executioner

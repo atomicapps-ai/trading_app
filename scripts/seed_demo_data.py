@@ -207,7 +207,7 @@ async def main() -> int:
         entry=310.25, stop=302.50, tp1=327.75, tp2=342.50,
         position_size=250, conviction=0.72,
         lenses=["technical"], pattern="volatility_squeeze",
-        sector="Consumer Discretionary", ts_ago_min=32,
+        sector="Consumer Discretionary", ts_ago_min=8,
         strategy_thesis=(
             "TSLA 9-bar squeeze fire on 1D with positive momentum histogram. "
             "Position originally proposed at 500 shares — R1 cap resized "
@@ -248,7 +248,7 @@ async def main() -> int:
         entry=24.50, stop=22.80, tp1=28.50, tp2=32.00,
         position_size=50, conviction=0.62,
         lenses=["sentiment"], pattern="news_catalyst",
-        exchange="NYSE", sector="Consumer Discretionary", ts_ago_min=58,
+        exchange="NYSE", sector="Consumer Discretionary", ts_ago_min=22,
         strategy_thesis=(
             "GME news catalyst with 2.3x volume surge. Sentiment lens fired "
             "on analyst-upgrade headline. BLOCKED by compliance C6 — "

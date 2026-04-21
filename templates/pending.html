@@ -202,18 +202,21 @@
       </div>
 
       {# Approval actions ─ pending rows show ack buttons; everything else
-         shows an execution summary instead (historical view). #}
+         shows an execution summary instead (historical view). Approve is
+         disabled once the plan is older than the approval window (stale);
+         Reject stays available because saying No is always safe. #}
       {% if p.status == 'pending' %}
         <div class="approval-actions">
           <button class="btn btn-success"
+                  id="ack-approve-btn"
+                  {% if p.is_stale %}disabled title="Approval window closed — re-run pipeline"{% endif %}
                   onclick="ackAction('{{ p.plan_id }}', 'approve')">Approve</button>
           <button class="btn btn-danger"
                   onclick="ackAction('{{ p.plan_id }}', 'reject')">Reject</button>
-          <button class="btn"
-                  onclick="ackAction('{{ p.plan_id }}', 'modify')">Modify</button>
           <span id="ack-status" class="text-sm"></span>
           <span class="approval-countdown"
                 data-created="{{ p.ts_created }}"
+                data-timeout-min="{{ stale_minutes }}"
                 id="ack-countdown">--:--</span>
         </div>
       {% else %}
@@ -263,7 +266,8 @@
 <script>
   // Approval action — confirm + POST /pending/{id}/ack, swap status pill.
   async function ackAction(planId, action) {
-    const verb = { approve: 'approve', reject: 'reject', modify: 'modify' }[action];
+    const verb = { approve: 'approve', reject: 'reject' }[action];
+    if (!verb) return;
     if (!confirm(`Confirm ${verb} for plan ${planId}?`)) return;
     const r = await fetch(`/pending/${planId}/ack`, {
       method: 'POST',
@@ -271,21 +275,41 @@
       body: `action=${encodeURIComponent(action)}`,
     });
     document.getElementById('ack-status').innerHTML = await r.text();
+    // Any terminal ack locks the buttons so the user can't double-submit.
+    disableApprove();
+    if (action === 'reject') {
+      const rej = document.querySelector('.btn.btn-danger');
+      if (rej) rej.setAttribute('disabled', 'disabled');
+    }
   }
 
-  // Countdown — 15 min from ts_created.
+  function disableApprove() {
+    const btn = document.getElementById('ack-approve-btn');
+    if (btn) {
+      btn.setAttribute('disabled', 'disabled');
+      btn.title = 'Approval window closed — re-run pipeline to re-propose';
+    }
+  }
+
+  // Countdown — reads ts_created + timeout minutes from data attributes.
+  // When the window closes, disable the Approve button so a user can't
+  // click it and run into the server-side 410 response.
   (function () {
     const el = document.getElementById('ack-countdown');
     if (!el) return;
     const created = new Date(el.dataset.created).getTime();
-    const expiresAt = created + 15 * 60 * 1000;
+    const minutes = parseInt(el.dataset.timeoutMin || '30', 10);
+    const expiresAt = created + minutes * 60 * 1000;
     function tick() {
       const remaining = Math.max(0, expiresAt - Date.now());
       const m = Math.floor(remaining / 60000);
       const s = Math.floor((remaining % 60000) / 1000);
       const text = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
       el.textContent = remaining > 0 ? `Expires in ${text}` : 'Approval expired';
-      if (remaining <= 0) clearInterval(timer);
+      if (remaining <= 0) {
+        disableApprove();
+        clearInterval(timer);
+      }
     }
     tick();
     const timer = setInterval(tick, 1000);
