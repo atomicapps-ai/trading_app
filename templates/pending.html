@@ -70,16 +70,18 @@
           <div class="pending-row pending-prices">
             <span class="mono">Risk ${{ "%.0f"|format(p.risk_usd) }} · R:R {{ "%.1f"|format(p.rr_tp1) }}R</span>
           </div>
-          <div class="pending-row" style="gap: 6px;">
+          <div class="pending-row" style="gap: 4px; flex-wrap: wrap;">
+            <span class="text-tertiary text-xs" style="margin-right: 2px;">Compliance</span>
             <span class="{% if p.compliance == 'approved' %}gate-pass{% elif p.compliance == 'rejected' %}gate-block{% else %}gate-skipped{% endif %}"
-                  title="Compliance gate">
+                  title="Compliance gate (C1-C8)">
               {{ p.compliance|upper }}
             </span>
+            <span class="text-tertiary text-xs" style="margin-left: 6px; margin-right: 2px;">Risk</span>
             <span class="{% if p.risk_result == 'approved' %}gate-pass
                          {% elif p.risk_result == 'resized' %}gate-resize
                          {% elif p.risk_result == 'rejected' %}gate-block
                          {% else %}gate-skipped{% endif %}"
-                  title="Risk gate{% if p.risk_result == 'skipped' %} — never ran because compliance rejected{% endif %}">
+                  title="Risk gate (R1-R9){% if p.risk_result == 'skipped' %} — never ran because compliance rejected{% endif %}">
               {{ p.risk_result|upper }}
             </span>
           </div>
