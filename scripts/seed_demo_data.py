@@ -162,8 +162,9 @@ async def main() -> int:
     for b in summary["plans_blocked"]:
         print(f"    {b['symbol']} blocked by {b['gate']}: {b['reason']}")
 
-    # Synthetic plans that represent every UI state
-    print("\n[3/4] Seeding 3 synthetic plans to exercise every UI state")
+    # Synthetic plans that represent every UI state.
+    # One row per terminal + non-terminal status so every tab has content.
+    print("\n[3/4] Seeding synthetic plans to exercise every UI state")
 
     # (a) Clean pass — both gates pass, all-green. The demo "happy path."
     aapl = _sample_plan(
@@ -241,7 +242,103 @@ async def main() -> int:
     print(f"  seeded [resize]  {tsla['instrument']['symbol']} {tsla['setup']['direction']} "
           f"(500 -> 250 shares)")
 
-    # (c) Blocked by compliance — restricted-list symbol.
+    # (c) Another clean pass, different pattern — fills the Pending tab.
+    msft = _sample_plan(
+        plan_id="demo-msft-long",
+        symbol="MSFT", direction="long",
+        entry=418.20, stop=408.75, tp1=437.50, tp2=456.90,
+        position_size=47, conviction=0.71,
+        lenses=["technical"], pattern="inside_bar_nr7",
+        sector="Technology", ts_ago_min=4,
+        strategy_thesis=(
+            "MSFT inside bar + NR7 on 1D at the 20-SMA reclaim. "
+            "Measured move from mother-bar range; breakout trigger at "
+            "prior-day high on above-average volume."
+        ),
+    )
+    await db_service.upsert_pending_plan(
+        msft,
+        compliance_verdict={
+            "verdict_id": "cv-msft-1", "plan_id": msft["plan_id"],
+            "ts": msft["ts_created"], "result": "approved",
+            "gates_evaluated": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+            "gates_failed": [],
+        },
+        risk_verdict={
+            "verdict_id": "rv-msft-1", "plan_id": msft["plan_id"],
+            "ts": msft["ts_created"], "result": "approved",
+            "original_size_shares": 47, "approved_size_shares": 47,
+            "gates_evaluated": ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9"],
+            "gates_triggered": [],
+            "approved_risk_usd": msft["risk"]["position_risk_usd"],
+            "approved_notional_usd": msft["risk"]["position_notional_usd"],
+        },
+        status="pending", strategy="swing_momentum",
+    )
+    print(f"  seeded [approve] {msft['instrument']['symbol']} {msft['setup']['direction']}")
+
+    # (d) Executed — fully through gates + human approved + broker accepted.
+    nvda = _sample_plan(
+        plan_id="demo-nvda-long",
+        symbol="NVDA", direction="long",
+        entry=182.40, stop=176.50, tp1=194.20, tp2=206.00,
+        position_size=60, conviction=0.84,
+        lenses=["technical", "macro"], pattern="bull_flag",
+        sector="Technology", ts_ago_min=42,
+        strategy_thesis=(
+            "NVDA post-earnings bull flag. Approved by operator "
+            "44 minutes ago; order routed to Alpaca paper and accepted."
+        ),
+    )
+    await db_service.upsert_pending_plan(
+        nvda,
+        compliance_verdict={
+            "verdict_id": "cv-nvda-1", "plan_id": nvda["plan_id"],
+            "ts": nvda["ts_created"], "result": "approved",
+            "gates_evaluated": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+            "gates_failed": [],
+        },
+        risk_verdict={
+            "verdict_id": "rv-nvda-1", "plan_id": nvda["plan_id"],
+            "ts": nvda["ts_created"], "result": "approved",
+            "original_size_shares": 60, "approved_size_shares": 60,
+            "gates_evaluated": ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9"],
+            "gates_triggered": [],
+            "approved_risk_usd": nvda["risk"]["position_risk_usd"],
+            "approved_notional_usd": nvda["risk"]["position_notional_usd"],
+        },
+        status="pending", strategy="swing_momentum",
+    )
+    # Simulate the post-ack writeback: human ack + executioner result.
+    ack_ts = _now_iso(-40)
+    await db_service.ack_plan(
+        nvda["plan_id"], "approve",
+        ack_record={
+            "ack_id": "ack-nvda-1", "plan_id": nvda["plan_id"],
+            "ts": ack_ts, "action": "approve", "ack_by": "human",
+            "modified_fields": {},
+        },
+    )
+    await db_service.record_execution(
+        nvda["plan_id"],
+        {
+            "plan_id": nvda["plan_id"], "ack_id": "ack-nvda-1",
+            "placed": True, "ts": ack_ts,
+            "client_order_id": "exec-demo-nvda1",
+            "broker_order_id": "ALP-DEMO-NVDA-9821",
+            "broker_name": "alpaca_paper",
+            "order_json": {"symbol": "NVDA", "side": "buy",
+                            "order_type": "limit", "quantity": 60,
+                            "limit_price": 182.40, "time_in_force": "gtc"},
+            "order_ack_json": {"accepted": True,
+                                "broker_order_id": "ALP-DEMO-NVDA-9821"},
+            "reject_reason": None,
+        },
+    )
+    print(f"  seeded [executed] {nvda['instrument']['symbol']} "
+          f"{nvda['setup']['direction']} (broker_order_id ALP-DEMO-NVDA-9821)")
+
+    # (e) Blocked by compliance — restricted-list symbol.
     meme = _sample_plan(
         plan_id="demo-gme-long",
         symbol="GME", direction="long",
@@ -272,9 +369,12 @@ async def main() -> int:
 
     # ---- Final report --------------------------------------------------
     pending = await db_service.get_pending_plans(status_filter="pending")
+    executed = await db_service.get_pending_plans(status_filter="executed")
     rejected = await db_service.get_pending_plans(status_filter="rejected")
     print(
-        f"\n[4/4] Demo DB populated: {len(pending)} pending, "
+        f"\n[4/4] Demo DB populated: "
+        f"{len(pending)} pending, "
+        f"{len(executed)} executed, "
         f"{len(rejected)} rejected"
     )
     print("  Ready for: http://localhost:5000/pending")

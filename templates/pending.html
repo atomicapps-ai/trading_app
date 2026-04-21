@@ -48,6 +48,13 @@
           <div class="pending-row">
             <span class="pending-symbol">{{ p.symbol }}</span>
             <span class="badge {% if p.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ p.direction|upper }}</span>
+            <span class="badge
+              {% if p.status == 'pending' %}badge-amber
+              {% elif p.status == 'executed' %}badge-green
+              {% elif p.status in ('rejected', 'order_rejected') %}badge-red
+              {% elif p.status == 'approved' %}badge-blue
+              {% else %}badge-gray{% endif %}"
+              title="Overall plan status">{{ p.status|replace('_',' ')|upper }}</span>
             <span class="pending-meta">{{ p.ts_ago }}</span>
           </div>
           <div class="pending-row">
@@ -64,12 +71,15 @@
             <span class="mono">Risk ${{ "%.0f"|format(p.risk_usd) }} · R:R {{ "%.1f"|format(p.rr_tp1) }}R</span>
           </div>
           <div class="pending-row" style="gap: 6px;">
-            <span class="{% if p.compliance == 'approved' %}gate-pass{% else %}gate-block{% endif %}">
+            <span class="{% if p.compliance == 'approved' %}gate-pass{% elif p.compliance == 'rejected' %}gate-block{% else %}gate-skipped{% endif %}"
+                  title="Compliance gate">
               {{ p.compliance|upper }}
             </span>
             <span class="{% if p.risk_result == 'approved' %}gate-pass
                          {% elif p.risk_result == 'resized' %}gate-resize
-                         {% else %}gate-block{% endif %}">
+                         {% elif p.risk_result == 'rejected' %}gate-block
+                         {% else %}gate-skipped{% endif %}"
+                  title="Risk gate{% if p.risk_result == 'skipped' %} — never ran because compliance rejected{% endif %}">
               {{ p.risk_result|upper }}
             </span>
           </div>
@@ -185,18 +195,25 @@
         <div class="card-header"><span class="card-title">Gate results</span></div>
         <div class="flex items-center gap-12 mb-8">
           <span class="text-secondary" style="width: 110px;">Compliance</span>
-          <span class="{% if p.compliance == 'approved' %}gate-pass{% else %}gate-block{% endif %}">{{ p.compliance|upper }}</span>
+          <span class="{% if p.compliance == 'approved' %}gate-pass{% elif p.compliance == 'rejected' %}gate-block{% else %}gate-skipped{% endif %}">{{ p.compliance|upper }}</span>
           <span class="text-sm text-secondary">
-            {% if p.compliance == 'approved' %}All 8 gates approved{% else %}Rejected — see reason{% endif %}
+            {% if p.compliance == 'approved' %}All 8 gates approved
+            {% elif p.compliance == 'rejected' %}Rejected — {{ p.compliance_verdict.block_reason if p.compliance_verdict else 'see reason' }}
+            {% else %}Not yet evaluated
+            {% endif %}
           </span>
         </div>
         <div class="flex items-center gap-12">
           <span class="text-secondary" style="width: 110px;">Risk</span>
-          <span class="{% if p.risk_result == 'approved' %}gate-pass{% elif p.risk_result == 'resized' %}gate-resize{% else %}gate-block{% endif %}">{{ p.risk_result|upper }}</span>
+          <span class="{% if p.risk_result == 'approved' %}gate-pass{% elif p.risk_result == 'resized' %}gate-resize{% elif p.risk_result == 'rejected' %}gate-block{% else %}gate-skipped{% endif %}">{{ p.risk_result|upper }}</span>
           {% if p.risk_result == 'resized' %}
             <span class="text-sm text-secondary">Resized to {{ p.position_size }} shares (R1: per-trade cap)</span>
           {% elif p.risk_result == 'approved' %}
             <span class="text-sm text-secondary">All 9 gates approved</span>
+          {% elif p.risk_result == 'rejected' %}
+            <span class="text-sm text-secondary">Rejected — {{ p.risk_verdict.reject_reason if p.risk_verdict else 'see reason' }}</span>
+          {% elif p.risk_result == 'skipped' %}
+            <span class="text-sm text-secondary">Skipped — compliance rejected the plan first</span>
           {% endif %}
         </div>
       </div>

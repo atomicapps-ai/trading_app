@@ -190,6 +190,7 @@ input, select, textarea { font: inherit; color: inherit; }
 .gate-block   { background: var(--tint-red);   color: var(--accent-red);   padding: 2px 9px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 500; }
 .gate-warn    { background: var(--tint-amber); color: var(--accent-amber); padding: 2px 9px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 500; }
 .gate-resize  { background: var(--tint-amber); color: var(--accent-amber); padding: 2px 9px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 500; }
+.gate-skipped { background: var(--tint-gray);  color: var(--text-tertiary); padding: 2px 9px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 500; }
 
 /* Buttons ------------------------------------------------------------- */
 .btn {

@@ -458,9 +458,24 @@ def _row_to_ui_dict(row: Any) -> dict:
         "notional": risk.get("position_notional_usd"),
         "risk_pct": risk.get("position_risk_pct_of_equity"),
 
-        # Verdict summary (for the gate-decision card)
+        # Gate-outcome summary (for the decision card + list badges).
+        #
+        # Semantics:
+        #   approved / rejected / resized → the gate actually ran
+        #   skipped  → an upstream gate blocked; this one never ran
+        #   pending  → the gate is genuinely waiting to run (very rare —
+        #              essentially only the brief window between
+        #              pipeline_service invoking compliance and risk)
+        #
+        # When compliance rejects, risk never runs and its verdict is
+        # None — displaying "pending" there is misleading, so we show
+        # "skipped" instead. The Jinja template styles that neutrally.
         "compliance": compliance["result"] if compliance else "pending",
-        "risk_result": risk_v["result"] if risk_v else "pending",
+        "risk_result": (
+            risk_v["result"] if risk_v
+            else ("skipped" if compliance and compliance.get("result") == "rejected"
+                  else "pending")
+        ),
         "compliance_verdict": compliance,
         "risk_verdict": risk_v,
 
