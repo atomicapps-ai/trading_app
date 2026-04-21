@@ -200,8 +200,14 @@
       {# Dual linked chart — 1h top, 4h bottom by default. Each chart
          has its own timeframe selector. Crosshair on one moves the
          crosshair on the other at the matching timestamp. Levels from
-         the TradePlan (entry/stop/TP1/TP2) are drawn on both charts. #}
+         the TradePlan (entry/stop/TP1/TP2) are drawn on both charts.
+         Double-click any chart to scroll the other chart(s) so the
+         hovered moment is centered in their visible range. #}
       <div class="card mt-16" style="padding: 0;">
+        <div class="chart-hint text-tertiary text-xs">
+          Hover both charts to sync crosshair. Double-click a chart to
+          center the others on that moment.
+        </div>
         <div class="dual-chart-wrap" id="dual-chart-wrap"
              data-symbol="{{ p.symbol }}"
              data-entry="{{ p.entry }}"
@@ -485,8 +491,16 @@
     // chart B at the same timestamp (and vice versa). Lightweight
     // Charts offers subscribeCrosshairMove → setCrosshairPosition which
     // is exactly this.
+    //
+    // We also track the most-recent crosshair time on each chart so
+    // the dblclick sync handler below knows where to re-center.
     function wireSync(a, b) {
       charts[a].chart.subscribeCrosshairMove(param => {
+        // Record even when the pointer leaves the chart, so the last
+        // valid hover is preserved for a subsequent dblclick.
+        if (param && typeof param.time !== 'undefined') {
+          charts[a].lastCrosshairTime = param.time;
+        }
         if (!param || !param.time || !param.seriesData) {
           charts[b].chart.clearCrosshairPosition();
           return;
@@ -499,6 +513,37 @@
         charts[b].chart.setCrosshairPosition(
           bar.close, param.time, charts[b].series,
         );
+      });
+    }
+
+    // Double-click sync. Scroll every OTHER chart so the moment the
+    // user just hovered is centered in its visible range, preserving
+    // that chart's current zoom width. Useful when the two timeframes
+    // show different windows (e.g. 1D chart zoomed out a year, 1h
+    // chart zoomed in on last week — dblclick jumps the 1h chart to
+    // whatever day you're hovering on the 1D).
+    function centerChartOnTime(idx, time) {
+      const c = charts[idx];
+      if (!c || typeof time !== 'number') return;
+      const range = c.chart.timeScale().getVisibleRange();
+      if (!range) return;
+      const width = range.to - range.from;  // seconds
+      if (width <= 0) return;
+      c.chart.timeScale().setVisibleRange({
+        from: time - width / 2,
+        to:   time + width / 2,
+      });
+    }
+
+    function wireDblclickSync(idx) {
+      const canvas = document.getElementById(`chart-${idx}-canvas`);
+      if (!canvas) return;
+      canvas.addEventListener('dblclick', () => {
+        const t = charts[idx].lastCrosshairTime;
+        if (typeof t !== 'number') return;
+        Object.keys(charts).forEach(other => {
+          if (other !== idx) centerChartOnTime(other, t);
+        });
       });
     }
 
@@ -515,13 +560,15 @@
       });
     });
 
-    // Build both charts, load defaults, wire sync.
+    // Build both charts, load defaults, wire sync + dblclick re-center.
     makeChart('a', '1h');
     makeChart('b', '4h');
     loadInterval('a', '1h');
     loadInterval('b', '4h');
     wireSync('a', 'b');
     wireSync('b', 'a');
+    wireDblclickSync('a');
+    wireDblclickSync('b');
   })();
 
   // Approval action — confirm + POST /pending/{id}/ack, swap status pill.
