@@ -12,6 +12,7 @@ from __future__ import annotations
 import logging
 import os
 
+from brokers.alpaca import AlpacaAdapter
 from brokers.base import BrokerAdapter
 from brokers.historical import HistoricalAdapter
 from brokers.tradestation import TradeStationAdapter
@@ -26,15 +27,42 @@ TRADING_HALTED: bool = False
 
 
 def build_adapter() -> BrokerAdapter:
+    """Select the right BrokerAdapter for the current mode.
+
+    Mode-to-adapter routing:
+      * research → HistoricalAdapter (no broker; cached bars only)
+      * paper / live → whichever broker env vars are populated. The
+        selection is driven by ``BROKER_PROVIDER`` (``alpaca`` default,
+        ``tradestation`` alternative). Alpaca is the paper default
+        because it has zero minimum-balance requirements; TradeStation
+        needs $10k funded before it will even provision API access.
+
+    Live mode maps the same provider flag to its live endpoint.
+    """
     s = get_settings()
     mode = s.app.mode
     if mode == "research":
         logger.info("Broker: using HistoricalAdapter (research mode)")
         return HistoricalAdapter()
-    ts_sim = os.getenv("TS_SIM", "true").lower() == "true"
-    label = "sim" if ts_sim else "live"
-    logger.info("Broker: using TradeStationAdapter (%s)", label)
-    return TradeStationAdapter(sim=ts_sim)
+
+    provider = os.getenv("BROKER_PROVIDER", "alpaca").lower()
+    if provider == "alpaca":
+        paper = mode == "paper" or os.getenv("ALPACA_PAPER", "true").lower() == "true"
+        label = "paper" if paper else "LIVE"
+        logger.info("Broker: using AlpacaAdapter (%s)", label)
+        return AlpacaAdapter(paper=paper)
+
+    if provider == "tradestation":
+        ts_sim = os.getenv("TS_SIM", "true").lower() == "true"
+        label = "sim" if ts_sim else "live"
+        logger.info("Broker: using TradeStationAdapter (%s)", label)
+        return TradeStationAdapter(sim=ts_sim)
+
+    logger.warning(
+        "Unknown BROKER_PROVIDER=%r — falling back to AlpacaAdapter paper",
+        provider,
+    )
+    return AlpacaAdapter(paper=True)
 
 
 def get_adapter() -> BrokerAdapter:
