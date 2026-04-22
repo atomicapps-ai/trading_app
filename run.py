@@ -1,8 +1,8 @@
 """
-run.py — start the TradeAgent server.
+run.py - start the TradeAgent server.
 
 Usage:
-    python run.py dev    (hot reload, debug logging)
+    python run.py dev    (hot reload, info logging)
     python run.py prod   (no reload, 2 workers)
 """
 import subprocess
@@ -18,9 +18,9 @@ base = [sys.executable, "-m", "uvicorn", "app:app", "--host", "0.0.0.0", "--port
 
 if mode == "dev":
     cmd = base + ["--reload", "--log-level", "info"]
-    print("Starting TradeAgent in DEV mode (hot reload) → http://localhost:5000")
+    print("TradeAgent DEV (hot reload) -> http://localhost:5000")
 else:
     cmd = base + ["--workers", "2", "--log-level", "warning"]
-    print("Starting TradeAgent in PROD mode → http://localhost:5000")
+    print("TradeAgent PROD -> http://localhost:5000")
 
 subprocess.run(cmd)
