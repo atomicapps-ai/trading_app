@@ -57,6 +57,28 @@ data:
   strategy_configs_path: strategy_configs
   local_db_path: data/claude_trading_app.db
 
+# ---------------------------------------------------------------------- #
+# /universe page — per-operator UI preferences. All lists default to []
+# which means "show every criterion field present on the preset."
+# The filters below are DISPLAY-ONLY; the pipeline still scores each
+# preset against its full criteria regardless of what's visible here.
+# ---------------------------------------------------------------------- #
+universe:
+  ui:
+    # If non-empty, ONLY these criterion keys appear in the panel.
+    # Useful when you want a tight, opinionated view. Example:
+    #   include_fields: ["price_min", "avg_volume_min", "rsi_min",
+    #                    "rsi_max", "atr_pct_min", "atr_pct_max"]
+    include_fields: []
+    # Always hide these, even if they appear in include_fields.
+    # Good for fields you never tune (e.g. insider_ownership_min,
+    # current_ratio_min, gross_margin_min).
+    exclude_fields: []
+    # Surface these first under a "Pinned" group, in this order.
+    # Best for the 3-5 fields you tune most often. Example:
+    #   pinned_fields: ["rsi_min", "rsi_max", "atr_pct_min", "atr_pct_max"]
+    pinned_fields: []
+
 execution:
   human_ack_required: true
   human_ack_timeout_minutes: 15

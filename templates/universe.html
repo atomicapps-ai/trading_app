@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Universe Presets — TradeAgent{% endblock %}
+{% block content %}
+<div style="max-width: 1100px;">
+
+  <div class="flex items-center gap-12 mb-16" style="justify-content: space-between; flex-wrap: wrap;">
+    <div class="flex items-center gap-12">
+      <h2 style="font-size: 20px; font-weight: 500;">Universe presets</h2>
+      <span class="text-secondary text-sm">
+        {{ presets|length }} preset{% if presets|length != 1 %}s{% endif %}
+      </span>
+    </div>
+    <a href="/universe/new"
+       style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+              background:var(--accent-blue);color:#fff;border-radius:6px;
+              font-size:13px;text-decoration:none;font-weight:500;">
+      + New preset
+    </a>
+  </div>
+
+  {% if not_found is defined %}
+    <div class="card mb-16" style="border-left: 3px solid var(--accent-red);">
+      <div class="text-secondary">Preset <strong>{{ not_found }}</strong> not found.</div>
+    </div>
+  {% endif %}
+
+  <div id="preset-list">
+    {% if presets %}
+      {% for p in presets %}
+        <div class="card mb-8" style="padding: 14px 16px;">
+          <div class="flex items-center gap-12" style="justify-content: space-between; flex-wrap: wrap;">
+
+            <div class="flex items-center gap-10" style="min-width: 0;">
+              <span style="font-weight: 500; font-size: 14px;">{{ p.title or p.name }}</span>
+              <span class="text-tertiary mono" style="font-size: 11px;">{{ p.name }}</span>
+              {% if p.is_active %}
+                <span class="badge badge-green" style="font-size: 11px;">active</span>
+              {% endif %}
+              {% if p.ticker_count %}
+                <span class="badge badge-gray" style="font-size: 11px;">
+                  {{ p.ticker_count }} tickers
+                </span>
+              {% endif %}
+              {% if p.output_tags %}
+                {% for tag in p.output_tags[:2] %}
+                  <span class="badge badge-blue" style="font-size: 11px;">{{ tag }}</span>
+                {% endfor %}
+              {% endif %}
+            </div>
+
+            <div class="flex items-center gap-8">
+              {% if not p.is_active %}
+                <button class="btn-sm"
+                        hx-post="/api/universe/presets/{{ p.name }}/set-active"
+                        hx-target="#preset-list"
+                        hx-swap="outerHTML"
+                        hx-confirm="Set '{{ p.name }}' as the active preset?"
+                        title="Set as active">
+                  Set active
+                </button>
+              {% endif %}
+              <a href="/universe/{{ p.name }}/edit"
+                 class="btn-sm" style="text-decoration:none;">Edit</a>
+              <button class="btn-sm btn-danger"
+                      hx-post="/api/universe/presets/{{ p.name }}/delete"
+                      hx-on::after-request="if(event.detail.successful){ window.location.href='/universe'; }"
+                      hx-confirm="Delete preset '{{ p.name }}'? This cannot be undone."
+                      title="Delete">
+                Delete
+              </button>
+            </div>
+          </div>
+
+          {% if p.description %}
+            <div class="text-secondary text-xs" style="margin-top: 6px; line-height: 1.5;">
+              {{ p.description }}
+            </div>
+          {% endif %}
+
+          <div class="flex gap-16 mt-8" style="flex-wrap: wrap;">
+            {% set fcount = p.filters|length %}
+            <span class="text-tertiary text-xs">
+              {{ fcount }} filter{% if fcount != 1 %}s{% endif %} configured
+            </span>
+            {% if p.tickers_refreshed_at %}
+              <span class="text-tertiary text-xs">
+                last saved {{ p.tickers_refreshed_at[:19] }}
+              </span>
+            {% endif %}
+            {% if p.updated_at %}
+              <span class="text-tertiary text-xs">
+                updated {{ p.updated_at[:19] }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="card">
+        <div class="text-secondary">No presets yet.</div>
+        <div class="text-xs text-tertiary mt-8">
+          Click <strong>+ New preset</strong> to create one using Finviz filter parameters.
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<style>
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-primary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-sm:hover { background: var(--surface-3); }
+.btn-danger { border-color: var(--accent-red); color: var(--accent-red); }
+.btn-danger:hover { background: var(--tint-red); }
+</style>
+{% endblock %}

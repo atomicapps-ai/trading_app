@@ -37,7 +37,9 @@ criteria:
 
   # --- Price & Volume ---
   price_min: 5.00
-  price_max: 90.00
+  # price_max removed 2026-04-20: the $90 cap excluded every current mega-cap
+  # (AAPL, MSFT, NVDA, etc.). Liquidity + ATR% already filter out illiquid
+  # and junk names — price level by itself isn't the right gate.
   avg_volume_min: 10000000           # 10M shares/day minimum (global rule)
   avg_dollar_volume_min: 100000000   # $100M/day — ensures real institutional liquidity
   relative_volume_min: 1.0           # At least average volume today (not dead)

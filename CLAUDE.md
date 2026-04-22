@@ -1,15 +1,18 @@
 # TradeAgent — Project Context for Claude Code
-**Last synced:** 2026-04-20
-**Status:** Phases 1–3 complete 2026-04-18. Phase 4 (Agents + Workflow Engine) next.
-**Roadmap revised 2026-04-20:** Phase 5 is now Backtest Engine (was Approval
-Flow). Approval Flow + Executioner moved to Phase 6. Scheduler + Memory +
-Mobile polish moved to Phase 7. This reorder exists so strategies are
-validated over 10+ years of bars before the live executioner is wired up.
+**Last synced:** 2026-04-22
+**Status:** Phases 1–4 substantially complete. Phase 4 core (agents, workflow engine,
+executioner, SQLite, /universe UI, dual-chart /pending) all landed. One Phase 4 item
+remains: `services/scheduler.py` (APScheduler). Phase 5 (Backtest Engine) is next.
+**Roadmap (current):**
+- Phase 4 ✅ (minus scheduler) — Agents + Workflow Engine + Executioner + UI polish
+- Phase 5 NEXT — Backtest Engine + Strategy Review UI
+- Phase 6 — ntfy push notifications + mobile CSS pass + risk_manager postmortem
+- Phase 7 — Memory, learning loop, polish
 **Companion docs:**
-  - `_AgenticSkills/trading_architect_skill/SKILL.md` (Google Drive) — domain logic
+  - `SKILL.md` (project root) — domain logic
   - `phase2_prompt.md` (project root) — UI design system + per-screen layouts (still authoritative for any UI work)
   - `phase4_prompt.md` (project root) — Phase 4 agents + workflow engine spec (revised 2026-04-20)
-**Stack:** FastAPI · HTMX 2.0.4 · Jinja2 · hand-rolled CSS (dark theme) · SQLite · JSONL · Tailscale · ntfy · TradeStation API
+**Stack:** FastAPI · HTMX 2.0.4 · Jinja2 · hand-rolled CSS (dark theme) · SQLite · JSONL · Tailscale · ntfy · **Alpaca** (default paper) · TradeStation (live)
 **Python:** 3.14.4 (moved off 3.12 on 2026-04-20 — the 3.12 install went missing and 3.14 wheels
 resolved cleanly for pandas 3.0, numpy 2.4, alpaca-py 0.43, yfinance 1.3; no compat issues)
 **Location:** `C:\Projects\TradingApp\` (local). Moved off Google Drive 2026-04-20 — Drive
@@ -53,128 +56,157 @@ The app has two distinct roles:
   Missing or partial records are a product defect, not a minor omission.
 
 - **Broker adapter is a seam.** `executioner` calls `BrokerAdapter` interface methods only.
-  It never imports `tradestation_adapter` or `webull_adapter` directly — only the
-  interface. Mode determines which adapter is injected at startup.
+  It never imports adapter modules directly — only the interface. `BROKER_PROVIDER` env var
+  selects the adapter (`alpaca` default, `tradestation` opt-in). Research mode always uses
+  `HistoricalAdapter` regardless of `BROKER_PROVIDER`.
 
 ---
 
-## Project structure (target — build toward this)
+## Project structure (current — as of Phase 4)
 
 ```
 trading_app/
 ├── CLAUDE.md                    ← you are here
+├── HANDOFF.md                   ← session catch-up doc
 ├── .env                         ← broker credentials, never committed
 ├── .gitignore
 ├── requirements.txt
-├── app.py                       ← FastAPI entrypoint; mounts routers
+├── app.py                       ← FastAPI entrypoint; mounts all routers + lifespan
 │
 ├── agents/
 │   ├── __init__.py
-│   ├── universe_filter.py       ← Finviz screener → universe_result
-│   ├── analyst.py               ← 4 lenses → signal objects
-│   ├── portfolio_manager.py     ← signals → trade_plan
-│   ├── compliance_officer.py    ← trade_plan → compliance_verdict (GATE)
-│   ├── risk_manager.py          ← trade_plan → risk_verdict (GATE) + postmortem
-│   └── executioner.py           ← approved plan → broker_adapter calls
+│   ├── universe_filter.py       ← preset-driven shortlist; pure fn of (preset, as_of_ts)
+│   ├── analyst.py               ← multi-lens runner: technical + macro lenses live;
+│   │                              sentiment + fundamental lenses stubbed (Phase 6)
+│   ├── macro.py                 ← SPY/VIX macro context snapshot (no signal, just context)
+│   ├── portfolio_manager.py     ← signal consensus → TradePlan (fixed-fractional sizing)
+│   ├── compliance_officer.py    ← gates C1–C8 (HALT, LULD, SSR, wash-sale, PDT,
+│   │                              restricted list, earnings blackout, completeness)
+│   ├── risk_manager.py          ← gates R1–R9 pre-trade; R1/R2/R8 resize, rest reject
+│   │                              (postmortem half → Phase 6)
+│   ├── executioner.py           ← ✅ Phase 4 (brought forward). Re-verifies all gates +
+│   │                              HumanAckRecord freshness, then places order via
+│   │                              BrokerAdapter. Research mode refuses all orders.
+│   └── detectors/               ← 9 pattern detectors, all pure fn of (bars, config, as_of_ts)
+│       ├── __init__.py          ← ALL_DETECTORS list + run_all() entry point
+│       ├── _helpers.py          ← pivot_highs/lows, volume_ratio, wick helpers
+│       ├── bull_flag.py
+│       ├── inside_bar_nr7.py
+│       ├── volatility_squeeze.py
+│       ├── rsi_divergence.py
+│       ├── vwap_reclaim.py
+│       ├── double_bottom_top.py
+│       ├── ascending_triangle.py
+│       ├── cup_and_handle.py
+│       └── wyckoff_accumulation.py
 │
-├── brokers/                     ← Built in Phase 3 (spec-aligned 2026-04-18)
+├── brokers/
 │   ├── __init__.py
-│   ├── base.py                  ← BrokerAdapter ABC + BrokerConnectionError.
-│   │                              `connected` and `broker_name` are sync
-│   │                              `@property`; everything else async.
-│   ├── historical.py            ← Research adapter. Stub account ($162,480),
-│   │                              stub quote ($100.00/$100.05), simulated
-│   │                              orders (instant accept, no real fill).
-│   │                              Phase 4 will read OHLCV from
-│   │                              data/historical/ (already populated by
-│   │                              scripts/download_history.py).
-│   ├── tradestation.py          ← Paper+live adapter. OAuth refresh-token
-│   │                              model: user does authorize dance ONCE
-│   │                              offline (see /broker setup guide), drops
-│   │                              TS_REFRESH_TOKEN into .env, app rotates
-│   │                              the refresh token back into .env on each
-│   │                              connect. Real REST methods implemented
-│   │                              (balances, positions, quotes, orders,
-│   │                              cancel-all, fills). 2-min refresh margin.
+│   ├── base.py                  ← BrokerAdapter ABC + BrokerConnectionError
+│   ├── historical.py            ← Research adapter (stub account + quotes)
+│   ├── alpaca.py                ← ✅ Phase 4. Default paper+live broker via alpaca-py 0.43.
+│   │                              connect() reads ALPACA_API_KEY/ALPACA_API_SECRET.
+│   │                              Real orders, fills, account state, positions.
+│   ├── tradestation.py          ← Opt-in (BROKER_PROVIDER=tradestation). OAuth
+│   │                              refresh-token model; TS_REFRESH_TOKEN in .env.
 │   └── webull.py                ← v1 stub: every method NotImplementedError.
 │
 ├── scripts/
-│   ├── __init__.py
-│   └── download_history.py      ← yfinance bulk-downloader CLI
-│                                  `python -m scripts.download_history SPY AAPL --years 20`
+│   ├── download_history.py      ← yfinance bulk-downloader CLI
+│   ├── refresh_universe.py      ← Finviz scrape → universe_filter_presets_tickers.yaml
+│   ├── seed_demo_data.py        ← seeds pending_approvals + pipeline_runs in SQLite
+│   ├── smoke_alpaca_paper.py    ← read-only real-API smoke (connect, account, quote)
+│   ├── smoke_alpaca_order_roundtrip.py ← paper BUY→fill→SELL smoke
+│   ├── smoke_data_coverage.py   ← bars + indicators + Alpaca NBBO for 6 tickers
+│   ├── smoke_phase4_gates.py    ← compliance + risk gate unit smoke
+│   ├── smoke_phase4_universe.py ← universe_filter end-to-end
+│   ├── smoke_phase4_workflow.py ← WorkflowEngine DAG runner
+│   ├── smoke_phase4_analyst.py  ← analyst lens + detectors
+│   ├── smoke_phase4_portfolio_manager.py ← signals → TradePlan sizing
+│   ├── smoke_phase4_pipeline.py ← pipeline_service + SQLite + /pending ack
+│   ├── smoke_phase4_c3_executioner.py ← full approve → Alpaca order roundtrip
+│   └── backup_trade_logs.ps1   ← robocopy trade_logs/ to Drive backup
 │
 ├── models/
 │   ├── __init__.py
-│   ├── signal.py                ← Pydantic: Signal
-│   ├── trade_plan.py            ← Pydantic: TradePlan (the central object)
-│   ├── verdicts.py              ← Pydantic: ComplianceVerdict, RiskVerdict
-│   ├── trade_record.py          ← Pydantic: TradeRecord (JSONL schema)
-│   └── account.py               ← Pydantic: AccountState, Quote, Fill
+│   ├── signal.py                ← Signal (+ pattern_name, entry/stop/tp prices)
+│   ├── trade_plan.py            ← TradePlan (the central object)
+│   ├── verdicts.py              ← ComplianceVerdict, RiskVerdict, HumanAckRecord
+│   ├── trade_record.py          ← TradeRecord (JSONL schema — field names frozen)
+│   ├── account.py               ← AccountState, Quote, Fill, Position, Order
+│   ├── pattern.py               ← PatternResult (detector output)
+│   ├── universe.py              ← UniverseFilterResult + preset schemas
+│   └── execution.py             ← ExecutionResult (executioner output)
 │
-├── routers/                     ← All built in Phase 2 except those marked
+├── routers/
 │   ├── __init__.py
 │   ├── dashboard.py             ← GET /, /api/dashboard/{stats,agents,activity}
-│   ├── pending.py               ← GET /pending, /pending/{id}; POST /pending/{id}/ack;
-│   │                              GET /api/pending/count (sidebar badge)
-│   ├── trades.py                ← GET /trades, /trades/analysis (placeholder),
-│   │                              GET /api/trades (filters)
-│   ├── settings.py              ← GET/POST /settings; POST /api/ntfy/test (stub)
-│   ├── broker.py                ← Phase 3: GET /broker (page),
-│   │                              GET /api/broker/status (HX-Request →
-│   │                              topbar dot partial; otherwise JSON),
-│   │                              GET /api/broker/account-card (HTML
-│   │                              partial for the snapshot card),
-│   │                              POST /api/broker/connect | disconnect,
-│   │                              POST /broker/halt → cancels all + sets
-│   │                              TRADING_HALTED flag, returns
-│   │                              {"halted": true, "cancelled_orders": N}.
-│   ├── stubs.py                 ← Placeholders for /universe, /strategies,
-│   │                              /console (real ones later)
-│   └── universe.py              ← Phase 4: Finviz screener
+│   ├── pending.py               ← GET /pending, /pending/{id}; POST /pending/{id}/ack
+│   │                              (approve → executioner; reject → DB flip).
+│   │                              Reads SQLite (not stub data).
+│   ├── trades.py                ← GET /trades, /trades/analysis, /api/trades
+│   ├── settings.py              ← GET/POST /settings
+│   ├── broker.py                ← /broker page + /api/broker/* endpoints + HALT
+│   ├── bars.py                  ← GET /api/bars/{symbol}?interval=&limit=&before=
+│   │                              OHLCV for Lightweight Charts; resamples 1h→2h/4h
+│   ├── universe.py              ← GET /universe, /universe/{preset}; history API
+│   ├── workflows.py             ← GET /api/workflows; POST /{id}/run;
+│   │                              GET /api/pipeline/runs; GET /api/universe/latest
+│   └── stubs.py                 ← Placeholders for /strategies, /console
 │
 ├── services/
 │   ├── __init__.py
-│   ├── settings_service.py      ← Load/save settings.yaml + path constants
-│   ├── log_service.py           ← Append/read JSONL trade logs (async)
-│   ├── stub_data.py             ← Phase 2 stub UI data (replaced in Phase 4–5)
-│   ├── broker_service.py        ← Phase 3: adapter factory + FastAPI dep.
-│   │                              `get_broker()` returns the right adapter
-│   │                              for the current mode; `reset_broker()`
-│   │                              tears down after mode change or OAuth reset.
-│   ├── memory_service.py        ← Phase 6: SQLite similarity queries
-│   ├── ntfy_service.py          ← Phase 5: push notifications
-│   └── scheduler.py             ← Phase 6: APScheduler pre-market jobs
+│   ├── settings_service.py      ← Settings schema + path constants + UniverseUISettings
+│   ├── log_service.py           ← Async JSONL append + read
+│   ├── stub_data.py             ← Phase 2 stub data (dashboard/trades still stubbed)
+│   ├── broker_service.py        ← Adapter factory (BROKER_PROVIDER env); TRADING_HALTED flag
+│   ├── data_service.py          ← yfinance bar cache, as_of_ts-aware slicing
+│   ├── news_service.py          ← Alpaca News + EDGAR filings, as_of_ts-aware
+│   ├── indicator_service.py     ← 23 hand-rolled indicators (RSI, ATR, VWAP, squeeze, …)
+│   ├── workflow_engine.py       ← YAML DAG runner. Compliance+risk NOT composable —
+│   │                              engine rejects workflow YAML that names those steps.
+│   ├── pipeline_service.py      ← Thin orchestrator: engine + gates + SQLite writes
+│   ├── db_service.py            ← aiosqlite layer: pending_approvals, pipeline_runs,
+│   │                              trade_memory tables + full CRUD
+│   └── universe_service.py      ← list_presets(), get_preset(), archive_snapshot()
 │
-├── templates/                   ← Subdirs hold HTMX partials per page
-│   ├── base.html                ← Shell: sidebar (9 items + SVG icons), topbar
-│   │                              (mode badge, ET clock, HALT, broker/Tailscale dots)
-│   ├── _placeholder.html        ← Generic "Coming in Phase X" page
-│   ├── dashboard.html
-│   ├── dashboard/
-│   │   ├── _stats.html          ← 4 stat cards (HTMX partial)
-│   │   ├── _agents.html         ← 6 agent status rows (HTMX partial)
-│   │   └── _activity.html       ← Today's activity log (HTMX partial, 60s refresh)
-│   ├── pending.html             ← Split layout (340px queue + detail w/ TradingView)
-│   ├── trades.html
-│   ├── trades/
-│   │   ├── _table.html          ← Filterable trade table (HTMX partial)
-│   │   └── analysis.html        ← Phase 6 placeholder
-│   ├── settings.html
-│   ├── settings/
-│   │   └── _save_status.html    ← Save toast (HTMX partial)
-│   └── broker.html              ← Phase 3: connection + OAuth + halt
+├── templates/
+│   ├── base.html                ← Shell: sidebar, topbar, mode badge, ET clock, HALT
+│   ├── _placeholder.html        ← "Coming in Phase X" generic page
+│   ├── dashboard.html + dashboard/
+│   ├── pending.html             ← Split layout: 340px queue + dual Lightweight Charts
+│   │                              (2 panes, interval selector, crosshair sync,
+│   │                              dblclick scroll, lazy-load older bars).
+│   │                              Reads SQLite. Approve flow wires to executioner.
+│   ├── trades.html + trades/
+│   ├── settings.html + settings/
+│   ├── broker.html
+│   ├── universe.html            ← Preset list table (strategy affinity, ticker count, etc.)
+│   └── universe_detail.html     ← Preset detail: Criteria / Tickers / History tabs;
+│                                  settings-driven include/exclude/pinned field visibility
 │
-├── static/                      ← Currently empty; HTMX & Tailwind via CDN.
-│                                  Localize (htmx.min.js, app.css) when offline use needed.
+├── workflows/
+│   ├── morning_run.yaml
+│   ├── evening_run.yaml
+│   └── research_run.yaml
 │
-└── data/                        ← gitignored (all subdirs regenerable)
-    ├── logs/                    ← Agent decision logs (verbose)
-    ├── historical/              ← yfinance bar CSVs (Phase 4+)
-    ├── news_cache/              ← Alpaca news per (symbol, date) (Phase 4+)
-    ├── edgar_cache/             ← SEC filings per symbol (Phase 4+)
-    ├── sentiment_cache/         ← AV sentiment (optional) (Phase 4+)
-    └── claude_trading_app.db    ← SQLite; auto-created on app startup,
-                                   rebuilt from trade_logs on startup
+├── strategy_configs/
+│   └── swing_momentum.yaml      ← Pattern thresholds for all 9 detectors
+│
+├── universe_filter_presets.yaml          ← Criteria definitions (committed)
+├── universe_filter_presets_tickers.yaml  ← Seed ticker list (committed; overwritten by refresh)
+│
+├── static/
+│   ├── app.css                  ← Hand-rolled dark-theme CSS (~500 lines)
+│   └── htmx.min.js              ← HTMX 2.0.4 localized
+│
+└── data/                        ← gitignored
+    ├── logs/
+    ├── historical/              ← yfinance CSVs
+    ├── news_cache/
+    ├── edgar_cache/
+    ├── universe_history/        ← archived preset snapshots (criteria + tickers)
+    └── claude_trading_app.db    ← SQLite; auto-created on startup
 ```
 
 ---
@@ -351,25 +383,18 @@ GET  /api/sse/logs                 → SSE stream for agent console
 
 ---
 
-## TradingView chart embed (pending_detail.html)
+## Chart implementation on /pending (Phase 4)
 
-No API key required. Use the Advanced Charts widget:
-```html
-<div id="tv-chart" style="height:400px"></div>
-<script src="https://s3.tradingview.com/tv.js"></script>
-<script>
-new TradingView.widget({
-  container_id: "tv-chart",
-  symbol: "NASDAQ:{{ plan.instrument.symbol }}",
-  interval: "60",
-  theme: "light",
-  style: "1",
-  locale: "en",
-  autosize: true,
-  hide_side_toolbar: false
-});
-</script>
-```
+TradingView was replaced with dual Lightweight Charts panes (no API key, no iframe).
+Data comes from `GET /api/bars/{symbol}?interval=<1h|2h|4h|1d>&limit=500&before=<epoch>`.
+- Two stacked panes; each has its own interval selector (1H / 2H / 4H / 1D).
+- Crosshair hover on one pane syncs the crosshair on the other at the matching timestamp.
+- Double-click on a pane scrolls the other pane to center on the hovered moment,
+  preserving each chart's current visible bar count (logical range, not time-width).
+- Lazy-load: scrolling to the left edge fetches 300 more bars via `?before=<epoch>`;
+  stops when the server returns `has_more=false`.
+- Plan levels (entry, stop, TP1, TP2) render as labeled horizontal price-lines.
+- 2h/4h intervals are resampled server-side from the 1h cache via pandas.
 
 ---
 
@@ -565,35 +590,55 @@ interactive in-app flow.
   adding `GET /api/broker/account-card` for the snapshot card; topbar dot
   alone uses `/api/broker/status`.
 
-### Phase 4 — Agents + Workflow Engine (see phase4_prompt.md for full spec)
+### Phase 4 — Agents + Workflow Engine — ✅ SUBSTANTIALLY COMPLETE 2026-04-22
 Foundational rule: every pattern detector and analyst lens is a
 **pure function of (bars, config, as_of_ts)** — no wall-clock calls,
 no direct API calls, no mutable module state. This is what lets
 Phase 5 replay the same code over 10+ years of historical bars.
 
-14. `services/data_service.py` — yfinance bar cache, `as_of_ts`-aware slicing
-15. `services/news_service.py` — Alpaca News (primary) + EDGAR filings,
-    `as_of_ts`-aware for backtest replay. Alpha Vantage = optional sentiment
-    enrichment only (kept behind a flag; skipped cleanly if absent)
-16. `services/indicator_service.py` — pandas-ta wrapper (RSI, ATR, VWAP, squeeze, …)
-17. `services/workflow_engine.py` — YAML-driven step DAG runner.
-    Compliance + risk gates are NOT composable — engine injects them
-    on every TradePlan, always, in that order. Workflow YAML that
-    names a `compliance_officer` or `risk_manager` step is rejected.
-18. `agents/compliance_officer.py` — gates C1–C8, unit tested
-19. `agents/risk_manager.py` — gates R1–R9 pre-trade (postmortem → Phase 6)
-20. `agents/universe_filter.py` — Finviz screener + pre-screener shortlist
-21. `agents/analyst.py` — 4 lenses (technical, fundamental, sentiment, macro),
-    9 pattern detectors, pure-function contract enforced
-22. `agents/portfolio_manager.py` — signal synthesis → TradePlan
-23. `services/pipeline_service.py` — thin orchestrator over WorkflowEngine
-24. `services/db_service.py` — SQLite schema (pending_approvals, pipeline_runs,
-    trade_memory) at `data/claude_trading_app.db` (in-project, gitignored)
-25. `routers/workflows.py` — list/run workflows, pipeline status, universe latest
-26. `workflows/*.yaml` — seed: morning_run, evening_run, research_run
-27. `strategy_configs/swing_momentum.yaml` — pattern thresholds
-28. `services/scheduler.py` — APScheduler reads each workflow's `schedule:`
-    field; no hardcoded schedule list
+14. ✅ `services/data_service.py` — yfinance bar cache, `as_of_ts`-aware slicing
+15. ✅ `services/news_service.py` — Alpaca News (primary) + EDGAR, `as_of_ts`-aware
+16. ✅ `services/indicator_service.py` — 23 hand-rolled indicators (no pandas-ta)
+17. ✅ `services/workflow_engine.py` — YAML DAG runner. Compliance + risk NOT composable;
+    engine rejects workflow YAML that names those steps.
+18. ✅ `agents/compliance_officer.py` — gates C1–C8 (mode-aware: advisory in research,
+    enforced in paper/live)
+19. ✅ `agents/risk_manager.py` — gates R1–R9 pre-trade; R1/R2/R8 resize, rest reject
+    (postmortem half deferred to Phase 6)
+20. ✅ `agents/universe_filter.py` — preset-driven shortlist; reads cached bars only,
+    no network. `scripts/refresh_universe.py` handles periodic Finviz scrape separately.
+21. ✅ `agents/analyst.py` + `agents/detectors/` — technical lens + macro context live;
+    all 9 pattern detectors live (volatility_squeeze, inside_bar_nr7, bull_flag,
+    rsi_divergence, vwap_reclaim, double_bottom_top, ascending_triangle,
+    cup_and_handle, wyckoff_accumulation). Sentiment + fundamental lenses stubbed.
+22. ✅ `agents/portfolio_manager.py` — signal consensus (3 OR-paths) → TradePlan;
+    fixed-fractional position sizing; existing-position + pending-queue guards.
+23. ✅ `services/pipeline_service.py` — enforces compliance-then-risk invariant;
+    persists every plan + verdicts to SQLite.
+24. ✅ `services/db_service.py` — pending_approvals, pipeline_runs, trade_memory;
+    ALTER TABLE migrations run idempotently on startup.
+25. ✅ `routers/workflows.py` — GET /api/workflows; POST /{id}/run; pipeline history
+26. ✅ `workflows/*.yaml` — morning_run, evening_run, research_run seeded
+27. ✅ `strategy_configs/swing_momentum.yaml` — thresholds for all 9 detectors
+28. ⬜ `services/scheduler.py` — APScheduler reads each workflow's `schedule:` field.
+    **Only remaining Phase 4 item.**
+
+**Phase 4 extras (not in original spec):**
+- ✅ `brokers/alpaca.py` — AlpacaAdapter. Default paper+live broker. TradeStation
+  gates real-money API behind a $10k minimum; Alpaca unblocks the paper workflow.
+  `BROKER_PROVIDER=alpaca` (default), `BROKER_PROVIDER=tradestation` to opt in to TS.
+- ✅ `agents/executioner.py` — **brought forward from Phase 6**. Full click-path:
+  POST /pending/{id}/ack?action=approve → gate re-checks → HumanAckRecord freshness
+  → BrokerAdapter.place_order(). Research mode refuses all orders.
+- ✅ `models/execution.py` — ExecutionResult (placed bool + broker_order_id + reason)
+- ✅ `routers/bars.py` — OHLCV endpoint for Lightweight Charts; 2h/4h resampled from 1h
+- ✅ `/pending` redesign — dual Lightweight Charts (replaced TradingView iframe);
+  crosshair sync, dblclick scroll, lazy-load older bars, filter tabs, gate icons,
+  expiry enforcement, approve disabled on expiry.
+- ✅ `/universe` real pages — list + detail (Criteria/Tickers/History tabs) +
+  settings-driven panel (include/exclude/pinned fields via settings.yaml).
+- ✅ `services/universe_service.py` — preset list/detail/archive
+- ✅ `universe_filter_presets_tickers.yaml` — seed list (25 liquid names)
 
 ### Phase 5 — Backtest Engine + Strategy Review (NEW — see SKILL.md §5 + phase5_prompt.md to be written)
 Reuses every Phase 4 agent. Because detectors are pure functions of
@@ -616,13 +661,14 @@ cached bars and calls the exact same code that runs live.
 34. `agents/strategy_curator.py` (light) — reads backtest results,
     recommends parameter tweaks via walk-forward optimization
 
-### Phase 6 — Approval flow + executioner + notifications (was Phase 5)
-35. `agents/executioner.py` — BrokerAdapter calls, fill handling, live human-ack gate
+### Phase 6 — Notifications + risk postmortem + mobile polish
+(Executioner was brought forward to Phase 4; approval state machine is live.)
+35. ✅ ~~`agents/executioner.py`~~ — done in Phase 4
 36. `agents/risk_manager.py` (postmortem half) — MFE/MAE/R-multiple, learning tags
-37. Full approval state machine: plan → compliance → risk → notify → ack → execute
-38. `services/ntfy_service.py` — mobile push on every pending approval
+37. `services/ntfy_service.py` — mobile push on every new pending approval
+38. `agents/analyst.py` — wire sentiment lens (VADER on Alpaca headlines) and
+    fundamental lens (EDGAR/Alpaca fundamentals); both stubbed in Phase 4
 39. Mobile-responsive CSS pass (pending page collapses 340px queue on <640px viewports)
-40. Pending-detail ack flow with 15-minute countdown (already stubbed Phase 2, now real)
 
 ### Phase 7 — Memory, learning loop, polish (was Phase 6)
 41. `services/memory_service.py` — SQLite similarity queries over trade_memory
@@ -687,11 +733,14 @@ numpy>=1.26.0
 - Do not instantiate `BrokerAdapter` subclasses anywhere except
   `services/broker_service.py`. All broker access goes through
   `get_adapter()` (added Phase 3).
-- Do not store `TS_REFRESH_TOKEN` anywhere except `.env`. The adapter
-  reads it on startup and writes the rotated token back to `.env` on
-  every successful connect (added Phase 3).
+- Do not store `TS_REFRESH_TOKEN` or `ALPACA_API_KEY`/`ALPACA_API_SECRET` anywhere
+  except `.env`. The TradeStation adapter writes the rotated token back to `.env`
+  on every successful connect.
 - Do not use `position: fixed` in any template — iframe viewport issue.
   Use flow-positioned overlay `<div>` with `min-height` for modals
-  (added Phase 3; HALT confirmation in `broker.html` is the reference
-  implementation).
+  (HALT confirmation in `broker.html` is the reference implementation).
+- Do not use a TradingView iframe on `/pending` — it was replaced with dual
+  Lightweight Charts in Phase 4. Use `GET /api/bars/{symbol}` for chart data.
+- Do not hardcode broker selection — always use `BROKER_PROVIDER` env var
+  (default `alpaca`; `tradestation` opt-in). `broker_service.py` handles the switch.
 ```

@@ -190,6 +190,17 @@ input, select, textarea { font: inherit; color: inherit; }
 .gate-block   { background: var(--tint-red);   color: var(--accent-red);   padding: 2px 9px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 500; }
 .gate-warn    { background: var(--tint-amber); color: var(--accent-amber); padding: 2px 9px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 500; }
 .gate-resize  { background: var(--tint-amber); color: var(--accent-amber); padding: 2px 9px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 500; }
+.gate-skipped { background: var(--tint-gray);  color: var(--text-tertiary); padding: 2px 9px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 500; }
+
+/* Inline icons ------------------------------------------------------- */
+/* Baseline-aligned with surrounding text, colored via currentColor so
+   gate-pass/gate-block/badge-* classes style them automatically. */
+.icon           { display: inline-block; vertical-align: -2px; }
+.icon-sm        { width: 12px; height: 12px; }
+.icon-lg        { width: 18px; height: 18px; vertical-align: -4px; }
+/* Compact gate badge: icon + text pair with a tight gap. */
+.gate-badge     { display: inline-flex; align-items: center; gap: 4px; }
+.gate-label     { display: inline-flex; align-items: center; gap: 3px; color: var(--text-tertiary); font-size: 11px; }
 
 /* Buttons ------------------------------------------------------------- */
 .btn {
@@ -374,6 +385,81 @@ input, select, textarea { font: inherit; color: inherit; }
 
 /* TradingView embed wrapper */
 .tv-embed { width: 100%; height: 320px; border: 0; border-radius: 8px; background: var(--bg-stat); }
+
+/* Dual linked chart ---------------------------------------------------- */
+.chart-hint {
+  padding: 8px 12px 0 12px;
+  background: var(--bg-stat);
+  border-radius: 8px 8px 0 0;
+  line-height: 1.4;
+}
+.dual-chart-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  background: var(--bg-stat);
+  border-radius: 8px;
+}
+.chart-hint + .dual-chart-wrap { border-radius: 0 0 8px 8px; padding-top: 6px; }
+.chart-pane {
+  display: flex;
+  flex-direction: column;
+  background: #0d1117;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.chart-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: #161b22;
+  border-bottom: 1px solid var(--border);
+}
+.chart-canvas {
+  height: 260px;
+  width: 100%;
+  position: relative;
+}
+.chart-tf-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.chart-tf-btn:hover { background: var(--bg-stat); color: var(--text-primary); }
+.chart-tf-btn.active {
+  background: var(--tint-blue);
+  color: var(--accent-blue);
+  border-color: var(--accent-blue);
+}
+
+/* Tab buttons (used on /universe/{preset}) ---------------------------- */
+.tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 2px;
+  margin-bottom: -1px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active {
+  color: var(--accent-blue);
+  border-bottom-color: var(--accent-blue);
+}
+.tab-panel { display: block; }
 
 /* Approval action sticky row */
 .approval-actions {

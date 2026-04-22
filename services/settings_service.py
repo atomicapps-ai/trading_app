@@ -115,6 +115,31 @@ class ExecutionSettings(BaseModel):
     )
 
 
+class UniverseUISettings(BaseModel):
+    """Operator-controlled UI config for the /universe/{preset} criteria
+    panel.
+
+    ``include_fields`` — if non-empty, ONLY these criterion keys appear
+    in the panel (other keys are hidden but still in effect on the
+    server). Use when you want a tight, opinionated view. Empty / null
+    means "show everything present on the preset."
+
+    ``exclude_fields`` — keys to always hide, takes precedence over
+    ``include_fields``. Use for fields you never tune.
+
+    ``pinned_fields`` — keys to surface in a top ``Pinned`` group
+    regardless of their normal grouping. Order is preserved.
+    """
+
+    include_fields: list[str] = Field(default_factory=list)
+    exclude_fields: list[str] = Field(default_factory=list)
+    pinned_fields: list[str] = Field(default_factory=list)
+
+
+class UniverseSettings(BaseModel):
+    ui: UniverseUISettings = Field(default_factory=UniverseUISettings)
+
+
 class Settings(BaseModel):
     app: AppSettings = Field(default_factory=AppSettings)
     ntfy: NtfySettings = Field(default_factory=NtfySettings)
@@ -122,6 +147,7 @@ class Settings(BaseModel):
     compliance: ComplianceSettings = Field(default_factory=ComplianceSettings)
     data: DataPaths = Field(default_factory=DataPaths)
     execution: ExecutionSettings = Field(default_factory=ExecutionSettings)
+    universe: UniverseSettings = Field(default_factory=UniverseSettings)
 
 
 # --------------------------------------------------------------------------- #

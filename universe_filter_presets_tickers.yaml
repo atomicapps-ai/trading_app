@@ -1,0 +1,74 @@
+# Universe Filter — Preset Ticker Lists
+#
+# Companion file to universe_filter_presets.yaml. The *criteria* file holds
+# filter definitions (rarely edited). This file holds the ticker lists each
+# preset resolves to (rewritten periodically by scripts/refresh_universe.py).
+#
+# Split rationale:
+#   * criteria + ticker list in one file => ticker churn drowns out criteria
+#     diffs and the file balloons past readability.
+#   * separate files => one place for hand-tuned filter logic, one place
+#     where the refresh script writes results. Both committed to git so
+#     we can see how the universe moved over time.
+#
+# Format:
+#   presets:
+#     <preset_name>:
+#       refreshed_at: <iso8601>
+#       source: "manual" | "finviz:<query>" | "tradestation_scan"
+#       tickers: [AAA, BBB, ...]
+#
+# Presets that DON'T live here:
+#   * etf_sector_rotation     — whitelist is hardcoded in the criteria file
+#   * sentiment_catalyst      — on-demand, no pre-computed universe
+
+presets:
+
+  # ---------------------------------------------------------------- #
+  # liquid_momentum_core — seed list (hand-picked liquid names).
+  # Replace with scripts/refresh_universe.py output when Finviz is live.
+  # ---------------------------------------------------------------- #
+  liquid_momentum_core:
+    refreshed_at: "2026-04-20T00:00:00Z"
+    source: "manual"
+    tickers:
+      - AAPL
+      - MSFT
+      - NVDA
+      - META
+      - GOOGL
+      - AMZN
+      - TSLA
+      - AMD
+      - AVGO
+      - NFLX
+      - ADBE
+      - CRM
+      - ORCL
+      - COST
+      - JPM
+      - V
+      - MA
+      - UNH
+      - LLY
+      - HD
+      - WMT
+      - DIS
+      - BA
+      - CAT
+      - GE
+
+  mean_reversion_oversold:
+    refreshed_at: "2026-04-20T00:00:00Z"
+    source: "manual"
+    tickers: []  # refresh to populate
+
+  volatility_compression:
+    refreshed_at: "2026-04-20T00:00:00Z"
+    source: "manual"
+    tickers: []  # refresh to populate
+
+  wyckoff_accumulation_watch:
+    refreshed_at: "2026-04-20T00:00:00Z"
+    source: "manual"
+    tickers: []  # refresh to populate

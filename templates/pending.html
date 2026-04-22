@@ -1,23 +1,138 @@
 {% extends "base.html" %}
 {% block title %}Pending Approvals — TradeAgent{% endblock %}
+
+{# ---------------------------------------------------------------------------
+   Inline Lucide-style SVG icons. Keeps visual bundle zero-dep and themable via
+   CSS `currentColor`. Sized 14px to match badge line-height; pass `size=16`
+   (or any px value) to override.
+--------------------------------------------------------------------------- #}
+{% macro icon(name, size=14, cls='icon') -%}
+<svg class="{{ cls }}" width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24"
+     fill="none" stroke="currentColor" stroke-width="2"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  {%- if name == 'shield' -%}
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+  {%- elif name == 'scale' -%}
+    <path d="M12 3v18"/><path d="M9 21h6"/>
+    <path d="M3 7h18"/>
+    <path d="M5 7l-3 7c0 1.66 1.34 3 3 3s3-1.34 3-3l-3-7z"/>
+    <path d="M19 7l-3 7c0 1.66 1.34 3 3 3s3-1.34 3-3l-3-7z"/>
+  {%- elif name == 'check' -%}
+    <polyline points="20 6 9 17 4 12"/>
+  {%- elif name == 'x' -%}
+    <line x1="18" y1="6" x2="6" y2="18"/>
+    <line x1="6" y1="6" x2="18" y2="18"/>
+  {%- elif name == 'arrow-up-down' -%}
+    <polyline points="8 7 12 3 16 7"/>
+    <line x1="12" y1="3" x2="12" y2="21"/>
+    <polyline points="8 17 12 21 16 17"/>
+  {%- elif name == 'minus' -%}
+    <line x1="5" y1="12" x2="19" y2="12"/>
+  {%- elif name == 'clock' -%}
+    <circle cx="12" cy="12" r="10"/>
+    <polyline points="12 6 12 12 16 14"/>
+  {%- elif name == 'send' -%}
+    <line x1="22" y1="2" x2="11" y2="13"/>
+    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+  {%- elif name == 'x-circle' -%}
+    <circle cx="12" cy="12" r="10"/>
+    <line x1="15" y1="9" x2="9" y2="15"/>
+    <line x1="9" y1="9" x2="15" y2="15"/>
+  {%- elif name == 'alert-triangle' -%}
+    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+    <line x1="12" y1="9" x2="12" y2="13"/>
+    <line x1="12" y1="17" x2="12.01" y2="17"/>
+  {%- elif name == 'hourglass' -%}
+    <path d="M6 2h12"/><path d="M6 22h12"/>
+    <path d="M6 2v6a6 6 0 0 0 6 6 6 6 0 0 0 6-6V2"/>
+    <path d="M18 22v-6a6 6 0 0 0-6-6 6 6 0 0 0-6 6v6"/>
+  {%- elif name == 'check-circle' -%}
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M8 12l3 3 5-6"/>
+  {%- endif %}
+</svg>
+{%- endmacro %}
+
+{# Outcome icon helper — maps a gate outcome string to its icon name. #}
+{% macro outcome_icon(outcome) -%}
+  {%- if outcome == 'approved' -%}{{ icon('check') }}
+  {%- elif outcome == 'rejected' -%}{{ icon('x') }}
+  {%- elif outcome == 'resized' -%}{{ icon('arrow-up-down') }}
+  {%- elif outcome == 'skipped' -%}{{ icon('minus') }}
+  {%- else -%}{{ icon('clock') }}
+  {%- endif %}
+{%- endmacro %}
+
+{# Status icon helper — maps the plan's lifecycle status to its icon. #}
+{% macro status_icon(status) -%}
+  {%- if status == 'pending' -%}{{ icon('clock') }}
+  {%- elif status == 'executed' -%}{{ icon('send') }}
+  {%- elif status == 'rejected' -%}{{ icon('x-circle') }}
+  {%- elif status == 'order_rejected' -%}{{ icon('alert-triangle') }}
+  {%- elif status == 'expired' -%}{{ icon('hourglass') }}
+  {%- elif status == 'approved' -%}{{ icon('check-circle') }}
+  {%- else -%}{{ icon('clock') }}
+  {%- endif %}
+{%- endmacro %}
+
 {% block content %}
 <div class="split-layout">
 
   {# ===== Left: queue ===== #}
   <aside class="split-left">
-    <div class="card-header" style="margin-bottom: 12px;">
-      <span class="card-title">Approval queue
+    <div class="card-header" style="margin-bottom: 8px;">
+      <span class="card-title">
+        {% if filter_status == 'pending' %}Approval queue
+        {% elif filter_status == 'executed' %}Executed
+        {% elif filter_status == 'approved' %}Approved (awaiting fill)
+        {% elif filter_status == 'rejected' %}Rejected by gates
+        {% elif filter_status == 'order_rejected' %}Order rejections
+        {% elif filter_status == 'expired' %}Expired
+        {% elif filter_status == 'all' %}All plans
+        {% else %}Plans
+        {% endif %}
         <span class="badge badge-amber" style="margin-left: 6px;">{{ pending|length }}</span>
       </span>
+    </div>
+
+    {# Filter tab bar #}
+    <div class="pending-row" style="gap: 6px; flex-wrap: wrap; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border);">
+      {% set tabs = [
+        ('pending', 'Pending'),
+        ('executed', 'Executed'),
+        ('order_rejected', 'Order rejected'),
+        ('rejected', 'Rejected'),
+        ('expired', 'Expired'),
+        ('all', 'All')
+      ] %}
+      {% for key, label in tabs %}
+        {% set n = status_counts.get(key, 0) %}
+        <a href="/pending?status={{ key }}"
+           class="badge {% if filter_status == key %}badge-amber{% else %}badge-gray{% endif %}"
+           style="text-decoration: none; cursor: pointer;">
+          {{ label }}
+          {% if n > 0 %}<span style="opacity: 0.7;">({{ n }})</span>{% endif %}
+        </a>
+      {% endfor %}
     </div>
 
     {% if pending %}
       {% for p in pending %}
         <div class="pending-card {% if selected and selected.plan_id == p.plan_id %}active{% endif %}"
-             onclick="location.href='/pending/{{ p.plan_id }}'">
+             onclick="location.href='/pending/{{ p.plan_id }}?status={{ filter_status }}'">
           <div class="pending-row">
             <span class="pending-symbol">{{ p.symbol }}</span>
             <span class="badge {% if p.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ p.direction|upper }}</span>
+            <span class="badge gate-badge
+              {% if p.status == 'pending' %}badge-amber
+              {% elif p.status == 'executed' %}badge-green
+              {% elif p.status in ('rejected', 'order_rejected') %}badge-red
+              {% elif p.status == 'approved' %}badge-blue
+              {% else %}badge-gray{% endif %}"
+              title="Overall plan status — {{ p.status|replace('_',' ') }}">
+              {{ status_icon(p.status) }}
+              <span>{{ p.status|replace('_',' ')|upper }}</span>
+            </span>
             <span class="pending-meta">{{ p.ts_ago }}</span>
           </div>
           <div class="pending-row">
@@ -33,20 +148,36 @@
           <div class="pending-row pending-prices">
             <span class="mono">Risk ${{ "%.0f"|format(p.risk_usd) }} · R:R {{ "%.1f"|format(p.rr_tp1) }}R</span>
           </div>
-          <div class="pending-row" style="gap: 6px;">
-            <span class="{% if p.compliance == 'pass' %}gate-pass{% else %}gate-block{% endif %}">
-              {{ p.compliance|upper }}
+          <div class="pending-row" style="gap: 8px; flex-wrap: wrap;">
+            <span class="gate-badge
+                  {% if p.compliance == 'approved' %}gate-pass
+                  {% elif p.compliance == 'rejected' %}gate-block
+                  {% else %}gate-skipped{% endif %}"
+                  title="Compliance gate (C1-C8) — {{ p.compliance }}">
+              {{ icon('shield') }}{{ outcome_icon(p.compliance) }}
             </span>
-            <span class="{% if p.risk_result == 'approve' %}gate-pass
-                         {% elif p.risk_result == 'resize' %}gate-resize
-                         {% else %}gate-block{% endif %}">
-              {{ p.risk_result|upper }}
+            <span class="gate-badge
+                  {% if p.risk_result == 'approved' %}gate-pass
+                  {% elif p.risk_result == 'resized' %}gate-resize
+                  {% elif p.risk_result == 'rejected' %}gate-block
+                  {% else %}gate-skipped{% endif %}"
+                  title="Risk gate (R1-R9) — {{ p.risk_result }}{% if p.risk_result == 'skipped' %} — never ran because compliance rejected{% endif %}">
+              {{ icon('scale') }}{{ outcome_icon(p.risk_result) }}
             </span>
           </div>
         </div>
       {% endfor %}
     {% else %}
-      <div class="text-secondary text-sm">No trades awaiting approval.</div>
+      <div class="text-secondary text-sm">
+        {% if filter_status == 'pending' %}No trades awaiting approval.
+        {% elif filter_status == 'executed' %}No executed orders yet.
+        {% elif filter_status == 'order_rejected' %}No broker-level order rejections.
+        {% elif filter_status == 'rejected' %}No plans rejected by compliance/risk.
+        {% elif filter_status == 'expired' %}No expired plans.
+        {% elif filter_status == 'all' %}No plans recorded yet.
+        {% else %}No plans match.
+        {% endif %}
+      </div>
     {% endif %}
   </aside>
 
@@ -66,13 +197,42 @@
         <span class="text-secondary text-sm">conviction {{ (p.conviction * 100)|round|int }}%</span>
       </div>
 
-      {# TradingView embed #}
-      <iframe
-        class="tv-embed"
-        src="https://www.tradingview.com/widgetembed/?symbol=NASDAQ:{{ p.symbol }}&interval=60&theme=dark&style=1&locale=en&hide_top_toolbar=0&hide_legend=0"
-        loading="lazy"
-        referrerpolicy="no-referrer"
-        title="TradingView chart for {{ p.symbol }}"></iframe>
+      {# Dual linked chart — 1h top, 4h bottom by default. Each chart
+         has its own timeframe selector. Crosshair on one moves the
+         crosshair on the other at the matching timestamp. Levels from
+         the TradePlan (entry/stop/TP1/TP2) are drawn on both charts.
+         Double-click any chart to scroll the other chart(s) so the
+         hovered moment is centered in their visible range. #}
+      <div class="card mt-16" style="padding: 0;">
+        <div class="chart-hint text-tertiary text-xs">
+          Hover both charts to sync crosshair. Double-click a chart to
+          center the others on that moment.
+        </div>
+        <div class="dual-chart-wrap" id="dual-chart-wrap"
+             data-symbol="{{ p.symbol }}"
+             data-entry="{{ p.entry }}"
+             data-stop="{{ p.stop }}"
+             data-tp1="{{ p.tp1 }}"
+             data-tp2="{{ p.tp2 }}">
+          {% for chart_idx, default_interval in [('a', '1h'), ('b', '4h')] %}
+            <div class="chart-pane">
+              <div class="chart-toolbar">
+                <span class="mono text-sm text-secondary" id="chart-{{ chart_idx }}-label">
+                  {{ p.symbol }}
+                </span>
+                <span class="flex-1"></span>
+                {% for tf in ['1h', '2h', '4h', '1d'] %}
+                  <button class="chart-tf-btn {% if tf == default_interval %}active{% endif %}"
+                          data-chart="{{ chart_idx }}" data-interval="{{ tf }}">
+                    {{ tf|upper }}
+                  </button>
+                {% endfor %}
+              </div>
+              <div class="chart-canvas" id="chart-{{ chart_idx }}-canvas"></div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
 
       {# Trade setup table #}
       <div class="card mt-24">
@@ -145,44 +305,370 @@
       <div class="card mt-24">
         <div class="card-header"><span class="card-title">Gate results</span></div>
         <div class="flex items-center gap-12 mb-8">
-          <span class="text-secondary" style="width: 110px;">Compliance</span>
-          <span class="{% if p.compliance == 'pass' %}gate-pass{% else %}gate-block{% endif %}">{{ p.compliance|upper }}</span>
+          <span class="text-secondary gate-label" style="width: 110px;">
+            {{ icon('shield') }}<span>Compliance</span>
+          </span>
+          <span class="gate-badge
+                  {% if p.compliance == 'approved' %}gate-pass
+                  {% elif p.compliance == 'rejected' %}gate-block
+                  {% else %}gate-skipped{% endif %}">
+            {{ outcome_icon(p.compliance) }}<span>{{ p.compliance|upper }}</span>
+          </span>
           <span class="text-sm text-secondary">
-            {% if p.compliance == 'pass' %}All 8 gates passed{% else %}Blocked — see reason{% endif %}
+            {% if p.compliance == 'approved' %}All 8 gates approved
+            {% elif p.compliance == 'rejected' %}Rejected — {{ p.compliance_verdict.block_reason if p.compliance_verdict else 'see reason' }}
+            {% else %}Not yet evaluated
+            {% endif %}
           </span>
         </div>
         <div class="flex items-center gap-12">
-          <span class="text-secondary" style="width: 110px;">Risk</span>
-          <span class="{% if p.risk_result == 'approve' %}gate-pass{% elif p.risk_result == 'resize' %}gate-resize{% else %}gate-block{% endif %}">{{ p.risk_result|upper }}</span>
-          {% if p.risk_result == 'resize' %}
+          <span class="text-secondary gate-label" style="width: 110px;">
+            {{ icon('scale') }}<span>Risk</span>
+          </span>
+          <span class="gate-badge
+                  {% if p.risk_result == 'approved' %}gate-pass
+                  {% elif p.risk_result == 'resized' %}gate-resize
+                  {% elif p.risk_result == 'rejected' %}gate-block
+                  {% else %}gate-skipped{% endif %}">
+            {{ outcome_icon(p.risk_result) }}<span>{{ p.risk_result|upper }}</span>
+          </span>
+          {% if p.risk_result == 'resized' %}
             <span class="text-sm text-secondary">Resized to {{ p.position_size }} shares (R1: per-trade cap)</span>
-          {% elif p.risk_result == 'approve' %}
-            <span class="text-sm text-secondary">All 9 gates passed</span>
+          {% elif p.risk_result == 'approved' %}
+            <span class="text-sm text-secondary">All 9 gates approved</span>
+          {% elif p.risk_result == 'rejected' %}
+            <span class="text-sm text-secondary">Rejected — {{ p.risk_verdict.reject_reason if p.risk_verdict else 'see reason' }}</span>
+          {% elif p.risk_result == 'skipped' %}
+            <span class="text-sm text-secondary">Skipped — compliance rejected the plan first</span>
           {% endif %}
         </div>
       </div>
 
-      {# Approval actions ─ sticky #}
-      <div class="approval-actions">
-        <button class="btn btn-success"
-                onclick="ackAction('{{ p.plan_id }}', 'approve')">Approve</button>
-        <button class="btn btn-danger"
-                onclick="ackAction('{{ p.plan_id }}', 'reject')">Reject</button>
-        <button class="btn"
-                onclick="ackAction('{{ p.plan_id }}', 'modify')">Modify</button>
-        <span id="ack-status" class="text-sm"></span>
-        <span class="approval-countdown"
-              data-created="{{ p.ts_created }}"
-              id="ack-countdown">--:--</span>
-      </div>
+      {# Approval actions ─ pending rows show ack buttons; everything else
+         shows an execution summary instead (historical view). Approve is
+         disabled once the plan is older than the approval window (stale);
+         Reject stays available because saying No is always safe. #}
+      {% if p.status == 'pending' %}
+        <div class="approval-actions">
+          <button class="btn btn-success"
+                  id="ack-approve-btn"
+                  {% if p.is_stale %}disabled title="Approval window closed — re-run pipeline"{% endif %}
+                  onclick="ackAction('{{ p.plan_id }}', 'approve')">Approve</button>
+          <button class="btn btn-danger"
+                  onclick="ackAction('{{ p.plan_id }}', 'reject')">Reject</button>
+          <span id="ack-status" class="text-sm"></span>
+          <span class="approval-countdown"
+                data-created="{{ p.ts_created }}"
+                data-timeout-min="{{ stale_minutes }}"
+                id="ack-countdown">--:--</span>
+        </div>
+      {% else %}
+        <div class="card mt-24">
+          <div class="card-header">
+            <span class="card-title">
+              Final status
+              <span class="badge gate-badge
+                {% if p.status == 'executed' %}badge-green
+                {% elif p.status == 'approved' %}badge-amber
+                {% elif p.status in ('rejected', 'order_rejected') %}badge-red
+                {% else %}badge-gray{% endif %}"
+                style="margin-left: 8px;">
+                {{ status_icon(p.status) }}
+                <span>{{ p.status|replace('_',' ')|upper }}</span>
+              </span>
+            </span>
+          </div>
+          {% if p.status == 'executed' and p.broker_order_id %}
+            <div class="mb-8">
+              <span class="text-secondary">Broker order ID</span>
+              <span class="mono">{{ p.broker_order_id }}</span>
+            </div>
+          {% endif %}
+          {% if p.execution_ts %}
+            <div class="mb-8">
+              <span class="text-secondary">Execution time</span>
+              <span class="mono">{{ p.execution_ts }}</span>
+            </div>
+          {% endif %}
+          {% if p.execution_reject_reason %}
+            <div class="mb-8">
+              <span class="text-secondary">Reason</span>
+              <span>{{ p.execution_reject_reason }}</span>
+            </div>
+          {% endif %}
+          {% if p.ack_action %}
+            <div class="mb-8">
+              <span class="text-secondary">Human ack</span>
+              <span class="badge badge-gray">{{ p.ack_action|upper }}</span>
+              <span class="text-sm text-tertiary">at {{ p.ack_ts }}</span>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
     {% endif %}
   </section>
 </div>
 
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
 <script>
+  // ------------------------------------------------------------------
+  // Dual chart — 1h + 4h, shared crosshair, per-chart timeframe selector.
+  // Loads OHLCV from /api/bars/{symbol} and renders via Lightweight Charts.
+  // ------------------------------------------------------------------
+  (function dualChart() {
+    const wrap = document.getElementById('dual-chart-wrap');
+    if (!wrap || typeof LightweightCharts === 'undefined') return;
+    const symbol = wrap.dataset.symbol;
+    const entry = parseFloat(wrap.dataset.entry);
+    const stop = parseFloat(wrap.dataset.stop);
+    const tp1 = parseFloat(wrap.dataset.tp1);
+    const tp2 = parseFloat(wrap.dataset.tp2);
+
+    const chartOpts = {
+      layout: { background: { color: '#0d1117' }, textColor: '#e6edf3' },
+      grid: { vertLines: { color: '#1e2532' }, horzLines: { color: '#1e2532' } },
+      crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+      timeScale: { borderColor: '#2a3241', timeVisible: true, secondsVisible: false },
+      rightPriceScale: { borderColor: '#2a3241' },
+      autoSize: true,
+    };
+
+    const charts = {};  // key 'a'/'b' -> {chart, series, interval}
+
+    function makeChart(idx, interval) {
+      const container = document.getElementById(`chart-${idx}-canvas`);
+      const chart = LightweightCharts.createChart(container, chartOpts);
+      const series = chart.addCandlestickSeries({
+        upColor: '#2ea043', downColor: '#da3633',
+        borderUpColor: '#2ea043', borderDownColor: '#da3633',
+        wickUpColor: '#2ea043', wickDownColor: '#da3633',
+      });
+      // Plan levels drawn as price-lines. Hard-coded on both charts.
+      if (!isNaN(entry)) series.createPriceLine({
+        price: entry, color: '#58a6ff', lineStyle: 0, lineWidth: 1,
+        axisLabelVisible: true, title: 'Entry',
+      });
+      if (!isNaN(stop))  series.createPriceLine({
+        price: stop, color: '#f85149', lineStyle: 2, lineWidth: 1,
+        axisLabelVisible: true, title: 'Stop',
+      });
+      if (!isNaN(tp1))   series.createPriceLine({
+        price: tp1, color: '#3fb950', lineStyle: 2, lineWidth: 1,
+        axisLabelVisible: true, title: 'TP1',
+      });
+      if (!isNaN(tp2))   series.createPriceLine({
+        price: tp2, color: '#3fb950', lineStyle: 2, lineWidth: 1,
+        axisLabelVisible: true, title: 'TP2',
+      });
+      charts[idx] = { chart, series, interval };
+      return { chart, series };
+    }
+
+    async function loadInterval(idx, interval) {
+      const label = document.getElementById(`chart-${idx}-label`);
+      if (label) label.textContent = `${symbol} · ${interval.toUpperCase()}`;
+      try {
+        const r = await fetch(`/api/bars/${symbol}?interval=${interval}&limit=500`);
+        if (!r.ok) {
+          if (label) label.textContent = `${symbol} · ${interval.toUpperCase()} · error ${r.status}`;
+          return;
+        }
+        const data = await r.json();
+        const bars = (data.bars || []).map(b => ({
+          time: b.time,
+          open: b.open, high: b.high, low: b.low, close: b.close,
+        }));
+        charts[idx].series.setData(bars);
+        charts[idx].bars = bars;  // retained for logical-index lookups
+        charts[idx].chart.timeScale().fitContent();
+        charts[idx].interval = interval;
+        // Reset lazy-load state for the new series
+        charts[idx].loading = false;
+        charts[idx].reachedStart = false;
+      } catch (e) {
+        console.error('chart load failed', e);
+        if (label) label.textContent = `${symbol} · ${interval.toUpperCase()} · load failed`;
+      }
+    }
+
+    // Lazy-load: when the user scrolls to the left edge, fetch the page
+    // of bars before the current oldest one and prepend. The backing
+    // cache is local (yfinance CSVs), so each page costs a disk read
+    // and a few KB of JSON — cheap. Hard limit: once the server returns
+    // fewer than `limit` bars, we've hit the start of available data and
+    // stop trying.
+    const LAZY_PAGE_SIZE = 300;
+    const LEFT_EDGE_THRESHOLD = 5;  // bars
+    async function fetchOlder(idx) {
+      const c = charts[idx];
+      if (!c || !c.bars || c.bars.length === 0) return;
+      if (c.loading || c.reachedStart) return;
+      c.loading = true;
+      const oldestTime = c.bars[0].time;
+      const url = `/api/bars/${symbol}?interval=${c.interval}` +
+                  `&limit=${LAZY_PAGE_SIZE}&before=${oldestTime}`;
+      try {
+        const r = await fetch(url);
+        if (!r.ok) return;
+        const data = await r.json();
+        const older = (data.bars || []).map(b => ({
+          time: b.time, open: b.open, high: b.high,
+          low: b.low, close: b.close,
+        }));
+        if (older.length === 0) {
+          c.reachedStart = true;
+          return;
+        }
+        // Preserve the user's current logical view. Without this, the
+        // chart snaps to fit the new full data set and the user loses
+        // their scroll position.
+        const ts = c.chart.timeScale();
+        const logical = ts.getVisibleLogicalRange();
+
+        const merged = older.concat(c.bars);
+        c.series.setData(merged);
+        c.bars = merged;
+
+        if (logical) {
+          const shift = older.length;
+          ts.setVisibleLogicalRange({
+            from: logical.from + shift,
+            to: logical.to + shift,
+          });
+        }
+        // If the server signaled there's no more history, don't try again.
+        if (!data.has_more) c.reachedStart = true;
+      } catch (e) {
+        console.warn('lazy-load failed', e);
+      } finally {
+        c.loading = false;
+      }
+    }
+
+    function wireLazyLoad(idx) {
+      const c = charts[idx];
+      c.chart.timeScale().subscribeVisibleLogicalRangeChange(range => {
+        if (!range) return;
+        if (range.from < LEFT_EDGE_THRESHOLD) {
+          fetchOlder(idx);
+        }
+      });
+    }
+
+    // Crosshair sync. When user hovers chart A, move the crosshair on
+    // chart B at the same timestamp (and vice versa). Lightweight
+    // Charts offers subscribeCrosshairMove → setCrosshairPosition which
+    // is exactly this.
+    //
+    // We also track the most-recent crosshair time on each chart so
+    // the dblclick sync handler below knows where to re-center.
+    function wireSync(a, b) {
+      charts[a].chart.subscribeCrosshairMove(param => {
+        // Record even when the pointer leaves the chart, so the last
+        // valid hover is preserved for a subsequent dblclick.
+        if (param && typeof param.time !== 'undefined') {
+          charts[a].lastCrosshairTime = param.time;
+        }
+        if (!param || !param.time || !param.seriesData) {
+          charts[b].chart.clearCrosshairPosition();
+          return;
+        }
+        const bar = param.seriesData.get(charts[a].series);
+        if (!bar || typeof bar.close !== 'number') {
+          charts[b].chart.clearCrosshairPosition();
+          return;
+        }
+        charts[b].chart.setCrosshairPosition(
+          bar.close, param.time, charts[b].series,
+        );
+      });
+    }
+
+    // Double-click sync. Scroll every OTHER chart so the moment the
+    // user just hovered is centered in its visible range, preserving
+    // that chart's current zoom — specifically the BAR COUNT on screen
+    // rather than the time width. Lightweight Charts' logical-range
+    // API lets us do this exactly: the range is expressed in bar
+    // indices (fractional), independent of how dense the time axis is.
+    //
+    // A time-based width (the previous implementation) stretched or
+    // shrunk candles because a week of 1h bars is ~120 bars normally
+    // but only ~30 bars around a holiday week — the same seconds-width
+    // maps to wildly different bar counts.
+    function closestBarIndex(bars, time) {
+      if (!bars || bars.length === 0) return null;
+      let lo = 0, hi = bars.length - 1;
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (bars[mid].time < time) lo = mid + 1;
+        else hi = mid;
+      }
+      if (lo > 0 &&
+          Math.abs(bars[lo - 1].time - time) < Math.abs(bars[lo].time - time)) {
+        return lo - 1;
+      }
+      return lo;
+    }
+
+    function centerChartOnTime(idx, time) {
+      const c = charts[idx];
+      if (!c || typeof time !== 'number' || !c.bars) return;
+      const ts = c.chart.timeScale();
+      const logical = ts.getVisibleLogicalRange();
+      if (!logical) return;
+      const width = logical.to - logical.from;
+      if (width <= 0) return;
+      const targetIdx = closestBarIndex(c.bars, time);
+      if (targetIdx === null) return;
+      ts.setVisibleLogicalRange({
+        from: targetIdx - width / 2,
+        to:   targetIdx + width / 2,
+      });
+    }
+
+    function wireDblclickSync(idx) {
+      const canvas = document.getElementById(`chart-${idx}-canvas`);
+      if (!canvas) return;
+      canvas.addEventListener('dblclick', () => {
+        const t = charts[idx].lastCrosshairTime;
+        if (typeof t !== 'number') return;
+        Object.keys(charts).forEach(other => {
+          if (other !== idx) centerChartOnTime(other, t);
+        });
+      });
+    }
+
+    // Interval buttons
+    document.querySelectorAll('.chart-tf-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const idx = btn.dataset.chart;
+        const iv = btn.dataset.interval;
+        // Active state
+        document.querySelectorAll(`.chart-tf-btn[data-chart="${idx}"]`)
+                .forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        await loadInterval(idx, iv);
+      });
+    });
+
+    // Build both charts, load defaults, wire sync + dblclick re-center
+    // + left-edge lazy-load.
+    makeChart('a', '1h');
+    makeChart('b', '4h');
+    loadInterval('a', '1h');
+    loadInterval('b', '4h');
+    wireSync('a', 'b');
+    wireSync('b', 'a');
+    wireDblclickSync('a');
+    wireDblclickSync('b');
+    wireLazyLoad('a');
+    wireLazyLoad('b');
+  })();
+
   // Approval action — confirm + POST /pending/{id}/ack, swap status pill.
   async function ackAction(planId, action) {
-    const verb = { approve: 'approve', reject: 'reject', modify: 'modify' }[action];
+    const verb = { approve: 'approve', reject: 'reject' }[action];
+    if (!verb) return;
     if (!confirm(`Confirm ${verb} for plan ${planId}?`)) return;
     const r = await fetch(`/pending/${planId}/ack`, {
       method: 'POST',
@@ -190,21 +676,41 @@
       body: `action=${encodeURIComponent(action)}`,
     });
     document.getElementById('ack-status').innerHTML = await r.text();
+    // Any terminal ack locks the buttons so the user can't double-submit.
+    disableApprove();
+    if (action === 'reject') {
+      const rej = document.querySelector('.btn.btn-danger');
+      if (rej) rej.setAttribute('disabled', 'disabled');
+    }
   }
 
-  // Countdown — 15 min from ts_created.
+  function disableApprove() {
+    const btn = document.getElementById('ack-approve-btn');
+    if (btn) {
+      btn.setAttribute('disabled', 'disabled');
+      btn.title = 'Approval window closed — re-run pipeline to re-propose';
+    }
+  }
+
+  // Countdown — reads ts_created + timeout minutes from data attributes.
+  // When the window closes, disable the Approve button so a user can't
+  // click it and run into the server-side 410 response.
   (function () {
     const el = document.getElementById('ack-countdown');
     if (!el) return;
     const created = new Date(el.dataset.created).getTime();
-    const expiresAt = created + 15 * 60 * 1000;
+    const minutes = parseInt(el.dataset.timeoutMin || '30', 10);
+    const expiresAt = created + minutes * 60 * 1000;
     function tick() {
       const remaining = Math.max(0, expiresAt - Date.now());
       const m = Math.floor(remaining / 60000);
       const s = Math.floor((remaining % 60000) / 1000);
       const text = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
       el.textContent = remaining > 0 ? `Expires in ${text}` : 'Approval expired';
-      if (remaining <= 0) clearInterval(timer);
+      if (remaining <= 0) {
+        disableApprove();
+        clearInterval(timer);
+      }
     }
     tick();
     const timer = setInterval(tick, 1000);

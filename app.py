@@ -17,7 +17,18 @@ from dotenv import load_dotenv
 from fastapi import Depends, FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from routers import broker, dashboard, pending, settings as settings_router, stubs, trades
+from routers import (
+    bars,
+    broker,
+    dashboard,
+    pending,
+    settings as settings_router,
+    stubs,
+    trades,
+    universe,
+    workflows,
+)
+from services import db_service, universe_service
 from services.broker_service import connect_adapter, get_adapter
 from services.settings_service import (
     ENV_FILE,
@@ -52,6 +63,11 @@ async def lifespan(_: FastAPI):
         "TradeAgent starting | mode=%s | project_root=%s", s.app.mode, PROJECT_ROOT
     )
     try:
+        await db_service.ensure_tables()
+        await universe_service.seed_from_yaml_if_empty()
+    except Exception as exc:
+        logger.error("SQLite ensure_tables failed: %s", exc)
+    try:
         ok = await connect_adapter()
         logger.info("Broker adapter: %s", "connected" if ok else "failed")
     except Exception as exc:
@@ -84,6 +100,9 @@ app.include_router(pending.router)
 app.include_router(trades.router)
 app.include_router(settings_router.router)
 app.include_router(broker.router)
+app.include_router(workflows.router)
+app.include_router(bars.router)
+app.include_router(universe.router)
 app.include_router(stubs.router)
 
 

@@ -1,0 +1,531 @@
+{% extends "base.html" %}
+{% block title %}{{ 'New Preset' if is_new else (preset.title or preset.name) }} — Universe — TradeAgent{% endblock %}
+{% block content %}
+<div style="max-width: 860px;">
+
+  {# Breadcrumb #}
+  <div class="flex items-center gap-12 mb-20">
+    <a href="/universe" class="text-secondary" style="text-decoration:none;">← Universe</a>
+    <span class="text-tertiary">/</span>
+    <span style="font-size:14px;font-weight:500;">
+      {{ 'New preset' if is_new else (preset.title or preset.name) }}
+    </span>
+    {% if not is_new and preset.is_active %}
+      <span class="badge badge-green" style="font-size:11px;">active</span>
+    {% endif %}
+  </div>
+
+  {# ── New preset: just the create form, redirect to edit after ── #}
+  {% if is_new %}
+  <div class="card">
+    <div class="card-header"><span class="card-title">Create preset</span></div>
+    <form id="create-form" style="display:flex;flex-direction:column;gap:14px;padding:4px 0 0;">
+      <div class="flex gap-16" style="flex-wrap:wrap;">
+        <label style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:200px;">
+          <span class="text-secondary text-xs">Title <span style="color:var(--accent-red)">*</span></span>
+          <input id="cf-title" type="text" required placeholder="e.g. Liquid Momentum Core"
+                 style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;
+                        background:var(--surface-2);color:var(--text-primary);font-size:14px;">
+        </label>
+        <label style="display:flex;flex-direction:column;gap:4px;flex:0 0 240px;">
+          <span class="text-secondary text-xs">Slug <span class="text-tertiary">(auto)</span></span>
+          <input id="cf-name" type="text" readonly placeholder="liquid_momentum_core"
+                 style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;
+                        background:var(--surface-1);color:var(--text-tertiary);font-size:13px;
+                        font-family:var(--font-mono);">
+        </label>
+      </div>
+      <label style="display:flex;flex-direction:column;gap:4px;">
+        <span class="text-secondary text-xs">Description</span>
+        <input id="cf-desc" type="text" placeholder="One-line description"
+               style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;
+                      background:var(--surface-2);color:var(--text-primary);font-size:13px;width:100%;">
+      </label>
+      <div>
+        <button type="submit"
+                style="padding:8px 20px;background:var(--accent-blue);color:#fff;
+                       border:none;border-radius:6px;font-size:13px;cursor:pointer;font-weight:500;">
+          Create &amp; configure filters →
+        </button>
+      </div>
+    </form>
+  </div>
+
+  {% else %}
+  {# ── Edit mode ─────────────────────────────────────────────────── #}
+
+  {# Meta card #}
+  <div class="card mb-16">
+    <div class="card-header" style="justify-content:space-between;">
+      <span class="card-title">Preset info</span>
+      {% if not preset.is_active %}
+        <button class="btn-sm"
+                hx-post="/api/universe/presets/{{ preset.name }}/set-active"
+                hx-swap="none">
+          Set active
+        </button>
+      {% endif %}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;padding:4px 0 0;">
+      <div class="flex gap-16" style="flex-wrap:wrap;">
+        <label style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:180px;">
+          <span class="text-secondary text-xs">Title</span>
+          <input id="meta-title" type="text" value="{{ preset.title }}"
+                 style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;
+                        background:var(--surface-2);color:var(--text-primary);font-size:14px;font-weight:500;">
+        </label>
+        <label style="display:flex;flex-direction:column;gap:4px;flex:0 0 200px;">
+          <span class="text-secondary text-xs">Slug</span>
+          <input type="text" value="{{ preset.name }}" readonly
+                 style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;
+                        background:var(--surface-1);color:var(--text-tertiary);
+                        font-size:12px;font-family:var(--font-mono);">
+        </label>
+        <label style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:180px;">
+          <span class="text-secondary text-xs">Description</span>
+          <input id="meta-desc" type="text" value="{{ preset.description }}"
+                 placeholder="One-line description"
+                 style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;
+                        background:var(--surface-2);color:var(--text-primary);font-size:13px;">
+        </label>
+      </div>
+    </div>
+  </div>
+
+  {# Filter editor #}
+  <div class="card mb-16">
+    <div class="card-header" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div class="flex items-center gap-10">
+        <span class="card-title">Filters</span>
+        <span id="filter-count" class="badge badge-gray" style="font-size:11px;">
+          {{ preset.filters|length }} set
+        </span>
+      </div>
+      <div class="flex gap-8">
+        <button type="button" class="btn-sm" onclick="openPicker()">+ Add filter</button>
+        <button type="button" id="save-btn" onclick="savePreset()"
+                style="padding:6px 16px;background:var(--accent-blue);color:#fff;
+                       border:none;border-radius:6px;font-size:13px;cursor:pointer;font-weight:500;">
+          Save
+        </button>
+      </div>
+    </div>
+
+    {# Active filter rows — rendered server-side, JS adds/removes dynamically #}
+    <div id="filter-rows">
+      {# Default-visible filters (always shown; value may be blank) #}
+      {% for fid in default_filter_ids %}
+        {% set f = catalog_flat.get(fid) %}
+        {% if f %}
+          {% set cur = preset.filters.get(fid, '') %}
+          {{ self::filter_row(f=f, current=cur) }}
+        {% endif %}
+      {% endfor %}
+
+      {# Preset-specific extras (filters saved to this preset but not in defaults) #}
+      {% for fid in extra_filter_ids %}
+        {% set f = catalog_flat.get(fid) %}
+        {% if f %}
+          {% set cur = preset.filters.get(fid, '') %}
+          {{ self::filter_row(f=f, current=cur, removable=true) }}
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="text-tertiary text-xs mt-8" style="padding-top:8px;border-top:1px solid var(--border);">
+      <strong>prescreen</strong> badge = filter also applied on cached bar data (in-process, no network).
+      Other filters are Finviz-only.
+    </div>
+  </div>
+
+  {# Test run #}
+  <div class="card mb-16">
+    <div class="card-header" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <span class="card-title">Test run</span>
+      <div class="flex items-center gap-10">
+        <span class="text-tertiary text-xs">Scrapes Finviz live — does not save tickers</span>
+        <button id="run-btn" onclick="runTest()"
+                style="padding:6px 16px;background:var(--surface-3);color:var(--text-primary);
+                       border:1px solid var(--border);border-radius:6px;
+                       font-size:13px;cursor:pointer;font-weight:500;">
+          ▶ Run
+        </button>
+      </div>
+    </div>
+    <div id="run-results" style="display:none;padding-top:12px;">
+      <div id="run-body"></div>
+    </div>
+  </div>
+
+  {# Current universe stats #}
+  {% if preset.ticker_count %}
+  <div class="card mb-16">
+    <div class="card-header"><span class="card-title">Saved universe</span></div>
+    <div class="flex items-center gap-16" style="flex-wrap:wrap;">
+      <span class="mono" style="font-size:24px;font-weight:600;">{{ preset.ticker_count }}</span>
+      <span class="text-secondary text-sm">tickers</span>
+      {% if preset.tickers_refreshed_at %}
+        <span class="text-tertiary text-xs">saved {{ preset.tickers_refreshed_at[:19] }}</span>
+      {% endif %}
+      {% if preset.tickers_source %}
+        <span class="text-tertiary text-xs mono" style="font-size:11px;">{{ preset.tickers_source[:60] }}</span>
+      {% endif %}
+    </div>
+    {% if preset.tickers %}
+    <div style="margin-top:10px;font-size:12px;font-family:var(--font-mono);
+                line-height:1.9;color:var(--text-secondary);">
+      {{ preset.tickers|join(' · ')|truncate(500) }}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% endif %}{# end is_new / edit #}
+</div>
+
+{# ── Filter-picker modal ────────────────────────────────────────────── #}
+<div id="picker-overlay"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:800;"
+     onclick="if(event.target===this)closePicker()">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+              width:min(640px,96vw);max-height:80vh;overflow:hidden;
+              background:var(--surface-1);border-radius:10px;
+              border:1px solid var(--border);display:flex;flex-direction:column;">
+    <div style="padding:14px 18px;border-bottom:1px solid var(--border);
+                display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-weight:500;font-size:14px;">Add filter</span>
+      <button onclick="closePicker()"
+              style="background:none;border:none;color:var(--text-tertiary);
+                     font-size:20px;cursor:pointer;line-height:1;">×</button>
+    </div>
+    <div style="padding:12px 18px;border-bottom:1px solid var(--border);">
+      <input id="picker-search" type="text" placeholder="Search filters…"
+             oninput="filterPicker(this.value)"
+             style="width:100%;padding:8px 10px;border:1px solid var(--border);
+                    border-radius:6px;background:var(--surface-2);
+                    color:var(--text-primary);font-size:13px;">
+    </div>
+    <div id="picker-list" style="overflow-y:auto;padding:8px 0;"></div>
+  </div>
+</div>
+
+{# Toast #}
+<div id="toast"
+     style="position:fixed;bottom:24px;right:24px;padding:10px 18px;border-radius:8px;
+            font-size:13px;font-weight:500;display:none;z-index:9999;
+            pointer-events:none;transition:opacity .3s;"></div>
+
+<style>
+.btn-sm{padding:4px 10px;font-size:12px;border-radius:4px;border:1px solid var(--border);
+        background:var(--surface-2);color:var(--text-primary);cursor:pointer;white-space:nowrap;}
+.btn-sm:hover{background:var(--surface-3);}
+.filter-row-item{display:flex;align-items:center;gap:10px;padding:8px 0;
+                 border-bottom:1px solid var(--border);}
+.filter-row-item:last-child{border-bottom:none;}
+.filter-label{flex:1;font-size:13px;}
+.filter-select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;
+               background:var(--surface-2);color:var(--text-primary);font-size:12px;
+               max-width:220px;min-width:140px;}
+.filter-select.has-value{border-color:var(--accent-blue);background:var(--tint-blue);}
+.remove-btn{padding:2px 7px;background:none;border:1px solid var(--border);
+            border-radius:4px;color:var(--text-tertiary);cursor:pointer;font-size:13px;}
+.remove-btn:hover{border-color:var(--accent-red);color:var(--accent-red);}
+.picker-item{padding:10px 18px;cursor:pointer;display:flex;align-items:center;
+             justify-content:space-between;font-size:13px;}
+.picker-item:hover{background:var(--surface-2);}
+.picker-item.already-added{opacity:.4;pointer-events:none;}
+.picker-group-header{padding:6px 18px;font-size:11px;font-weight:600;
+                     text-transform:uppercase;letter-spacing:.05em;
+                     color:var(--text-tertiary);background:var(--surface-1);}
+</style>
+
+<script>
+// ── Catalog data (embedded from server) ─────────────────────────────
+const CATALOG = {{ catalog_grouped | tojson }};
+const CATALOG_FLAT = {{ catalog_flat | tojson }};
+
+// ── Track which filter IDs are currently shown ───────────────────────
+const activeIds = new Set([
+  {% if not is_new %}
+    {% for fid in default_filter_ids %}
+      {{ fid | tojson }},
+    {% endfor %}
+    {% for fid in extra_filter_ids %}
+      {{ fid | tojson }},
+    {% endfor %}
+  {% endif %}
+]);
+
+// ── Create a filter row DOM element ─────────────────────────────────
+function makeFilterRow(filterId, currentValue, removable) {
+  const f = CATALOG_FLAT[filterId];
+  if (!f) return null;
+
+  const row = document.createElement('div');
+  row.className = 'filter-row-item';
+  row.dataset.filterId = filterId;
+
+  // Label
+  const lbl = document.createElement('span');
+  lbl.className = 'filter-label';
+  lbl.innerHTML = `<span style="font-weight:500">${f.label}</span>` +
+    (f.supported_in_prescreen ? ` <span class="badge badge-blue" style="font-size:10px;">prescreen</span>` : '') +
+    ` <span class="text-tertiary mono" style="font-size:11px;">${filterId}</span>`;
+  row.appendChild(lbl);
+
+  // Select
+  const sel = document.createElement('select');
+  sel.className = 'filter-select' + (currentValue ? ' has-value' : '');
+  sel.name = `f_${filterId}`;
+  sel.dataset.filterId = filterId;
+  sel.innerHTML = '<option value="">— Any —</option>' +
+    f.options.map(o =>
+      `<option value="${o.value}"${o.value === currentValue ? ' selected' : ''}>${o.label}</option>`
+    ).join('');
+  sel.addEventListener('change', () => {
+    sel.classList.toggle('has-value', !!sel.value);
+    updateCount();
+  });
+  row.appendChild(sel);
+
+  // Remove button (shown for extras; for defaults it's always present but greyed if no value)
+  const rm = document.createElement('button');
+  rm.type = 'button';
+  rm.className = 'remove-btn';
+  rm.textContent = '×';
+  rm.title = removable ? 'Remove filter' : 'Clear value';
+  rm.addEventListener('click', () => {
+    if (removable) {
+      activeIds.delete(filterId);
+      row.remove();
+    } else {
+      sel.value = '';
+      sel.classList.remove('has-value');
+    }
+    updateCount();
+  });
+  row.appendChild(rm);
+
+  return row;
+}
+
+// ── Count active (non-blank) selects ────────────────────────────────
+function updateCount() {
+  const n = document.querySelectorAll('#filter-rows select.has-value').length;
+  const el = document.getElementById('filter-count');
+  if (el) el.textContent = n + ' set';
+}
+
+// ── Save ─────────────────────────────────────────────────────────────
+async function savePreset() {
+  const btn = document.getElementById('save-btn');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+
+  const fd = new FormData();
+  {% if not is_new %}
+  const title = document.getElementById('meta-title')?.value || '';
+  const desc = document.getElementById('meta-desc')?.value || '';
+  fd.append('title', title);
+  fd.append('description', desc);
+  {% endif %}
+  document.querySelectorAll('#filter-rows select').forEach(sel => {
+    if (sel.value) fd.append(sel.name, sel.value);
+  });
+
+  try {
+    const r = await fetch('/api/universe/presets/{{ preset.name if not is_new else "" }}', {
+      method: 'POST', body: fd,
+    });
+    const data = await r.json();
+    showToast(r.ok ? 'Saved' : (data.detail || 'Error'), r.ok);
+  } catch(e) {
+    showToast('Network error', false);
+  }
+  btn.textContent = 'Save'; btn.disabled = false;
+}
+
+// ── Test run ─────────────────────────────────────────────────────────
+let _lastTickers = [];
+async function runTest() {
+  const btn = document.getElementById('run-btn');
+  const results = document.getElementById('run-results');
+  const body = document.getElementById('run-body');
+  btn.textContent = '⏳ Running…'; btn.disabled = true;
+  results.style.display = 'none';
+
+  try {
+    const r = await fetch('/api/universe/presets/{{ preset.name }}/test-run', {method:'POST'});
+    const data = await r.json();
+    btn.textContent = '▶ Run'; btn.disabled = false;
+    if (!r.ok) { showToast(data.detail || 'Run failed', false); return; }
+    _lastTickers = data.tickers || [];
+    const n = data.count || 0;
+    body.innerHTML = `
+      <div class="flex items-center gap-16 mb-10" style="flex-wrap:wrap;">
+        <span class="mono" style="font-size:22px;font-weight:600;">${n}</span>
+        <span class="text-secondary">tickers matched</span>
+        ${n > 0 ? `<button onclick="saveTickers()"
+            style="padding:5px 14px;background:var(--accent-green);color:#fff;border:none;
+                   border-radius:6px;font-size:13px;cursor:pointer;font-weight:500;">
+            Save as universe (${n})
+          </button>` : ''}
+      </div>
+      ${n > 0
+        ? `<div style="font-size:12px;font-family:var(--font-mono);line-height:1.9;color:var(--text-secondary);">
+             ${_lastTickers.slice(0,200).join(' · ')}${n>200?` … +${n-200} more`:''}
+           </div>`
+        : '<div class="text-tertiary text-sm">No tickers matched — try loosening your filters.</div>'}
+    `;
+    results.style.display = '';
+  } catch(e) {
+    btn.textContent = '▶ Run'; btn.disabled = false;
+    showToast('Run failed: ' + e, false);
+  }
+}
+
+async function saveTickers() {
+  if (!_lastTickers.length) return;
+  const filterStr = Array.from(document.querySelectorAll('#filter-rows select'))
+    .filter(s => s.value)
+    .map(s => s.dataset.filterId + '_' + s.value)
+    .join(',');
+  const r = await fetch('/api/universe/presets/{{ preset.name }}/save-tickers', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({tickers:_lastTickers, source:`finviz:${filterStr}`}),
+  });
+  const data = await r.json();
+  showToast(r.ok ? `Saved ${data.count} tickers` : (data.detail||'Error'), r.ok);
+  if (r.ok) setTimeout(() => location.reload(), 1200);
+}
+
+// ── Filter picker ────────────────────────────────────────────────────
+function openPicker() {
+  buildPickerList('');
+  document.getElementById('picker-overlay').style.display = '';
+  document.getElementById('picker-search').focus();
+}
+function closePicker() {
+  document.getElementById('picker-overlay').style.display = 'none';
+  document.getElementById('picker-search').value = '';
+}
+function filterPicker(q) { buildPickerList(q.toLowerCase()); }
+
+function buildPickerList(q) {
+  const list = document.getElementById('picker-list');
+  list.innerHTML = '';
+  CATALOG.forEach(tabGroup => {
+    tabGroup.categories.forEach(cat => {
+      const visible = cat.filters.filter(f =>
+        (!q || f.label.toLowerCase().includes(q) || f.id.toLowerCase().includes(q))
+      );
+      if (!visible.length) return;
+      const hdr = document.createElement('div');
+      hdr.className = 'picker-group-header';
+      hdr.textContent = `${tabGroup.tab} / ${cat.name}`;
+      list.appendChild(hdr);
+      visible.forEach(f => {
+        const item = document.createElement('div');
+        item.className = 'picker-item' + (activeIds.has(f.id) ? ' already-added' : '');
+        item.innerHTML = `
+          <span>
+            <span style="font-weight:500">${f.label}</span>
+            <span class="text-tertiary mono" style="font-size:11px;margin-left:6px;">${f.id}</span>
+          </span>
+          ${activeIds.has(f.id)
+            ? '<span class="text-tertiary text-xs">added</span>'
+            : '<span style="color:var(--accent-blue);font-size:13px;">+ Add</span>'}
+        `;
+        if (!activeIds.has(f.id)) {
+          item.addEventListener('click', () => {
+            addFilter(f.id);
+            closePicker();
+          });
+        }
+        list.appendChild(item);
+      });
+    });
+  });
+  if (!list.children.length) {
+    list.innerHTML = '<div class="text-tertiary text-sm" style="padding:20px 18px;">No filters match.</div>';
+  }
+}
+
+function addFilter(filterId) {
+  if (activeIds.has(filterId)) return;
+  activeIds.add(filterId);
+  const row = makeFilterRow(filterId, '', true);
+  if (row) {
+    document.getElementById('filter-rows').appendChild(row);
+    updateCount();
+  }
+}
+
+// ── Slug auto-generation (new preset form) ───────────────────────────
+{% if is_new %}
+document.getElementById('cf-title').addEventListener('input', function() {
+  document.getElementById('cf-name').value = this.value
+    .toLowerCase().trim().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+});
+
+document.getElementById('create-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.textContent = 'Creating…'; btn.disabled = true;
+  const fd = new FormData();
+  fd.append('title', document.getElementById('cf-title').value);
+  fd.append('name', document.getElementById('cf-name').value || document.getElementById('cf-title').value);
+  fd.append('description', document.getElementById('cf-desc').value);
+  const r = await fetch('/api/universe/presets', {method:'POST', body:fd});
+  const data = await r.json();
+  if (r.ok && data.redirect) {
+    window.location.href = data.redirect;
+  } else {
+    showToast(data.detail || 'Error', false);
+    btn.textContent = 'Create & configure filters →'; btn.disabled = false;
+  }
+});
+{% endif %}
+
+// ── Toast ────────────────────────────────────────────────────────────
+function showToast(msg, ok) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = ok ? 'var(--accent-green)' : 'var(--accent-red)';
+  t.style.color = '#fff';
+  t.style.display = 'block'; t.style.opacity = '1';
+  setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.style.display='none',300); }, 3000);
+}
+
+// Init count on load
+updateCount();
+</script>
+
+{# Jinja2 macro for server-side rendered filter rows #}
+{% macro filter_row(f, current, removable=false) %}
+<div class="filter-row-item" data-filter-id="{{ f.id }}">
+  <span class="filter-label">
+    <span style="font-weight:500">{{ f.label }}</span>
+    {% if f.supported_in_prescreen %}
+      <span class="badge badge-blue" style="font-size:10px;">prescreen</span>
+    {% endif %}
+    <span class="text-tertiary mono" style="font-size:11px;margin-left:4px;">{{ f.id }}</span>
+  </span>
+  <select name="f_{{ f.id }}" data-filter-id="{{ f.id }}"
+          class="filter-select{% if current %} has-value{% endif %}"
+          onchange="this.classList.toggle('has-value',!!this.value);updateCount()">
+    <option value="">— Any —</option>
+    {% for opt in f.options %}
+      <option value="{{ opt.value }}"{% if current == opt.value %} selected{% endif %}>
+        {{ opt.label }}
+      </option>
+    {% endfor %}
+  </select>
+  <button type="button" class="remove-btn"
+          title="{{ 'Remove filter' if removable else 'Clear value' }}"
+          onclick="{% if removable %}activeIds.delete('{{ f.id }}');this.closest('.filter-row-item').remove();{% else %}this.previousElementSibling.value='';this.previousElementSibling.classList.remove('has-value');{% endif %}updateCount()">
+    ×
+  </button>
+</div>
+{% endmacro %}
+{% endblock %}

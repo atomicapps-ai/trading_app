@@ -1,0 +1,21 @@
+# universe_filter_config.yaml
+# Defines which Finviz filters appear by default when editing any preset.
+# Users can add more from the full 76-filter catalog via the "+ Add filter" picker.
+# Remove a filter from this list to hide it from the default view.
+# supported_in_prescreen filters are also re-applied on cached bar data in-process.
+
+default_visible:
+  - id: exch
+  - id: cap
+  - id: sh_price
+  - id: sh_avgvol
+  - id: sh_float
+  - id: sh_short
+  - id: ta_sma20
+  - id: ta_sma50
+  - id: ta_sma200
+  - id: ta_rsi
+  - id: ta_averagetruerange
+  - id: sec
+  - id: an_recom
+  - id: earningsdate

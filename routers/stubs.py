@@ -33,14 +33,6 @@ def _placeholder(active: str, title: str, phase: str, description: str):
 
 
 router.add_api_route(
-    "/universe", _placeholder(
-        "universe", "Universe",
-        "Phase 4",
-        "Finviz screener integration with named YAML presets, scheduled pre-market refresh, and rejection-reason histograms.",
-    ),
-    methods=["GET"], response_class=HTMLResponse,
-)
-router.add_api_route(
     "/strategies", _placeholder(
         "strategies", "Strategies",
         "Phase 5",
