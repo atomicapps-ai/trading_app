@@ -1,8 +1,9 @@
 # TradeAgent — Project Context for Claude Code
 **Last synced:** 2026-04-22
 **Status:** Phases 1–4 substantially complete. Phase 4 core (agents, workflow engine,
-executioner, SQLite, /universe UI, dual-chart /pending) all landed. One Phase 4 item
-remains: `services/scheduler.py` (APScheduler). Phase 5 (Backtest Engine) is next.
+executioner, SQLite, /universe UI with SQLite-backed Finviz preset manager, dual-chart
+/pending) all landed. One Phase 4 item remains: `services/scheduler.py` (APScheduler).
+Phase 5 (Backtest Engine) is next.
 **Roadmap (current):**
 - Phase 4 ✅ (minus scheduler) — Agents + Workflow Engine + Executioner + UI polish
 - Phase 5 NEXT — Backtest Engine + Strategy Review UI
@@ -168,7 +169,14 @@ trading_app/
 │   ├── pipeline_service.py      ← Thin orchestrator: engine + gates + SQLite writes
 │   ├── db_service.py            ← aiosqlite layer: pending_approvals, pipeline_runs,
 │   │                              trade_memory tables + full CRUD
-│   └── universe_service.py      ← list_presets(), get_preset(), archive_snapshot()
+│   ├── universe_service.py      ← SQLite CRUD wrappers (list/get/create/update/delete/
+│   │                              set_active/save_tickers) + Finviz catalog helpers:
+│   │                              load_finviz_catalog(), get_catalog_flat/grouped(),
+│   │                              load_filter_config(), scrape_finviz_filters(),
+│   │                              seed_from_yaml_if_empty()
+│   └── finviz_catalog.json      ← 76 usable Finviz filters (Elite-only stripped).
+│                                   Each entry: {id, label, tab, category, options[]}.
+│                                   Parsed once from Finviz HTML; committed to repo.
 │
 ├── templates/
 │   ├── base.html                ← Shell: sidebar, topbar, mode badge, ET clock, HALT
@@ -181,8 +189,19 @@ trading_app/
 │   ├── trades.html + trades/
 │   ├── settings.html + settings/
 │   ├── broker.html
-│   ├── universe.html            ← Preset list table (strategy affinity, ticker count, etc.)
-│   └── universe_detail.html     ← Preset detail: Criteria / Tickers / History tabs;
+│   ├── universe.html            ← Preset list: title + slug badge, ticker count,
+│   │                              last-refresh ts, output_tags badges, set-active /
+│   │                              edit / delete buttons. Cards clickable → edit page.
+│   ├── universe_edit.html       ← Preset editor (new + edit modes):
+│   │                              · Title input (auto-generates slug on new)
+│   │                              · 14 default filter rows from universe_filter_config.yaml;
+│   │                                each row = label + SELECT dropdown (all options from
+│   │                                finviz_catalog.json) + × remove button
+│   │                              · "+ Add filter" modal: searchable across all 76 filters,
+│   │                                grouped by tab/category; already-added greyed out
+│   │                              · ▶ Run button — scrapes Finviz live, shows ticker count
+│   │                              · Save as universe — persists tickers to SQLite
+│   └── universe_detail.html     ← Legacy YAML detail: Criteria / Tickers / History tabs;
 │                                  settings-driven include/exclude/pinned field visibility
 │
 ├── workflows/
@@ -193,8 +212,12 @@ trading_app/
 ├── strategy_configs/
 │   └── swing_momentum.yaml      ← Pattern thresholds for all 9 detectors
 │
-├── universe_filter_presets.yaml          ← Criteria definitions (committed)
+├── universe_filter_presets.yaml          ← Legacy YAML criteria (read-only after SQLite migration)
 ├── universe_filter_presets_tickers.yaml  ← Seed ticker list (committed; overwritten by refresh)
+├── universe_filter_config.yaml           ← 14 default-visible filter IDs shown in every preset
+│                                           editor: exch, cap, sh_price, sh_avgvol, sh_float,
+│                                           sh_short, ta_sma20, ta_sma50, ta_sma200, ta_rsi,
+│                                           ta_averagetruerange, sec, an_recom, earningsdate
 │
 ├── static/
 │   ├── app.css                  ← Hand-rolled dark-theme CSS (~500 lines)
@@ -367,7 +390,22 @@ GET  /                             → dashboard.html
 GET  /pending                      → pending.html (list)
 GET  /pending/{plan_id}            → pending_detail.html (TradingView + full plan)
 POST /pending/{plan_id}/ack        → process human_ack_record; trigger executioner
-GET  /universe/latest              → JSON: last universe_result
+GET  /universe                      → universe.html (SQLite preset list)
+GET  /universe/new                 → universe_edit.html (blank preset form)
+GET  /universe/{name}/edit         → universe_edit.html (edit existing preset)
+GET  /universe/{name}/detail       → universe_detail.html (legacy YAML read-only view)
+POST /api/universe/presets         → create preset (form: name, title, description, tags)
+POST /api/universe/presets/{name}  → update preset (filters + metadata)
+POST /api/universe/presets/{name}/delete    → delete preset
+POST /api/universe/presets/{name}/set-active → mark active (HX-Redirect header)
+POST /api/universe/presets/{name}/test-run  → scrape Finviz, return tickers (no save)
+POST /api/universe/presets/{name}/save-tickers → persist ticker list to SQLite
+GET  /api/universe/catalog         → full Finviz filter catalog JSON (76 filters)
+GET  /api/universe/presets         → JSON list of all presets
+GET  /api/universe/presets/{name}  → JSON detail for one preset
+GET  /api/universe/legacy          → JSON list (YAML-backed, read-only)
+GET  /api/universe/legacy/{name}   → JSON detail (YAML-backed)
+GET  /api/universe/latest          → JSON: last universe_result
 POST /universe/run                 → trigger universe_filter with named preset
 GET  /trades                       → trades.html (reads JSONL)
 GET  /trades/analysis              → analysis.html (aggregates from JSONL)
@@ -635,8 +673,22 @@ Phase 5 replay the same code over 10+ years of historical bars.
 - ✅ `/pending` redesign — dual Lightweight Charts (replaced TradingView iframe);
   crosshair sync, dblclick scroll, lazy-load older bars, filter tabs, gate icons,
   expiry enforcement, approve disabled on expiry.
-- ✅ `/universe` real pages — list + detail (Criteria/Tickers/History tabs) +
-  settings-driven panel (include/exclude/pinned fields via settings.yaml).
+- ✅ `/universe` full preset manager — SQLite-backed CRUD for named presets.
+  Each preset has a human-readable `title` + machine `name` slug + `description` +
+  `output_tags` + `filters` dict (Finviz key → option value).
+  - `services/finviz_catalog.json` — 76 usable Finviz filters (3 Elite-only removed).
+    Each filter has id, label, tab, category, options[]. Committed; not re-scraped at runtime.
+  - `universe_filter_config.yaml` — 14 filter IDs shown by default in every preset editor.
+  - `services/db_service.py` — `universe_presets` table: name, title, description,
+    is_active, filters_json, tickers_json, output_tags_json, tickers_refreshed_at,
+    updated_at. ALTER TABLE migration adds `title` column to existing DBs.
+  - `services/universe_service.py` — CRUD wrappers + Finviz catalog helpers +
+    `scrape_finviz_filters()` + `seed_from_yaml_if_empty()` (one-time YAML→SQLite migration).
+  - `templates/universe_edit.html` — full filter editor: 14 default rows + searchable
+    "+ Add filter" modal (76 filters grouped by tab/category) + ▶ Run + Save as universe.
+  - `templates/universe.html` — list view updated: title + slug, clickable cards → edit.
+  - `templates/universe_detail.html` — legacy YAML detail; fixed layout (compact rows,
+    flex-start alignment); added "Edit / Run" button linking to edit page.
 - ✅ `services/universe_service.py` — preset list/detail/archive
 - ✅ `universe_filter_presets_tickers.yaml` — seed list (25 liquid names)
 
@@ -743,4 +795,22 @@ numpy>=1.26.0
   Lightweight Charts in Phase 4. Use `GET /api/bars/{symbol}` for chart data.
 - Do not hardcode broker selection — always use `BROKER_PROVIDER` env var
   (default `alpaca`; `tradestation` opt-in). `broker_service.py` handles the switch.
+- Do not re-scrape the Finviz filter catalog at runtime — it's committed as
+  `services/finviz_catalog.json`. Only update by running the one-off scrape script.
+- Do not hardcode filter IDs in templates — always source from `universe_filter_config.yaml`
+  (default-visible set) and `finviz_catalog.json` (full catalog).
 ```
+
+---
+
+## Starting the server (developer workflow)
+
+Open the project folder in VSCode. The `.vscode/settings.json` auto-activates the venv
+in every new terminal. Then run:
+
+```
+python run.py dev    # hot-reload, info logging → http://localhost:5000
+python run.py prod   # 2 workers, warning logging → http://localhost:5000
+```
+
+Binds to `127.0.0.1:5000` (not `0.0.0.0` — Windows firewall blocks that port on 0.0.0.0).
