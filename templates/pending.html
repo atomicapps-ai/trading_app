@@ -479,6 +479,7 @@
           open: b.open, high: b.high, low: b.low, close: b.close,
         }));
         charts[idx].series.setData(bars);
+        charts[idx].bars = bars;  // retained for logical-index lookups
         charts[idx].chart.timeScale().fitContent();
         charts[idx].interval = interval;
       } catch (e) {
@@ -518,20 +519,43 @@
 
     // Double-click sync. Scroll every OTHER chart so the moment the
     // user just hovered is centered in its visible range, preserving
-    // that chart's current zoom width. Useful when the two timeframes
-    // show different windows (e.g. 1D chart zoomed out a year, 1h
-    // chart zoomed in on last week — dblclick jumps the 1h chart to
-    // whatever day you're hovering on the 1D).
+    // that chart's current zoom — specifically the BAR COUNT on screen
+    // rather than the time width. Lightweight Charts' logical-range
+    // API lets us do this exactly: the range is expressed in bar
+    // indices (fractional), independent of how dense the time axis is.
+    //
+    // A time-based width (the previous implementation) stretched or
+    // shrunk candles because a week of 1h bars is ~120 bars normally
+    // but only ~30 bars around a holiday week — the same seconds-width
+    // maps to wildly different bar counts.
+    function closestBarIndex(bars, time) {
+      if (!bars || bars.length === 0) return null;
+      let lo = 0, hi = bars.length - 1;
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (bars[mid].time < time) lo = mid + 1;
+        else hi = mid;
+      }
+      if (lo > 0 &&
+          Math.abs(bars[lo - 1].time - time) < Math.abs(bars[lo].time - time)) {
+        return lo - 1;
+      }
+      return lo;
+    }
+
     function centerChartOnTime(idx, time) {
       const c = charts[idx];
-      if (!c || typeof time !== 'number') return;
-      const range = c.chart.timeScale().getVisibleRange();
-      if (!range) return;
-      const width = range.to - range.from;  // seconds
+      if (!c || typeof time !== 'number' || !c.bars) return;
+      const ts = c.chart.timeScale();
+      const logical = ts.getVisibleLogicalRange();
+      if (!logical) return;
+      const width = logical.to - logical.from;
       if (width <= 0) return;
-      c.chart.timeScale().setVisibleRange({
-        from: time - width / 2,
-        to:   time + width / 2,
+      const targetIdx = closestBarIndex(c.bars, time);
+      if (targetIdx === null) return;
+      ts.setVisibleLogicalRange({
+        from: targetIdx - width / 2,
+        to:   targetIdx + width / 2,
       });
     }
 
