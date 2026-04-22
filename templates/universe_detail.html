@@ -110,6 +110,41 @@
       </div>
     {% endfor %}
 
+    {% if preset.hidden_criteria_keys %}
+      <div class="card mt-16" style="border-left: 3px solid var(--accent-amber);">
+        <div class="card-header"><span class="card-title">
+          {{ preset.hidden_criteria_keys|length }} fields hidden by your settings
+        </span></div>
+        <div class="text-sm text-secondary" style="line-height: 1.6;">
+          These criterion keys exist on the preset but are filtered out of the
+          panel above by <code>universe.ui</code> in <code>settings.yaml</code>
+          (include_fields / exclude_fields). They're still applied when the
+          pipeline scores the universe.
+        </div>
+        <div class="mono text-xs text-tertiary" style="margin-top: 10px; line-height: 1.8;">
+          {% for k in preset.hidden_criteria_keys %}
+            <span class="badge badge-gray" style="font-size: 10px;">{{ k }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    {% if preset.ui_config.include_fields or preset.ui_config.exclude_fields or preset.ui_config.pinned_fields %}
+      <div class="text-tertiary text-xs mt-16" style="line-height: 1.6;">
+        UI filter active:
+        {% if preset.ui_config.include_fields %}
+          <strong>include</strong> {{ preset.ui_config.include_fields|length }} field(s)
+        {% endif %}
+        {% if preset.ui_config.exclude_fields %}
+          · <strong>exclude</strong> {{ preset.ui_config.exclude_fields|length }} field(s)
+        {% endif %}
+        {% if preset.ui_config.pinned_fields %}
+          · <strong>pinned</strong> {{ preset.ui_config.pinned_fields|length }} field(s)
+        {% endif %}
+        . Edit <code>universe.ui</code> in <code>settings.yaml</code> to change.
+      </div>
+    {% endif %}
+
     {% if preset.notes %}
       <div class="card mt-16">
         <div class="card-header"><span class="card-title">Notes</span></div>

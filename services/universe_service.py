@@ -31,7 +31,12 @@ from typing import Any
 
 import yaml
 
-from services.settings_service import DATA_DIR, PROJECT_ROOT
+from services.settings_service import (
+    DATA_DIR,
+    PROJECT_ROOT,
+    UniverseUISettings,
+    get_settings,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -139,14 +144,23 @@ def get_preset(preset_name: str) -> dict | None:
         for sym in tickers
     ]
     hist = _list_history(preset_name)
+    ui_cfg = get_settings().universe.ui
+    criteria = criteria_doc.get("criteria") or {}
+    groups, hidden = _group_criteria(criteria, ui_cfg)
     return {
         "preset_name": preset_name,
         "description": (criteria_doc.get("description") or "").strip(),
         "version": criteria_doc.get("version"),
         "output_tags": criteria_doc.get("output_tags") or [],
         "notes": (criteria_doc.get("notes") or "").strip(),
-        "criteria": criteria_doc.get("criteria") or {},
-        "criteria_groups": _group_criteria(criteria_doc.get("criteria") or {}),
+        "criteria": criteria,
+        "criteria_groups": groups,
+        "hidden_criteria_keys": hidden,
+        "ui_config": {
+            "include_fields": list(ui_cfg.include_fields),
+            "exclude_fields": list(ui_cfg.exclude_fields),
+            "pinned_fields": list(ui_cfg.pinned_fields),
+        },
         "refreshable": preset_name not in NON_REFRESH_PRESETS,
         "tickers_info": {
             "refreshed_at": tickers_info.get("refreshed_at"),
@@ -279,31 +293,71 @@ _CRITERIA_GROUPS: list[tuple[str, list[str]]] = [
 ]
 
 
-def _group_criteria(criteria: dict[str, Any]) -> list[dict]:
-    """Arrange criteria into visual groups for rendering. Any key not
-    listed above falls into an 'Other' group at the end."""
-    assigned: set[str] = set()
+def _group_criteria(
+    criteria: dict[str, Any], ui: UniverseUISettings,
+) -> tuple[list[dict], list[str]]:
+    """Arrange criteria into visual groups for rendering.
+
+    Applies the operator's universe-UI settings:
+      * ``include_fields`` — if non-empty, restrict visible fields to
+        this set (order within the set is still dictated by the group
+        schema below, except for pinned_fields which honor user order).
+      * ``exclude_fields`` — always drop these.
+      * ``pinned_fields`` — surface these first under a "Pinned" group,
+        in user-specified order.
+
+    Returns ``(groups, hidden_keys)`` — ``hidden_keys`` is the list of
+    keys present on the preset but filtered out by the UI config, so
+    the template can show a "N fields hidden by your settings" hint.
+    """
+    include = set(ui.include_fields or [])
+    exclude = set(ui.exclude_fields or [])
+    pinned_order = [k for k in (ui.pinned_fields or []) if k in criteria]
+
+    def _visible(key: str) -> bool:
+        if key in exclude:
+            return False
+        if include and key not in include and key not in pinned_order:
+            return False
+        return True
+
+    entry = lambda k: {  # noqa: E731
+        "key": k,
+        "value": criteria[k],
+        "display_value": _format_criterion_value(criteria[k]),
+    }
+
     groups: list[dict] = []
+    assigned: set[str] = set()
+
+    # Pinned group first — explicit operator priority.
+    if pinned_order:
+        pinned_entries = [entry(k) for k in pinned_order if _visible(k)]
+        if pinned_entries:
+            groups.append({"name": "Pinned", "entries": pinned_entries})
+            assigned.update(e["key"] for e in pinned_entries)
+
+    # Standard groups (skip already-pinned keys).
     for group_name, keys in _CRITERIA_GROUPS:
         group_entries = []
         for k in keys:
-            if k in criteria:
-                group_entries.append({
-                    "key": k,
-                    "value": criteria[k],
-                    "display_value": _format_criterion_value(criteria[k]),
-                })
+            if k in criteria and k not in assigned and _visible(k):
+                group_entries.append(entry(k))
                 assigned.add(k)
         if group_entries:
             groups.append({"name": group_name, "entries": group_entries})
+
+    # Other — unmapped keys that pass the visibility filter.
     others = [
-        {"key": k, "value": v, "display_value": _format_criterion_value(v)}
-        for k, v in criteria.items()
-        if k not in assigned
+        entry(k) for k in criteria
+        if k not in assigned and _visible(k)
     ]
     if others:
         groups.append({"name": "Other", "entries": others})
-    return groups
+        assigned.update(e["key"] for e in others)
+
+    hidden_keys = sorted(k for k in criteria if k not in assigned)
+    return groups, hidden_keys
 
 
 def _format_criterion_value(v: Any) -> str:
