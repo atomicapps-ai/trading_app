@@ -76,7 +76,9 @@ trading_app/
 │
 ├── agents/
 │   ├── __init__.py
-│   ├── universe_filter.py       ← preset-driven shortlist; pure fn of (preset, as_of_ts)
+│   ├── universe_filter.py       ← preset-driven shortlist; SQLite-first (YAML fallback);
+│   │                              _finviz_to_criteria() translates Finviz URL params to
+│   │                              PrescreenCriteria; pure fn of (preset, as_of_ts)
 │   ├── analyst.py               ← multi-lens runner: technical + macro lenses live;
 │   │                              sentiment + fundamental lenses stubbed (Phase 6)
 │   ├── macro.py                 ← SPY/VIX macro context snapshot (no signal, just context)
@@ -400,6 +402,7 @@ POST /api/universe/presets/{name}/delete    → delete preset
 POST /api/universe/presets/{name}/set-active → mark active (HX-Redirect header)
 POST /api/universe/presets/{name}/test-run  → scrape Finviz, return tickers (no save)
 POST /api/universe/presets/{name}/save-tickers → persist ticker list to SQLite
+POST /api/universe/presets/{name}/run-agent  → run in-process UniverseFilter screener on saved tickers
 GET  /api/universe/catalog         → full Finviz filter catalog JSON (76 filters)
 GET  /api/universe/presets         → JSON list of all presets
 GET  /api/universe/presets/{name}  → JSON detail for one preset
@@ -686,9 +689,17 @@ Phase 5 replay the same code over 10+ years of historical bars.
     `scrape_finviz_filters()` + `seed_from_yaml_if_empty()` (one-time YAML→SQLite migration).
   - `templates/universe_edit.html` — full filter editor: 14 default rows + searchable
     "+ Add filter" modal (76 filters grouped by tab/category) + ▶ Run + Save as universe.
-  - `templates/universe.html` — list view updated: title + slug, clickable cards → edit.
+  - `templates/universe.html` — list view: title + slug, clickable cards → edit,
+    ▶ Agent button (per card, if tickers saved) → POST /run-agent → modal with
+    shortlist count, full universe, rejection breakdown, run duration.
   - `templates/universe_detail.html` — legacy YAML detail; fixed layout (compact rows,
     flex-start alignment); added "Edit / Run" button linking to edit page.
+  - `agents/universe_filter.py` — now SQLite-first: tries `_load_sqlite_preset()` before
+    YAML fallback. `_finviz_to_criteria()` maps Finviz URL params to PrescreenCriteria.
+  - `POST /api/universe/presets/{name}/run-agent` — runs in-process UniverseFilter on
+    saved tickers; returns shortlist + rejection stats; 422 if no tickers saved.
+  - `static/app.css` — added `--font-mono`, `--surface-1/2/3` CSS variables to `:root`
+    (were missing; `universe_edit.html` and agent modal depend on them). Also `.mt-8`.
 - ✅ `services/universe_service.py` — preset list/detail/archive
 - ✅ `universe_filter_presets_tickers.yaml` — seed list (25 liquid names)
 
@@ -799,6 +810,12 @@ numpy>=1.26.0
   `services/finviz_catalog.json`. Only update by running the one-off scrape script.
 - Do not hardcode filter IDs in templates — always source from `universe_filter_config.yaml`
   (default-visible set) and `finviz_catalog.json` (full catalog).
+- Do NOT re-define `--surface-1/2/3` or `--font-mono` in page templates —
+  they live in `static/app.css` `:root` block.
+- In Jinja2 templates, macros MUST be defined before their first call site.
+  Jinja2 does not hoist macro definitions — a `{% macro %}` block at the bottom
+  of the file cannot be called from a block above it. Always define macros at
+  the top of the `{% block content %}` before any use.
 ```
 
 ---

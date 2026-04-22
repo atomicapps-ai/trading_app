@@ -49,7 +49,7 @@
               {% endif %}
             </div>
 
-            <div class="flex items-center gap-8">
+            <div class="flex items-center gap-8" onclick="event.stopPropagation()">
               {% if not p.is_active %}
                 <button class="btn-sm"
                         hx-post="/api/universe/presets/{{ p.name }}/set-active"
@@ -58,6 +58,13 @@
                         hx-confirm="Set '{{ p.name }}' as the active preset?"
                         title="Set as active">
                   Set active
+                </button>
+              {% endif %}
+              {% if p.ticker_count %}
+                <button class="btn-sm btn-agent"
+                        onclick="runAgent('{{ p.name }}', this)"
+                        title="Run the in-process screener on saved tickers">
+                  ▶ Agent
                 </button>
               {% endif %}
               <a href="/universe/{{ p.name }}/edit"
@@ -108,6 +115,25 @@
 
 </div>
 
+{# Agent run results modal #}
+<div id="agent-modal-overlay"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:800;"
+     onclick="if(event.target===this)closeAgentModal()">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+              width:min(700px,96vw);max-height:85vh;overflow:hidden;
+              background:var(--surface-1);border-radius:10px;
+              border:1px solid var(--border);display:flex;flex-direction:column;">
+    <div style="padding:14px 18px;border-bottom:1px solid var(--border);
+                display:flex;align-items:center;justify-content:space-between;">
+      <span id="agent-modal-title" style="font-weight:500;font-size:14px;">Agent run</span>
+      <button onclick="closeAgentModal()"
+              style="background:none;border:none;color:var(--text-tertiary);
+                     font-size:20px;cursor:pointer;line-height:1;">×</button>
+    </div>
+    <div id="agent-modal-body" style="overflow-y:auto;padding:18px;"></div>
+  </div>
+</div>
+
 <style>
 .btn-sm {
   padding: 4px 10px;
@@ -122,5 +148,80 @@
 .btn-sm:hover { background: var(--surface-3); }
 .btn-danger { border-color: var(--accent-red); color: var(--accent-red); }
 .btn-danger:hover { background: var(--tint-red); }
+.btn-agent { border-color: var(--accent-blue); color: var(--accent-blue); }
+.btn-agent:hover { background: var(--tint-blue); }
 </style>
+
+<script>
+async function runAgent(presetName, btn) {
+  const orig = btn.textContent;
+  btn.textContent = '⏳ Running…';
+  btn.disabled = true;
+
+  document.getElementById('agent-modal-title').textContent = `Agent run — ${presetName}`;
+  document.getElementById('agent-modal-body').innerHTML =
+    '<div class="text-secondary text-sm">Fetching bars and running prescreen… this may take 10–30s.</div>';
+  document.getElementById('agent-modal-overlay').style.display = '';
+
+  try {
+    const r = await fetch(`/api/universe/presets/${presetName}/run-agent`, {method: 'POST'});
+    const d = await r.json();
+    if (!r.ok) {
+      document.getElementById('agent-modal-body').innerHTML =
+        `<div style="color:var(--accent-red)">${d.detail || 'Run failed'}</div>`;
+    } else {
+      const reasons = Object.entries(d.rejection_reasons || {})
+        .map(([k,v]) => `<span class="mono" style="font-size:11px;">${k}: ${v}</span>`)
+        .join('  ');
+      document.getElementById('agent-modal-body').innerHTML = `
+        <div class="flex gap-24 mb-16" style="flex-wrap:wrap;">
+          <div>
+            <div class="mono" style="font-size:28px;font-weight:600;">${d.shortlist_size}</div>
+            <div class="text-secondary text-xs">shortlisted</div>
+          </div>
+          <div>
+            <div class="mono" style="font-size:28px;font-weight:600;">${d.universe_size}</div>
+            <div class="text-secondary text-xs">passed filters</div>
+          </div>
+          <div>
+            <div class="mono" style="font-size:28px;font-weight:600;">${d.total_screened}</div>
+            <div class="text-secondary text-xs">total screened</div>
+          </div>
+          <div>
+            <div class="mono" style="font-size:16px;font-weight:500;">${d.run_duration_seconds?.toFixed(1)}s</div>
+            <div class="text-secondary text-xs">duration</div>
+          </div>
+        </div>
+        ${d.shortlist?.length ? `
+          <div class="mb-12">
+            <div class="text-secondary text-xs mb-6" style="font-weight:500;">Shortlist (top ${d.shortlist.length})</div>
+            <div class="mono" style="font-size:13px;line-height:2;color:var(--text-primary);">
+              ${d.shortlist.join(' · ')}
+            </div>
+          </div>` : '<div class="text-tertiary text-sm mb-12">No tickers passed the prescreen filters.</div>'}
+        ${d.universe?.length > d.shortlist?.length ? `
+          <div class="mb-12">
+            <div class="text-secondary text-xs mb-6" style="font-weight:500;">
+              Full universe (${d.universe_size} total — showing first 100)
+            </div>
+            <div class="mono" style="font-size:11px;line-height:2;color:var(--text-secondary);">
+              ${d.universe.slice(0, 100).join(' · ')}${d.universe_size > 100 ? ` … +${d.universe_size - 100} more` : ''}
+            </div>
+          </div>` : ''}
+        ${reasons ? `<div class="text-tertiary text-xs mt-8">Rejected by: ${reasons}</div>` : ''}
+      `;
+    }
+  } catch(e) {
+    document.getElementById('agent-modal-body').innerHTML =
+      `<div style="color:var(--accent-red)">Network error: ${e}</div>`;
+  }
+
+  btn.textContent = orig;
+  btn.disabled = false;
+}
+
+function closeAgentModal() {
+  document.getElementById('agent-modal-overlay').style.display = 'none';
+}
+</script>
 {% endblock %}

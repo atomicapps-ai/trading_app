@@ -13,47 +13,61 @@ Phase 5 (Backtest Engine) is next.
 
 ---
 
-## What was built in the most recent session (Universe Preset Manager)
+## What was fixed / built in the most recent session
 
-The `/universe` page was upgraded from a static YAML detail view to a full
-SQLite-backed preset CRUD manager with a Finviz filter editor.
+### Bug fix — `templates/universe_edit.html` (Jinja2 macro ordering)
+The preset edit page (`/universe/{name}/edit`) was a hard 500 for any
+existing preset. Root cause: the `filter_row` Jinja2 macro was defined
+at the bottom of the template after the call sites, and called with
+invalid `self::filter_row()` Rust-style syntax. Fixed: macro moved
+above its first use inside `{% block content %}`, calls corrected to
+`filter_row()`.
 
-### New files
-- `services/finviz_catalog.json` — 76 usable Finviz filters (3 Elite-only removed).
-  Each entry: `{id, label, tab, category, options[]}`. Committed; not re-scraped at runtime.
-- `universe_filter_config.yaml` — 14 filter IDs shown by default in every preset editor:
-  exch, cap, sh_price, sh_avgvol, sh_float, sh_short, ta_sma20, ta_sma50, ta_sma200,
-  ta_rsi, ta_averagetruerange, sec, an_recom, earningsdate
-- `templates/universe_edit.html` — full preset editor (new + edit modes):
-  - Title input; auto-generates slug on new preset
-  - 14 default filter rows (from config), each with SELECT dropdown + × remove
-  - "+ Add filter" modal: searchable across all 76 filters, grouped by tab/category;
-    already-added filters are greyed out
-  - ▶ Run button — scrapes Finviz live, shows ticker count + list (no save)
-  - "Save as universe" — persists tickers to SQLite after a test run
+### New — `agents/universe_filter.py` SQLite-first loading
+`UniverseFilter.run()` now tries SQLite before falling back to the legacy
+YAML files. Two new helpers:
+- `_finviz_to_criteria(filters)` — translates Finviz filter param strings
+  (e.g. `sh_price=o10`, `ta_sma50=pa`, `sh_avgvol=o1000`, `ta_rsi=ob70`)
+  into `PrescreenCriteria` for the in-process screener. ATR skipped (Finviz
+  uses absolute $; criteria needs atr_pct %).
+- `_load_sqlite_preset(preset_name)` — async; reads tickers + filters from
+  SQLite via `universe_service.get_preset_db()`. Returns None if preset not
+  found or has no saved tickers (→ YAML fallback).
 
-### Modified files
-- `services/db_service.py` — added `universe_presets` table:
-  `name, title, description, is_active, filters_json, tickers_json,
-  output_tags_json, tickers_refreshed_at, updated_at, notes`.
-  ALTER TABLE migration adds `title` to existing DBs (idempotent on startup).
-- `services/universe_service.py` — added SQLite CRUD wrappers:
-  `list_presets_db()`, `get_preset_db()`, `create_preset_db()`,
-  `update_preset_db()`, `delete_preset_db()`, `set_active_preset_db()`,
-  `save_preset_tickers_db()`, plus Finviz helpers: `load_finviz_catalog()`,
-  `get_catalog_flat()`, `get_catalog_grouped()`, `load_filter_config()`,
-  `scrape_finviz_filters()`, `seed_from_yaml_if_empty()`.
-- `routers/universe.py` — full CRUD API (see routes below).
-  Key fix: `set-active` returns `JSONResponse` with `HX-Redirect: /universe` header
-  so HTMX reloads the page instead of trying to swap JSON into the preset list.
-- `templates/universe.html` — list view: shows title + slug badge, ticker count,
-  output_tags, clickable cards → edit page.
-- `templates/universe_detail.html` — fixed stats-row alignment (`flex-start`),
-  compact criteria padding, added "Edit / Run" button in header.
-- `run.py` — fixed host to `127.0.0.1` (Windows socket perms), removed Unicode `→`.
-- `.vscode/settings.json` — auto-activates venv in VSCode terminals.
+### New — `POST /api/universe/presets/{name}/run-agent`
+Runs the in-process UniverseFilter screener on a preset's saved tickers.
+Returns `{shortlist, universe, total_screened, rejected_count,
+rejection_reasons, run_duration_seconds}`. Returns 422 if no tickers saved.
 
-### Universe API routes (all in `routers/universe.py`)
+### New — ▶ Agent button on `/universe` list page
+Each preset card with saved tickers now shows a blue `▶ Agent` button.
+Clicking it calls `/run-agent`, shows a modal with shortlist count, full
+universe, rejection breakdown, and run duration. No page reload required.
+
+### CSS fix — `static/app.css`
+Added missing CSS variables that `universe_edit.html` and the agent modal
+depend on:
+```css
+--font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
+--surface-1: #0f1117;   /* darkest — readonly/disabled inputs */
+--surface-2: #141720;   /* standard input background */
+--surface-3: #1a1d27;   /* elevated — hover states */
+```
+Also added `.mt-8 { margin-top: 8px; }` utility class.
+
+### Open issue — browser native `<select>` styling on Windows
+On Windows Chrome/Edge, native `<select>` elements may ignore
+`background` CSS and render with OS-default white/gray even when
+`background: var(--surface-2)` is set. This causes the filter dropdowns
+in `universe_edit.html` to appear light-themed. The full fix requires
+either custom `<select>` styling (appearance: none + SVG arrow) or
+replacing `<select>` with a custom dropdown component. **Not yet fixed —
+prioritise in the next session if the dark theme still looks broken.**
+
+---
+
+## Universe API routes (all in `routers/universe.py`)
+
 ```
 GET  /universe                             → preset list (SQLite)
 GET  /universe/new                         → blank editor
@@ -62,14 +76,30 @@ GET  /universe/{name}/detail               → legacy YAML read-only view
 POST /api/universe/presets                 → create preset
 POST /api/universe/presets/{name}          → update preset filters + metadata
 POST /api/universe/presets/{name}/delete   → delete preset
-POST /api/universe/presets/{name}/set-active    → mark as active
+POST /api/universe/presets/{name}/set-active    → mark as active (HX-Redirect)
 POST /api/universe/presets/{name}/test-run      → scrape Finviz, return tickers
-POST /api/universe/presets/{name}/save-tickers  → persist ticker list
-GET  /api/universe/catalog                 → full Finviz catalog JSON
+POST /api/universe/presets/{name}/save-tickers  → persist ticker list to SQLite
+POST /api/universe/presets/{name}/run-agent     → in-process prescreen → shortlist
+GET  /api/universe/catalog                 → full Finviz catalog JSON (76 filters)
 GET  /api/universe/presets                 → JSON list
 GET  /api/universe/presets/{name}          → JSON detail
 GET  /api/universe/legacy                  → YAML-backed list (read-only)
 GET  /api/universe/legacy/{name}           → YAML-backed detail
+```
+
+---
+
+## End-to-end universe flow (as of this session)
+
+```
+1. /universe          → see preset list
+2. + New preset       → title → slug → redirect to /universe/{name}/edit
+3. Edit page          → 14 default filter rows + "+ Add filter" modal (76 catalog filters)
+                        Configure filters → Save (POST .../presets/{name})
+4. ▶ Run             → POST .../test-run → Finviz live scrape → ticker count + list
+5. Save as universe   → POST .../save-tickers → tickers persisted to SQLite
+6. ▶ Agent (list)    → POST .../run-agent → in-process bar screener → ranked shortlist
+7. Set active         → POST .../set-active → HX-Redirect reloads list
 ```
 
 ---
@@ -81,7 +111,7 @@ GET  /api/universe/legacy/{name}           → YAML-backed detail
   restricted list, earnings blackout, completeness). Advisory in research, hard in paper/live.
 - `agents/risk_manager.py` — R1–R9 pre-trade. R1/R2/R8 resize; rest reject.
   Postmortem half deferred to Phase 6.
-- `agents/universe_filter.py` — preset-driven shortlist; reads cached bars only.
+- `agents/universe_filter.py` — SQLite-first shortlist (falls back to YAML).
 - `agents/analyst.py` — technical + macro lenses live. 9 detectors live.
   Sentiment + fundamental lenses stubbed for Phase 6.
 - `agents/macro.py` — SPY/VIX context (no signal, just inherited context).
@@ -130,10 +160,17 @@ field and fires the pipeline automatically. Build this or skip to Phase 5 and re
 
 ## What's next
 
+### Priority: Fix `<select>` dark theme on Windows (quick)
+Browser native `<select>` elements ignore `background` CSS on Windows
+Chrome/Edge. Fix options:
+- **Option A (recommended):** Add `appearance: none` to `.filter-select`
+  in `universe_edit.html` and supply a custom SVG dropdown arrow via CSS.
+- **Option B:** Replace the filter `<select>` with a custom JS dropdown
+  (more work, better cross-browser control).
+
 ### Option A: Finish Phase 4 (scheduler — ~1 hour)
 `services/scheduler.py` — load workflows at startup, parse `schedule:` cron fields,
 call `pipeline_service.run_workflow()` on each fire. APScheduler already in requirements.txt.
-No hardcoded schedule list — all driven by workflow YAML.
 
 ### Option B: Start Phase 5 (Backtest Engine — 2–3 sessions)
 Reuses every Phase 4 agent. Detectors are pure functions of `as_of_ts` so the engine
@@ -145,16 +182,6 @@ Key new files:
 - `services/backtest_report.py` — equity curve, CAGR, Sharpe, max DD, hit rate, avg R.
 - `models/backtest_result.py` — BacktestRun; per-trade records use same TradeRecord schema.
 - `routers/backtests.py` + `templates/backtests/` — Strategy Review UI.
-- **Decision gate:** user marks a strategy `active` only after clearing the configured
-  win-rate threshold on a 10-year backtest.
-
-### Option C: Test the Universe Preset Manager (incomplete as of handoff)
-The Universe Preset Manager UI was just built but hasn't been fully tested end-to-end:
-1. Start server: `python run.py dev` from `C:\Projects\trading_app` in VSCode terminal
-2. Go to http://localhost:5000/universe
-3. Create a new preset, configure some Finviz filters, click ▶ Run
-4. If tickers come back, click "Save as universe" to persist
-5. Verify the preset appears on the list page with ticker count
 
 ---
 
@@ -168,8 +195,7 @@ The Universe Preset Manager UI was just built but hasn't been fully tested end-t
    - `BROKER_PROVIDER=alpaca` (or `tradestation`)
 5. `cp settings.example.yaml settings.yaml` and edit
 6. Copy `trade_logs/*.jsonl` from backup if available
-7. `python -m scripts.smoke_alpaca_paper` — verifies broker connection
-8. `python run.py dev` — starts server at http://localhost:5000
+7. `python run.py dev` — starts server at http://localhost:5000
 
 ---
 
@@ -184,3 +210,5 @@ The Universe Preset Manager UI was just built but hasn't been fully tested end-t
 - Broker adapter selected via `BROKER_PROVIDER` env in `broker_service.py` only.
 - Do NOT use TradingView iframe on `/pending` — replaced by Lightweight Charts in Phase 4.
 - Do NOT re-scrape `finviz_catalog.json` at runtime — it's a committed static file.
+- Do NOT re-define `--surface-1/2/3` or `--font-mono` in page templates —
+  they live in `static/app.css` `:root` block.

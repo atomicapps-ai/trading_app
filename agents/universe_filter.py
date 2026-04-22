@@ -2,28 +2,29 @@
 
 Flow
 ----
-1. Load the preset's filter criteria from ``universe_filter_presets.yaml``.
-2. Load the preset's current ticker list from
-   ``universe_filter_presets_tickers.yaml`` (written by the periodic
-   Finviz refresh script, committed to git).
-3. For every ticker, fetch daily bars via ``data_service.get_bars`` at
+1. Load the preset's filter criteria and ticker list.
+   Priority: SQLite (UI-managed presets) → legacy YAML files.
+2. For every ticker, fetch daily bars via ``data_service.get_bars`` at
    ``as_of_ts`` (live → None, backtest → historical ts).
-4. Append indicators, apply hard filters (price / volume / SMA / RSI / ATR).
-5. Score the survivors on momentum + volume + volatility (0–100).
-6. Return the top ``shortlist_size`` symbols in the
+3. Append indicators, apply hard filters (price / volume / SMA / RSI / ATR).
+4. Score the survivors on momentum + volume + volatility (0–100).
+5. Return the top ``shortlist_size`` symbols in the
    ``UniverseFilterResult``.
+
+SQLite presets (created via /universe UI)
+-----------------------------------------
+When a preset exists in SQLite and has saved tickers, this agent reads from
+there instead of the legacy YAML files.  Filter criteria are derived from the
+Finviz filter strings stored in the preset (e.g. ``sh_price=o10`` →
+``price_min=10``, ``ta_sma50=pa`` → ``sma50_relation="above"``).
 
 Pure-function contract
 ----------------------
 No wall-clock calls, no Finviz or broker calls — this agent only reads:
-  * the two preset YAMLs (disk, immutable within a run)
+  * SQLite preset (via universe_service) or the two legacy YAML files
   * cached bars via ``data_service.get_bars(..., as_of_ts=as_of_ts)``
 
-That makes it replayable under Phase 5: the same code that picks today's
-shortlist picks the shortlist for any historical ``as_of_ts``, assuming
-the ticker list on disk at commit time is the one the refresh script
-produced closest before that date. (Phase 5 can walk git history or snap
-to the monthly refresh file — open design question for Phase 5.)
+That makes it replayable under Phase 5.
 """
 from __future__ import annotations
 
@@ -57,6 +58,87 @@ TICKERS_FILE_DEFAULT: Path = PROJECT_ROOT / "universe_filter_presets_tickers.yam
 
 DEFAULT_SHORTLIST_SIZE = 50
 MIN_BARS_FOR_PRESCREEN = 210  # enough for sma_200 + buffer
+
+# sh_avgvol option value → absolute share volume
+_AVGVOL_MAP: dict[str, int] = {
+    "o50": 50_000, "o100": 100_000, "o200": 200_000, "o300": 300_000,
+    "o400": 400_000, "o500": 500_000, "o750": 750_000,
+    "o1000": 1_000_000, "o2000": 2_000_000,
+}
+
+# ta_rsi option value → (rsi_min, rsi_max)
+_RSI_MAP: dict[str, tuple[float | None, float | None]] = {
+    "ob90": (90.0, None), "ob80": (80.0, None),
+    "ob70": (70.0, None), "ob60": (60.0, None),
+    "os40": (None, 40.0), "os30": (None, 30.0),
+    "os20": (None, 20.0), "os10": (None, 10.0),
+    "nob60": (None, 60.0), "nob50": (None, 50.0),
+    "nos50": (50.0, None), "nos40": (40.0, None),
+}
+
+
+def _finviz_to_criteria(filters: dict[str, str]) -> PrescreenCriteria:
+    """Translate Finviz filter param strings to PrescreenCriteria.
+
+    Covers filters that map cleanly to the in-process screener's numeric gates.
+    ATR is skipped: Finviz uses absolute $ while PrescreenCriteria needs atr_pct.
+    """
+    kw: dict[str, Any] = {}
+
+    v = filters.get("sh_price", "")
+    if v.startswith("o"):
+        try: kw["price_min"] = float(v[1:])
+        except ValueError: pass
+    elif v.startswith("u"):
+        try: kw["price_max"] = float(v[1:])
+        except ValueError: pass
+    elif "to" in v:
+        lo, hi = v.split("to", 1)
+        try: kw["price_min"] = float(lo)
+        except ValueError: pass
+        try: kw["price_max"] = float(hi)
+        except ValueError: pass
+
+    v = filters.get("sh_avgvol", "")
+    if v in _AVGVOL_MAP:
+        kw["avg_volume_min"] = _AVGVOL_MAP[v]
+
+    for fid, key in (
+        ("ta_sma20", "sma20_relation"),
+        ("ta_sma50", "sma50_relation"),
+        ("ta_sma200", "sma200_relation"),
+    ):
+        v = filters.get(fid, "")
+        if v.startswith("pa"):
+            kw[key] = "above"
+        elif v.startswith("pb"):
+            kw[key] = "below"
+
+    v = filters.get("ta_rsi", "")
+    if v in _RSI_MAP:
+        rmin, rmax = _RSI_MAP[v]
+        if rmin is not None:
+            kw["rsi_min"] = rmin
+        if rmax is not None:
+            kw["rsi_max"] = rmax
+
+    return PrescreenCriteria(**kw)
+
+
+async def _load_sqlite_preset(
+    preset_name: str,
+) -> tuple[PresetTickers, PrescreenCriteria, list[str], list[str]] | None:
+    """Return (tickers, criteria, elev_sectors, elev_industries) from SQLite.
+
+    Returns None if the preset doesn't exist in SQLite or has no saved tickers.
+    """
+    from services import universe_service  # local import avoids circular at module load
+    preset = await universe_service.get_preset_db(preset_name)
+    if preset is None or not preset.get("tickers"):
+        return None
+    tickers_obj = PresetTickers(tickers=preset["tickers"])
+    criteria = _finviz_to_criteria(preset.get("filters") or {})
+    return tickers_obj, criteria, [], []
 
 
 # --------------------------------------------------------------------------- #
@@ -257,10 +339,23 @@ class UniverseFilter:
         t0 = time.perf_counter()
         mode = self._settings.app.mode
 
-        criteria, elev_sectors, elev_industries = _load_criteria(
-            preset_name, self._criteria_file,
-        )
-        preset_tickers = _load_tickers(preset_name, self._tickers_file)
+        # Prefer SQLite preset (UI-managed); fall back to legacy YAML files.
+        sqlite_data = await _load_sqlite_preset(preset_name)
+        if sqlite_data is not None:
+            preset_tickers, criteria, elev_sectors, elev_industries = sqlite_data
+            logger.info(
+                "UniverseFilter %r: loaded from SQLite (%d tickers)",
+                preset_name, len(preset_tickers.tickers),
+            )
+        else:
+            criteria, elev_sectors, elev_industries = _load_criteria(
+                preset_name, self._criteria_file,
+            )
+            preset_tickers = _load_tickers(preset_name, self._tickers_file)
+            logger.info(
+                "UniverseFilter %r: loaded from YAML (%d tickers)",
+                preset_name, len(preset_tickers.tickers),
+            )
         tickers = [t.upper() for t in preset_tickers.tickers]
 
         if not tickers:

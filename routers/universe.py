@@ -270,6 +270,42 @@ async def api_test_run(
     return {"count": len(tickers), "tickers": tickers[:500]}
 
 
+@router.post("/api/universe/presets/{preset_name}/run-agent")
+async def api_run_agent(
+    preset_name: str,
+    s: Settings = Depends(get_settings),
+) -> dict:
+    """Run the UniverseFilter agent on this preset's saved tickers.
+
+    Reads tickers from SQLite, applies the in-process prescreen (price /
+    volume / SMA / RSI filters + momentum scoring), and returns the ranked
+    shortlist without touching Finviz or any broker.
+    """
+    from agents.universe_filter import UniverseFilter
+
+    preset = await universe_service.get_preset_db(preset_name)
+    if preset is None:
+        raise HTTPException(status_code=404, detail=f"preset {preset_name!r} not found")
+    if not preset.get("tickers"):
+        raise HTTPException(
+            status_code=422,
+            detail="No saved tickers — run the Finviz scrape and save first",
+        )
+    agent = UniverseFilter(s)
+    result = await agent.run(preset_name)
+    return {
+        "preset_name": preset_name,
+        "universe_size": result.universe_size,
+        "shortlist_size": result.shortlist_size,
+        "shortlist": result.shortlist,
+        "universe": result.universe,
+        "total_screened": result.total_screened,
+        "rejected_count": result.rejected_count,
+        "rejection_reasons": result.rejection_reasons,
+        "run_duration_seconds": result.run_duration_seconds,
+    }
+
+
 @router.post("/api/universe/presets/{preset_name}/save-tickers")
 async def api_save_tickers(
     preset_name: str,

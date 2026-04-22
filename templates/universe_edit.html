@@ -54,6 +54,34 @@
   {% else %}
   {# ── Edit mode ─────────────────────────────────────────────────── #}
 
+  {# Jinja2 macro must be defined before use #}
+  {% macro filter_row(f, current, removable=false) %}
+  <div class="filter-row-item" data-filter-id="{{ f.id }}">
+    <span class="filter-label">
+      <span style="font-weight:500">{{ f.label }}</span>
+      {% if f.supported_in_prescreen %}
+        <span class="badge badge-blue" style="font-size:10px;">prescreen</span>
+      {% endif %}
+      <span class="text-tertiary mono" style="font-size:11px;margin-left:4px;">{{ f.id }}</span>
+    </span>
+    <select name="f_{{ f.id }}" data-filter-id="{{ f.id }}"
+            class="filter-select{% if current %} has-value{% endif %}"
+            onchange="this.classList.toggle('has-value',!!this.value);updateCount()">
+      <option value="">— Any —</option>
+      {% for opt in f.options %}
+        <option value="{{ opt.value }}"{% if current == opt.value %} selected{% endif %}>
+          {{ opt.label }}
+        </option>
+      {% endfor %}
+    </select>
+    <button type="button" class="remove-btn"
+            title="{{ 'Remove filter' if removable else 'Clear value' }}"
+            onclick="{% if removable %}activeIds.delete('{{ f.id }}');this.closest('.filter-row-item').remove();{% else %}this.previousElementSibling.value='';this.previousElementSibling.classList.remove('has-value');{% endif %}updateCount()">
+      ×
+    </button>
+  </div>
+  {% endmacro %}
+
   {# Meta card #}
   <div class="card mb-16">
     <div class="card-header" style="justify-content:space-between;">
@@ -118,7 +146,7 @@
         {% set f = catalog_flat.get(fid) %}
         {% if f %}
           {% set cur = preset.filters.get(fid, '') %}
-          {{ self::filter_row(f=f, current=cur) }}
+          {{ filter_row(f=f, current=cur) }}
         {% endif %}
       {% endfor %}
 
@@ -127,7 +155,7 @@
         {% set f = catalog_flat.get(fid) %}
         {% if f %}
           {% set cur = preset.filters.get(fid, '') %}
-          {{ self::filter_row(f=f, current=cur, removable=true) }}
+          {{ filter_row(f=f, current=cur, removable=true) }}
         {% endif %}
       {% endfor %}
     </div>
@@ -501,31 +529,4 @@ function showToast(msg, ok) {
 updateCount();
 </script>
 
-{# Jinja2 macro for server-side rendered filter rows #}
-{% macro filter_row(f, current, removable=false) %}
-<div class="filter-row-item" data-filter-id="{{ f.id }}">
-  <span class="filter-label">
-    <span style="font-weight:500">{{ f.label }}</span>
-    {% if f.supported_in_prescreen %}
-      <span class="badge badge-blue" style="font-size:10px;">prescreen</span>
-    {% endif %}
-    <span class="text-tertiary mono" style="font-size:11px;margin-left:4px;">{{ f.id }}</span>
-  </span>
-  <select name="f_{{ f.id }}" data-filter-id="{{ f.id }}"
-          class="filter-select{% if current %} has-value{% endif %}"
-          onchange="this.classList.toggle('has-value',!!this.value);updateCount()">
-    <option value="">— Any —</option>
-    {% for opt in f.options %}
-      <option value="{{ opt.value }}"{% if current == opt.value %} selected{% endif %}>
-        {{ opt.label }}
-      </option>
-    {% endfor %}
-  </select>
-  <button type="button" class="remove-btn"
-          title="{{ 'Remove filter' if removable else 'Clear value' }}"
-          onclick="{% if removable %}activeIds.delete('{{ f.id }}');this.closest('.filter-row-item').remove();{% else %}this.previousElementSibling.value='';this.previousElementSibling.classList.remove('has-value');{% endif %}updateCount()">
-    ×
-  </button>
-</div>
-{% endmacro %}
 {% endblock %}
