@@ -2,34 +2,27 @@
 
 Responsibilities
 ----------------
-1. Enumerate presets from ``universe_filter_presets.yaml``.
-2. Load a preset's full record: criteria (from the criteria YAML) +
-   current ticker list (from the tickers YAML) + prescreener state
-   from the most recent pipeline run (``data/universe_latest.json``).
-3. Archive snapshots on every write. Called by the refresh script and
-   any future edit endpoints. Archive lives under
-   ``data/universe_history/{preset}/{kind}/{iso_ts}.yaml`` where
-   ``kind`` ∈ {``criteria``, ``tickers``}.
-4. Expose history to the UI: list snapshots, load one, restore one.
-
-History storage rationale
--------------------------
-The criteria and tickers YAMLs are also committed to git, so git log
-is already a source of truth. Mirroring snapshots into
-``data/universe_history/`` gives the UI a fast listing without shelling
-out to git on every page load, and makes "restore this version" a
-pure file copy rather than a git checkout.
+1. Load the Finviz filter catalog from ``services/finviz_catalog.json``.
+2. Enumerate presets from SQLite (primary) or YAML (legacy read-only).
+3. CRUD for SQLite-backed presets: create / update / delete / set-active.
+4. Test-run: scrape Finviz with given filters, return ticker list without persisting.
+5. Save tickers: persist ticker list to SQLite + write back to YAML for pipeline compat.
+6. Archive snapshots on every write.
 """
 from __future__ import annotations
 
 import json
 import logging
+import re
+import time
 import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import requests
 import yaml
+from bs4 import BeautifulSoup
 
 from services.settings_service import (
     DATA_DIR,
@@ -44,11 +37,245 @@ CRITERIA_FILE: Path = PROJECT_ROOT / "universe_filter_presets.yaml"
 TICKERS_FILE: Path = PROJECT_ROOT / "universe_filter_presets_tickers.yaml"
 LATEST_RESULT_FILE: Path = DATA_DIR / "universe_latest.json"
 HISTORY_DIR: Path = DATA_DIR / "universe_history"
+CATALOG_FILE: Path = Path(__file__).parent / "finviz_catalog.json"
 
-# Presets that intentionally don't appear in the refresh flow. Still
-# listed in the UI so the user can see what exists, but flagged so the
-# "refresh" / "restore from history" actions are hidden for them.
 NON_REFRESH_PRESETS = {"sentiment_catalyst", "etf_sector_rotation"}
+
+FINVIZ_BASE = "https://finviz.com/screener.ashx"
+_DEFAULT_UA = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+)
+_TICKER_HREF_RE = re.compile(r"quote\.ashx\?t=([A-Z][A-Z0-9\.\-]{0,9})")
+
+
+# ---------------------------------------------------------------------- #
+# Finviz catalog
+# ---------------------------------------------------------------------- #
+
+
+_catalog_cache: dict | None = None
+
+
+def load_finviz_catalog() -> dict:
+    """Return the full catalog dict (cached after first load)."""
+    global _catalog_cache
+    if _catalog_cache is None:
+        if not CATALOG_FILE.exists():
+            logger.warning("finviz_catalog.json not found at %s", CATALOG_FILE)
+            _catalog_cache = {"filters": [], "total": 0}
+        else:
+            _catalog_cache = json.loads(CATALOG_FILE.read_text(encoding="utf-8"))
+    return _catalog_cache
+
+
+def get_catalog_grouped() -> list[dict]:
+    """Return filters organised as [{tab, categories: [{name, filters: [...]}]}].
+
+    Used to render the preset editor form. Only loads the catalog once.
+    """
+    catalog = load_finviz_catalog()
+    # Build: tab → category → [filter]
+    tree: dict[str, dict[str, list]] = {}
+    for f in catalog.get("filters", []):
+        tab = f["tab"]
+        cat = f["category"]
+        tree.setdefault(tab, {}).setdefault(cat, []).append(f)
+
+    tab_order = ["Descriptive", "Fundamental", "Technical"]
+    result = []
+    for tab in tab_order:
+        if tab not in tree:
+            continue
+        cats = []
+        for cat_name, filters in tree[tab].items():
+            cats.append({"name": cat_name, "filters": filters})
+        result.append({"tab": tab, "categories": cats})
+    return result
+
+
+# ---------------------------------------------------------------------- #
+# SQLite-backed preset CRUD (wrappers over db_service)
+# ---------------------------------------------------------------------- #
+
+
+async def seed_from_yaml_if_empty() -> None:
+    """On first startup, populate SQLite presets from YAML criteria file."""
+    from services import db_service
+    docs = _load_criteria_docs()
+    if not docs:
+        return
+    yaml_presets = [
+        {
+            "name": name,
+            "description": doc.get("description", ""),
+            "output_tags": doc.get("output_tags") or [],
+            "notes": doc.get("notes", ""),
+        }
+        for name, doc in docs.items()
+    ]
+    inserted = await db_service.seed_universe_presets_from_yaml(yaml_presets)
+    if inserted:
+        logger.info("universe_service: seeded %d presets from YAML", inserted)
+
+
+async def list_presets_db() -> list[dict]:
+    from services import db_service
+    return await db_service.list_universe_presets()
+
+
+async def get_preset_db(name: str) -> dict | None:
+    from services import db_service
+    return await db_service.get_universe_preset(name)
+
+
+async def create_preset_db(
+    *,
+    name: str,
+    description: str = "",
+    filters: dict | None = None,
+    output_tags: list[str] | None = None,
+    notes: str = "",
+) -> int:
+    from services import db_service
+    return await db_service.create_universe_preset(
+        name=name, description=description,
+        filters=filters, output_tags=output_tags, notes=notes,
+    )
+
+
+async def update_preset_db(
+    name: str,
+    *,
+    description: str | None = None,
+    filters: dict | None = None,
+    output_tags: list[str] | None = None,
+    notes: str | None = None,
+) -> bool:
+    from services import db_service
+    return await db_service.update_universe_preset(
+        name, description=description, filters=filters,
+        output_tags=output_tags, notes=notes,
+    )
+
+
+async def delete_preset_db(name: str) -> bool:
+    from services import db_service
+    return await db_service.delete_universe_preset(name)
+
+
+async def set_active_preset_db(name: str) -> bool:
+    from services import db_service
+    return await db_service.set_active_universe_preset(name)
+
+
+async def save_preset_tickers_db(
+    name: str, tickers: list[str], source: str,
+) -> bool:
+    """Persist tickers to SQLite and write back to the YAML tickers file."""
+    from services import db_service
+    ok = await db_service.save_universe_preset_tickers(name, tickers, source)
+    if ok:
+        _sync_tickers_to_yaml(name, tickers, source)
+    return ok
+
+
+def _sync_tickers_to_yaml(name: str, tickers: list[str], source: str) -> None:
+    """Write tickers back to the YAML file so the pipeline can still read it."""
+    try:
+        data: dict = {}
+        if TICKERS_FILE.exists():
+            data = yaml.safe_load(TICKERS_FILE.read_text(encoding="utf-8")) or {}
+        data.setdefault("presets", {})[name] = {
+            "refreshed_at": datetime.now(timezone.utc).isoformat(),
+            "source": source,
+            "tickers": tickers,
+        }
+        TICKERS_FILE.write_text(
+            yaml.safe_dump(data, sort_keys=False, default_flow_style=False),
+            encoding="utf-8",
+        )
+        logger.info("universe_service: synced %d tickers → YAML for %s", len(tickers), name)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("universe_service: YAML sync failed for %s: %s", name, e)
+
+
+# ---------------------------------------------------------------------- #
+# Finviz test-run scraping
+# ---------------------------------------------------------------------- #
+
+
+def scrape_finviz_filters(
+    filters: dict[str, str],
+    *,
+    max_pages: int = 50,
+    delay_seconds: float = 1.5,
+) -> list[str]:
+    """Scrape Finviz with {filter_id: option_value} dict, return tickers.
+
+    Builds filter tokens as ``{filter_id}_{option_value}`` and paginates.
+    Non-destructive — does NOT write to any file.
+    """
+    tokens = [f"{fid}_{val}" for fid, val in filters.items() if val]
+    filter_str = ",".join(tokens)
+    session = requests.Session()
+    session.headers.update({"User-Agent": _DEFAULT_UA})
+    tickers: list[str] = []
+    seen: set[str] = set()
+
+    for page in range(max_pages):
+        row_offset = page * 20 + 1
+        params: dict[str, str] = {"v": "111", "r": str(row_offset)}
+        if filter_str:
+            params["f"] = filter_str
+        try:
+            resp = _get_with_backoff(session, FINVIZ_BASE, params)
+        except RuntimeError as e:
+            logger.warning("scrape_finviz_filters: %s", e)
+            break
+        page_tickers = _parse_tickers(resp)
+        if not page_tickers:
+            break
+        for t in page_tickers:
+            if t not in seen:
+                seen.add(t)
+                tickers.append(t)
+        if len(page_tickers) < 20:
+            break
+        if page < max_pages - 1:
+            time.sleep(delay_seconds)
+
+    return tickers
+
+
+def _get_with_backoff(session: requests.Session, url: str, params: dict) -> str:
+    for attempt in range(4):
+        resp = session.get(url, params=params, timeout=20)
+        if resp.status_code == 200:
+            return resp.text
+        if resp.status_code in (429, 503):
+            time.sleep(2 ** attempt)
+            continue
+        resp.raise_for_status()
+    raise RuntimeError(f"Finviz GET failed after 4 attempts")
+
+
+def _parse_tickers(html: str) -> list[str]:
+    soup = BeautifulSoup(html, "lxml")
+    table = soup.find("table", class_=lambda c: bool(c) and "screener_table" in c)
+    if table is None:
+        return []
+    tickers: list[str] = []
+    seen: set[str] = set()
+    for a in table.find_all("a", href=True):
+        m = _TICKER_HREF_RE.search(a["href"])
+        if not m:
+            continue
+        sym = m.group(1).upper()
+        if sym not in seen:
+            seen.add(sym)
+            tickers.append(sym)
+    return tickers
 
 
 # ---------------------------------------------------------------------- #

@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+{% block title %}{{ 'New Preset' if is_new else 'Edit — ' + preset.name }} — Universe — TradeAgent{% endblock %}
+{% block content %}
+<div style="max-width: 960px;">
+
+  {# ── Breadcrumb ─────────────────────────────────────────────────── #}
+  <div class="flex items-center gap-12 mb-20">
+    <a href="/universe" class="text-secondary" style="text-decoration:none;">← Universe</a>
+    <span class="text-tertiary">/</span>
+    <span style="font-size:14px; font-weight:500;">
+      {{ 'New preset' if is_new else preset.name }}
+    </span>
+  </div>
+
+  {# ── Create form (only for /universe/new) ───────────────────────── #}
+  {% if is_new %}
+  <div class="card mb-20">
+    <div class="card-header"><span class="card-title">Create preset</span></div>
+    <form id="create-form" method="post" action="/api/universe/presets"
+          style="display:flex;flex-direction:column;gap:12px;padding:4px 0 0;">
+      <label style="display:flex;flex-direction:column;gap:4px;">
+        <span class="text-secondary text-xs">Name <span style="color:var(--accent-red)">*</span></span>
+        <input type="text" name="name" required placeholder="e.g. swing_momentum_v2"
+               style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;
+                      background:var(--surface-2);color:var(--text-primary);font-size:13px;
+                      font-family:var(--font-mono);width:300px;">
+      </label>
+      <label style="display:flex;flex-direction:column;gap:4px;">
+        <span class="text-secondary text-xs">Description</span>
+        <input type="text" name="description" placeholder="Short description"
+               style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;
+                      background:var(--surface-2);color:var(--text-primary);font-size:13px;width:100%;max-width:500px;">
+      </label>
+      <label style="display:flex;flex-direction:column;gap:4px;">
+        <span class="text-secondary text-xs">Output tags <span class="text-tertiary">(comma-separated)</span></span>
+        <input type="text" name="output_tags" placeholder="swing, momentum"
+               style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;
+                      background:var(--surface-2);color:var(--text-primary);font-size:13px;width:300px;">
+      </label>
+      <div>
+        <button type="submit" id="create-btn"
+                style="padding:8px 18px;background:var(--accent-blue);color:#fff;
+                       border:none;border-radius:6px;font-size:13px;cursor:pointer;font-weight:500;">
+          Create &amp; configure filters
+        </button>
+      </div>
+    </form>
+  </div>
+  {% else %}
+
+  {# ── Preset meta (edit mode) ────────────────────────────────────── #}
+  <div class="card mb-20">
+    <div class="card-header" style="justify-content:space-between;">
+      <span class="card-title">Preset info</span>
+      {% if preset.is_active %}
+        <span class="badge badge-green">active</span>
+      {% else %}
+        <button class="btn-sm"
+                hx-post="/api/universe/presets/{{ preset.name }}/set-active"
+                hx-on::after-request="if(event.detail.successful){ location.reload(); }">
+          Set active
+        </button>
+      {% endif %}
+    </div>
+    <form id="meta-form"
+          hx-post="/api/universe/presets/{{ preset.name }}"
+          hx-swap="none"
+          hx-on::after-request="showToast(event.detail.successful ? 'Saved' : 'Save failed', event.detail.successful)"
+          style="display:flex;flex-direction:column;gap:12px;padding:4px 0 0;">
+      <div class="flex gap-16" style="flex-wrap:wrap;">
+        <label style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:200px;">
+          <span class="text-secondary text-xs">Description</span>
+          <input type="text" name="description" value="{{ preset.description }}"
+                 placeholder="Short description"
+                 style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;
+                        background:var(--surface-2);color:var(--text-primary);font-size:13px;">
+        </label>
+        <label style="display:flex;flex-direction:column;gap:4px;flex:0 0 240px;">
+          <span class="text-secondary text-xs">Output tags <span class="text-tertiary">(comma-sep)</span></span>
+          <input type="text" name="output_tags" value="{{ preset.output_tags|join(', ') }}"
+                 placeholder="swing, momentum"
+                 style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;
+                        background:var(--surface-2);color:var(--text-primary);font-size:13px;">
+        </label>
+      </div>
+      <label style="display:flex;flex-direction:column;gap:4px;">
+        <span class="text-secondary text-xs">Notes</span>
+        <textarea name="notes" rows="2" placeholder="Internal notes…"
+                  style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;
+                         background:var(--surface-2);color:var(--text-primary);font-size:13px;
+                         resize:vertical;width:100%;">{{ preset.notes }}</textarea>
+      </label>
+    </form>
+  </div>
+
+  {# ── Filter editor ───────────────────────────────────────────────── #}
+  <div class="card mb-20">
+    <div class="card-header" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <span class="card-title">Finviz filters</span>
+      <div class="flex gap-8 items-center">
+        <span class="text-tertiary text-xs" id="active-count">
+          {{ preset.filters|length }} active
+        </span>
+        <button type="button" class="btn-sm" onclick="clearAllFilters()">Clear all</button>
+        <button type="button" id="save-filters-btn"
+                onclick="saveFilters()"
+                style="padding:6px 14px;background:var(--accent-blue);color:#fff;
+                       border:none;border-radius:6px;font-size:13px;cursor:pointer;font-weight:500;">
+          Save filters
+        </button>
+      </div>
+    </div>
+
+    {# ── Tab bar ── #}
+    <div style="border-bottom:1px solid var(--border);margin:0 -16px;padding:0 16px;">
+      <div class="flex gap-24">
+        {% for group in catalog_grouped %}
+          <button class="tab-btn {% if loop.first %}active{% endif %}"
+                  data-tab="tab-{{ group.tab|lower }}">
+            {{ group.tab }}
+          </button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <form id="filter-form">
+      {# hidden fields for meta so a single form submit can update everything #}
+      <input type="hidden" name="description" class="meta-description">
+      <input type="hidden" name="output_tags" class="meta-output_tags">
+      <input type="hidden" name="notes" class="meta-notes">
+
+      {% for group in catalog_grouped %}
+        <div class="tab-panel {% if not loop.first %}hidden{% endif %}"
+             id="tab-{{ group.tab|lower }}">
+          {% for cat in group.categories %}
+            <div class="cat-section">
+              <div class="cat-title">{{ cat.name }}</div>
+              <table style="width:100%;font-size:13px;border-collapse:collapse;">
+                <tbody>
+                  {% for f in cat.filters %}
+                    {% set current_val = preset.filters.get(f.id, '') %}
+                    <tr class="filter-row {% if current_val %}is-active{% endif %}"
+                        id="row-{{ f.id }}">
+                      <td style="padding:7px 0;width:36px;text-align:center;">
+                        <input type="checkbox" class="filter-toggle"
+                               data-filter-id="{{ f.id }}"
+                               {% if current_val %}checked{% endif %}
+                               onchange="onToggle(this)">
+                      </td>
+                      <td style="padding:7px 8px;">
+                        <span style="font-weight:{% if current_val %}500{% else %}400{% endif %}">
+                          {{ f.label }}
+                        </span>
+                        {% if f.supported_in_prescreen %}
+                          <span class="badge badge-blue" style="font-size:10px;margin-left:4px;"
+                                title="This filter is re-applied in the in-process prescreen">
+                            prescreen
+                          </span>
+                        {% endif %}
+                        <span class="text-tertiary mono" style="font-size:11px;margin-left:6px;">
+                          {{ f.id }}
+                        </span>
+                      </td>
+                      <td style="padding:7px 0;text-align:right;min-width:220px;">
+                        <select name="f_{{ f.id }}"
+                                class="filter-select"
+                                data-filter-id="{{ f.id }}"
+                                {% if not current_val %}disabled{% endif %}
+                                onchange="onSelectChange(this)"
+                                style="padding:4px 8px;border:1px solid var(--border);
+                                       border-radius:4px;background:var(--surface-2);
+                                       color:var(--text-primary);font-size:12px;
+                                       max-width:220px;{% if not current_val %}opacity:0.4;{% endif %}">
+                          <option value="">— Any —</option>
+                          {% for opt in f.options %}
+                            <option value="{{ opt.value }}"
+                              {% if current_val == opt.value %}selected{% endif %}>
+                              {{ opt.label }}
+                            </option>
+                          {% endfor %}
+                        </select>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </form>
+  </div>
+
+  {# ── Test run + save tickers ─────────────────────────────────────── #}
+  <div class="card mb-20">
+    <div class="card-header" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <span class="card-title">Test run</span>
+      <div class="flex gap-8 items-center">
+        <span class="text-tertiary text-xs">Scrapes Finviz — does NOT save tickers</span>
+        <button type="button" id="test-run-btn"
+                onclick="runTest()"
+                style="padding:6px 14px;background:var(--surface-3);color:var(--text-primary);
+                       border:1px solid var(--border);border-radius:6px;
+                       font-size:13px;cursor:pointer;font-weight:500;">
+          ▶ Test run
+        </button>
+      </div>
+    </div>
+    <div id="test-run-results" style="display:none;">
+      <div id="test-run-body" style="padding:12px 0;"></div>
+    </div>
+  </div>
+
+  {# ── Ticker count stats ─────────────────────────────────────────── #}
+  {% if preset.ticker_count %}
+    <div class="card mb-20">
+      <div class="card-header"><span class="card-title">Current universe</span></div>
+      <div class="flex gap-16 items-center" style="flex-wrap:wrap;">
+        <div>
+          <span class="mono" style="font-size:24px;font-weight:500;">{{ preset.ticker_count }}</span>
+          <span class="text-secondary text-sm"> tickers</span>
+        </div>
+        {% if preset.tickers_refreshed_at %}
+          <span class="text-tertiary text-xs">saved {{ preset.tickers_refreshed_at[:19] }}</span>
+        {% endif %}
+        {% if preset.tickers_source %}
+          <span class="text-tertiary text-xs mono">{{ preset.tickers_source }}</span>
+        {% endif %}
+      </div>
+      {% if preset.tickers %}
+        <div style="margin-top:12px;font-size:12px;font-family:var(--font-mono);
+                    line-height:1.8;color:var(--text-secondary);">
+          {{ preset.tickers | join(' · ') | truncate(400) }}
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% endif %}{# end if not is_new #}
+
+</div>
+
+{# ── Toast ─────────────────────────────────────────────────────────── #}
+<div id="toast" style="position:fixed;bottom:24px;right:24px;padding:10px 18px;
+     border-radius:8px;font-size:13px;font-weight:500;display:none;z-index:9999;
+     transition:opacity 0.3s;"></div>
+
+<style>
+.cat-section { padding: 12px 0; border-bottom: 1px solid var(--border); }
+.cat-section:last-child { border-bottom: none; }
+.cat-title {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text-tertiary);
+  margin-bottom: 4px; padding: 4px 0;
+}
+.filter-row.is-active { background: var(--tint-blue); }
+.filter-row:hover { background: var(--surface-2); }
+.filter-row.is-active:hover { background: var(--tint-blue); }
+.hidden { display: none; }
+.tab-panel { padding: 8px 0; }
+</style>
+
+<script>
+// ── Tab switching ────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+    document.querySelectorAll('.tab-panel').forEach(p => {
+      p.classList.toggle('hidden', p.id !== tab);
+    });
+  });
+});
+
+// ── Filter toggle / select ───────────────────────────────────────────
+function onToggle(cb) {
+  const fid = cb.dataset.filterId;
+  const sel = document.querySelector(`select[data-filter-id="${fid}"]`);
+  const row = document.getElementById(`row-${fid}`);
+  if (cb.checked) {
+    sel.disabled = false;
+    sel.style.opacity = '1';
+    row.classList.add('is-active');
+  } else {
+    sel.disabled = true;
+    sel.value = '';
+    sel.style.opacity = '0.4';
+    row.classList.remove('is-active');
+  }
+  updateActiveCount();
+}
+
+function onSelectChange(sel) {
+  const fid = sel.dataset.filterId;
+  const cb = document.querySelector(`input[data-filter-id="${fid}"]`);
+  if (sel.value) {
+    if (!cb.checked) { cb.checked = true; onToggle(cb); return; }
+  } else {
+    cb.checked = false; onToggle(cb);
+  }
+  updateActiveCount();
+}
+
+function updateActiveCount() {
+  const n = document.querySelectorAll('.filter-toggle:checked').length;
+  const el = document.getElementById('active-count');
+  if (el) el.textContent = n + ' active';
+}
+
+function clearAllFilters() {
+  document.querySelectorAll('.filter-toggle').forEach(cb => {
+    if (cb.checked) { cb.checked = false; onToggle(cb); }
+  });
+}
+
+// ── Save filters (HTMX-free POST) ───────────────────────────────────
+function saveFilters() {
+  // Sync meta fields
+  const descEl = document.querySelector('input[name="description"]');
+  if (descEl) {
+    document.querySelector('.meta-description').value = descEl.value;
+    document.querySelector('.meta-output_tags').value =
+      document.querySelector('input[name="output_tags"]').value;
+    document.querySelector('.meta-notes').value =
+      document.querySelector('textarea[name="notes"]').value;
+  }
+  const fd = new FormData(document.getElementById('filter-form'));
+  const btn = document.getElementById('save-filters-btn');
+  btn.textContent = 'Saving…';
+  btn.disabled = true;
+  fetch('/api/universe/presets/{{ preset.name if not is_new else "" }}', {
+    method: 'POST', body: fd,
+  })
+  .then(r => r.json())
+  .then(data => {
+    showToast(data.ok ? 'Filters saved' : (data.detail || 'Error'), data.ok);
+    btn.textContent = 'Save filters'; btn.disabled = false;
+  })
+  .catch(() => { showToast('Network error', false); btn.textContent = 'Save filters'; btn.disabled = false; });
+}
+
+// ── Test run ─────────────────────────────────────────────────────────
+let _lastTickers = [];
+function runTest() {
+  const btn = document.getElementById('test-run-btn');
+  const results = document.getElementById('test-run-results');
+  const body = document.getElementById('test-run-body');
+  btn.textContent = '⏳ Running…'; btn.disabled = true;
+  results.style.display = 'none';
+
+  fetch('/api/universe/presets/{{ preset.name if not is_new else "__preview__" }}/test-run', {
+    method: 'POST',
+  })
+  .then(r => r.json())
+  .then(data => {
+    btn.textContent = '▶ Test run'; btn.disabled = false;
+    if (data.detail) { showToast(data.detail, false); return; }
+    _lastTickers = data.tickers || [];
+    const count = data.count || 0;
+    body.innerHTML = `
+      <div class="flex items-center gap-16" style="margin-bottom:10px;flex-wrap:wrap;">
+        <span class="mono" style="font-size:22px;font-weight:500;">${count}</span>
+        <span class="text-secondary text-sm">tickers matched</span>
+        ${count > 0 ? `<button onclick="saveTickers()" class="btn-sm"
+          style="background:var(--accent-green);color:#fff;border-color:var(--accent-green);">
+          Save as universe (${count})
+        </button>` : ''}
+      </div>
+      ${count > 0 ? `<div style="font-size:12px;font-family:var(--font-mono);line-height:1.8;color:var(--text-secondary);">
+        ${_lastTickers.slice(0,200).join(' · ')}${count > 200 ? ` … +${count-200} more` : ''}
+      </div>` : '<div class="text-tertiary text-sm">No tickers matched — try loosening your filters.</div>'}
+    `;
+    results.style.display = '';
+  })
+  .catch(e => { btn.textContent = '▶ Test run'; btn.disabled = false; showToast('Test run failed: ' + e, false); });
+}
+
+function saveTickers() {
+  if (!_lastTickers.length) return;
+  const filterStr = Array.from(document.querySelectorAll('select.filter-select'))
+    .filter(s => s.value)
+    .map(s => s.name.replace('f_','') + '_' + s.value)
+    .join(',');
+  fetch('/api/universe/presets/{{ preset.name if not is_new else "" }}/save-tickers', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ tickers: _lastTickers, source: 'finviz:' + filterStr }),
+  })
+  .then(r => r.json())
+  .then(data => {
+    showToast(data.ok ? `Saved ${data.count} tickers as universe` : (data.detail || 'Error'), data.ok);
+    if (data.ok) setTimeout(() => location.reload(), 1200);
+  })
+  .catch(() => showToast('Network error', false));
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────
+function showToast(msg, ok) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = ok ? 'var(--accent-green)' : 'var(--accent-red)';
+  t.style.color = '#fff';
+  t.style.display = 'block';
+  t.style.opacity = '1';
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.style.display = 'none', 300); }, 3000);
+}
+
+// ── Create form redirect ──────────────────────────────────────────────
+{% if is_new %}
+document.getElementById('create-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('create-btn');
+  btn.textContent = 'Creating…'; btn.disabled = true;
+  const fd = new FormData(e.target);
+  const r = await fetch('/api/universe/presets', { method: 'POST', body: fd });
+  const data = await r.json();
+  if (r.ok && data.redirect) {
+    window.location.href = data.redirect;
+  } else {
+    showToast(data.detail || 'Error creating preset', false);
+    btn.textContent = 'Create & configure filters'; btn.disabled = false;
+  }
+});
+{% endif %}
+</script>
+{% endblock %}

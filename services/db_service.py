@@ -114,6 +114,24 @@ _SCHEMA = [
         mode TEXT
     )
     """,
+    # Universe presets — Finviz-vocabulary filter configs managed via the UI
+    """
+    CREATE TABLE IF NOT EXISTS universe_presets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        description TEXT DEFAULT '',
+        is_active INTEGER NOT NULL DEFAULT 0,
+        filters_json TEXT NOT NULL DEFAULT '{}',
+        output_tags_json TEXT NOT NULL DEFAULT '[]',
+        notes TEXT DEFAULT '',
+        tickers_json TEXT,
+        tickers_refreshed_at TEXT,
+        tickers_source TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_universe_presets_active ON universe_presets(is_active)",
     # Indexes for the queries we run often
     "CREATE INDEX IF NOT EXISTS idx_pending_status ON pending_approvals(status, ts_created DESC)",
     "CREATE INDEX IF NOT EXISTS idx_pending_symbol ON pending_approvals(symbol)",
@@ -154,6 +172,203 @@ async def ensure_tables() -> None:
         await _migrate_pending_approvals(db)
         await db.commit()
     logger.info("db_service: tables ensured at %s", DB_PATH)
+
+
+# ---------------------------------------------------------------------- #
+# universe_presets
+# ---------------------------------------------------------------------- #
+
+
+async def list_universe_presets() -> list[dict]:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM universe_presets ORDER BY is_active DESC, name ASC"
+        )
+        rows = await cur.fetchall()
+    return [_preset_row_to_dict(r) for r in rows]
+
+
+async def get_universe_preset(name: str) -> dict | None:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM universe_presets WHERE name = ?", (name,)
+        )
+        row = await cur.fetchone()
+    return _preset_row_to_dict(row) if row else None
+
+
+async def get_active_universe_preset() -> dict | None:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM universe_presets WHERE is_active = 1 LIMIT 1"
+        )
+        row = await cur.fetchone()
+    return _preset_row_to_dict(row) if row else None
+
+
+async def create_universe_preset(
+    *,
+    name: str,
+    description: str = "",
+    filters: dict | None = None,
+    output_tags: list[str] | None = None,
+    notes: str = "",
+) -> int:
+    now = datetime.now(timezone.utc).isoformat()
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute(
+            """
+            INSERT INTO universe_presets
+                (name, description, is_active, filters_json, output_tags_json,
+                 notes, created_at, updated_at)
+            VALUES (?,?,0,?,?,?,?,?)
+            """,
+            (
+                name, description,
+                json.dumps(filters or {}),
+                json.dumps(output_tags or []),
+                notes, now, now,
+            ),
+        )
+        await db.commit()
+        return cur.lastrowid  # type: ignore[return-value]
+
+
+async def update_universe_preset(
+    name: str,
+    *,
+    description: str | None = None,
+    filters: dict | None = None,
+    output_tags: list[str] | None = None,
+    notes: str | None = None,
+) -> bool:
+    existing = await get_universe_preset(name)
+    if not existing:
+        return False
+    now = datetime.now(timezone.utc).isoformat()
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute(
+            """
+            UPDATE universe_presets SET
+                description = ?,
+                filters_json = ?,
+                output_tags_json = ?,
+                notes = ?,
+                updated_at = ?
+            WHERE name = ?
+            """,
+            (
+                description if description is not None else existing["description"],
+                json.dumps(filters) if filters is not None else existing["filters_json_raw"],
+                json.dumps(output_tags) if output_tags is not None else existing["output_tags_json_raw"],
+                notes if notes is not None else existing["notes"],
+                now, name,
+            ),
+        )
+        await db.commit()
+        return cur.rowcount > 0
+
+
+async def delete_universe_preset(name: str) -> bool:
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute(
+            "DELETE FROM universe_presets WHERE name = ?", (name,)
+        )
+        await db.commit()
+        return cur.rowcount > 0
+
+
+async def set_active_universe_preset(name: str) -> bool:
+    """Make one preset active; clear active flag on all others."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute("UPDATE universe_presets SET is_active = 0")
+        cur = await db.execute(
+            "UPDATE universe_presets SET is_active = 1 WHERE name = ?", (name,)
+        )
+        await db.commit()
+        return cur.rowcount > 0
+
+
+async def save_universe_preset_tickers(
+    name: str,
+    tickers: list[str],
+    source: str,
+) -> bool:
+    now = datetime.now(timezone.utc).isoformat()
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute(
+            """
+            UPDATE universe_presets SET
+                tickers_json = ?,
+                tickers_refreshed_at = ?,
+                tickers_source = ?,
+                updated_at = ?
+            WHERE name = ?
+            """,
+            (json.dumps(tickers), now, source, now, name),
+        )
+        await db.commit()
+        return cur.rowcount > 0
+
+
+async def seed_universe_presets_from_yaml(yaml_presets: list[dict]) -> int:
+    """One-time migration: import YAML presets into SQLite if table is empty."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute("SELECT COUNT(*) FROM universe_presets")
+        count = (await cur.fetchone())[0]
+        if count > 0:
+            return 0
+        now = datetime.now(timezone.utc).isoformat()
+        inserted = 0
+        for p in yaml_presets:
+            try:
+                await db.execute(
+                    """
+                    INSERT OR IGNORE INTO universe_presets
+                        (name, description, is_active, filters_json, output_tags_json,
+                         notes, created_at, updated_at)
+                    VALUES (?,?,?,?,?,?,?,?)
+                    """,
+                    (
+                        p["name"], p.get("description", ""),
+                        1 if inserted == 0 else 0,
+                        json.dumps({}),
+                        json.dumps(p.get("output_tags", [])),
+                        p.get("notes", ""),
+                        now, now,
+                    ),
+                )
+                inserted += 1
+            except Exception as e:  # noqa: BLE001
+                logger.warning("seed_universe_presets: skipped %s: %s", p.get("name"), e)
+        await db.commit()
+        return inserted
+
+
+def _preset_row_to_dict(row: Any) -> dict:
+    filters_raw = row["filters_json"] or "{}"
+    output_tags_raw = row["output_tags_json"] or "[]"
+    tickers_raw = row["tickers_json"]
+    return {
+        "id": row["id"],
+        "name": row["name"],
+        "description": row["description"] or "",
+        "is_active": bool(row["is_active"]),
+        "filters": json.loads(filters_raw),
+        "filters_json_raw": filters_raw,
+        "output_tags": json.loads(output_tags_raw),
+        "output_tags_json_raw": output_tags_raw,
+        "notes": row["notes"] or "",
+        "tickers": json.loads(tickers_raw) if tickers_raw else [],
+        "tickers_refreshed_at": row["tickers_refreshed_at"],
+        "tickers_source": row["tickers_source"],
+        "ticker_count": len(json.loads(tickers_raw)) if tickers_raw else 0,
+        "created_at": row["created_at"],
+        "updated_at": row["updated_at"],
+    }
 
 
 # ---------------------------------------------------------------------- #

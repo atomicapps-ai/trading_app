@@ -28,7 +28,7 @@ from routers import (
     universe,
     workflows,
 )
-from services import db_service
+from services import db_service, universe_service
 from services.broker_service import connect_adapter, get_adapter
 from services.settings_service import (
     ENV_FILE,
@@ -64,6 +64,7 @@ async def lifespan(_: FastAPI):
     )
     try:
         await db_service.ensure_tables()
+        await universe_service.seed_from_yaml_if_empty()
     except Exception as exc:
         logger.error("SQLite ensure_tables failed: %s", exc)
     try:
