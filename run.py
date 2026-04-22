@@ -14,7 +14,7 @@ if mode not in ("dev", "prod"):
     print(f"Unknown mode '{mode}'. Use: dev | prod")
     sys.exit(1)
 
-base = [sys.executable, "-m", "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "5000"]
+base = [sys.executable, "-m", "uvicorn", "app:app", "--host", "127.0.0.1", "--port", "5000"]
 
 if mode == "dev":
     cmd = base + ["--reload", "--log-level", "info"]
