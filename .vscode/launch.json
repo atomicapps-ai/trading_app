@@ -1,0 +1,29 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "TradeAgent (main)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": ["app:app", "--reload", "--host", "0.0.0.0", "--port", "5000"],
+            "cwd": "${workspaceFolder}",
+            "envFile": "${workspaceFolder}/.env",
+            "jinja": true,
+            "justMyCode": false,
+            "python": "${workspaceFolder}/.venv/Scripts/python.exe"
+        },
+        {
+            "name": "TradeAgent (feature branch)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": ["app:app", "--reload", "--host", "0.0.0.0", "--port", "5000"],
+            "cwd": "${workspaceFolder}/.claude/worktrees/vibrant-heyrovsky-8deb87",
+            "envFile": "${workspaceFolder}/.env",
+            "jinja": true,
+            "justMyCode": false,
+            "python": "${workspaceFolder}/.venv/Scripts/python.exe"
+        }
+    ]
+}
