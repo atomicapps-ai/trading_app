@@ -53,6 +53,7 @@ import requests
 import yaml
 from bs4 import BeautifulSoup
 
+from services import universe_service
 from services.settings_service import PROJECT_ROOT
 
 logger = logging.getLogger(__name__)
@@ -328,6 +329,17 @@ def refresh_one(
     if dry_run:
         logger.info("  dry-run: not writing to disk")
         return tickers
+
+    # Archive the OUTGOING ticker-list state before we overwrite it, so
+    # the /universe UI has a complete version history for the preset.
+    old_entry = tickers_data.get("presets", {}).get(preset_name)
+    if old_entry:
+        try:
+            universe_service.archive_snapshot(
+                "tickers", preset_name, old_entry,
+            )
+        except Exception as e:  # noqa: BLE001
+            logger.warning("archive snapshot failed: %s", e)
 
     tickers_data["presets"][preset_name] = {
         "refreshed_at": datetime.now(timezone.utc).isoformat(),

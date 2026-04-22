@@ -25,6 +25,7 @@ from routers import (
     settings as settings_router,
     stubs,
     trades,
+    universe,
     workflows,
 )
 from services import db_service
@@ -100,6 +101,7 @@ app.include_router(settings_router.router)
 app.include_router(broker.router)
 app.include_router(workflows.router)
 app.include_router(bars.router)
+app.include_router(universe.router)
 app.include_router(stubs.router)
 
 

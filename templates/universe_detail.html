@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+{% block title %}{{ preset.preset_name }} — Universe — TradeAgent{% endblock %}
+{% block content %}
+<div style="max-width: 1100px;">
+
+  <div class="flex items-center gap-12 mb-8">
+    <a href="/universe" class="text-secondary" style="text-decoration: none;">← Universe</a>
+    <span class="text-tertiary">/</span>
+    <h2 style="font-size: 20px; font-weight: 500;">{{ preset.preset_name }}</h2>
+    {% if preset.version %}
+      <span class="badge badge-gray">v{{ preset.version }}</span>
+    {% endif %}
+    {% if not preset.refreshable %}
+      <span class="badge badge-gray" title="This preset is on-demand or uses a hardcoded whitelist">
+        no refresh
+      </span>
+    {% endif %}
+  </div>
+
+  {% if preset.description %}
+    <div class="text-secondary" style="line-height: 1.6; margin-bottom: 20px; max-width: 780px;">
+      {{ preset.description }}
+    </div>
+  {% endif %}
+
+  {# ================================== #}
+  {# Top stats row                      #}
+  {# ================================== #}
+  <div class="flex gap-12 mb-24" style="flex-wrap: wrap;">
+    <div class="card" style="padding: 12px 16px; min-width: 170px;">
+      <div class="text-secondary text-xs">Ticker count</div>
+      <div class="mono" style="font-size: 20px; font-weight: 500; margin-top: 4px;">
+        {{ preset.tickers_info.count }}
+      </div>
+    </div>
+    <div class="card" style="padding: 12px 16px; min-width: 220px;">
+      <div class="text-secondary text-xs">Last refreshed</div>
+      <div class="mono" style="font-size: 13px; margin-top: 6px;">
+        {{ preset.tickers_info.refreshed_at[:19] if preset.tickers_info.refreshed_at else '—' }}
+      </div>
+      <div class="text-tertiary text-xs" style="margin-top: 3px;">
+        {{ preset.tickers_info.source or '—' }}
+      </div>
+    </div>
+    <div class="card" style="padding: 12px 16px; min-width: 170px;">
+      <div class="text-secondary text-xs">Criteria versions</div>
+      <div class="mono" style="font-size: 20px; font-weight: 500; margin-top: 4px;">
+        {{ preset.history.criteria|length }}
+      </div>
+    </div>
+    <div class="card" style="padding: 12px 16px; min-width: 170px;">
+      <div class="text-secondary text-xs">Ticker-list versions</div>
+      <div class="mono" style="font-size: 20px; font-weight: 500; margin-top: 4px;">
+        {{ preset.history.tickers|length }}
+      </div>
+    </div>
+    <div class="card" style="padding: 12px 16px; min-width: 220px;">
+      <div class="text-secondary text-xs">Last pipeline run</div>
+      <div class="mono" style="font-size: 13px; margin-top: 6px;">
+        {{ preset.last_pipeline_run.ts_run[:19] if preset.last_pipeline_run.ts_run else 'Never' }}
+      </div>
+      <div class="text-tertiary text-xs" style="margin-top: 3px;">
+        shortlist size: {{ preset.last_pipeline_run.shortlist_size }}
+      </div>
+    </div>
+  </div>
+
+  {# ================================== #}
+  {# Tabs                               #}
+  {# ================================== #}
+  <div style="border-bottom: 1px solid var(--border); margin-bottom: 16px;">
+    <div class="flex gap-24">
+      <button class="tab-btn active" data-tab="criteria">Criteria</button>
+      <button class="tab-btn" data-tab="tickers">Tickers ({{ preset.tickers|length }})</button>
+      <button class="tab-btn" data-tab="history">History</button>
+    </div>
+  </div>
+
+  {# ================================== #}
+  {# Criteria tab                       #}
+  {# ================================== #}
+  <div class="tab-panel active" id="tab-criteria">
+    {% if preset.output_tags %}
+      <div class="pending-row" style="gap: 6px; margin-bottom: 16px; flex-wrap: wrap;">
+        {% for tag in preset.output_tags %}
+          <span class="badge badge-blue" style="font-size: 11px;">{{ tag }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% for group in preset.criteria_groups %}
+      <div class="card mb-16">
+        <div class="card-header">
+          <span class="card-title">{{ group.name }}</span>
+        </div>
+        <table style="width: 100%; font-size: 13px;">
+          <tbody>
+            {% for entry in group.entries %}
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td class="text-secondary mono" style="padding: 8px 0; width: 260px;">
+                  {{ entry.key }}
+                </td>
+                <td class="mono" style="padding: 8px 0;">
+                  {{ entry.display_value }}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endfor %}
+
+    {% if preset.notes %}
+      <div class="card mt-16">
+        <div class="card-header"><span class="card-title">Notes</span></div>
+        <div class="text-secondary" style="line-height: 1.6;">{{ preset.notes }}</div>
+      </div>
+    {% endif %}
+  </div>
+
+  {# ================================== #}
+  {# Tickers tab                        #}
+  {# ================================== #}
+  <div class="tab-panel" id="tab-tickers" style="display: none;">
+    {% if preset.tickers %}
+      <div class="text-tertiary text-xs" style="margin-bottom: 8px;">
+        {% if preset.last_pipeline_run.scores_available %}
+          Pre-screener scores from the last pipeline run are shown where available.
+          Highlighted rows made the shortlist.
+        {% else %}
+          No pre-screener scores yet — run a pipeline (e.g.
+          <code>POST /api/workflows/research_run/run</code>) to populate them.
+        {% endif %}
+      </div>
+      <div class="card" style="padding: 0;">
+        <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <th class="text-left text-secondary" style="padding: 10px 12px; font-weight: 500;">Symbol</th>
+              <th class="text-right text-secondary" style="padding: 10px 12px; font-weight: 500;">Prescreener</th>
+              <th class="text-left text-secondary" style="padding: 10px 12px; font-weight: 500;">In shortlist?</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in preset.tickers %}
+              <tr style="border-bottom: 1px solid var(--border);
+                         {% if t.in_shortlist %}background: var(--tint-green);{% endif %}">
+                <td class="mono" style="padding: 8px 12px; font-weight: 500;">{{ t.symbol }}</td>
+                <td class="mono text-right" style="padding: 8px 12px;">
+                  {% if t.prescreener_score is not none %}
+                    {{ "%.1f"|format(t.prescreener_score) }}
+                  {% else %}
+                    <span class="text-tertiary">—</span>
+                  {% endif %}
+                </td>
+                <td style="padding: 8px 12px;">
+                  {% if t.in_shortlist %}
+                    <span class="badge badge-green" style="font-size: 11px;">shortlist</span>
+                  {% else %}
+                    <span class="text-tertiary text-xs">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="card">
+        <div class="text-secondary">No tickers in this preset yet.</div>
+        {% if preset.refreshable %}
+          <div class="text-sm text-tertiary" style="margin-top: 8px;">
+            Run <code>python -m scripts.refresh_universe {{ preset.preset_name }}</code>
+            to populate the list from Finviz.
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  {# ================================== #}
+  {# History tab                        #}
+  {# ================================== #}
+  <div class="tab-panel" id="tab-history" style="display: none;">
+    <div class="flex gap-24" style="flex-wrap: wrap;">
+      {# Criteria history column #}
+      <div style="flex: 1; min-width: 380px;">
+        <div class="flex items-center gap-8 mb-8">
+          <span class="card-title">Criteria versions</span>
+          <span class="badge badge-gray" style="font-size: 11px;">
+            {{ preset.history.criteria|length }}
+          </span>
+        </div>
+        {% if preset.history.criteria %}
+          <div class="card" style="padding: 0;">
+            {% for s in preset.history.criteria %}
+              <div style="padding: 10px 14px; border-bottom: 1px solid var(--border);">
+                <div class="mono" style="font-size: 13px;">
+                  <a href="/api/universe/{{ preset.preset_name }}/history/criteria/{{ s.ts }}"
+                     style="color: var(--accent-blue); text-decoration: none;"
+                     target="_blank">
+                    {{ s.ts }}
+                  </a>
+                </div>
+                <div class="text-tertiary text-xs" style="margin-top: 3px;">
+                  {{ s.size_bytes }} bytes
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="card">
+            <div class="text-secondary">No archived criteria versions yet.</div>
+            <div class="text-xs text-tertiary" style="margin-top: 6px;">
+              Snapshots are written on every edit or refresh.
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+      {# Ticker-list history column #}
+      <div style="flex: 1; min-width: 380px;">
+        <div class="flex items-center gap-8 mb-8">
+          <span class="card-title">Ticker-list versions</span>
+          <span class="badge badge-gray" style="font-size: 11px;">
+            {{ preset.history.tickers|length }}
+          </span>
+        </div>
+        {% if preset.history.tickers %}
+          <div class="card" style="padding: 0;">
+            {% for s in preset.history.tickers %}
+              <div style="padding: 10px 14px; border-bottom: 1px solid var(--border);">
+                <div class="mono" style="font-size: 13px;">
+                  <a href="/api/universe/{{ preset.preset_name }}/history/tickers/{{ s.ts }}"
+                     style="color: var(--accent-blue); text-decoration: none;"
+                     target="_blank">
+                    {{ s.ts }}
+                  </a>
+                </div>
+                <div class="text-tertiary text-xs" style="margin-top: 3px;">
+                  {{ s.size_bytes }} bytes
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="card">
+            <div class="text-secondary">No archived ticker-list versions yet.</div>
+            <div class="text-xs text-tertiary" style="margin-top: 6px;">
+              Each successful refresh writes a snapshot.
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Tab switch — pure client-side toggle.
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.tab-panel').forEach(p => {
+        p.style.display = (p.id === `tab-${tab}`) ? '' : 'none';
+      });
+    });
+  });
+</script>
+{% endblock %}
