@@ -106,6 +106,21 @@ async def universe_edit(
     )
 
 
+@router.get("/universe/{preset_name}", response_class=HTMLResponse)
+async def universe_preset(
+    preset_name: str,
+    request: Request,
+    s: Settings = Depends(get_settings),
+):
+    """If the preset exists in SQLite redirect to its edit page,
+    otherwise show the legacy YAML detail view."""
+    from fastapi.responses import RedirectResponse
+    db_preset = await universe_service.get_preset_db(preset_name)
+    if db_preset is not None:
+        return RedirectResponse(url=f"/universe/{preset_name}/edit", status_code=302)
+    return await universe_detail_legacy(preset_name, request, s)
+
+
 @router.get("/universe/{preset_name}/detail", response_class=HTMLResponse)
 async def universe_detail_legacy(
     preset_name: str,

@@ -3,18 +3,25 @@
 {% block content %}
 <div style="max-width: 1100px;">
 
-  <div class="flex items-center gap-12 mb-8">
-    <a href="/universe" class="text-secondary" style="text-decoration: none;">← Universe</a>
-    <span class="text-tertiary">/</span>
-    <h2 style="font-size: 20px; font-weight: 500;">{{ preset.preset_name }}</h2>
-    {% if preset.version %}
-      <span class="badge badge-gray">v{{ preset.version }}</span>
-    {% endif %}
-    {% if not preset.refreshable %}
-      <span class="badge badge-gray" title="This preset is on-demand or uses a hardcoded whitelist">
-        no refresh
-      </span>
-    {% endif %}
+  <div class="flex items-center gap-12 mb-8" style="justify-content: space-between; flex-wrap: wrap;">
+    <div class="flex items-center gap-12">
+      <a href="/universe" class="text-secondary" style="text-decoration: none;">← Universe</a>
+      <span class="text-tertiary">/</span>
+      <h2 style="font-size: 20px; font-weight: 500;">{{ preset.preset_name }}</h2>
+      {% if preset.version %}
+        <span class="badge badge-gray">v{{ preset.version }}</span>
+      {% endif %}
+      {% if not preset.refreshable %}
+        <span class="badge badge-gray" title="This preset is on-demand or uses a hardcoded whitelist">no refresh</span>
+      {% endif %}
+    </div>
+    <div class="flex gap-8">
+      <a href="/universe/{{ preset.preset_name }}/edit"
+         style="padding:6px 14px;background:var(--accent-blue);color:#fff;border-radius:6px;
+                font-size:13px;text-decoration:none;font-weight:500;">
+        Edit / Run
+      </a>
+    </div>
   </div>
 
   {% if preset.description %}
@@ -26,7 +33,7 @@
   {# ================================== #}
   {# Top stats row                      #}
   {# ================================== #}
-  <div class="flex gap-12 mb-24" style="flex-wrap: wrap;">
+  <div class="flex gap-12 mb-24" style="flex-wrap: wrap; align-items: flex-start;">
     <div class="card" style="padding: 12px 16px; min-width: 170px;">
       <div class="text-secondary text-xs">Ticker count</div>
       <div class="mono" style="font-size: 20px; font-weight: 500; margin-top: 4px;">
@@ -97,10 +104,10 @@
           <tbody>
             {% for entry in group.entries %}
               <tr style="border-bottom: 1px solid var(--border);">
-                <td class="text-secondary mono" style="padding: 8px 0; width: 260px;">
+                <td class="text-secondary mono" style="padding: 3px 0; width: 260px;">
                   {{ entry.key }}
                 </td>
-                <td class="mono" style="padding: 8px 0;">
+                <td class="mono" style="padding: 3px 0;">
                   {{ entry.display_value }}
                 </td>
               </tr>
