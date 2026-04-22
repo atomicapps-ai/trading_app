@@ -44,6 +44,11 @@ async def get_bars_json(
     symbol: str,
     interval: str = Query("1h"),
     limit: int = Query(500, ge=10, le=5000),
+    before: int | None = Query(
+        None, description="UNIX epoch seconds. Return <=limit bars ending "
+                          "strictly before this timestamp. Used for "
+                          "scroll-back lazy loading on the chart widget.",
+    ),
 ) -> dict:
     if interval not in _RESAMPLE_RULE:
         raise HTTPException(
@@ -63,6 +68,13 @@ async def get_bars_json(
     if interval in ("2h", "4h"):
         df = _resample(df, _RESAMPLE_RULE[interval])
 
+    # If the client is paginating backwards, slice to bars strictly before
+    # the provided epoch BEFORE taking the tail. That way each page fills
+    # ``limit`` bars ending just before the client's current oldest bar.
+    if before is not None:
+        cutoff = pd.Timestamp(before, unit="s", tz="UTC")
+        df = df.loc[df.index < cutoff]
+
     df = df.tail(limit)
 
     out = []
@@ -79,6 +91,9 @@ async def get_bars_json(
         "symbol": symbol.upper(),
         "interval": interval,
         "count": len(out),
+        # When the server returned fewer bars than requested AND ``before``
+        # was set, the client knows it's reached the start of available data.
+        "has_more": (before is not None) and len(out) >= limit,
         "bars": out,
     }
 

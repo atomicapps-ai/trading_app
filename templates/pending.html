@@ -482,10 +482,77 @@
         charts[idx].bars = bars;  // retained for logical-index lookups
         charts[idx].chart.timeScale().fitContent();
         charts[idx].interval = interval;
+        // Reset lazy-load state for the new series
+        charts[idx].loading = false;
+        charts[idx].reachedStart = false;
       } catch (e) {
         console.error('chart load failed', e);
         if (label) label.textContent = `${symbol} · ${interval.toUpperCase()} · load failed`;
       }
+    }
+
+    // Lazy-load: when the user scrolls to the left edge, fetch the page
+    // of bars before the current oldest one and prepend. The backing
+    // cache is local (yfinance CSVs), so each page costs a disk read
+    // and a few KB of JSON — cheap. Hard limit: once the server returns
+    // fewer than `limit` bars, we've hit the start of available data and
+    // stop trying.
+    const LAZY_PAGE_SIZE = 300;
+    const LEFT_EDGE_THRESHOLD = 5;  // bars
+    async function fetchOlder(idx) {
+      const c = charts[idx];
+      if (!c || !c.bars || c.bars.length === 0) return;
+      if (c.loading || c.reachedStart) return;
+      c.loading = true;
+      const oldestTime = c.bars[0].time;
+      const url = `/api/bars/${symbol}?interval=${c.interval}` +
+                  `&limit=${LAZY_PAGE_SIZE}&before=${oldestTime}`;
+      try {
+        const r = await fetch(url);
+        if (!r.ok) return;
+        const data = await r.json();
+        const older = (data.bars || []).map(b => ({
+          time: b.time, open: b.open, high: b.high,
+          low: b.low, close: b.close,
+        }));
+        if (older.length === 0) {
+          c.reachedStart = true;
+          return;
+        }
+        // Preserve the user's current logical view. Without this, the
+        // chart snaps to fit the new full data set and the user loses
+        // their scroll position.
+        const ts = c.chart.timeScale();
+        const logical = ts.getVisibleLogicalRange();
+
+        const merged = older.concat(c.bars);
+        c.series.setData(merged);
+        c.bars = merged;
+
+        if (logical) {
+          const shift = older.length;
+          ts.setVisibleLogicalRange({
+            from: logical.from + shift,
+            to: logical.to + shift,
+          });
+        }
+        // If the server signaled there's no more history, don't try again.
+        if (!data.has_more) c.reachedStart = true;
+      } catch (e) {
+        console.warn('lazy-load failed', e);
+      } finally {
+        c.loading = false;
+      }
+    }
+
+    function wireLazyLoad(idx) {
+      const c = charts[idx];
+      c.chart.timeScale().subscribeVisibleLogicalRangeChange(range => {
+        if (!range) return;
+        if (range.from < LEFT_EDGE_THRESHOLD) {
+          fetchOlder(idx);
+        }
+      });
     }
 
     // Crosshair sync. When user hovers chart A, move the crosshair on
@@ -584,7 +651,8 @@
       });
     });
 
-    // Build both charts, load defaults, wire sync + dblclick re-center.
+    // Build both charts, load defaults, wire sync + dblclick re-center
+    // + left-edge lazy-load.
     makeChart('a', '1h');
     makeChart('b', '4h');
     loadInterval('a', '1h');
@@ -593,6 +661,8 @@
     wireSync('b', 'a');
     wireDblclickSync('a');
     wireDblclickSync('b');
+    wireLazyLoad('a');
+    wireLazyLoad('b');
   })();
 
   // Approval action — confirm + POST /pending/{id}/ack, swap status pill.
