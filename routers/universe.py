@@ -61,7 +61,6 @@ async def universe_index(request: Request, s: Settings = Depends(get_settings)):
 
 @router.get("/universe/new", response_class=HTMLResponse)
 async def universe_new(request: Request, s: Settings = Depends(get_settings)):
-    catalog_grouped = universe_service.get_catalog_grouped()
     return templates.TemplateResponse(
         request=request,
         name="universe_edit.html",
@@ -70,7 +69,9 @@ async def universe_new(request: Request, s: Settings = Depends(get_settings)):
             "app_version": "0.1.0",
             "active_page": "universe",
             "preset": None,
-            "catalog_grouped": catalog_grouped,
+            "catalog_flat": universe_service.get_catalog_flat(),
+            "default_filter_ids": universe_service.load_filter_config(),
+            "catalog_grouped": universe_service.get_catalog_grouped(),
             "is_new": True,
         },
     )
@@ -85,7 +86,9 @@ async def universe_edit(
     preset = await universe_service.get_preset_db(preset_name)
     if preset is None:
         raise HTTPException(status_code=404, detail=f"preset {preset_name!r} not found")
-    catalog_grouped = universe_service.get_catalog_grouped()
+    # Merge: default visible IDs + any preset-specific IDs not in defaults
+    default_ids = universe_service.load_filter_config()
+    extra_ids = [fid for fid in preset["filters"] if fid not in default_ids]
     return templates.TemplateResponse(
         request=request,
         name="universe_edit.html",
@@ -94,7 +97,10 @@ async def universe_edit(
             "app_version": "0.1.0",
             "active_page": "universe",
             "preset": preset,
-            "catalog_grouped": catalog_grouped,
+            "catalog_flat": universe_service.get_catalog_flat(),
+            "default_filter_ids": default_ids,
+            "extra_filter_ids": extra_ids,
+            "catalog_grouped": universe_service.get_catalog_grouped(),
             "is_new": False,
         },
     )
@@ -141,19 +147,21 @@ async def universe_detail_legacy(
 @router.post("/api/universe/presets")
 async def api_create_preset(
     name: Annotated[str, Form()],
+    title: Annotated[str, Form()] = "",
     description: Annotated[str, Form()] = "",
     notes: Annotated[str, Form()] = "",
     output_tags: Annotated[str, Form()] = "",
 ) -> dict:
-    name = name.strip()
+    name = name.strip().lower().replace(" ", "_")
     if not name:
         raise HTTPException(status_code=422, detail="name is required")
     existing = await universe_service.get_preset_db(name)
     if existing:
-        raise HTTPException(status_code=409, detail=f"preset {name!r} already exists")
+        raise HTTPException(status_code=409, detail=f"preset '{name}' already exists")
     tags = [t.strip() for t in output_tags.split(",") if t.strip()]
     pid = await universe_service.create_preset_db(
-        name=name, description=description, notes=notes, output_tags=tags,
+        name=name, title=title or name, description=description,
+        notes=notes, output_tags=tags,
     )
     return {"id": pid, "name": name, "redirect": f"/universe/{name}/edit"}
 
@@ -173,12 +181,14 @@ async def api_update_preset(
     content_type = request.headers.get("content-type", "")
     if "application/json" in content_type:
         body = await request.json()
+        title = body.get("title")
         description = body.get("description", "")
         notes = body.get("notes", "")
         output_tags = body.get("output_tags", [])
         filters = body.get("filters", {})
     else:
         form = await request.form()
+        title = str(form.get("title", "")) or None
         description = str(form.get("description", ""))
         notes = str(form.get("notes", ""))
         raw_tags = str(form.get("output_tags", ""))
@@ -191,6 +201,7 @@ async def api_update_preset(
 
     ok = await universe_service.update_preset_db(
         preset_name,
+        title=title,
         description=description,
         filters=filters,
         output_tags=output_tags,
@@ -210,11 +221,15 @@ async def api_delete_preset(preset_name: str) -> dict:
 
 
 @router.post("/api/universe/presets/{preset_name}/set-active")
-async def api_set_active(preset_name: str) -> dict:
+async def api_set_active(preset_name: str, request: Request) -> JSONResponse:
     ok = await universe_service.set_active_preset_db(preset_name)
     if not ok:
         raise HTTPException(status_code=404, detail=f"preset {preset_name!r} not found")
-    return {"ok": True, "active": preset_name}
+    # HTMX: trigger a full page reload via HX-Redirect header
+    return JSONResponse(
+        content={"ok": True},
+        headers={"HX-Redirect": "/universe"},
+    )
 
 
 @router.post("/api/universe/presets/{preset_name}/test-run")

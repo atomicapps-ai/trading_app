@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "source": "finviz_screener_html_2026-04",
-  "total": 79,
+  "total": 76,
   "filters": [
     {
       "id": "an_recom",
@@ -45,10 +45,6 @@
         {
           "value": "strongsell",
           "label": "Strong Sell (5)"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -306,10 +302,6 @@
         {
           "value": "vietnam",
           "label": "Vietnam"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -927,10 +919,6 @@
         {
           "value": "wastemanagement",
           "label": "Waste Management"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -984,10 +972,6 @@
         {
           "value": "utilities",
           "label": "Utilities"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -2069,10 +2053,6 @@
         {
           "value": "wearablessport",
           "label": "Wearables - Sports, Fitness & Lifestyle Applications"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -2242,10 +2222,6 @@
         {
           "value": "wearables",
           "label": "Wearables"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -2311,10 +2287,6 @@
         {
           "value": "o10",
           "label": "Over 10%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -2384,10 +2356,6 @@
         {
           "value": "thismonth",
           "label": "This Month"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -2413,10 +2381,6 @@
         {
           "value": "nyse",
           "label": "NYSE"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -2486,10 +2450,6 @@
         {
           "value": "more25",
           "label": "More than 25 years ago"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -2515,10 +2475,6 @@
         {
           "value": "rut",
           "label": "RUSSELL 2000"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -2600,10 +2556,6 @@
         {
           "value": "500to10000",
           "label": "500K to 10M"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -2725,10 +2677,6 @@
         {
           "value": "ousd1000000",
           "label": "Over $1B"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -2896,10 +2844,6 @@
           "label": "$50 to $100"
         },
         {
-          "value": "",
-          "label": "Custom (Elite only)"
-        },
-        {
           "value": "add_tad_0_close::close:d",
           "label": "Custom TA"
         }
@@ -2975,10 +2919,6 @@
         {
           "value": "u0.1",
           "label": "Under 0.1"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -3044,23 +2984,6 @@
         {
           "value": "b50",
           "label": "50% Below Price"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
-        }
-      ]
-    },
-    {
-      "id": "sh_trades",
-      "label": "Trades",
-      "tab": "Descriptive",
-      "category": "Price & Volume",
-      "supported_in_prescreen": false,
-      "options": [
-        {
-          "value": "",
-          "label": "Elite only"
         }
       ]
     },
@@ -3142,10 +3065,6 @@
         {
           "value": "uo1b",
           "label": "Over $1B available to short"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -3211,10 +3130,6 @@
         {
           "value": "o30",
           "label": "Over 30%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -3360,10 +3275,6 @@
         {
           "value": "o90p",
           "label": "Over 90%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -3429,10 +3340,6 @@
         {
           "value": "microunder",
           "label": "-Micro (under $300mln)"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -3506,10 +3413,6 @@
         {
           "value": "o1000",
           "label": "Over 1000M"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -3567,10 +3470,6 @@
         {
           "value": "o10",
           "label": "Over 10"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -3668,10 +3567,6 @@
         {
           "value": "o1",
           "label": "Over 1"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -3769,10 +3664,6 @@
         {
           "value": "o1",
           "label": "Over 1"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -3830,10 +3721,6 @@
         {
           "value": "o10",
           "label": "Over 10"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -3963,10 +3850,6 @@
         {
           "value": "cy9",
           "label": "Growing 9+ Years"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -4076,10 +3959,6 @@
         {
           "value": "u100",
           "label": "Under 100%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -4153,10 +4032,6 @@
         {
           "value": "o30",
           "label": "Over 30%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -4230,10 +4105,6 @@
         {
           "value": "o30",
           "label": "Over 30%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -4307,10 +4178,6 @@
         {
           "value": "o30",
           "label": "Over 30%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -4384,10 +4251,6 @@
         {
           "value": "o30",
           "label": "Over 30%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -4461,10 +4324,6 @@
         {
           "value": "o30",
           "label": "Over 30%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -4538,10 +4397,6 @@
         {
           "value": "o30",
           "label": "Over 30%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -4615,10 +4470,6 @@
         {
           "value": "o30",
           "label": "Over 30%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -4816,10 +4667,6 @@
         {
           "value": "ro200",
           "label": "Over 200%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -4893,10 +4740,6 @@
         {
           "value": "o30",
           "label": "Over 30%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -4970,10 +4813,6 @@
         {
           "value": "o30",
           "label": "Over 30%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -5047,10 +4886,6 @@
         {
           "value": "o30",
           "label": "Over 30%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -5124,10 +4959,6 @@
         {
           "value": "o30",
           "label": "Over 30%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -5185,10 +5016,6 @@
         {
           "value": "o90",
           "label": "Over 90%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -5326,10 +5153,6 @@
         {
           "value": "o90",
           "label": "Over +90%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -5419,10 +5242,6 @@
         {
           "value": "o90",
           "label": "Over 90%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -5528,10 +5347,6 @@
         {
           "value": "o50",
           "label": "Over +50%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -5697,10 +5512,6 @@
         {
           "value": "o90",
           "label": "Over 90%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -5870,10 +5681,6 @@
         {
           "value": "o90",
           "label": "Over 90%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -6043,10 +5850,6 @@
         {
           "value": "o90",
           "label": "Over 90%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -6152,10 +5955,6 @@
         {
           "value": "o50",
           "label": "Over +50%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -6261,10 +6060,6 @@
         {
           "value": "o50",
           "label": "Over +50%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -6370,10 +6165,6 @@
         {
           "value": "o50",
           "label": "Over +50%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -6479,10 +6270,6 @@
         {
           "value": "o50",
           "label": "Over 50"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -6588,10 +6375,6 @@
         {
           "value": "o10",
           "label": "Over 10"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -6693,10 +6476,6 @@
         {
           "value": "o50",
           "label": "Over 50"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -6794,10 +6573,6 @@
         {
           "value": "o10",
           "label": "Over 10"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -6911,10 +6686,6 @@
         {
           "value": "o50",
           "label": "Over 50"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -7016,10 +6787,6 @@
         {
           "value": "o50",
           "label": "Over 50"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -7157,10 +6924,6 @@
         {
           "value": "o100",
           "label": "Over 100"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -7258,10 +7021,6 @@
         {
           "value": "o10",
           "label": "Over 10"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -7303,36 +7062,6 @@
         {
           "value": "o3",
           "label": "Over 3"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
-        }
-      ]
-    },
-    {
-      "id": "ah_change",
-      "label": "After-Hours Change",
-      "tab": "Technical",
-      "category": "After-Hours",
-      "supported_in_prescreen": false,
-      "options": [
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
-        }
-      ]
-    },
-    {
-      "id": "ah_close",
-      "label": "After-Hours Close",
-      "tab": "Technical",
-      "category": "After-Hours",
-      "supported_in_prescreen": false,
-      "options": [
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -7442,10 +7171,6 @@
         {
           "value": "sb200",
           "label": "SMA20 below SMA200"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -7591,10 +7316,6 @@
         {
           "value": "sb50",
           "label": "SMA200 below SMA50"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -7704,10 +7425,6 @@
         {
           "value": "sb200",
           "label": "SMA50 below SMA200"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -7765,10 +7482,6 @@
         {
           "value": "nos40",
           "label": "Not Oversold (>40)"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -7822,10 +7535,6 @@
         {
           "value": "mb",
           "label": "Marubozu Black"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -7947,10 +7656,6 @@
         {
           "value": "headandshouldersinv",
           "label": "Head & Shoulders Inverse"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -8064,10 +7769,6 @@
         {
           "value": "d20",
           "label": "Down 20%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -8181,10 +7882,6 @@
         {
           "value": "d20",
           "label": "Down 20%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -8306,10 +8003,6 @@
         {
           "value": "d20",
           "label": "Down 20%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -8320,10 +8013,6 @@
       "category": "Performance",
       "supported_in_prescreen": false,
       "options": [
-        {
-          "value": "",
-          "label": "Intraday (Elite only)"
-        },
         {
           "value": "dup",
           "label": "Today Up"
@@ -8835,10 +8524,6 @@
         {
           "value": "10y1000o",
           "label": "10 Years +1000%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -8849,10 +8534,6 @@
       "category": "Performance",
       "supported_in_prescreen": false,
       "options": [
-        {
-          "value": "",
-          "label": "Intraday (Elite only)"
-        },
         {
           "value": "dup",
           "label": "Today Up"
@@ -9364,10 +9045,6 @@
         {
           "value": "10y1000o",
           "label": "10 Year +1000%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -9465,10 +9142,6 @@
         {
           "value": "a0to10h",
           "label": "0-10% above Low"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -9566,10 +9239,6 @@
         {
           "value": "a0to10h",
           "label": "0-10% above Low"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -9723,10 +9392,6 @@
         {
           "value": "a0to10h",
           "label": "0-10% above Low"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -9880,10 +9545,6 @@
         {
           "value": "a0to10h",
           "label": "0-10% above Low"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -9989,10 +9650,6 @@
         {
           "value": "u5",
           "label": "Under 5"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -10078,10 +9735,6 @@
         {
           "value": "1to2",
           "label": "1 to 2"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     },
@@ -10179,10 +9832,6 @@
         {
           "value": "mo15",
           "label": "Month - Over 15%"
-        },
-        {
-          "value": "",
-          "label": "Custom (Elite only)"
         }
       ]
     }

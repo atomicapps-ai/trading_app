@@ -119,6 +119,7 @@ _SCHEMA = [
     CREATE TABLE IF NOT EXISTS universe_presets (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE,
+        title TEXT NOT NULL DEFAULT '',
         description TEXT DEFAULT '',
         is_active INTEGER NOT NULL DEFAULT 0,
         filters_json TEXT NOT NULL DEFAULT '{}',
@@ -147,6 +148,24 @@ _PENDING_EXPECTED_COLUMNS = {
     "execution_ts", "execution_reject_reason",
 }
 
+# universe_presets columns added after initial schema
+_UNIVERSE_EXPECTED_COLUMNS = {"title"}
+
+
+async def _migrate_universe_presets(db: aiosqlite.Connection) -> None:
+    cursor = await db.execute("PRAGMA table_info(universe_presets)")
+    rows = await cursor.fetchall()
+    existing = {r[1] for r in rows}
+    for col in _UNIVERSE_EXPECTED_COLUMNS - existing:
+        try:
+            await db.execute(
+                f"ALTER TABLE universe_presets ADD COLUMN {col} TEXT NOT NULL DEFAULT ''"
+            )
+            logger.info("db_service: added column universe_presets.%s", col)
+        except aiosqlite.OperationalError as e:
+            if "duplicate column" not in str(e).lower():
+                logger.warning("db_service: migrate add %s failed: %s", col, e)
+
 
 async def _migrate_pending_approvals(db: aiosqlite.Connection) -> None:
     """Best-effort additive migration. Doesn't drop anything."""
@@ -170,6 +189,7 @@ async def ensure_tables() -> None:
         for stmt in _SCHEMA:
             await db.execute(stmt)
         await _migrate_pending_approvals(db)
+        await _migrate_universe_presets(db)
         await db.commit()
     logger.info("db_service: tables ensured at %s", DB_PATH)
 
@@ -212,6 +232,7 @@ async def get_active_universe_preset() -> dict | None:
 async def create_universe_preset(
     *,
     name: str,
+    title: str = "",
     description: str = "",
     filters: dict | None = None,
     output_tags: list[str] | None = None,
@@ -222,12 +243,12 @@ async def create_universe_preset(
         cur = await db.execute(
             """
             INSERT INTO universe_presets
-                (name, description, is_active, filters_json, output_tags_json,
+                (name, title, description, is_active, filters_json, output_tags_json,
                  notes, created_at, updated_at)
-            VALUES (?,?,0,?,?,?,?,?)
+            VALUES (?,?,?,0,?,?,?,?,?)
             """,
             (
-                name, description,
+                name, title or name, description,
                 json.dumps(filters or {}),
                 json.dumps(output_tags or []),
                 notes, now, now,
@@ -240,6 +261,7 @@ async def create_universe_preset(
 async def update_universe_preset(
     name: str,
     *,
+    title: str | None = None,
     description: str | None = None,
     filters: dict | None = None,
     output_tags: list[str] | None = None,
@@ -253,6 +275,7 @@ async def update_universe_preset(
         cur = await db.execute(
             """
             UPDATE universe_presets SET
+                title = ?,
                 description = ?,
                 filters_json = ?,
                 output_tags_json = ?,
@@ -261,6 +284,7 @@ async def update_universe_preset(
             WHERE name = ?
             """,
             (
+                title if title is not None else existing["title"],
                 description if description is not None else existing["description"],
                 json.dumps(filters) if filters is not None else existing["filters_json_raw"],
                 json.dumps(output_tags) if output_tags is not None else existing["output_tags_json_raw"],
@@ -352,9 +376,13 @@ def _preset_row_to_dict(row: Any) -> dict:
     filters_raw = row["filters_json"] or "{}"
     output_tags_raw = row["output_tags_json"] or "[]"
     tickers_raw = row["tickers_json"]
+    keys = set(row.keys())
+    raw_title = row["title"] if "title" in keys else ""
+    name = row["name"]
     return {
         "id": row["id"],
-        "name": row["name"],
+        "name": name,
+        "title": raw_title or name,
         "description": row["description"] or "",
         "is_active": bool(row["is_active"]),
         "filters": json.loads(filters_raw),

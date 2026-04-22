@@ -38,6 +38,7 @@ TICKERS_FILE: Path = PROJECT_ROOT / "universe_filter_presets_tickers.yaml"
 LATEST_RESULT_FILE: Path = DATA_DIR / "universe_latest.json"
 HISTORY_DIR: Path = DATA_DIR / "universe_history"
 CATALOG_FILE: Path = Path(__file__).parent / "finviz_catalog.json"
+FILTER_CONFIG_FILE: Path = PROJECT_ROOT / "universe_filter_config.yaml"
 
 NON_REFRESH_PRESETS = {"sentiment_catalyst", "etf_sector_rotation"}
 
@@ -70,28 +71,36 @@ def load_finviz_catalog() -> dict:
 
 
 def get_catalog_grouped() -> list[dict]:
-    """Return filters organised as [{tab, categories: [{name, filters: [...]}]}].
-
-    Used to render the preset editor form. Only loads the catalog once.
-    """
+    """Return filters organised as [{tab, categories: [{name, filters: [...]}]}]."""
     catalog = load_finviz_catalog()
-    # Build: tab → category → [filter]
     tree: dict[str, dict[str, list]] = {}
     for f in catalog.get("filters", []):
-        tab = f["tab"]
-        cat = f["category"]
-        tree.setdefault(tab, {}).setdefault(cat, []).append(f)
-
+        tree.setdefault(f["tab"], {}).setdefault(f["category"], []).append(f)
     tab_order = ["Descriptive", "Fundamental", "Technical"]
-    result = []
-    for tab in tab_order:
-        if tab not in tree:
-            continue
-        cats = []
-        for cat_name, filters in tree[tab].items():
-            cats.append({"name": cat_name, "filters": filters})
-        result.append({"tab": tab, "categories": cats})
-    return result
+    return [
+        {
+            "tab": tab,
+            "categories": [
+                {"name": cat, "filters": flist}
+                for cat, flist in tree[tab].items()
+            ],
+        }
+        for tab in tab_order
+        if tab in tree
+    ]
+
+
+def get_catalog_flat() -> dict[str, dict]:
+    """Return {filter_id: filter_dict} for fast lookup."""
+    return {f["id"]: f for f in load_finviz_catalog().get("filters", [])}
+
+
+def load_filter_config() -> list[str]:
+    """Return the ordered list of default-visible filter IDs from the config file."""
+    if not FILTER_CONFIG_FILE.exists():
+        return []
+    raw = yaml.safe_load(FILTER_CONFIG_FILE.read_text(encoding="utf-8")) or {}
+    return [entry["id"] for entry in (raw.get("default_visible") or [])]
 
 
 # ---------------------------------------------------------------------- #
@@ -132,6 +141,7 @@ async def get_preset_db(name: str) -> dict | None:
 async def create_preset_db(
     *,
     name: str,
+    title: str = "",
     description: str = "",
     filters: dict | None = None,
     output_tags: list[str] | None = None,
@@ -139,7 +149,7 @@ async def create_preset_db(
 ) -> int:
     from services import db_service
     return await db_service.create_universe_preset(
-        name=name, description=description,
+        name=name, title=title, description=description,
         filters=filters, output_tags=output_tags, notes=notes,
     )
 
@@ -147,6 +157,7 @@ async def create_preset_db(
 async def update_preset_db(
     name: str,
     *,
+    title: str | None = None,
     description: str | None = None,
     filters: dict | None = None,
     output_tags: list[str] | None = None,
@@ -154,7 +165,7 @@ async def update_preset_db(
 ) -> bool:
     from services import db_service
     return await db_service.update_universe_preset(
-        name, description=description, filters=filters,
+        name, title=title, description=description, filters=filters,
         output_tags=output_tags, notes=notes,
     )
 
