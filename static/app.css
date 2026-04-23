@@ -2,6 +2,8 @@
    All colors / sizes / spacing are pinned per phase2_prompt.md. */
 
 :root {
+  color-scheme: dark;
+
   /* Surfaces */
   --bg-base: #0f1117;
   --bg-surface: #1a1d27;

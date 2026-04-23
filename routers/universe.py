@@ -260,14 +260,19 @@ async def api_test_run(
     if not filters:
         return {"count": 0, "tickers": [], "message": "No filters configured — all tickers would match"}
     try:
-        tickers = await asyncio.get_event_loop().run_in_executor(
+        tickers, truncated = await asyncio.get_event_loop().run_in_executor(
             None,
-            lambda: universe_service.scrape_finviz_filters(filters, max_pages=5, delay_seconds=1.5),
+            lambda: universe_service.scrape_finviz_filters(filters, max_pages=15, delay_seconds=1.5),
         )
     except Exception as e:
         logger.exception("test-run failed for %s", preset_name)
         raise HTTPException(status_code=502, detail=f"Finviz scrape failed: {e}") from e
-    return {"count": len(tickers), "tickers": tickers[:500]}
+    return {
+        "count": len(tickers),
+        "tickers": tickers[:500],
+        "truncated": truncated,
+        "max_results": 300,
+    }
 
 
 @router.post("/api/universe/presets/{preset_name}/run-agent")

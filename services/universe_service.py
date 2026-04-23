@@ -221,11 +221,12 @@ def scrape_finviz_filters(
     *,
     max_pages: int = 50,
     delay_seconds: float = 1.5,
-) -> list[str]:
-    """Scrape Finviz with {filter_id: option_value} dict, return tickers.
+) -> tuple[list[str], bool]:
+    """Scrape Finviz with {filter_id: option_value} dict.
 
-    Builds filter tokens as ``{filter_id}_{option_value}`` and paginates.
-    Non-destructive — does NOT write to any file.
+    Returns ``(tickers, truncated)`` where ``truncated`` is True if we hit
+    ``max_pages`` while the last page was still full — i.e. more results
+    exist beyond the cap. Non-destructive — does NOT write to any file.
     """
     tokens = [f"{fid}_{val}" for fid, val in filters.items() if val]
     filter_str = ",".join(tokens)
@@ -233,6 +234,7 @@ def scrape_finviz_filters(
     session.headers.update({"User-Agent": _DEFAULT_UA})
     tickers: list[str] = []
     seen: set[str] = set()
+    truncated = False
 
     for page in range(max_pages):
         row_offset = page * 20 + 1
@@ -253,10 +255,13 @@ def scrape_finviz_filters(
                 tickers.append(t)
         if len(page_tickers) < 20:
             break
-        if page < max_pages - 1:
-            time.sleep(delay_seconds)
+        if page == max_pages - 1:
+            # Last allowed page was still full → more results exist
+            truncated = True
+            break
+        time.sleep(delay_seconds)
 
-    return tickers
+    return tickers, truncated
 
 
 def _get_with_backoff(session: requests.Session, url: str, params: dict) -> str:

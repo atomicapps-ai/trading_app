@@ -1,24 +1,24 @@
 {% extends "base.html" %}
-{% block title %}{{ 'New Preset' if is_new else (preset.title or preset.name) }} — Universe — TradeAgent{% endblock %}
+{% block title %}{{ 'New Screener' if is_new else (preset.title or preset.name) }} — Screeners — TradeAgent{% endblock %}
 {% block content %}
 <div style="max-width: 860px;">
 
   {# Breadcrumb #}
   <div class="flex items-center gap-12 mb-20">
-    <a href="/universe" class="text-secondary" style="text-decoration:none;">← Universe</a>
+    <a href="/universe" class="text-secondary" style="text-decoration:none;">← Screeners</a>
     <span class="text-tertiary">/</span>
     <span style="font-size:14px;font-weight:500;">
-      {{ 'New preset' if is_new else (preset.title or preset.name) }}
+      {{ 'New screener' if is_new else (preset.title or preset.name) }}
     </span>
     {% if not is_new and preset.is_active %}
       <span class="badge badge-green" style="font-size:11px;">active</span>
     {% endif %}
   </div>
 
-  {# ── New preset: just the create form, redirect to edit after ── #}
+  {# ── New screener: just the create form, redirect to edit after ── #}
   {% if is_new %}
   <div class="card">
-    <div class="card-header"><span class="card-title">Create preset</span></div>
+    <div class="card-header"><span class="card-title">Create screener</span></div>
     <form id="create-form" style="display:flex;flex-direction:column;gap:14px;padding:4px 0 0;">
       <div class="flex gap-16" style="flex-wrap:wrap;">
         <label style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:200px;">
@@ -37,9 +37,17 @@
       </div>
       <label style="display:flex;flex-direction:column;gap:4px;">
         <span class="text-secondary text-xs">Description</span>
-        <input id="cf-desc" type="text" placeholder="One-line description"
+        <textarea id="cf-desc" rows="3" placeholder="What this screener is looking for — strategy, style, intended use"
                style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;
-                      background:var(--surface-2);color:var(--text-primary);font-size:13px;width:100%;">
+                      background:var(--surface-2);color:var(--text-primary);font-size:13px;
+                      width:100%;font-family:inherit;resize:vertical;line-height:1.5;"></textarea>
+      </label>
+      <label style="display:flex;flex-direction:column;gap:4px;">
+        <span class="text-secondary text-xs">Notes <span class="text-tertiary">(optional)</span></span>
+        <textarea id="cf-notes" rows="4" placeholder="Detailed notes — rationale, edge cases, historical performance context…"
+               style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;
+                      background:var(--surface-2);color:var(--text-primary);font-size:13px;
+                      width:100%;font-family:inherit;resize:vertical;line-height:1.5;"></textarea>
       </label>
       <div>
         <button type="submit"
@@ -85,7 +93,7 @@
   {# Meta card #}
   <div class="card mb-16">
     <div class="card-header" style="justify-content:space-between;">
-      <span class="card-title">Preset info</span>
+      <span class="card-title">Screener info</span>
       {% if not preset.is_active %}
         <button class="btn-sm"
                 hx-post="/api/universe/presets/{{ preset.name }}/set-active"
@@ -96,27 +104,36 @@
     </div>
     <div style="display:flex;flex-direction:column;gap:12px;padding:4px 0 0;">
       <div class="flex gap-16" style="flex-wrap:wrap;">
-        <label style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:180px;">
+        <label style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:220px;">
           <span class="text-secondary text-xs">Title</span>
           <input id="meta-title" type="text" value="{{ preset.title }}"
                  style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;
                         background:var(--surface-2);color:var(--text-primary);font-size:14px;font-weight:500;">
         </label>
-        <label style="display:flex;flex-direction:column;gap:4px;flex:0 0 200px;">
+        <label style="display:flex;flex-direction:column;gap:4px;flex:0 0 220px;">
           <span class="text-secondary text-xs">Slug</span>
           <input type="text" value="{{ preset.name }}" readonly
                  style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;
                         background:var(--surface-1);color:var(--text-tertiary);
                         font-size:12px;font-family:var(--font-mono);">
         </label>
-        <label style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:180px;">
-          <span class="text-secondary text-xs">Description</span>
-          <input id="meta-desc" type="text" value="{{ preset.description }}"
-                 placeholder="One-line description"
-                 style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;
-                        background:var(--surface-2);color:var(--text-primary);font-size:13px;">
-        </label>
       </div>
+      <label style="display:flex;flex-direction:column;gap:4px;">
+        <span class="text-secondary text-xs">Description</span>
+        <textarea id="meta-desc" rows="3"
+                  placeholder="What this screener is looking for — strategy, style, intended use"
+                  style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;
+                         background:var(--surface-2);color:var(--text-primary);font-size:13px;
+                         font-family:inherit;resize:vertical;line-height:1.5;">{{ preset.description }}</textarea>
+      </label>
+      <label style="display:flex;flex-direction:column;gap:4px;">
+        <span class="text-secondary text-xs">Notes <span class="text-tertiary">(detailed rationale, edge cases, history)</span></span>
+        <textarea id="meta-notes" rows="5"
+                  placeholder="Notes about this screener — why these filters, what setups it targets, how it has performed…"
+                  style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;
+                         background:var(--surface-2);color:var(--text-primary);font-size:13px;
+                         font-family:inherit;resize:vertical;line-height:1.5;">{{ preset.notes }}</textarea>
+      </label>
     </div>
   </div>
 
@@ -200,9 +217,11 @@
       {% endif %}
     </div>
     {% if preset.tickers %}
-    <div style="margin-top:10px;font-size:12px;font-family:var(--font-mono);
-                line-height:1.9;color:var(--text-secondary);">
-      {{ preset.tickers|join(' · ')|truncate(500) }}
+    <div class="text-tertiary text-xs" style="margin-top:8px;">Click any ticker to open a quick-view chart.</div>
+    <div id="saved-tickers" class="ticker-chip-list">
+      {% for t in preset.tickers %}
+        <span class="ticker-chip" data-symbol="{{ t }}">{{ t }}</span>
+      {% endfor %}
     </div>
     {% endif %}
   </div>
@@ -251,20 +270,78 @@
                  border-bottom:1px solid var(--border);}
 .filter-row-item:last-child{border-bottom:none;}
 .filter-label{flex:1;font-size:13px;}
-.filter-select{padding:5px 8px;border:1px solid var(--border);border-radius:4px;
-               background:var(--surface-2);color:var(--text-primary);font-size:12px;
-               max-width:220px;min-width:140px;}
-.filter-select.has-value{border-color:var(--accent-blue);background:var(--tint-blue);}
+.filter-select{
+  appearance:none;-webkit-appearance:none;-moz-appearance:none;
+  padding:5px 28px 5px 8px;border:1px solid var(--border);border-radius:4px;
+  background-color:var(--surface-2);color:var(--text-primary);font-size:12px;
+  max-width:220px;min-width:140px;cursor:pointer;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M3 4.5l3 3 3-3' stroke='%238b8fa8' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat:no-repeat;background-position:right 8px center;background-size:12px;
+}
+.filter-select:focus{outline:none;border-color:var(--accent-blue);}
+.filter-select option{background-color:var(--surface-2);color:var(--text-primary);}
+.filter-select.has-value{border-color:var(--accent-blue);background-color:var(--tint-blue);}
+.filter-select.has-value option{background-color:var(--surface-2);}
 .remove-btn{padding:2px 7px;background:none;border:1px solid var(--border);
             border-radius:4px;color:var(--text-tertiary);cursor:pointer;font-size:13px;}
 .remove-btn:hover{border-color:var(--accent-red);color:var(--accent-red);}
-.picker-item{padding:10px 18px;cursor:pointer;display:flex;align-items:center;
+.picker-item{padding:9px 18px 9px 32px;cursor:pointer;display:flex;align-items:center;
              justify-content:space-between;font-size:13px;}
 .picker-item:hover{background:var(--surface-2);}
 .picker-item.already-added{opacity:.4;pointer-events:none;}
-.picker-group-header{padding:6px 18px;font-size:11px;font-weight:600;
-                     text-transform:uppercase;letter-spacing:.05em;
-                     color:var(--text-tertiary);background:var(--surface-1);}
+.picker-tab-header{padding:14px 18px 6px;font-size:11px;font-weight:700;
+                    text-transform:uppercase;letter-spacing:.1em;
+                    color:var(--text-tertiary);background:var(--surface-1);
+                    border-top:1px solid var(--border);}
+.picker-tab-header:first-child{border-top:none;}
+.picker-cat-header{padding:6px 18px;font-size:12px;font-weight:600;
+                    color:var(--accent-blue);background:var(--tint-blue);
+                    border-left:3px solid var(--accent-blue);}
+
+/* Ticker chips */
+.ticker-chip-list{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px;}
+.ticker-chip{display:inline-block;padding:3px 8px;border-radius:4px;
+             background:var(--surface-2);border:1px solid var(--border);
+             color:var(--text-primary);font-family:var(--font-mono);font-size:12px;
+             cursor:pointer;user-select:none;transition:background .1s;}
+.ticker-chip:hover{background:var(--tint-blue);border-color:var(--accent-blue);color:var(--accent-blue);}
+
+/* Timeframe popover (appears near clicked chip) */
+.tf-popover{position:fixed;z-index:900;background:var(--surface-1);
+            border:1px solid var(--border);border-radius:6px;
+            box-shadow:0 6px 16px rgba(0,0,0,.4);
+            padding:6px;display:flex;gap:4px;}
+.tf-popover .tf-btn{padding:4px 10px;border-radius:4px;background:var(--surface-2);
+                    border:1px solid var(--border);color:var(--text-primary);
+                    font-size:12px;cursor:pointer;font-weight:500;}
+.tf-popover .tf-btn:hover{background:var(--accent-blue);border-color:var(--accent-blue);color:#fff;}
+.tf-popover .tf-symbol{padding:4px 8px;color:var(--text-tertiary);font-size:11px;
+                        font-family:var(--font-mono);align-self:center;border-right:1px solid var(--border);}
+
+/* Chart panel (floating, draggable, resizable, multiple allowed) */
+.chart-panel{position:fixed;z-index:850;background:var(--surface-1);
+             border:1px solid var(--border);border-radius:8px;
+             box-shadow:0 8px 28px rgba(0,0,0,.5);
+             display:flex;flex-direction:column;overflow:hidden;
+             min-width:320px;min-height:220px;}
+.chart-panel .cp-head{display:flex;align-items:center;justify-content:space-between;
+                       padding:6px 10px;background:var(--surface-3);
+                       border-bottom:1px solid var(--border);cursor:move;user-select:none;
+                       font-size:12px;}
+.chart-panel .cp-title{font-weight:600;color:var(--text-primary);}
+.chart-panel .cp-tf{color:var(--text-tertiary);font-size:11px;margin-left:8px;}
+.chart-panel .cp-actions{display:flex;gap:4px;}
+.chart-panel .cp-btn{background:none;border:none;color:var(--text-tertiary);
+                      cursor:pointer;font-size:14px;padding:2px 6px;border-radius:3px;}
+.chart-panel .cp-btn:hover{background:var(--surface-2);color:var(--text-primary);}
+.chart-panel .cp-btn.close:hover{color:var(--accent-red);}
+.chart-panel .cp-body{flex:1;position:relative;background:var(--bg-base);}
+.chart-panel .cp-resize{position:absolute;right:0;bottom:0;width:14px;height:14px;
+                         cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,var(--text-tertiary) 50%);
+                         opacity:.4;border-bottom-right-radius:8px;}
+.chart-panel .cp-resize:hover{opacity:.9;}
+.chart-panel.pinned{border-color:var(--accent-blue);}
+.chart-panel.pinned .cp-btn.pin{color:var(--accent-blue);}
 </style>
 
 <script>
@@ -345,31 +422,38 @@ function updateCount() {
 }
 
 // ── Save ─────────────────────────────────────────────────────────────
-async function savePreset() {
+async function savePreset(opts = {}) {
+  const silent = !!opts.silent;
   const btn = document.getElementById('save-btn');
-  btn.textContent = 'Saving…'; btn.disabled = true;
+  if (!silent) { btn.textContent = 'Saving…'; btn.disabled = true; }
 
   const fd = new FormData();
   {% if not is_new %}
   const title = document.getElementById('meta-title')?.value || '';
   const desc = document.getElementById('meta-desc')?.value || '';
+  const notes = document.getElementById('meta-notes')?.value || '';
   fd.append('title', title);
   fd.append('description', desc);
+  fd.append('notes', notes);
   {% endif %}
   document.querySelectorAll('#filter-rows select').forEach(sel => {
     if (sel.value) fd.append(sel.name, sel.value);
   });
 
+  let ok = false;
   try {
     const r = await fetch('/api/universe/presets/{{ preset.name if not is_new else "" }}', {
       method: 'POST', body: fd,
     });
     const data = await r.json();
-    showToast(r.ok ? 'Saved' : (data.detail || 'Error'), r.ok);
+    ok = r.ok;
+    if (!silent) showToast(r.ok ? 'Saved' : (data.detail || 'Error'), r.ok);
+    else if (!r.ok) showToast(data.detail || 'Save failed', false);
   } catch(e) {
-    showToast('Network error', false);
+    if (!silent) showToast('Network error', false);
   }
-  btn.textContent = 'Save'; btn.disabled = false;
+  if (!silent) { btn.textContent = 'Save'; btn.disabled = false; }
+  return ok;
 }
 
 // ── Test run ─────────────────────────────────────────────────────────
@@ -378,8 +462,13 @@ async function runTest() {
   const btn = document.getElementById('run-btn');
   const results = document.getElementById('run-results');
   const body = document.getElementById('run-body');
-  btn.textContent = '⏳ Running…'; btn.disabled = true;
+  btn.textContent = '⏳ Saving…'; btn.disabled = true;
   results.style.display = 'none';
+
+  // Auto-save current filter values so test-run sees them
+  const saved = await savePreset({silent: true});
+  if (!saved) { btn.textContent = '▶ Run'; btn.disabled = false; return; }
+  btn.textContent = '⏳ Running…';
 
   try {
     const r = await fetch('/api/universe/presets/{{ preset.name }}/test-run', {method:'POST'});
@@ -388,9 +477,20 @@ async function runTest() {
     if (!r.ok) { showToast(data.detail || 'Run failed', false); return; }
     _lastTickers = data.tickers || [];
     const n = data.count || 0;
+    const truncated = !!data.truncated;
+    const maxN = data.max_results || 300;
+    const warnBanner = truncated ? `
+      <div style="padding:12px 16px;margin-bottom:12px;
+                  background:var(--tint-red);border:2px solid var(--accent-red);
+                  border-radius:6px;color:var(--accent-red);
+                  font-weight:700;font-size:14px;">
+        ⚠ RESULT LIMIT HIT (${maxN}) — filter is NOT restrictive enough.
+        Tighten your filters before saving as a universe.
+      </div>` : '';
     body.innerHTML = `
+      ${warnBanner}
       <div class="flex items-center gap-16 mb-10" style="flex-wrap:wrap;">
-        <span class="mono" style="font-size:22px;font-weight:600;">${n}</span>
+        <span class="mono" style="font-size:22px;font-weight:600;${truncated ? 'color:var(--accent-red);' : ''}">${n}${truncated ? '+' : ''}</span>
         <span class="text-secondary">tickers matched</span>
         ${n > 0 ? `<button onclick="saveTickers()"
             style="padding:5px 14px;background:var(--accent-green);color:#fff;border:none;
@@ -399,11 +499,14 @@ async function runTest() {
           </button>` : ''}
       </div>
       ${n > 0
-        ? `<div style="font-size:12px;font-family:var(--font-mono);line-height:1.9;color:var(--text-secondary);">
-             ${_lastTickers.slice(0,200).join(' · ')}${n>200?` … +${n-200} more`:''}
+        ? `<div class="ticker-chip-list">
+             ${_lastTickers.slice(0,200).map(t => `<span class="ticker-chip" data-symbol="${t}">${t}</span>`).join('')}
+             ${n>200?`<span class="text-tertiary text-xs" style="align-self:center;">…+${n-200} more</span>`:''}
            </div>`
         : '<div class="text-tertiary text-sm">No tickers matched — try loosening your filters.</div>'}
     `;
+    bindTickerChips(body);
+    if (truncated) showToast(`Limit hit (${maxN}+) — tighten filters`, false);
     results.style.display = '';
   } catch(e) {
     btn.textContent = '▶ Run'; btn.disabled = false;
@@ -442,16 +545,20 @@ function filterPicker(q) { buildPickerList(q.toLowerCase()); }
 function buildPickerList(q) {
   const list = document.getElementById('picker-list');
   list.innerHTML = '';
-  CATALOG.forEach(tabGroup => {
-    tabGroup.categories.forEach(cat => {
-      const visible = cat.filters.filter(f =>
-        (!q || f.label.toLowerCase().includes(q) || f.id.toLowerCase().includes(q))
-      );
+  const tabs = [...CATALOG].sort((a, b) => a.tab.localeCompare(b.tab));
+  tabs.forEach(tabGroup => {
+    const cats = [...tabGroup.categories].sort((a, b) => a.name.localeCompare(b.name));
+    // Build the list for this tab first so we only emit the tab header if any child matches
+    const tabChildren = [];
+    cats.forEach(cat => {
+      const visible = cat.filters
+        .filter(f => (!q || f.label.toLowerCase().includes(q) || f.id.toLowerCase().includes(q)))
+        .sort((a, b) => a.label.localeCompare(b.label));
       if (!visible.length) return;
-      const hdr = document.createElement('div');
-      hdr.className = 'picker-group-header';
-      hdr.textContent = `${tabGroup.tab} / ${cat.name}`;
-      list.appendChild(hdr);
+      const catHdr = document.createElement('div');
+      catHdr.className = 'picker-cat-header';
+      catHdr.textContent = cat.name;
+      tabChildren.push(catHdr);
       visible.forEach(f => {
         const item = document.createElement('div');
         item.className = 'picker-item' + (activeIds.has(f.id) ? ' already-added' : '');
@@ -465,14 +572,18 @@ function buildPickerList(q) {
             : '<span style="color:var(--accent-blue);font-size:13px;">+ Add</span>'}
         `;
         if (!activeIds.has(f.id)) {
-          item.addEventListener('click', () => {
-            addFilter(f.id);
-            closePicker();
-          });
+          item.addEventListener('click', () => { addFilter(f.id); closePicker(); });
         }
-        list.appendChild(item);
+        tabChildren.push(item);
       });
     });
+    if (tabChildren.length) {
+      const tabHdr = document.createElement('div');
+      tabHdr.className = 'picker-tab-header';
+      tabHdr.textContent = tabGroup.tab;
+      list.appendChild(tabHdr);
+      tabChildren.forEach(el => list.appendChild(el));
+    }
   });
   if (!list.children.length) {
     list.innerHTML = '<div class="text-tertiary text-sm" style="padding:20px 18px;">No filters match.</div>';
@@ -504,6 +615,7 @@ document.getElementById('create-form').addEventListener('submit', async e => {
   fd.append('title', document.getElementById('cf-title').value);
   fd.append('name', document.getElementById('cf-name').value || document.getElementById('cf-title').value);
   fd.append('description', document.getElementById('cf-desc').value);
+  fd.append('notes', document.getElementById('cf-notes').value);
   const r = await fetch('/api/universe/presets', {method:'POST', body:fd});
   const data = await r.json();
   if (r.ok && data.redirect) {
@@ -527,6 +639,194 @@ function showToast(msg, ok) {
 
 // Init count on load
 updateCount();
+
+// ── Ticker chip chart viewer ─────────────────────────────────────────
+// Delegated click on any .ticker-chip inside the main content area.
+// Opens a timeframe popover; clicking a timeframe spawns a floating
+// chart panel. Panels are draggable by titlebar and resizable via the
+// bottom-right grip. Pin toggles the accent border + prevents the
+// "close others" helper from dismissing it.
+const TIMEFRAMES = [
+  {label:'1H', interval:'1h', limit:300},
+  {label:'2H', interval:'2h', limit:300},
+  {label:'4H', interval:'4h', limit:300},
+  {label:'1D', interval:'1d', limit:365},
+];
+
+let _openPopover = null;
+function closePopover() {
+  if (_openPopover) { _openPopover.remove(); _openPopover = null; }
+}
+document.addEventListener('click', e => {
+  if (_openPopover && !_openPopover.contains(e.target) && !e.target.classList.contains('ticker-chip')) {
+    closePopover();
+  }
+});
+
+function bindTickerChips(root) {
+  (root || document).querySelectorAll('.ticker-chip').forEach(chip => {
+    if (chip.dataset.bound) return;
+    chip.dataset.bound = '1';
+    chip.addEventListener('click', e => {
+      e.stopPropagation();
+      openTfPopover(chip);
+    });
+  });
+}
+
+function openTfPopover(chip) {
+  closePopover();
+  const sym = chip.dataset.symbol;
+  const rect = chip.getBoundingClientRect();
+  const pop = document.createElement('div');
+  pop.className = 'tf-popover';
+  pop.innerHTML = `<span class="tf-symbol">${sym}</span>` +
+    TIMEFRAMES.map(t => `<button class="tf-btn" data-iv="${t.interval}" data-lim="${t.limit}">${t.label}</button>`).join('');
+  document.body.appendChild(pop);
+  // Position below chip; if overflow bottom, place above
+  const popH = pop.offsetHeight, popW = pop.offsetWidth;
+  let top = rect.bottom + 4, left = rect.left;
+  if (top + popH > window.innerHeight - 10) top = rect.top - popH - 4;
+  if (left + popW > window.innerWidth - 10) left = window.innerWidth - popW - 10;
+  pop.style.top = top + 'px';
+  pop.style.left = Math.max(8, left) + 'px';
+  pop.querySelectorAll('.tf-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const iv = btn.dataset.iv, lim = parseInt(btn.dataset.lim, 10);
+      closePopover();
+      openChartPanel(sym, iv, lim);
+    });
+  });
+  _openPopover = pop;
+}
+
+// ── Chart panel ──────────────────────────────────────────────────────
+let _panelCounter = 0;
+const PANEL_OFFSET_STEP = 24;
+
+function openChartPanel(symbol, interval, limit) {
+  const id = 'chart-panel-' + (++_panelCounter);
+  const panel = document.createElement('div');
+  panel.className = 'chart-panel';
+  panel.id = id;
+  const offset = (_panelCounter - 1) % 6 * PANEL_OFFSET_STEP;
+  const w = 560, h = 360;
+  panel.style.width = w + 'px';
+  panel.style.height = h + 'px';
+  panel.style.left = Math.max(20, window.innerWidth - w - 40 - offset) + 'px';
+  panel.style.top = (80 + offset) + 'px';
+  panel.innerHTML = `
+    <div class="cp-head">
+      <div>
+        <span class="cp-title">${symbol}</span>
+        <span class="cp-tf">${interval.toUpperCase()}</span>
+      </div>
+      <div class="cp-actions">
+        <button class="cp-btn pin" title="Pin">📌</button>
+        <button class="cp-btn close" title="Close">×</button>
+      </div>
+    </div>
+    <div class="cp-body"><div class="cp-chart" style="width:100%;height:100%;"></div></div>
+    <div class="cp-resize"></div>
+  `;
+  document.body.appendChild(panel);
+
+  // Wire close / pin
+  panel.querySelector('.cp-btn.close').addEventListener('click', () => panel.remove());
+  panel.querySelector('.cp-btn.pin').addEventListener('click', () => panel.classList.toggle('pinned'));
+
+  // Drag via titlebar
+  const head = panel.querySelector('.cp-head');
+  head.addEventListener('mousedown', e => {
+    if (e.target.closest('.cp-btn')) return;
+    const sx = e.clientX, sy = e.clientY;
+    const sl = panel.offsetLeft, st = panel.offsetTop;
+    const onMove = ev => {
+      panel.style.left = Math.max(0, Math.min(window.innerWidth - 40, sl + ev.clientX - sx)) + 'px';
+      panel.style.top  = Math.max(0, Math.min(window.innerHeight - 40, st + ev.clientY - sy)) + 'px';
+    };
+    const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    e.preventDefault();
+  });
+
+  // Resize via bottom-right grip
+  const grip = panel.querySelector('.cp-resize');
+  grip.addEventListener('mousedown', e => {
+    const sx = e.clientX, sy = e.clientY;
+    const sw = panel.offsetWidth, sh = panel.offsetHeight;
+    const onMove = ev => {
+      panel.style.width  = Math.max(320, sw + ev.clientX - sx) + 'px';
+      panel.style.height = Math.max(220, sh + ev.clientY - sy) + 'px';
+    };
+    const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    e.preventDefault(); e.stopPropagation();
+  });
+
+  // Render chart
+  const chartEl = panel.querySelector('.cp-chart');
+  loadChart(chartEl, symbol, interval, limit, panel);
+}
+
+async function loadChart(container, symbol, interval, limit, panel) {
+  if (typeof LightweightCharts === 'undefined') {
+    container.innerHTML = '<div style="padding:20px;color:var(--accent-red);font-size:12px;">Chart library failed to load.</div>';
+    return;
+  }
+  container.innerHTML = '<div style="padding:20px;color:var(--text-tertiary);font-size:12px;">Loading…</div>';
+  try {
+    const r = await fetch(`/api/bars/${symbol}?interval=${interval}&limit=${limit}`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    const bars = (data.bars || []).map(b => ({
+      time: b.time || b.timestamp || b.t,
+      open: b.open ?? b.o, high: b.high ?? b.h, low: b.low ?? b.l, close: b.close ?? b.c,
+    }));
+    if (!bars.length) {
+      container.innerHTML = '<div style="padding:20px;color:var(--text-tertiary);font-size:12px;">No bars available for this symbol/interval.</div>';
+      return;
+    }
+    container.innerHTML = '';
+    const chart = LightweightCharts.createChart(container, {
+      width: container.clientWidth,
+      height: container.clientHeight,
+      layout: { background: {color:'#0f1117'}, textColor: '#8b8fa8' },
+      grid: { vertLines: {color:'#1a1d27'}, horzLines: {color:'#1a1d27'} },
+      timeScale: { borderColor:'#2a2d37', timeVisible: interval !== '1d' && interval !== '1w' },
+      rightPriceScale: { borderColor:'#2a2d37' },
+      crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+    });
+    const series = chart.addCandlestickSeries({
+      upColor:'#1db87a', downColor:'#e05252',
+      borderUpColor:'#1db87a', borderDownColor:'#e05252',
+      wickUpColor:'#1db87a', wickDownColor:'#e05252',
+    });
+    series.setData(bars);
+    chart.timeScale().fitContent();
+
+    // Resize observer keeps chart in sync with panel resizes
+    const ro = new ResizeObserver(() => {
+      chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+    });
+    ro.observe(container);
+
+    // Tear down chart + observer when panel is removed
+    const mo = new MutationObserver(() => {
+      if (!document.body.contains(panel)) { ro.disconnect(); chart.remove(); mo.disconnect(); }
+    });
+    mo.observe(document.body, { childList: true });
+  } catch (err) {
+    container.innerHTML = `<div style="padding:20px;color:var(--accent-red);font-size:12px;">Failed to load: ${err}</div>`;
+  }
+}
+
+// Bind any chips rendered server-side on initial load
+bindTickerChips(document);
 </script>
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
 
 {% endblock %}

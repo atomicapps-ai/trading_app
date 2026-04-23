@@ -1,26 +1,26 @@
 {% extends "base.html" %}
-{% block title %}Universe Presets — TradeAgent{% endblock %}
+{% block title %}Stock Screeners — TradeAgent{% endblock %}
 {% block content %}
 <div style="max-width: 1100px;">
 
   <div class="flex items-center gap-12 mb-16" style="justify-content: space-between; flex-wrap: wrap;">
     <div class="flex items-center gap-12">
-      <h2 style="font-size: 20px; font-weight: 500;">Universe presets</h2>
+      <h2 style="font-size: 20px; font-weight: 500;">Stock screeners</h2>
       <span class="text-secondary text-sm">
-        {{ presets|length }} preset{% if presets|length != 1 %}s{% endif %}
+        {{ presets|length }} screener{% if presets|length != 1 %}s{% endif %}
       </span>
     </div>
     <a href="/universe/new"
        style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
               background:var(--accent-blue);color:#fff;border-radius:6px;
               font-size:13px;text-decoration:none;font-weight:500;">
-      + New preset
+      + New screener
     </a>
   </div>
 
   {% if not_found is defined %}
     <div class="card mb-16" style="border-left: 3px solid var(--accent-red);">
-      <div class="text-secondary">Preset <strong>{{ not_found }}</strong> not found.</div>
+      <div class="text-secondary">Screener <strong>{{ not_found }}</strong> not found.</div>
     </div>
   {% endif %}
 
@@ -55,7 +55,7 @@
                         hx-post="/api/universe/presets/{{ p.name }}/set-active"
                         hx-target="#preset-list"
                         hx-swap="outerHTML"
-                        hx-confirm="Set '{{ p.name }}' as the active preset?"
+                        hx-confirm="Set '{{ p.name }}' as the active screener?"
                         title="Set as active">
                   Set active
                 </button>
@@ -72,7 +72,7 @@
               <button class="btn-sm btn-danger"
                       hx-post="/api/universe/presets/{{ p.name }}/delete"
                       hx-on::after-request="if(event.detail.successful){ window.location.href='/universe'; }"
-                      hx-confirm="Delete preset '{{ p.name }}'? This cannot be undone."
+                      hx-confirm="Delete screener '{{ p.name }}'? This cannot be undone."
                       title="Delete">
                 Delete
               </button>
@@ -105,9 +105,9 @@
       {% endfor %}
     {% else %}
       <div class="card">
-        <div class="text-secondary">No presets yet.</div>
+        <div class="text-secondary">No screeners yet.</div>
         <div class="text-xs text-tertiary mt-8">
-          Click <strong>+ New preset</strong> to create one using Finviz filter parameters.
+          Click <strong>+ New screener</strong> to create one using Finviz filter parameters.
         </div>
       </div>
     {% endif %}

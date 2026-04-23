@@ -1,12 +1,16 @@
 # TradeAgent — Project Context for Claude Code
-**Last synced:** 2026-04-22
+**Last synced:** 2026-04-22 (afternoon)
 **Status:** Phases 1–4 substantially complete. Phase 4 core (agents, workflow engine,
-executioner, SQLite, /universe UI with SQLite-backed Finviz preset manager, dual-chart
+executioner, SQLite, /universe UI with SQLite-backed Stock Screener manager, dual-chart
 /pending) all landed. One Phase 4 item remains: `services/scheduler.py` (APScheduler).
-Phase 5 (Backtest Engine) is next.
+**Next chat will first run a focused chart-viewer + indicators push** (4 chart
+sources per ticker + filter-aware indicator auto-activation + shared
+`static/chart_tools.js` across /pending and /universe) — detailed plan in HANDOFF.md.
+Phase 5 (Backtest Engine) queued after that.
 **Roadmap (current):**
 - Phase 4 ✅ (minus scheduler) — Agents + Workflow Engine + Executioner + UI polish
-- Phase 5 NEXT — Backtest Engine + Strategy Review UI
+- Phase 4.5 NEXT — Chart viewer sources + indicators (see HANDOFF.md "Next session plan")
+- Phase 5 — Backtest Engine + Strategy Review UI
 - Phase 6 — ntfy push notifications + mobile CSS pass + risk_manager postmortem
 - Phase 7 — Memory, learning loop, polish
 **Companion docs:**
@@ -16,9 +20,15 @@ Phase 5 (Backtest Engine) is next.
 **Stack:** FastAPI · HTMX 2.0.4 · Jinja2 · hand-rolled CSS (dark theme) · SQLite · JSONL · Tailscale · ntfy · **Alpaca** (default paper) · TradeStation (live)
 **Python:** 3.14.4 (moved off 3.12 on 2026-04-20 — the 3.12 install went missing and 3.14 wheels
 resolved cleanly for pandas 3.0, numpy 2.4, alpaca-py 0.43, yfinance 1.3; no compat issues)
-**Location:** `C:\Projects\TradingApp\` (local). Moved off Google Drive 2026-04-20 — Drive
+**Location:** `C:\Projects\Trading_app\` (local). Moved off Google Drive 2026-04-20 — Drive
 sync + venv/SQLite was creating constant fsync churn. Cross-machine story: git clone for
 code, `scripts/backup_trade_logs.ps1` for the ML data pool, one-time copy for `.env` secrets.
+
+**Workflow preference (set 2026-04-22):** Claude edits directly in the repo root so
+the user can test before any branching. Only when the user explicitly says "commit"
+/ "push" / "branch" does Claude create a branch, commit, and push. Branch names
+should be intuitive and tied to the feature (`feat/chart-indicators`,
+`fix/select-dark-theme`) — not auto-generated adjective-scientist names.
 
 ---
 
@@ -702,6 +712,51 @@ Phase 5 replay the same code over 10+ years of historical bars.
     (were missing; `universe_edit.html` and agent modal depend on them). Also `.mt-8`.
 - ✅ `services/universe_service.py` — preset list/detail/archive
 - ✅ `universe_filter_presets_tickers.yaml` — seed list (25 liquid names)
+
+**Phase 4 polish — Stock Screener UX pass (2026-04-22 afternoon):**
+- ✅ UI-only rename "Preset" → "Stock Screener" everywhere user-visible.
+  URLs, DB tables, Python fn names unchanged (still `preset`/`universe` on the
+  code side). Semantically clean: a **screener** is the filter recipe; a
+  **universe** is its output ticker list.
+- ✅ Description field: `<input>` → 3-row `<textarea>` (resizable vertically).
+- ✅ Notes field surfaced in UI: new 5-row textarea on create + edit forms.
+  DB column `universe_presets.notes` + router already supported it — this was
+  pure UI wiring.
+- ✅ Filter picker (+ Add filter modal) restructured: two-level header (tab
+  in uppercase gray with border; category in accent-blue with left stripe).
+  Items indented 32px under their category. Explicit alphabetic sort at all
+  3 levels (tabs, categories, filters).
+- ✅ Scrape cap: `scrape_finviz_filters` max_pages 5 → 15 (= 300 tickers).
+  Return signature changed to `(tickers, truncated: bool)` — truncated=True
+  when max_pages hit with last page still full. API exposes `truncated` +
+  `max_results: 300`. UI surfaces a **bold red banner + red toast + red `300+`
+  count** when truncated, so the user knows the filter isn't restrictive enough.
+- ✅ Dark-theme fix for `<select>`: `color-scheme: dark` on `:root` (global —
+  covers every form control in the app); `.filter-select` gets `appearance: none`
+  + inline SVG chevron + explicit `option` bg/color. Fixes Windows Chrome/Edge
+  rendering native selects with OS-default white.
+- ✅ `runTest()` auto-saves before scraping (`savePreset({silent:true})`).
+  No more "I tweaked filters and ▶ Run returned stale results".
+- ✅ Chart viewer on /universe edit page: every ticker in "Saved universe" +
+  test-run results is now a clickable `.ticker-chip`. Click → timeframe
+  popover (1H/2H/4H/1D, positioned adaptively) → floating `.chart-panel`:
+  draggable by titlebar, resizable via bottom-right grip (ResizeObserver
+  rescales the chart), pinnable (accent-blue border toggle), closable,
+  multiple panels allowed (each click spawns a new offset panel). Uses
+  existing `/api/bars/{symbol}` + Lightweight Charts 4.1.3 from CDN.
+
+### Phase 4.5 — Chart sources + indicators (NEXT SESSION — see HANDOFF.md for full plan)
+
+Continuous push planned across two sub-sessions. Four chart-source options
+per ticker (Quick · Finviz image · TradingView widget · Open in Finviz ↗),
+a new `GET /api/indicators/{symbol}` endpoint wrapping `services/indicator_service.py`,
+shared `static/chart_tools.js` consumed by both `/universe/{name}/edit` and
+`/pending`, filter-aware auto-activation (screener's `filters` dict → overlay
+indicators turned on), toggle chips in chart panel header with localStorage
+persistence. Overlays first (SMA/BB/high-low bands), then sub-panes
+(RSI/MACD/ATR/Volume). Indicator math stays server-side in
+`services/indicator_service.py` — single source of truth for both agents
+and chart UI.
 
 ### Phase 5 — Backtest Engine + Strategy Review (NEW — see SKILL.md §5 + phase5_prompt.md to be written)
 Reuses every Phase 4 agent. Because detectors are pure functions of

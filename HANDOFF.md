@@ -1,4 +1,4 @@
-# Session Handoff — 2026-04-22
+# Session Handoff — 2026-04-22 (afternoon)
 
 Short catch-up doc for resuming in a fresh Claude Code session.
 Read order: **CLAUDE.md** first (full spec + conventions), then this file.
@@ -9,98 +9,230 @@ Read order: **CLAUDE.md** first (full spec + conventions), then this file.
 
 **Phases 1–4 substantially complete.**
 One Phase 4 item remains: `services/scheduler.py` (APScheduler).
-Phase 5 (Backtest Engine) is next.
+Phase 5 (Backtest Engine) is queued but **next chat will first do a focused
+chart-viewer + indicators push** (detailed below), then move on to Phase 5.
 
 ---
 
-## What was fixed / built in the most recent session
+## What shipped this session (2026-04-22 afternoon)
 
-### Bug fix — `templates/universe_edit.html` (Jinja2 macro ordering)
-The preset edit page (`/universe/{name}/edit`) was a hard 500 for any
-existing preset. Root cause: the `filter_row` Jinja2 macro was defined
-at the bottom of the template after the call sites, and called with
-invalid `self::filter_row()` Rust-style syntax. Fixed: macro moved
-above its first use inside `{% block content %}`, calls corrected to
-`filter_row()`.
+A continuous UX pass on the Stock Screener page (formerly "Preset" — see rename).
 
-### New — `agents/universe_filter.py` SQLite-first loading
-`UniverseFilter.run()` now tries SQLite before falling back to the legacy
-YAML files. Two new helpers:
-- `_finviz_to_criteria(filters)` — translates Finviz filter param strings
-  (e.g. `sh_price=o10`, `ta_sma50=pa`, `sh_avgvol=o1000`, `ta_rsi=ob70`)
-  into `PrescreenCriteria` for the in-process screener. ATR skipped (Finviz
-  uses absolute $; criteria needs atr_pct %).
-- `_load_sqlite_preset(preset_name)` — async; reads tickers + filters from
-  SQLite via `universe_service.get_preset_db()`. Returns None if preset not
-  found or has no saved tickers (→ YAML fallback).
+### Renames — "Preset" → "Stock Screener" (UI-only)
+- All user-visible copy renamed: page title, breadcrumbs, buttons, toasts, confirmations.
+  "Universe presets" → "Stock screeners"; "+ New preset" → "+ New screener";
+  "Preset info" card → "Screener info"; etc.
+- **URLs unchanged** (`/universe/*`), **DB tables unchanged** (`universe_presets`),
+  **Python fn names unchanged** (`get_preset_db`, etc.). The code side still
+  speaks "preset"; the UI speaks "screener". Semantically this works well:
+  a **screener** is the filter recipe; a **universe** is its output ticker list.
+- If you want the full rename later (DB migration + URL migration + fn rename),
+  that's a separate ~1–2 hr job. For now UI-only is intentional.
 
-### New — `POST /api/universe/presets/{name}/run-agent`
-Runs the in-process UniverseFilter screener on a preset's saved tickers.
-Returns `{shortlist, universe, total_screened, rejected_count,
-rejection_reasons, run_duration_seconds}`. Returns 422 if no tickers saved.
+### Description + Notes fields
+- `Description`: single-line `<input>` → 3-row `<textarea>` (resizable vertically).
+- `Notes`: new 5-row textarea under Description. DB column already existed in
+  `universe_presets.notes` + router already accepted the field — this session
+  just surfaced it in the UI.
+- Both wired into the create form (new-screener flow) and update form
+  (edit flow). `savePreset()` now includes `notes`; `cf-notes` in create-form.
 
-### New — ▶ Agent button on `/universe` list page
-Each preset card with saved tickers now shows a blue `▶ Agent` button.
-Clicking it calls `/run-agent`, shows a modal with shortlist count, full
-universe, rejection breakdown, and run duration. No page reload required.
+### Filter picker ("+ Add filter" modal)
+- Two-level hierarchy rendered with distinct styling:
+  - **Tab header** (Descriptive / Fundamental / Technical) — uppercase, spaced,
+    tertiary gray, border-separated.
+  - **Category header** (Valuation / Moving Averages / …) — accent-blue text on
+    blue tint with a left accent bar.
+- Items indented 32px under their category.
+- Explicit `.sort(localeCompare)` at all 3 levels — tabs, categories, filters.
+  Catalog was mostly sorted already but it's now enforced in JS so a future
+  re-scrape can't break ordering.
+- Empty tabs stay hidden when a search query kills every child.
 
-### CSS fix — `static/app.css`
-Added missing CSS variables that `universe_edit.html` and the agent modal
-depend on:
-```css
---font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
---surface-1: #0f1117;   /* darkest — readonly/disabled inputs */
---surface-2: #141720;   /* standard input background */
---surface-3: #1a1d27;   /* elevated — hover states */
-```
-Also added `.mt-8 { margin-top: 8px; }` utility class.
+### Scrape behavior — 300 cap + truncation warning
+- Finviz scrape `max_pages` bumped from 5 → 15 (× 20 rows/page = 300).
+- `scrape_finviz_filters()` now returns `(tickers, truncated: bool)`.
+  `truncated=True` when we stop because we hit `max_pages` with the last page
+  still full (i.e. more results exist beyond the cap).
+- API response shape: `{count, tickers, truncated, max_results}`.
+- UI when truncated=true:
+  - **Bold red banner**: ⚠ RESULT LIMIT HIT (300) — filter is NOT restrictive enough.
+  - Ticker count renders in red with `+` suffix (e.g. `300+`).
+  - Red toast: "Limit hit (300+) — tighten filters".
 
-### Open issue — browser native `<select>` styling on Windows
-On Windows Chrome/Edge, native `<select>` elements may ignore
-`background` CSS and render with OS-default white/gray even when
-`background: var(--surface-2)` is set. This causes the filter dropdowns
-in `universe_edit.html` to appear light-themed. The full fix requires
-either custom `<select>` styling (appearance: none + SVG arrow) or
-replacing `<select>` with a custom dropdown component. **Not yet fixed —
-prioritise in the next session if the dark theme still looks broken.**
+### Dark theme — select dropdowns
+- Root fix: `color-scheme: dark` on `:root` in `static/app.css`.
+  Tells Chromium to use dark form widgets globally — covers all `<select>` and
+  form controls across the app, not just this page.
+- `.filter-select` also gets `appearance: none` + inline SVG chevron for a
+  custom closed-state look. Explicit `.filter-select option` bg + color for
+  the dropdown list items.
+- Fixes the original Windows Chrome/Edge issue where native `<select>`s
+  ignored CSS `background` and rendered in OS white.
+
+### Auto-save before ▶ Run
+- `runTest()` now calls `savePreset({silent: true})` before scraping.
+- The Finviz scrape reads from SQLite, so this keeps scrape and form state
+  in sync — no more "I edited filters, clicked Run, and got old results".
+- `savePreset()` grew a `{silent: true}` option that returns a bool so
+  callers can chain.
+
+### Chart viewer (NEW — drag+resize+pin all done)
+Every ticker in the "Saved universe" card + test-run result list is now a
+clickable `.ticker-chip`. Click flow:
+
+1. Chip click → timeframe popover (1H / 2H / 4H / 1D), positioned adaptively
+   near the chip (flips above chip if overflow bottom).
+2. Pick timeframe → floating `.chart-panel`:
+   - **Draggable** by titlebar (mousedown/move/up handlers).
+   - **Resizable** via bottom-right grip — chart rescales via `ResizeObserver`.
+   - **Pinnable** (📌 toggles accent-blue border; semantic hook for future
+     "don't auto-close" logic).
+   - **Closable** (× in titlebar).
+   - **Multiple panels allowed** — each click spawns a new one, offset from
+     the last (cycles through 6 offset slots).
+   - Cleanup via `MutationObserver` — when panel is removed, chart disposed
+     and ResizeObserver disconnected.
+- Uses existing `GET /api/bars/{symbol}?interval=&limit=` endpoint.
+- Lightweight Charts 4.1.3 loaded from unpkg CDN (same as `/pending`).
 
 ---
 
-## Universe API routes (all in `routers/universe.py`)
+## Files changed this session
 
 ```
-GET  /universe                             → preset list (SQLite)
-GET  /universe/new                         → blank editor
-GET  /universe/{name}/edit                 → edit existing preset
-GET  /universe/{name}/detail               → legacy YAML read-only view
-POST /api/universe/presets                 → create preset
-POST /api/universe/presets/{name}          → update preset filters + metadata
-POST /api/universe/presets/{name}/delete   → delete preset
-POST /api/universe/presets/{name}/set-active    → mark as active (HX-Redirect)
-POST /api/universe/presets/{name}/test-run      → scrape Finviz, return tickers
-POST /api/universe/presets/{name}/save-tickers  → persist ticker list to SQLite
-POST /api/universe/presets/{name}/run-agent     → in-process prescreen → shortlist
-GET  /api/universe/catalog                 → full Finviz catalog JSON (76 filters)
-GET  /api/universe/presets                 → JSON list
-GET  /api/universe/presets/{name}          → JSON detail
-GET  /api/universe/legacy                  → YAML-backed list (read-only)
-GET  /api/universe/legacy/{name}           → YAML-backed detail
+M  routers/universe.py         # max_pages 5→15, truncated in response
+M  services/universe_service.py # scrape returns (tickers, truncated)
+M  static/app.css              # color-scheme: dark
+M  templates/universe.html     # rename Preset→Screener
+M  templates/universe_edit.html # everything else — rename, notes, chart viewer, picker groups, dark-select, auto-save
 ```
+
+No DB migration, no new routes, no new Python files.
 
 ---
 
-## End-to-end universe flow (as of this session)
+## Next session plan — chart viewer + indicators (continuous push)
 
-```
-1. /universe          → see preset list
-2. + New preset       → title → slug → redirect to /universe/{name}/edit
-3. Edit page          → 14 default filter rows + "+ Add filter" modal (76 catalog filters)
-                        Configure filters → Save (POST .../presets/{name})
-4. ▶ Run             → POST .../test-run → Finviz live scrape → ticker count + list
-5. Save as universe   → POST .../save-tickers → tickers persisted to SQLite
-6. ▶ Agent (list)    → POST .../run-agent → in-process bar screener → ranked shortlist
-7. Set active         → POST .../set-active → HX-Redirect reloads list
-```
+The user wants this done in ONE chat. Estimated **~5 hours total**.
+Split into two sequential sessions for tracking:
+
+### Session 1 (~2.5 hrs) — chart sources + overlay indicators
+
+**Goal:** Four chart-source options per ticker + filter-aware auto-activated
+overlay indicators.
+
+1. **4 chart sources in the ticker popover:**
+   - **Quick chart** — existing in-app Lightweight Charts panel (what ships
+     today — fast, minimal, needs DIY indicators).
+   - **Finviz chart image** — `<img src="https://finviz.com/chart.ashx?t=X&ta=1&p=d">`.
+     Static PNG. Comes with SMA 20/50/200 + RSI + MACD overlays **baked in**
+     when `ta=1` is passed. No JS required. Timeframe param: `p=d|w|m` for
+     daily/weekly/monthly (intraday needs Elite).
+   - **TradingView widget** — `<iframe>` of the free TV Widget at
+     `https://www.tradingview.com/widgetembed/?symbol=X&interval=D&theme=dark`.
+     100+ indicators, drawing tools, all in-iframe. **No datafeed adapter
+     needed** — TV supplies the data. Free, TV-branded. This is the "pay-
+     nothing TradingView" option (distinct from the TV Charting Library
+     which would need our own datafeed).
+   - **Open in Finviz →** — external link to `https://finviz.com/quote.ashx?t=X`
+     in a new tab. Can't iframe it (Finviz sends `X-Frame-Options: SAMEORIGIN`)
+     but it's the full fundamentals+news drilldown view.
+
+2. **New endpoint:** `GET /api/indicators/{symbol}?interval=&indicators=sma20,sma50,...`
+   Wraps `services/indicator_service.py` (23 hand-rolled indicators already
+   exist). Single source of truth — the agents and the chart consume the
+   exact same math. Response format: `{indicators: {sma20: [...], sma50: [...]}, timestamps: [...]}`.
+
+3. **New shared file:** `static/chart_tools.js`
+   - `createChartPanel(symbol, interval, opts)` — extracted from
+     `universe_edit.html` so `/pending` can reuse it.
+   - `renderOverlay(chart, {type, period, color})` — draws overlay line series.
+   - Compute fallbacks (SMA, EMA, BB) for when server endpoint unavailable.
+
+4. **Overlay indicators wired:**
+   - SMA(20), SMA(50), SMA(200) — the three periods most commonly filtered on.
+   - Bollinger Bands (20, 2σ) — upper/middle/lower lines.
+   - High/Low bands (20d, 50d, 52w) — two horizontal lines per period.
+
+5. **Filter-aware auto-activation.** When a chart panel opens for a ticker
+   belonging to a given screener, read the screener's `filters` dict and
+   auto-toggle matching overlays. Mapping:
+
+   | Filter param | Auto-shown |
+   |---|---|
+   | `ta_sma20` | SMA(20) |
+   | `ta_sma50` | SMA(50) |
+   | `ta_sma200` | SMA(200) |
+   | `ta_highlow20d` | 20-day high+low bands |
+   | `ta_highlow50d` | 50-day high+low bands |
+   | `ta_highlow52w` | 52-week high+low bands |
+
+6. **Toggle chip UI** in chart panel header — small chips the user can click
+   on/off: `SMA20 · SMA50 · SMA200 · BB · H/L20 · H/L50 · H/L52w`.
+   Filter-activated ones start pre-selected; others start off.
+
+7. **Persist per-user toggle preferences** in `localStorage` keyed by a
+   sensible key (e.g. `chart.indicators.universe_edit`). Next chart open
+   remembers what the user had on.
+
+### Session 2 (~2.5 hrs) — sub-pane indicators + /pending rollout
+
+**Goal:** RSI/MACD/ATR/Volume in a sub-pane below the price chart; ship
+the shared chart_tools.js into `/pending` too.
+
+1. **Sub-pane scaffolding:**
+   - Second `LightweightCharts.createChart()` instance below the main chart.
+   - Synced time-scale: when one chart scrolls/zooms, the other follows.
+     Use `subscribeVisibleTimeRangeChange` on each, apply range to the other
+     with a mutex to avoid feedback loops.
+   - Layout split: main chart 70% of panel height, sub-pane 30%, with a
+     ~4px resizable splitter.
+
+2. **Sub-pane indicators:**
+   - RSI(14) — line series with 30/70 horizontal threshold lines.
+   - ATR(14) — line series.
+   - MACD(12, 26, 9) — MACD line, signal line, histogram.
+   - Volume — histogram, green/red based on up/down candle.
+
+3. **Auto-activation additions:** `ta_rsi` set → RSI on;
+   `ta_averagetruerange` set → ATR on.
+
+4. **Roll out to `/pending`:**
+   - Import `chart_tools.js` on `/pending`.
+   - Replace `/pending`'s inline chart creation with the shared helper.
+   - Each of the two existing `/pending` panes gets the same toggle chips +
+     filter-aware auto-activation (based on the plan's screener context).
+   - Verify crosshair sync and lazy-load behavior still work.
+
+5. **Polish:**
+   - Keyboard shortcuts in panel: `Esc` close, `1/2/4/D` switch timeframe.
+   - Indicator color scheme pinned in CSS variables so it's consistent
+     across every chart panel.
+
+### Files that will change
+
+**New:**
+- `static/chart_tools.js` — shared chart helper (panel creation + render
+  helpers + compute fallback).
+- `routers/indicators.py` — `GET /api/indicators/{symbol}` endpoint.
+
+**Modified:**
+- `templates/universe_edit.html` — extract chart creation, add source picker
+  (4 buttons), add toggle chips, wire filter-aware auto-activation.
+- `templates/pending.html` — use shared helper, add toggle chips.
+- `app.py` — mount indicators router.
+
+### Invariants the plan respects
+
+- `services/indicator_service.py` stays the authority on indicator math.
+  Any new JS compute is only a fallback for when the server call hasn't
+  completed yet — final values always come from the server.
+- Pure-function-of-bars property is preserved: indicator math is
+  deterministic given the bar series, so the same `as_of_ts` replay
+  property that Phase 5 needs continues to hold.
+- No third-party JS beyond Lightweight Charts (already on CDN) + the
+  TradingView Widget iframe (zero code, it's just an `<iframe>`).
 
 ---
 
@@ -133,7 +265,7 @@ double_bottom_top · ascending_triangle · cup_and_handle · wyckoff_accumulatio
 
 ### Alpaca as default broker
 - `brokers/alpaca.py` — AlpacaAdapter via alpaca-py 0.43. Default for paper+live.
-- `BROKER_PROVIDER=alpaca` (default). `BROKER_PROVIDER=tradestation` to opt in to TS.
+- `BROKER_PROVIDER=alpaca` (default). `BROKER_PROVIDER=tradestation` to opt in.
 - Env vars: `ALPACA_API_KEY` + `ALPACA_API_SECRET`.
 
 ### Executioner (brought forward from Phase 6)
@@ -141,61 +273,61 @@ double_bottom_top · ascending_triangle · cup_and_handle · wyckoff_accumulatio
   → `BrokerAdapter.place_order()`. Research mode refuses all orders.
 - `routers/pending.py` — approve path wired: HumanAckRecord → executioner → SQLite.
 
-### /pending redesign
-- Dual Lightweight Charts (replaced TradingView iframe). Two stacked panes,
-  each with interval selector (1H/2H/4H/1D). Crosshair sync. Double-click scrolls
-  sibling to hovered moment. Lazy-load older bars (300/page, `?before=<epoch>`).
-- `routers/bars.py` — OHLCV; 2h/4h resampled from 1h cache.
-- Plan levels (entry, stop, TP1, TP2) as labeled horizontal price-lines.
-- Filter tabs; gate badge icons; approve disabled after 15-min expiry.
+### /pending dual charts
+- Dual Lightweight Charts (replaced TradingView iframe). Crosshair sync.
+  Lazy-load older bars (300/page, `?before=<epoch>`). Plan levels as
+  labeled horizontal price-lines. Filter tabs; gate badge icons; approve
+  disabled after 15-min expiry.
+
+### Universe Preset Manager (now "Stock Screener")
+- SQLite-backed CRUD for named screeners. Each has title+slug+description+
+  notes+filters dict+output_tags+tickers.
+- `services/finviz_catalog.json` — 76 usable Finviz filters (Elite-only
+  stripped). Committed; not re-scraped at runtime.
+- `universe_filter_config.yaml` — 14 default-visible filter IDs.
+- `agents/universe_filter.py` SQLite-first: tries DB before YAML fallback.
+- `/run-agent` endpoint runs in-process prescreen on saved tickers and
+  returns ranked shortlist.
 
 ---
 
-## One remaining Phase 4 item
+## Remaining Phase 4 item (deferred)
 
-`services/scheduler.py` — APScheduler that reads each workflow's `schedule:` cron
-field and fires the pipeline automatically. Build this or skip to Phase 5 and return.
-
----
-
-## What's next
-
-### Priority: Fix `<select>` dark theme on Windows (quick)
-Browser native `<select>` elements ignore `background` CSS on Windows
-Chrome/Edge. Fix options:
-- **Option A (recommended):** Add `appearance: none` to `.filter-select`
-  in `universe_edit.html` and supply a custom SVG dropdown arrow via CSS.
-- **Option B:** Replace the filter `<select>` with a custom JS dropdown
-  (more work, better cross-browser control).
-
-### Option A: Finish Phase 4 (scheduler — ~1 hour)
-`services/scheduler.py` — load workflows at startup, parse `schedule:` cron fields,
-call `pipeline_service.run_workflow()` on each fire. APScheduler already in requirements.txt.
-
-### Option B: Start Phase 5 (Backtest Engine — 2–3 sessions)
-Reuses every Phase 4 agent. Detectors are pure functions of `as_of_ts` so the engine
-can slide a window across 10+ years of cached bars and call the exact same code.
-
-Key new files:
-- `services/backtest_engine.py` — walk-forward runner. Iterates `as_of_ts`,
-  calls `pipeline_service.run_for_backtest(as_of_ts)`, simulates fills at next-bar open.
-- `services/backtest_report.py` — equity curve, CAGR, Sharpe, max DD, hit rate, avg R.
-- `models/backtest_result.py` — BacktestRun; per-trade records use same TradeRecord schema.
-- `routers/backtests.py` + `templates/backtests/` — Strategy Review UI.
+`services/scheduler.py` — APScheduler that reads each workflow's `schedule:`
+cron field and fires the pipeline automatically. Build this or skip to
+Phase 5 and return.
 
 ---
 
-## How to bootstrap on a new machine
+## Bootstrap on a new machine
 
-1. `git clone <repo_url> C:\Projects\trading_app`
-2. `cd C:\Projects\trading_app`
+1. `git clone <repo_url> C:\Projects\Trading_app`
+2. `cd C:\Projects\Trading_app`
 3. `python -m venv .venv && .venv\Scripts\pip install -r requirements.txt`
-4. Copy `.env` from password manager (see `.env.example` for required keys):
+4. Copy `.env` from password manager (see `.env.example`):
    - `ALPACA_API_KEY` + `ALPACA_API_SECRET` — required for paper trading
    - `BROKER_PROVIDER=alpaca` (or `tradestation`)
 5. `cp settings.example.yaml settings.yaml` and edit
 6. Copy `trade_logs/*.jsonl` from backup if available
-7. `python run.py dev` — starts server at http://localhost:5000
+7. `python run.py dev` — server at http://localhost:5000
+
+---
+
+## Workflow preference — changes-first-in-root, then branch on signal
+
+Going forward (new preference set this session):
+- Claude edits directly in the repo root (`C:\Projects\Trading_app\`) for
+  a given feature, so the user can test immediately without switching
+  branches.
+- Only when user says "commit" / "push" / "branch" does Claude create a
+  branch, commit, and push.
+- Branch names should be intuitive and tied to the feature, e.g.
+  `feat/chart-indicators`, `fix/select-dark-theme`, not the auto-generated
+  adjective-scientist names.
+
+This HANDOFF session was produced from a worktree at
+`.claude/worktrees/sweet-brahmagupta-28af7a/` for legacy reasons; the
+next session should work directly in the main repo.
 
 ---
 
@@ -209,6 +341,10 @@ Key new files:
 - Live mode requires HumanAckRecord within 15 minutes before any order ships.
 - Broker adapter selected via `BROKER_PROVIDER` env in `broker_service.py` only.
 - Do NOT use TradingView iframe on `/pending` — replaced by Lightweight Charts in Phase 4.
+  (Note: the /universe chart viewer uses the TV *Widget* as one of four source options,
+  which is different from the TV Charting Library that `/pending` originally used.)
 - Do NOT re-scrape `finviz_catalog.json` at runtime — it's a committed static file.
 - Do NOT re-define `--surface-1/2/3` or `--font-mono` in page templates —
   they live in `static/app.css` `:root` block.
+- `services/indicator_service.py` is the single source of truth for indicator
+  math. Any client-side compute is fallback only.
