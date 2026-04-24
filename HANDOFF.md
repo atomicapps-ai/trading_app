@@ -1,4 +1,4 @@
-# Session Handoff — 2026-04-22 (afternoon)
+# Session Handoff — 2026-04-24
 
 Short catch-up doc for resuming in a fresh Claude Code session.
 Read order: **CLAUDE.md** first (full spec + conventions), then this file.
@@ -9,12 +9,68 @@ Read order: **CLAUDE.md** first (full spec + conventions), then this file.
 
 **Phases 1–4 substantially complete.**
 One Phase 4 item remains: `services/scheduler.py` (APScheduler).
-Phase 5 (Backtest Engine) is queued but **next chat will first do a focused
-chart-viewer + indicators push** (detailed below), then move on to Phase 5.
+Phase 5 (Backtest Engine) is queued. **Next chat should do the Phase 4.5 chart-viewer
++ indicators push** (detailed further below), unless the user wants to continue the
+opening candle Pine Script work first.
 
 ---
 
-## What shipped this session (2026-04-22 afternoon)
+## What shipped this session (2026-04-24) — Opening Candle Research
+
+Standalone research session — no changes to the FastAPI app. All scripts are
+independent (yfinance data only, no app dependencies).
+
+### Theory disproven — continuation is the signal
+- Wrote and ran `scripts/test_opening_candle_theory.py` — reversal theory (first 15-min
+  bearish candle → bullish day) tested across all symbols with 1d CSVs.
+- **Result:** 33.1% theory accuracy, 28.9% trade win rate. Theory fails badly.
+- Real finding: continuation is the dominant signal (~67%).
+
+### Pattern scanner — 134 significant patterns found
+- Wrote and ran `scripts/scan_opening_patterns.py` — exhaustive 1–3 candle combos at
+  15M and 30M. 4 dimensions per candle: direction, body strength, buy/sell pressure,
+  volume vs slot-specific 20-day median.
+- **134 patterns** with z≥2.0 (n≥15). **84** with z≥3.0.
+- Top single-candle: `BULL.STR.HPRS.HVOL` and `BEAR.STR.LPRS.HVOL` at 30M → 83–85%
+  directional accuracy (OOS: 86–90%).
+- Double-lock (two consecutive conviction candles same direction) → **97–98% in-sample,
+  94–97% OOS**. This is the statistical anchor for Strategy 2.
+
+### Two Pine Script v6 strategies written and saved
+| File | Strategy | Entry | Primary exit | Status |
+|---|---|---|---|---|
+| `scripts/pine/strategy1_FHC.pine` | First Hour Conviction | 10:00 AM close, HVOL, SPY filter | 2:1 R:R TP/SL | **Tested: SPY 49% WR, NVDA 50% WR — too weak** |
+| `scripts/pine/strategy2_DL.pine` | Double Lock | 10:30 AM close (2nd consecutive candle) | EOD 3PM, 3% cata stop | **NOT YET TESTED — run this next** |
+
+### Why FHC-S1 failed
+Scanner validated *day-close direction*. FHC-S1 tested *intraday TP hit* with a
+0.5–0.8% SL. The avg MAE was 1.4–1.8%, so stops fired on winning-direction days.
+DL-S2 removes the TP and exits at EOD — the mechanic now matches what was validated.
+
+### Files added this session
+```
+A  scripts/test_opening_candle_theory.py
+A  scripts/scan_opening_patterns.py
+M  cmds.py                              (now points to scan_opening_patterns.py)
+A  scripts/pine/strategy1_FHC.pine
+A  scripts/pine/strategy2_DL.pine
+```
+
+---
+
+## Immediate next tasks for new session
+
+1. **Run DL-S2 Pine Script** on SPY and NVDA (30-min chart, Jan 2024–present).
+   Open TradingView → Pine Editor → paste `scripts/pine/strategy2_DL.pine` → Save →
+   Add to chart → Strategy Tester tab → report: win rate, profit factor, max drawdown,
+   total trades.
+2. **If DL-S2 ≥ 72% win rate** → write Strategy 3 (Failed Follow-Through Reversal)
+   in Pine Script v6.
+3. **Phase 4.5 chart viewer + indicators push** — see plan below.
+
+---
+
+## What shipped the prior session (2026-04-22 afternoon)
 
 A continuous UX pass on the Stock Screener page (formerly "Preset" — see rename).
 

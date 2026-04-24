@@ -1,0 +1,133 @@
+//@version=6
+// Double Lock — Strategy 2 (DL-S2)
+// Signal:  TWO consecutive 30-min conviction candles in the same direction.
+//          Candle 1: 9:30 bar  — BULL.STR.HPRS.HVOL  or  BEAR.STR.LPRS.HVOL
+//          Candle 2: 10:00 bar — same direction, STR body (HVOL optional)
+// Entry:   Close of 2nd candle (10:30 AM bar close)
+// TP:      NONE — primary exit is EOD at 3:00 PM bar close
+// SL:      3 % catastrophic stop from entry only (never tightened intraday)
+// Why EOD? The scanner validated DAY-CLOSE direction, not intraday R:R targets.
+//          Removing the TP target lets the win-rate match what the scanner found (~97-98%).
+
+strategy(
+    title                   = "Double Lock — Strategy 2",
+    shorttitle              = "DL-S2",
+    overlay                 = true,
+    process_orders_on_close = true,
+    default_qty_type        = strategy.fixed,
+    default_qty_value       = 1,
+    currency                = currency.USD,
+    commission_type         = strategy.commission.cash_per_contract,
+    commission_value        = 0.005,
+    slippage                = 1,
+    initial_capital         = 100000,
+    margin_long             = 100,
+    margin_short            = 100
+)
+
+// ── Inputs ───────────────────────────────────────────────────────────────────
+var float CATA_STOP_PCT = input.float(3.0,  title = "Catastrophic stop %",   minval = 1.0, step = 0.25) / 100
+var float VOL_MULT      = input.float(1.0,  title = "HVOL multiplier (slot avg)", minval = 0.5, step = 0.1)
+
+// ── UDTs ─────────────────────────────────────────────────────────────────────
+type CandleProps
+    string dir  = ""
+    bool   str  = false
+    bool   hprs = false
+    bool   lprs = false
+    bool   hvol = false
+
+type TradeLevel
+    float  sl     = na
+    string dir    = ""
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+nyHour()   => hour(time, "America/New_York")
+nyMinute() => minute(time, "America/New_York")
+
+is930bar()  => nyHour() == 9  and nyMinute() == 30
+is1000bar() => nyHour() == 10 and nyMinute() == 0
+is1500bar() => nyHour() == 15 and nyMinute() == 0
+
+candleRange() => high - low
+
+bodyPct() =>
+    rng = candleRange()
+    rng > 0 ? math.abs(close - open) / rng : 0.0
+
+closePct() =>
+    rng = candleRange()
+    rng > 0 ? (close - low) / rng : 0.5
+
+// ── Per-slot volume rolling arrays (last 20 of each slot) ────────────────────
+var array<float> vols930  = array.new<float>()
+var array<float> vols1000 = array.new<float>()
+
+if is930bar()
+    vols930.push(volume)
+    if vols930.size() > 20
+        vols930.shift()
+
+if is1000bar()
+    vols1000.push(volume)
+    if vols1000.size() > 20
+        vols1000.shift()
+
+avg930  = vols930.size()  > 0 ? vols930.avg()  : na
+avg1000 = vols1000.size() > 0 ? vols1000.avg() : na
+
+// ── Encode candle 1 (9:30 bar) ───────────────────────────────────────────────
+var CandleProps c1 = CandleProps.new()
+
+if is930bar() and not na(avg930)
+    c1.dir  := close > open ? "BULL" : "BEAR"
+    c1.str  := bodyPct() >= 0.5
+    c1.hprs := closePct() >= 0.6
+    c1.lprs := closePct() <= 0.4
+    c1.hvol := volume >= VOL_MULT * avg930
+
+// ── Entry at close of 10:00 bar (after 2-candle confirmation) ────────────────
+var TradeLevel tl       = TradeLevel.new()
+var bool       inTrade  = false
+
+if is1000bar() and not inTrade and not na(avg1000)
+    // Encode candle 2
+    string c2dir  = close > open ? "BULL" : "BEAR"
+    bool   c2str  = bodyPct() >= 0.5
+    bool   c2hprs = closePct() >= 0.6
+    bool   c2lprs = closePct() <= 0.4
+
+    bool longLock  = c1.dir == "BULL" and c1.str and c1.hprs and c1.hvol
+                     and c2dir == "BULL" and c2str
+    bool shortLock = c1.dir == "BEAR" and c1.str and c1.lprs and c1.hvol
+                     and c2dir == "BEAR" and c2str
+
+    if longLock
+        tl.sl   := close * (1.0 - CATA_STOP_PCT)
+        tl.dir  := "LONG"
+        strategy.entry("Long", strategy.long)
+        strategy.exit("Long SL", "Long", stop = tl.sl)
+        inTrade := true
+
+    else if shortLock
+        tl.sl   := close * (1.0 + CATA_STOP_PCT)
+        tl.dir  := "SHORT"
+        strategy.entry("Short", strategy.short)
+        strategy.exit("Short SL", "Short", stop = tl.sl)
+        inTrade := true
+
+// ── Hard EOD exit at 3:00 PM bar close ───────────────────────────────────────
+if is1500bar() and inTrade
+    strategy.close_all(comment = "EOD")
+    inTrade := false
+    tl.sl   := na
+    tl.dir  := ""
+
+// Reset inTrade flag when position closed by catastrophic SL
+if strategy.opentrades == 0 and inTrade
+    inTrade := false
+    tl.sl   := na
+    tl.dir  := ""
+
+// ── Plot SL level ─────────────────────────────────────────────────────────────
+plot(tl.sl, "Catastrophic SL", color = color.red, style = plot.style_linebr, linewidth = 1)

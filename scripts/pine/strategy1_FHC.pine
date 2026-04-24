@@ -1,0 +1,129 @@
+//@version=6
+// First Hour Conviction — Strategy 1 (FHC-S1)
+// Signal:  First 30-min candle (9:30–10:00 ET) is BULL.STR.HPRS.HVOL → go LONG
+//          or BEAR.STR.LPRS.HVOL → go SHORT
+// Entry:   Close of first 30-min candle (10:00 AM bar close)
+// SL:      1.5 × candle range below low (LONG) or above high (SHORT)
+// TP:      2:1 R:R from entry
+// Filter:  SPY must show matching conviction candle (same direction, STR body)
+// EOD:     Hard exit at 3:00 PM bar if neither TP nor SL hit
+
+strategy(
+    title                   = "First Hour Conviction — Strategy 1",
+    shorttitle              = "FHC-S1",
+    overlay                 = true,
+    process_orders_on_close = true,
+    default_qty_type        = strategy.fixed,
+    default_qty_value       = 1,
+    currency                = currency.USD,
+    commission_type         = strategy.commission.cash_per_contract,
+    commission_value        = 0.005,
+    slippage                = 1,
+    initial_capital         = 100000,
+    margin_long             = 100,
+    margin_short            = 100
+)
+
+// ── Inputs ───────────────────────────────────────────────────────────────────
+var string SPY_SYM    = input.symbol("SPY",  title = "SPY symbol")
+var float  VOL_MULT   = input.float(1.0,     title = "HVOL multiplier vs 20-day slot avg", minval = 0.5, step = 0.1)
+var float  RR         = input.float(2.0,     title = "Reward:Risk ratio", minval = 1.0, step = 0.1)
+var float  SL_MULT    = input.float(1.5,     title = "SL multiplier × candle range",   minval = 0.5, step = 0.1)
+
+// ── UDT ──────────────────────────────────────────────────────────────────────
+type CandleProps
+    string dir  = ""
+    bool   str  = false
+    bool   hprs = false
+    bool   hvol = false
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+is930bar() =>
+    hour(time, "America/New_York") == 9 and minute(time, "America/New_York") == 30
+
+is1500bar() =>
+    hour(time, "America/New_York") == 15 and minute(time, "America/New_York") == 0
+
+candleRange() => high - low
+
+bodyPct() =>
+    rng = candleRange()
+    rng > 0 ? math.abs(close - open) / rng : 0.0
+
+closePct() =>
+    rng = candleRange()
+    rng > 0 ? (close - low) / rng : 0.5
+
+// ── Per-slot volume rolling avg (last 20 occurrences of the 9:30 bar) ────────
+var array<float> slotVols = array.new<float>()
+
+if is930bar()
+    slotVols.push(volume)
+    if slotVols.size() > 20
+        slotVols.shift()
+
+slotAvg = slotVols.size() > 0 ? slotVols.avg() : na
+
+// ── Encode first candle ───────────────────────────────────────────────────────
+var CandleProps c1 = CandleProps.new()
+var bool signalFired = false
+
+if is930bar() and not na(slotAvg)
+    c1.dir  := close > open ? "BULL" : "BEAR"
+    c1.str  := bodyPct() >= 0.5
+    c1.hprs := closePct() >= 0.6
+    c1.hvol := volume >= VOL_MULT * slotAvg
+    signalFired := false
+
+// ── SPY filter (request same timeframe) ───────────────────────────────────────
+[spyO, spyC, spyH, spyL] = request.security(SPY_SYM, timeframe.period, [open, close, high, low])
+
+spyRange     = spyH - spyL
+spyBodyPct   = spyRange > 0 ? math.abs(spyC - spyO) / spyRange : 0.0
+spyDir       = spyC > spyO ? "BULL" : "BEAR"
+spyConviction = spyBodyPct >= 0.5
+
+// ── Entry at close of first 30-min candle (10:00 bar = bar AFTER 9:30 bar) ───
+// In 30-min chart the 9:30 bar closes at 10:00; bar index shifts by 1
+var float entryPrice = na
+var float slPrice    = na
+var float tpPrice    = na
+var string tradeDir  = ""
+
+entryBar = is930bar()[0] == false and is930bar()[1] == true  // bar just after the 9:30 bar closed
+
+if entryBar and not signalFired
+    bool longOk  = c1.dir == "BULL" and c1.str and c1.hprs and c1.hvol and spyDir == "BULL" and spyConviction
+    bool shortOk = c1.dir == "BEAR" and c1.str and not c1.hprs and c1.hvol and spyDir == "BEAR" and spyConviction
+
+    if longOk
+        slRange    = (high[1] - low[1]) * SL_MULT
+        entryPrice := close[1]
+        slPrice    := entryPrice - slRange
+        tpPrice    := entryPrice + RR * slRange
+        tradeDir   := "LONG"
+        strategy.entry("Long", strategy.long)
+        strategy.exit("Long Exit", "Long", stop = slPrice, limit = tpPrice)
+        signalFired := true
+
+    else if shortOk
+        slRange    = (high[1] - low[1]) * SL_MULT
+        entryPrice := close[1]
+        slPrice    := entryPrice + slRange
+        tpPrice    := entryPrice - RR * slRange
+        tradeDir   := "SHORT"
+        strategy.entry("Short", strategy.short)
+        strategy.exit("Short Exit", "Short", stop = slPrice, limit = tpPrice)
+        signalFired := true
+
+// ── Hard EOD exit at 3:00 PM ─────────────────────────────────────────────────
+if is1500bar() and strategy.opentrades > 0
+    strategy.close_all(comment = "EOD")
+    entryPrice := na
+    slPrice    := na
+    tpPrice    := na
+
+// ── Plot levels ───────────────────────────────────────────────────────────────
+plot(entryPrice, "Entry",  color = color.white,  style = plot.style_linebr, linewidth = 1)
+plot(slPrice,    "SL",     color = color.red,    style = plot.style_linebr, linewidth = 1)
+plot(tpPrice,    "TP",     color = color.green,  style = plot.style_linebr, linewidth = 1)

@@ -1,12 +1,14 @@
 # TradeAgent — Project Context for Claude Code
-**Last synced:** 2026-04-22 (afternoon)
+**Last synced:** 2026-04-24
 **Status:** Phases 1–4 substantially complete. Phase 4 core (agents, workflow engine,
 executioner, SQLite, /universe UI with SQLite-backed Stock Screener manager, dual-chart
 /pending) all landed. One Phase 4 item remains: `services/scheduler.py` (APScheduler).
-**Next chat will first run a focused chart-viewer + indicators push** (4 chart
-sources per ticker + filter-aware indicator auto-activation + shared
-`static/chart_tools.js` across /pending and /universe) — detailed plan in HANDOFF.md.
-Phase 5 (Backtest Engine) queued after that.
+Opening candle research session completed (2026-04-24) — see "Opening Candle Research"
+section below and HANDOFF.md for full findings.
+**Next chat:** Phase 4.5 — chart viewer sources + indicators push (4 chart sources per
+ticker + filter-aware indicator auto-activation + shared `static/chart_tools.js` across
+/pending and /universe) — detailed plan in HANDOFF.md.
+Phase 5 (Backtest Engine) queued after Phase 4.5.
 **Roadmap (current):**
 - Phase 4 ✅ (minus scheduler) — Agents + Workflow Engine + Executioner + UI polish
 - Phase 4.5 NEXT — Chart viewer sources + indicators (see HANDOFF.md "Next session plan")
@@ -835,6 +837,42 @@ numpy>=1.26.0
     `G:/_AgenticSkills`, `C:/g-jmk/trading_app`, `C:/g-jmk/My Drive/...`,
     or `C:/Temp/claude_trading_app.db` — those were all older layouts,
     superseded by the current `C:\Projects\TradingApp\` local layout.
+
+---
+
+## Opening Candle Research (completed 2026-04-24)
+
+Ad-hoc research session — not part of the trading app's agent pipeline. Scripts live in
+`scripts/` and are standalone (yfinance data, no app dependencies).
+
+### Scripts
+| File | Purpose |
+|---|---|
+| `scripts/test_opening_candle_theory.py` | Tests the reversal theory: first 15-min bearish candle → bullish day. Result: **33.1% accuracy** — theory disproven. |
+| `scripts/scan_opening_patterns.py` | Exhaustive pattern scanner: all 1–3 candle combos at 15M + 30M with volume dimension. Outputs ranked patterns sorted by z-score. |
+| `cmds.py` | Runner shim — currently points to `scan_opening_patterns.py`. Overwrite to switch scripts. |
+
+### Key findings
+- **Continuation, not reversal.** The 15-min first candle predicts continuation (~67%), not reversal.
+- **30-min candle encodes better signal.** 4 binary dimensions per candle: direction (BULL/BEAR), body strength ≥50% range (STR/WK), buy pressure ≥60% close-in-range (HPRS/LPRS), volume vs slot 20-day median (HVOL/LVOL).
+- **Slot-specific volume average** — rolling 20-bar average of just the 9:30 bar, not diluted by other session bars.
+- **Top single-candle patterns:** `BULL.STR.HPRS.HVOL` and `BEAR.STR.LPRS.HVOL` on the 30M first candle predict day direction with 83–85% accuracy (OOS: 86–90%).
+- **Double-lock patterns:** Two consecutive same-direction conviction candles → 97–98% directional accuracy in-sample, 94–97% OOS. This is the statistical anchor for Strategy 2.
+- **134 significant patterns** (z≥2.0, n≥15) found across all symbols; 84 with z≥3.0.
+
+### Pine Script strategies (`scripts/pine/`)
+Both Pine Script v6 files committed. Run in TradingView Pine Editor → Add to chart → Strategy Tester.
+
+| File | Strategy | Entry | Exit | Notes |
+|---|---|---|---|---|
+| `strategy1_FHC.pine` | First Hour Conviction (FHC-S1) | 10:00 AM (1st 30M candle close), HVOL required, SPY filter | 2:1 R:R TP/SL, EOD backup | Backtested: SPY 49% WR PF 1.19 / NVDA 50% WR PF 1.11 — too weak |
+| `strategy2_DL.pine` | Double Lock (DL-S2) | 10:30 AM (2nd consecutive conviction candle close) | EOD 3PM only, 3% catastrophic stop | Fixes FHC-S1 mismatch: no TP target matches what scanner validated. **Not yet backtested.** |
+
+### Why Strategy 1 failed (and how Strategy 2 fixes it)
+The scanner measured *day-close direction* relative to day-open price. Strategy 1 tested *intraday TP/SL hit* using a 0.5–0.8% SL, but avg MAE was 1.4–1.8%, so stops fired on winning-direction days. Strategy 2 removes the TP entirely and exits at EOD close — the mechanic now matches exactly what was validated.
+
+### Next step for Pine Script work
+Run Strategy 2 (DL-S2) on SPY and NVDA on a 30-min chart (Jan 2024–present) and report Strategy Tester metrics (win rate, profit factor, max drawdown, total trades). If ≥72% win rate, write Strategy 3: Failed Follow-Through Reversal.
 
 ---
 
