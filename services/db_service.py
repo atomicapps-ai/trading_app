@@ -133,6 +133,40 @@ _SCHEMA = [
     )
     """,
     "CREATE INDEX IF NOT EXISTS idx_universe_presets_active ON universe_presets(is_active)",
+    # Politician copy-trading — trades seen from Capitol Trades
+    """
+    CREATE TABLE IF NOT EXISTS politician_trades (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ct_trade_id TEXT UNIQUE NOT NULL,
+        politician_name TEXT NOT NULL,
+        politician_slug TEXT NOT NULL,
+        party TEXT,
+        chamber TEXT,
+        ticker TEXT NOT NULL,
+        asset_name TEXT,
+        asset_type TEXT,
+        transaction_type TEXT NOT NULL,
+        transaction_date TEXT,
+        published_date TEXT NOT NULL,
+        amount_min REAL,
+        amount_max REAL,
+        copy_status TEXT NOT NULL DEFAULT 'pending',
+        copy_plan_id TEXT,
+        copy_ts TEXT,
+        skip_reason TEXT,
+        created_at TEXT NOT NULL
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_pt_politician ON politician_trades(politician_slug, published_date DESC)",
+    "CREATE INDEX IF NOT EXISTS idx_pt_status ON politician_trades(copy_status)",
+    # Copy-trading runtime configuration (key-value store)
+    """
+    CREATE TABLE IF NOT EXISTS copy_trading_config (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+    )
+    """,
     # Indexes for the queries we run often
     "CREATE INDEX IF NOT EXISTS idx_pending_status ON pending_approvals(status, ts_created DESC)",
     "CREATE INDEX IF NOT EXISTS idx_pending_symbol ON pending_approvals(symbol)",
@@ -746,3 +780,136 @@ def _row_to_ui_dict(row: Any) -> dict:
         # Full raw plan for callers that need everything
         "plan_json": plan,
     }
+
+
+# ---------------------------------------------------------------------- #
+# politician_trades
+# ---------------------------------------------------------------------- #
+
+
+async def upsert_politician_trade(
+    ct_trade_id: str,
+    *,
+    politician_name: str,
+    politician_slug: str,
+    party: str,
+    chamber: str,
+    ticker: str,
+    asset_name: str,
+    asset_type: str,
+    transaction_type: str,
+    transaction_date: str,
+    published_date: str,
+    amount_min: float,
+    amount_max: float,
+    copy_status: str = "pending",
+) -> bool:
+    """Insert a new politician trade; skip if ct_trade_id already exists.
+
+    Returns True if the row was newly inserted, False if it was a duplicate.
+    """
+    now = datetime.now(timezone.utc).isoformat()
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute(
+            """
+            INSERT OR IGNORE INTO politician_trades
+                (ct_trade_id, politician_name, politician_slug, party, chamber,
+                 ticker, asset_name, asset_type, transaction_type,
+                 transaction_date, published_date, amount_min, amount_max,
+                 copy_status, created_at)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            """,
+            (
+                ct_trade_id, politician_name, politician_slug, party, chamber,
+                ticker, asset_name, asset_type, transaction_type,
+                transaction_date, published_date, amount_min, amount_max,
+                copy_status, now,
+            ),
+        )
+        await db.commit()
+        return cur.rowcount > 0
+
+
+async def update_politician_trade_copy(
+    ct_trade_id: str,
+    copy_status: str,
+    copy_plan_id: str | None = None,
+    skip_reason: str | None = None,
+) -> None:
+    now = datetime.now(timezone.utc).isoformat()
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            """
+            UPDATE politician_trades
+               SET copy_status = ?, copy_plan_id = ?, copy_ts = ?, skip_reason = ?
+             WHERE ct_trade_id = ?
+            """,
+            (copy_status, copy_plan_id, now, skip_reason, ct_trade_id),
+        )
+        await db.commit()
+
+
+async def list_politician_trades(
+    politician_slug: str | None = None,
+    limit: int = 100,
+) -> list[dict]:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        if politician_slug:
+            cur = await db.execute(
+                """SELECT * FROM politician_trades
+                   WHERE politician_slug = ?
+                   ORDER BY published_date DESC LIMIT ?""",
+                (politician_slug, limit),
+            )
+        else:
+            cur = await db.execute(
+                "SELECT * FROM politician_trades ORDER BY published_date DESC LIMIT ?",
+                (limit,),
+            )
+        rows = await cur.fetchall()
+    return [dict(r) for r in rows]
+
+
+async def get_known_trade_ids() -> set[str]:
+    """Return all ct_trade_ids we've already seen (for dedup)."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute("SELECT ct_trade_id FROM politician_trades")
+        rows = await cur.fetchall()
+    return {r[0] for r in rows}
+
+
+# ---------------------------------------------------------------------- #
+# copy_trading_config
+# ---------------------------------------------------------------------- #
+
+
+async def get_copy_config(key: str) -> str | None:
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute(
+            "SELECT value FROM copy_trading_config WHERE key = ?", (key,)
+        )
+        row = await cur.fetchone()
+    return row[0] if row else None
+
+
+async def set_copy_config(key: str, value: str) -> None:
+    now = datetime.now(timezone.utc).isoformat()
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            """
+            INSERT INTO copy_trading_config (key, value, updated_at)
+            VALUES (?, ?, ?)
+            ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+            """,
+            (key, value, now),
+        )
+        await db.commit()
+
+
+async def get_all_copy_config() -> dict[str, str]:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute("SELECT key, value FROM copy_trading_config")
+        rows = await cur.fetchall()
+    return {r["key"]: r["value"] for r in rows}

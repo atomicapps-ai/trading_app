@@ -1,0 +1,425 @@
+{% extends "base.html" %}
+{% block title %}Copy Trading — TradeAgent{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Copy Trading</h1>
+  <p class="page-subtitle">Follow congressional trades via Capitol Trades disclosures (STOCK Act)</p>
+</div>
+
+{% macro party_badge(party) %}
+  {% if party == "Democrat" or party == "Democratic" %}
+    <span class="badge badge-blue">D</span>
+  {% elif party == "Republican" %}
+    <span class="badge badge-red">R</span>
+  {% else %}
+    <span class="badge badge-gray">{{ party[:1] }}</span>
+  {% endif %}
+{% endmacro %}
+
+{% macro status_badge(st) %}
+  {% if st == "queued" or st == "copied" %}
+    <span class="badge badge-green">{{ st }}</span>
+  {% elif st == "skipped" %}
+    <span class="badge badge-gray">skipped</span>
+  {% elif st == "failed" %}
+    <span class="badge badge-red">failed</span>
+  {% else %}
+    <span class="badge badge-amber">{{ st }}</span>
+  {% endif %}
+{% endmacro %}
+
+<div class="ct-layout">
+
+  {# ===== LEFT COLUMN ===== #}
+  <div class="ct-left">
+
+    {# Config card #}
+    <div class="card" id="config-card">
+      <div class="card-header">
+        <span class="card-title">Configuration</span>
+        <label class="toggle-switch" title="Enable / disable auto-copy">
+          <input type="checkbox" id="ct-enabled-toggle"
+                 {% if config.get("enabled", "true") == "true" %}checked{% endif %}
+                 onchange="saveEnabled(this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <label class="form-label">Following</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input id="ct-pol-name"
+                   class="form-input" style="flex:1"
+                   placeholder="e.g. Nancy Pelosi"
+                   value="{{ config.get('followed_politician_name','') }}">
+            <button class="btn btn-sm btn-primary" onclick="saveFollowedPolitician()">Save</button>
+          </div>
+          <div id="ct-pol-slug-display" style="font-size:11px;color:var(--text-secondary);margin-top:4px;">
+            slug: {{ config.get('followed_politician','—') }}
+          </div>
+        </div>
+        <div class="form-row" style="margin-top:12px;">
+          <label class="form-label">Max per trade (USD)</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input id="ct-max-usd" type="number" min="100" step="100"
+                   class="form-input" style="width:120px"
+                   value="{{ config.get('max_per_trade_usd','5000') }}">
+            <button class="btn btn-sm btn-secondary" onclick="saveMaxUsd()">Save</button>
+          </div>
+        </div>
+        <div class="ct-scan-info" style="margin-top:14px;font-size:12px;color:var(--text-secondary);">
+          {% if config.get("last_scan_ts") %}
+            Last scan: <span style="color:var(--text-primary);">{{ config["last_scan_ts"][:19].replace("T"," ") }} UTC</span>
+            · Found: <strong>{{ config.get("last_scan_count","0") }}</strong> new
+          {% else %}
+            No scan run yet.
+          {% endif %}
+          {% if config.get("last_scan_error") %}
+            <div style="color:var(--accent-red);margin-top:4px;">
+              Error: {{ config["last_scan_error"][-120:] }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="btn btn-primary" id="scan-btn" onclick="runScan()">
+          Scan Capitol Trades Now
+        </button>
+        <span id="scan-status" style="font-size:12px;color:var(--text-secondary);margin-left:10px;"></span>
+      </div>
+    </div>
+
+    {# Disclaimer #}
+    <div class="card" style="margin-top:16px;border-color:var(--accent-amber);">
+      <div class="card-body" style="font-size:12px;color:var(--text-secondary);line-height:1.6;">
+        <strong style="color:var(--accent-amber);">Data lag notice</strong><br>
+        Under the STOCK Act, members of Congress have <strong>45 days</strong> to disclose
+        trades. All signals from Capitol Trades are delayed. This bot copies the
+        <em>disclosure</em>, not the original trade. Run in <strong>paper mode</strong>
+        to validate performance before switching to live.
+      </div>
+    </div>
+
+  </div>{# /ct-left #}
+
+  {# ===== RIGHT COLUMN ===== #}
+  <div class="ct-right">
+
+    {# Politician Leaderboard #}
+    <div class="card" id="leaderboard-card">
+      <div class="card-header">
+        <span class="card-title">Top Politicians by Activity (last 90 days)</span>
+        <button class="btn btn-sm btn-secondary" id="load-pol-btn"
+                onclick="loadPoliticians()">Load Rankings</button>
+      </div>
+      <div id="politicians-table-container">
+        <div class="empty-state" style="padding:24px;text-align:center;color:var(--text-secondary);font-size:13px;">
+          Click "Load Rankings" to fetch live data from Capitol Trades.
+        </div>
+      </div>
+    </div>
+
+    {# Recent Trade Feed #}
+    <div class="card" style="margin-top:16px;">
+      <div class="card-header">
+        <span class="card-title">
+          {% if config.get("followed_politician_name") %}
+            {{ config["followed_politician_name"] }}'s Trades (from DB)
+          {% else %}
+            Recent Trades (configure a politician above)
+          {% endif %}
+        </span>
+        <a href="/pending" class="btn btn-sm btn-secondary">View Queue →</a>
+      </div>
+
+      {% if recent_trades %}
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Ticker</th>
+                <th>Type</th>
+                <th>Asset</th>
+                <th>Traded</th>
+                <th>Disclosed</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for t in recent_trades %}
+              <tr>
+                <td><span class="ticker-chip">{{ t.ticker }}</span></td>
+                <td>
+                  {% if t.transaction_type == "purchase" %}
+                    <span class="badge badge-green">BUY</span>
+                  {% else %}
+                    <span class="badge badge-red">SELL</span>
+                  {% endif %}
+                </td>
+                <td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                  {{ t.asset_name or t.ticker }}
+                  {% if t.asset_type not in ("stock","etf","") %}
+                    <span style="color:var(--accent-amber);font-size:10px;">{{ t.asset_type }}</span>
+                  {% endif %}
+                </td>
+                <td style="font-size:12px;color:var(--text-secondary);">{{ t.transaction_date or "—" }}</td>
+                <td style="font-size:12px;color:var(--text-secondary);">{{ t.published_date }}</td>
+                <td style="font-size:12px;">
+                  {% if t.amount_min %}
+                    ${{ "{:,.0f}".format(t.amount_min) }}–${{ "{:,.0f}".format(t.amount_max) }}
+                  {% else %}—{% endif %}
+                </td>
+                <td>{{ status_badge(t.copy_status) }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state" style="padding:24px;text-align:center;color:var(--text-secondary);font-size:13px;">
+          {% if config.get("followed_politician") %}
+            No trades recorded yet. Run a scan to fetch disclosures.
+          {% else %}
+            Configure a politician to follow, then run a scan.
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+  </div>{# /ct-right #}
+
+</div>{# /ct-layout #}
+{% endblock %}
+
+{% block scripts %}
+<style>
+  .ct-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .ct-layout { grid-template-columns: 1fr; }
+    .ct-left { order: 2; }
+    .ct-right { order: 1; }
+  }
+  .toggle-switch { position:relative;display:inline-block;width:36px;height:20px; }
+  .toggle-switch input { opacity:0;width:0;height:0; }
+  .toggle-slider {
+    position:absolute;cursor:pointer;inset:0;
+    background:var(--surface-3);border-radius:10px;transition:.2s;
+  }
+  .toggle-slider:before {
+    content:"";position:absolute;height:14px;width:14px;
+    left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;
+  }
+  input:checked + .toggle-slider { background:var(--accent-green); }
+  input:checked + .toggle-slider:before { transform:translateX(16px); }
+
+  .badge { display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600; }
+  .badge-blue  { background:#1d3557;color:#74b2ff; }
+  .badge-red   { background:#3d1a1a;color:#ff7070; }
+  .badge-green { background:#1a3d2a;color:#6dba8c; }
+  .badge-amber { background:#3d2e00;color:#f0b429; }
+  .badge-gray  { background:var(--surface-3);color:var(--text-secondary); }
+
+  #politicians-table-container { overflow-x:auto; }
+  .pol-table { width:100%;border-collapse:collapse;font-size:13px; }
+  .pol-table th { padding:8px 10px;text-align:left;color:var(--text-secondary);font-weight:500;
+                  border-bottom:1px solid var(--border); }
+  .pol-table td { padding:7px 10px;border-bottom:1px solid var(--border-dim); }
+  .pol-table tr:hover td { background:var(--surface-2); }
+  .pol-score { font-weight:700;color:var(--accent-green); }
+  .follow-btn { padding:3px 10px;font-size:11px;background:var(--surface-3);
+                border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text-primary); }
+  .follow-btn:hover { background:var(--accent);color:#fff;border-color:var(--accent); }
+  .follow-btn.active { background:var(--accent-green);color:#fff;border-color:var(--accent-green); }
+</style>
+
+<script>
+const currentSlug = {{ config.get("followed_politician", "") | tojson }};
+
+async function apiPost(url, body) {
+  const r = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+async function saveFollowedPolitician() {
+  const name = document.getElementById("ct-pol-name").value.trim();
+  if (!name) return;
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  try {
+    await apiPost("/api/copy-trading/config", {
+      followed_politician: slug,
+      followed_politician_name: name,
+    });
+    document.getElementById("ct-pol-slug-display").textContent = "slug: " + slug;
+    showToast("Following " + name, "success");
+  } catch(e) { showToast("Save failed: " + e.message, "error"); }
+}
+
+async function saveMaxUsd() {
+  const val = parseFloat(document.getElementById("ct-max-usd").value);
+  if (isNaN(val) || val < 100) { showToast("Enter a value ≥ 100", "error"); return; }
+  try {
+    await apiPost("/api/copy-trading/config", { max_per_trade_usd: val });
+    showToast("Max per trade saved", "success");
+  } catch(e) { showToast("Save failed: " + e.message, "error"); }
+}
+
+async function saveEnabled(checked) {
+  try {
+    await apiPost("/api/copy-trading/config", { enabled: checked });
+    showToast(checked ? "Copy trading enabled" : "Copy trading paused", "info");
+  } catch(e) { showToast("Save failed: " + e.message, "error"); }
+}
+
+async function runScan() {
+  const btn = document.getElementById("scan-btn");
+  const status = document.getElementById("scan-status");
+  btn.disabled = true;
+  btn.textContent = "Scanning…";
+  status.textContent = "";
+  try {
+    const r = await fetch("/api/copy-trading/scan", { method: "POST" });
+    const data = await r.json();
+    if (data.ok) {
+      const ts = data.last_scan_ts ? data.last_scan_ts.slice(0, 19).replace("T", " ") + " UTC" : "—";
+      status.textContent = `Done at ${ts} — ${data.last_scan_count} new`;
+      showToast(`Scan complete: ${data.last_scan_count} new trade(s) queued`, "success");
+      if (data.last_scan_count > 0) setTimeout(() => location.reload(), 1500);
+    } else {
+      status.textContent = "Scan returned error";
+      showToast("Scan error: " + (data.error || "unknown"), "error");
+    }
+  } catch(e) {
+    status.textContent = "Network error";
+    showToast("Scan failed: " + e.message, "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Scan Capitol Trades Now";
+  }
+}
+
+async function loadPoliticians() {
+  const btn = document.getElementById("load-pol-btn");
+  const container = document.getElementById("politicians-table-container");
+  btn.disabled = true;
+  btn.textContent = "Loading…";
+  container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-secondary);">Fetching from Capitol Trades…</div>';
+  try {
+    const r = await fetch("/api/copy-trading/politicians?pages=5");
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const data = await r.json();
+    renderPoliticiansTable(data.politicians);
+  } catch(e) {
+    container.innerHTML = `<div style="padding:20px;color:var(--accent-red);font-size:13px;">
+      Failed to load: ${e.message}<br>
+      <small>Capitol Trades may be rate-limiting. Try again in a moment.</small>
+    </div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Reload";
+  }
+}
+
+function renderPoliticiansTable(politicians) {
+  if (!politicians || politicians.length === 0) {
+    document.getElementById("politicians-table-container").innerHTML =
+      '<div style="padding:20px;text-align:center;color:var(--text-secondary);">No data returned.</div>';
+    return;
+  }
+  const rows = politicians.map(p => {
+    const isFollowed = p.slug === currentSlug;
+    return `<tr>
+      <td>
+        <div style="font-weight:600">${escHtml(p.name)}</div>
+        <div style="font-size:11px;color:var(--text-secondary)">${escHtml(p.chamber)} · ${escHtml(p.state || "")}</div>
+      </td>
+      <td>${partyBadge(p.party)}</td>
+      <td style="text-align:right;font-weight:600">${p.trade_count_90d}</td>
+      <td style="color:var(--text-secondary);font-size:12px">${p.last_trade_date || "—"}</td>
+      <td style="text-align:right">${p.unique_tickers}</td>
+      <td style="text-align:right">${p.buy_ratio_pct}%</td>
+      <td class="pol-score" style="text-align:right">${p.score}</td>
+      <td>
+        <button class="follow-btn ${isFollowed ? 'active' : ''}"
+                onclick="selectPolitician('${escAttr(p.slug)}', '${escAttr(p.name)}')"
+                id="follow-${escAttr(p.slug)}">
+          ${isFollowed ? '✓ Following' : 'Follow'}
+        </button>
+      </td>
+    </tr>`;
+  }).join("");
+  document.getElementById("politicians-table-container").innerHTML = `
+    <table class="pol-table">
+      <thead>
+        <tr>
+          <th>Name</th><th>Party</th>
+          <th style="text-align:right">Trades 90d</th>
+          <th>Last Trade</th>
+          <th style="text-align:right">Tickers</th>
+          <th style="text-align:right">Buy %</th>
+          <th style="text-align:right">Score</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+async function selectPolitician(slug, name) {
+  try {
+    await apiPost("/api/copy-trading/config", {
+      followed_politician: slug,
+      followed_politician_name: name,
+    });
+    // Update button states
+    document.querySelectorAll(".follow-btn").forEach(b => {
+      b.classList.remove("active");
+      b.textContent = "Follow";
+    });
+    const btn = document.getElementById("follow-" + slug);
+    if (btn) { btn.classList.add("active"); btn.textContent = "✓ Following"; }
+    document.getElementById("ct-pol-name").value = name;
+    document.getElementById("ct-pol-slug-display").textContent = "slug: " + slug;
+    showToast("Now following " + name, "success");
+  } catch(e) { showToast("Failed: " + e.message, "error"); }
+}
+
+function partyBadge(party) {
+  if (!party) return "";
+  if (party.startsWith("D")) return '<span class="badge badge-blue">D</span>';
+  if (party.startsWith("R")) return '<span class="badge badge-red">R</span>';
+  return `<span class="badge badge-gray">${party[0]}</span>`;
+}
+
+function escHtml(s) {
+  return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function escAttr(s) {
+  return String(s || "").replace(/'/g,"\\'").replace(/"/g,"&quot;");
+}
+
+function showToast(msg, type) {
+  const t = document.createElement("div");
+  t.className = "toast toast-" + (type || "info");
+  t.textContent = msg;
+  t.style.cssText = "position:fixed;bottom:24px;right:24px;z-index:9999;padding:10px 16px;border-radius:6px;font-size:13px;max-width:320px;";
+  const colors = { success:"#1a3d2a", error:"#3d1a1a", info:"var(--surface-3)" };
+  t.style.background = colors[type] || colors.info;
+  t.style.border = "1px solid var(--border)";
+  t.style.color = "var(--text-primary)";
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+</script>
+{% endblock %}

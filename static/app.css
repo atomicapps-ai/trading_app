@@ -495,3 +495,37 @@ input, select, textarea { font: inherit; color: inherit; }
 /* Filter bar */
 .filter-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
 .filter-bar .input, .filter-bar .select { width: auto; min-width: 140px; max-width: 220px; }
+
+/* Page header (used across multiple pages) */
+.page-header { margin-bottom: 20px; }
+.page-title  { font-size: 20px; font-weight: 600; color: var(--text-primary); margin: 0 0 4px; }
+.page-subtitle { font-size: 13px; color: var(--text-secondary); margin: 0; }
+
+/* Card body and footer */
+.card-body   { padding: 0 0 4px 0; }
+.card-footer { margin-top: 14px; padding-top: 12px; border-top: 0.5px solid var(--border); display: flex; align-items: center; gap: 10px; }
+
+/* Form elements (shared across settings, universe, copy-trading) */
+.form-row   { margin-bottom: 12px; }
+.form-label { display: block; font-size: 11px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; }
+.form-input { background: var(--surface-2); border: 1px solid var(--border); color: var(--text-primary); border-radius: 5px; padding: 6px 10px; font-size: 13px; font-family: inherit; width: 100%; }
+.form-input:focus { outline: none; border-color: var(--accent-blue); }
+
+/* Button variants */
+.btn-sm  { padding: 4px 10px; font-size: 12px; }
+.btn-secondary { background: var(--surface-3); color: var(--text-primary); border-color: var(--border); }
+.btn-secondary:hover { background: var(--hover-bg); }
+
+/* Table wrapper — scrollable container */
+.table-wrapper { overflow-x: auto; }
+
+/* Ticker chip — inline clickable symbol badge */
+.ticker-chip {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  background: var(--tint-blue); color: var(--accent-blue);
+  font-size: 12px; font-weight: 600; font-family: var(--font-mono);
+  cursor: default; user-select: all;
+}
+
+/* Empty state placeholder */
+.empty-state { padding: 32px; text-align: center; color: var(--text-secondary); font-size: 13px; }

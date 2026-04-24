@@ -20,6 +20,7 @@ from fastapi.staticfiles import StaticFiles
 from routers import (
     bars,
     broker,
+    copy_trading,
     dashboard,
     indicators,
     pending,
@@ -73,7 +74,17 @@ async def lifespan(_: FastAPI):
         logger.info("Broker adapter: %s", "connected" if ok else "failed")
     except Exception as exc:
         logger.error("Broker adapter failed to connect: %s", exc)
+    try:
+        from services.scheduler import start_scheduler
+        start_scheduler()
+    except Exception as exc:
+        logger.error("Scheduler failed to start: %s", exc)
     yield
+    try:
+        from services.scheduler import stop_scheduler
+        stop_scheduler()
+    except Exception as exc:
+        logger.warning("Scheduler stop raised: %s", exc)
     try:
         adapter = get_adapter()
         if adapter.connected:
@@ -105,6 +116,7 @@ app.include_router(workflows.router)
 app.include_router(bars.router)
 app.include_router(indicators.router)
 app.include_router(universe.router)
+app.include_router(copy_trading.router)
 app.include_router(stubs.router)
 
 
