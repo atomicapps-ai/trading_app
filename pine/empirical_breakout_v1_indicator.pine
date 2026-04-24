@@ -1,0 +1,248 @@
+//@version=6
+indicator("Empirical Breakout v1.2 — Indicator (boxes)",
+     overlay=true, max_boxes_count=100, max_lines_count=50,
+     max_labels_count=100, max_bars_back=500)
+
+// ═══════════════════════════════════════════════════════════════════
+// Empirical Breakout Detector — Pine port of agents/detectors/
+// breakout_empirical.py. Every gate + percentile is sourced directly
+// from data/threshold_spec.md (502 labeled winners, 50% gain in 120
+// bars, 56-symbol diverse pool).
+//
+// On each bar where ALL hard gates pass AND the score >= min_score,
+// draws a box around the detected base (anchor_close to base_low,
+// from base_start to anchor_bar) and labels with the score.
+//
+// Validated separately in Python: LIFT 6.19x — strong signal.
+// ═══════════════════════════════════════════════════════════════════
+
+// ──────── Inputs ────────
+g1 = "1. Hard gates (P10/P90 of 502 winners)"
+gate_pct_60d_high      = input.float(0.98,  "pct_of_60d_high  ≥",  0.5, 1.0, 0.01,  group=g1)
+gate_close_vs_sma50    = input.float(1.053, "close/sma50      ≥",  0.9, 1.5, 0.01,  group=g1)
+gate_rsi_min           = input.float(59.17, "RSI(14)          ≥",  30,  90,  1,     group=g1)
+gate_rsi_max           = input.float(71.74, "RSI(14)          ≤",  30,  90,  1,     group=g1)
+gate_max_dd_base       = input.float(0.247, "max_dd_base      ≤",  0.05, 0.50, 0.01, group=g1)
+gate_base_len_min      = input.int(12,      "base_len_25pct   ≥ (bars)",  2, 60,    group=g1)
+gate_base_len_max      = input.int(180,     "base_len_25pct   ≤ (bars)", 60, 365,   group=g1)
+gate_n_pairs           = input.int(5,       "min contractions",          2, 10,     group=g1)
+
+g2 = "2. Score threshold"
+min_score              = input.float(50.0, "min score to fire", 0.0, 100.0, 5.0, group=g2)
+
+g3 = "3. Visuals"
+show_box     = input.bool(true,  "Draw box around base", group=g3)
+show_label   = input.bool(true,  "Show score label",     group=g3)
+show_table   = input.bool(true,  "Live status table",    group=g3)
+oneShot      = input.bool(true,  "One fire per base (debounce)", group=g3)
+
+// ──────── Primitives ────────
+sma50  = ta.sma(close, 50)
+sma200 = ta.sma(close, 200)
+atr14  = ta.atr(14)
+rsi    = ta.rsi(close, 14)
+hi60   = ta.highest(close, 60)
+hi252  = ta.highest(high, 252)
+lo252  = ta.lowest(low, 252)
+hi252c = ta.highest(close, 252)
+lo252c = ta.lowest(close, 252)
+
+// ──────── Computed features (mirror Python detector) ────────
+
+// pct_of_60d_high
+pct_of_60d_high = close / hi60
+
+// close vs MAs
+close_vs_sma50 = close / sma50
+close_vs_sma200 = na(sma200) ? na : close / sma200
+
+// 52w positioning
+pct_of_52w_high = close / hi252c
+pct_above_52w_low = (close - lo252c) / lo252c
+
+// Base length at 25% pullback — bars since the most recent close
+// below anchor*0.75. Walk backward, count.
+f_base_len(threshold) =>
+    int n = 0
+    found = false
+    target = close * (1.0 - threshold)
+    for i = 1 to 180
+        if not found and close[i] < target
+            n := i - 1
+            found := true
+    found ? n : 180
+
+base_len_25pct = f_base_len(0.25)
+
+// max_dd_base — deepest close below current within the base window
+max_dd_base = 0.0
+if base_len_25pct > 0
+    base_min = ta.lowest(close, base_len_25pct)
+    max_dd_base := (close - base_min) / close
+
+// max_dd_180
+min_180 = ta.lowest(close, 180)
+max_dd_180 = (close - min_180) / close
+
+// ATR ratios
+atr_pct = atr14 / close
+
+// Volume features (5-day, 30-day, 50-day, 60-day, 180-day averages)
+vol_avg_30  = ta.sma(volume, 30)
+vol_avg_50  = ta.sma(volume, 50)
+vol_avg_180 = ta.sma(volume, 180)
+vol_ratio_30_180 = vol_avg_30 / vol_avg_180
+anchor_vol_vs_avg = volume / vol_avg_50
+
+// Up vs down volume share over last 60 bars
+up_vol_sum   = 0.0
+down_vol_sum = 0.0
+for i = 0 to 59
+    if close[i] > open[i]
+        up_vol_sum := up_vol_sum + volume[i]
+    else
+        down_vol_sum := down_vol_sum + volume[i]
+total_vol_60 = up_vol_sum + down_vol_sum
+up_vol_share_60 = total_vol_60 > 0 ? up_vol_sum / total_vol_60 : 0.5
+
+// Wick + CPR (clipped to [0,1])
+bar_range = high - low
+upper_wick = high - math.max(open, close)
+lower_wick = math.min(open, close) - low
+anchor_upper_wick = bar_range > 0 ? math.max(0.0, math.min(1.0, upper_wick / bar_range)) : 0.0
+anchor_lower_wick = bar_range > 0 ? math.max(0.0, math.min(1.0, lower_wick / bar_range)) : 0.0
+anchor_cpr = bar_range > 0 ? math.max(0.0, math.min(1.0, (close - low) / bar_range)) : 0.5
+
+// Pivot count over last 180 bars (5-bar fractal)
+pivot_count = 0
+for i = 5 to 174
+    is_high = high[i] > high[i+1] and high[i] > high[i+2] and high[i] > high[i+3] and high[i] > high[i+4] and high[i] > high[i+5] and high[i] > high[i-1] and high[i] > high[i-2] and high[i] > high[i-3] and high[i] > high[i-4] and high[i] > high[i-5]
+    is_low = low[i] < low[i+1] and low[i] < low[i+2] and low[i] < low[i+3] and low[i] < low[i+4] and low[i] < low[i+5] and low[i] < low[i-1] and low[i] < low[i-2] and low[i] < low[i-3] and low[i] < low[i-4] and low[i] < low[i-5]
+    if is_high or is_low
+        pivot_count := pivot_count + 1
+n_contraction_pairs = math.floor(pivot_count / 2)
+
+// First/final depth — simplified: use the deepest pullback in first
+// 60 bars of the 180-bar lookback as "first", and the most recent
+// pullback as "final". Pine doesn't easily support arbitrary pivot
+// pair extraction so this is an approximation.
+first_pullback_max = (ta.highest(high, 60)[120] - ta.lowest(low, 60)[120]) / ta.highest(high, 60)[120]
+final_pullback_max = (ta.highest(high, 30) - ta.lowest(low, 30)) / ta.highest(high, 30)
+first_depth_pct = first_pullback_max
+final_depth_pct = final_pullback_max
+
+// Run-up
+run_up_60 = close / close[60]
+
+// ──────── Hard gates ────────
+gate_60d   = pct_of_60d_high >= gate_pct_60d_high
+gate_sma50 = close_vs_sma50 >= gate_close_vs_sma50
+gate_rsi   = rsi >= gate_rsi_min and rsi <= gate_rsi_max
+gate_dd    = max_dd_base <= gate_max_dd_base
+gate_base  = base_len_25pct >= gate_base_len_min and base_len_25pct <= gate_base_len_max
+gate_pairs = n_contraction_pairs >= gate_n_pairs
+
+all_gates_ok = gate_60d and gate_sma50 and gate_rsi and gate_dd and gate_base and gate_pairs
+
+// ──────── Score function ────────
+// Piecewise linear: 100 at median, 50 at P10/P90, 0 at 2x distance
+// outside band.
+f_feature_score(value, p10, p25, p50, p75, p90) =>
+    score = 0.0
+    if not na(value) and p90 > p10
+        if value <= p10 or value >= p90
+            half = (p90 - p10) / 2.0
+            if half > 0
+                if value < p10
+                    score := math.max(0.0, 50.0 * (1.0 - (p10 - value) / half))
+                else
+                    score := math.max(0.0, 50.0 * (1.0 - (value - p90) / half))
+        else if value <= p25
+            score := 50.0 + 25.0 * (value - p10) / math.max(1e-9, p25 - p10)
+        else if value <= p50
+            score := 75.0 + 25.0 * (value - p25) / math.max(1e-9, p50 - p25)
+        else if value <= p75
+            score := 75.0 + 25.0 * (p75 - value) / math.max(1e-9, p75 - p50)
+        else
+            score := 50.0 + 25.0 * (p90 - value) / math.max(1e-9, p90 - p75)
+    score
+
+// Compute weighted score across the 10 features that carried real signal
+score = 0.0
+score := score + 0.20 * f_feature_score(anchor_vol_vs_avg, 0.675, 0.859, 1.175, 1.812, 3.191)
+score := score + 0.15 * f_feature_score(pct_above_52w_low, 0.257, 0.482, 0.828, 1.420, 2.526)
+score := score + 0.13 * f_feature_score(anchor_cpr, 0.000, 0.000, 0.635, 0.884, 0.972)
+score := score + 0.10 * f_feature_score(anchor_upper_wick, 0.020, 0.090, 0.297, 0.595, 0.880)
+score := score + 0.10 * f_feature_score(base_len_25pct, 12.0, 32.2, 63.5, 125.0, 180.0)
+score := score + 0.08 * f_feature_score(close_vs_sma50, 1.053, 1.072, 1.118, 1.188, 1.290)
+score := score + 0.08 * f_feature_score(first_depth_pct, 0.055, 0.090, 0.138, 0.216, 0.358)
+score := score + 0.07 * f_feature_score(up_vol_share_60, 0.000, 0.096, 0.480, 0.546, 0.601)
+score := score + 0.05 * f_feature_score(rsi, 59.17, 61.60, 64.46, 67.92, 71.74)
+score := score + 0.04 * f_feature_score(max_dd_base, 0.170, 0.213, 0.233, 0.243, 0.247)
+
+// ──────── Detection ────────
+detected_raw = all_gates_ok and score >= min_score
+
+// Debounce: if a detection just fired in the last `base_len_25pct`
+// bars, suppress further fires until base resets.
+var int last_fire_bar = -1000
+detected = detected_raw
+if oneShot and detected_raw
+    bars_since_last = bar_index - last_fire_bar
+    if bars_since_last < math.max(5, base_len_25pct / 2)
+        detected := false
+if detected
+    last_fire_bar := bar_index
+
+// ──────── Visuals ────────
+// Draw a box around the detected base on each new fire.
+if detected and show_box
+    base_start = bar_index - base_len_25pct
+    base_high = ta.highest(high, base_len_25pct + 1)
+    base_low  = ta.lowest(low,  base_len_25pct + 1)
+    box.new(left=base_start, top=base_high, right=bar_index, bottom=base_low,
+            border_color=color.new(color.lime, 30),
+            border_width=2,
+            bgcolor=color.new(color.lime, 88))
+    if show_label
+        label.new(x=bar_index, y=base_high,
+                  text="Score " + str.tostring(score, "#") + "/100",
+                  style=label.style_label_down,
+                  color=color.new(color.lime, 0),
+                  textcolor=color.black,
+                  size=size.small)
+
+// Triangle below bar
+plotshape(detected, title="Detection", location=location.belowbar,
+          color=color.lime, style=shape.triangleup, size=size.small,
+          text="EB", textcolor=color.white)
+
+// ──────── Live status table ────────
+var table t = na
+if barstate.islast and show_table
+    if na(t)
+        t := table.new(position.top_right, 2, 12,
+                       bgcolor=color.new(color.black, 70), border_width=1)
+    f_cell_row(int row, string lbl, string val, bool ok) =>
+        table.cell(t, 0, row, lbl, text_color=color.silver, text_size=size.small)
+        table.cell(t, 1, row, val,
+             text_color = ok ? color.lime : color.new(color.red, 30),
+             text_size=size.small)
+    f_cell_row(0,  "60d high",   str.tostring(pct_of_60d_high, "#.##"),     gate_60d)
+    f_cell_row(1,  "close/sma50",str.tostring(close_vs_sma50,  "#.###"),    gate_sma50)
+    f_cell_row(2,  "RSI(14)",    str.tostring(rsi,             "#.#"),      gate_rsi)
+    f_cell_row(3,  "max_dd_base",str.tostring(max_dd_base,     "#.###"),    gate_dd)
+    f_cell_row(4,  "base bars",  str.tostring(base_len_25pct),              gate_base)
+    f_cell_row(5,  "n pairs",    str.tostring(n_contraction_pairs),         gate_pairs)
+    f_cell_row(6,  "anchor_cpr", str.tostring(anchor_cpr,      "#.##"),     true)
+    f_cell_row(7,  "upper wick", str.tostring(anchor_upper_wick,"#.##"),    true)
+    f_cell_row(8,  "vol/avg",    str.tostring(anchor_vol_vs_avg,"#.##"),    true)
+    f_cell_row(9,  "above 52wL", str.tostring(pct_above_52w_low,"#.##"),    true)
+    f_cell_row(10, "SCORE",      str.tostring(score,           "#.#"),      score >= min_score)
+    f_cell_row(11, "DETECT",     all_gates_ok and score >= min_score ? "YES" : "NO",
+                                 all_gates_ok and score >= min_score)
+
+alertcondition(detected, "Empirical Breakout",
+     "EB v1.2 fired on {{ticker}} {{interval}} score {{plot_0}}")
+
+plot(score, "Score", display=display.data_window)
