@@ -105,3 +105,12 @@ ehthumbs.db
 scratch/
 tmp/
 .tmp/
+
+# --- Research output files --------------------------------------------------
+claude_output.txt
+detections*.csv
+*.csv
+
+# --- Claude Code worktrees (local tool internals) ---------------------------
+.claude/worktrees/
+.claude/store/
