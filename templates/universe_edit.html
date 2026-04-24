@@ -305,43 +305,6 @@
              color:var(--text-primary);font-family:var(--font-mono);font-size:12px;
              cursor:pointer;user-select:none;transition:background .1s;}
 .ticker-chip:hover{background:var(--tint-blue);border-color:var(--accent-blue);color:var(--accent-blue);}
-
-/* Timeframe popover (appears near clicked chip) */
-.tf-popover{position:fixed;z-index:900;background:var(--surface-1);
-            border:1px solid var(--border);border-radius:6px;
-            box-shadow:0 6px 16px rgba(0,0,0,.4);
-            padding:6px;display:flex;gap:4px;}
-.tf-popover .tf-btn{padding:4px 10px;border-radius:4px;background:var(--surface-2);
-                    border:1px solid var(--border);color:var(--text-primary);
-                    font-size:12px;cursor:pointer;font-weight:500;}
-.tf-popover .tf-btn:hover{background:var(--accent-blue);border-color:var(--accent-blue);color:#fff;}
-.tf-popover .tf-symbol{padding:4px 8px;color:var(--text-tertiary);font-size:11px;
-                        font-family:var(--font-mono);align-self:center;border-right:1px solid var(--border);}
-
-/* Chart panel (floating, draggable, resizable, multiple allowed) */
-.chart-panel{position:fixed;z-index:850;background:var(--surface-1);
-             border:1px solid var(--border);border-radius:8px;
-             box-shadow:0 8px 28px rgba(0,0,0,.5);
-             display:flex;flex-direction:column;overflow:hidden;
-             min-width:320px;min-height:220px;}
-.chart-panel .cp-head{display:flex;align-items:center;justify-content:space-between;
-                       padding:6px 10px;background:var(--surface-3);
-                       border-bottom:1px solid var(--border);cursor:move;user-select:none;
-                       font-size:12px;}
-.chart-panel .cp-title{font-weight:600;color:var(--text-primary);}
-.chart-panel .cp-tf{color:var(--text-tertiary);font-size:11px;margin-left:8px;}
-.chart-panel .cp-actions{display:flex;gap:4px;}
-.chart-panel .cp-btn{background:none;border:none;color:var(--text-tertiary);
-                      cursor:pointer;font-size:14px;padding:2px 6px;border-radius:3px;}
-.chart-panel .cp-btn:hover{background:var(--surface-2);color:var(--text-primary);}
-.chart-panel .cp-btn.close:hover{color:var(--accent-red);}
-.chart-panel .cp-body{flex:1;position:relative;background:var(--bg-base);}
-.chart-panel .cp-resize{position:absolute;right:0;bottom:0;width:14px;height:14px;
-                         cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,var(--text-tertiary) 50%);
-                         opacity:.4;border-bottom-right-radius:8px;}
-.chart-panel .cp-resize:hover{opacity:.9;}
-.chart-panel.pinned{border-color:var(--accent-blue);}
-.chart-panel.pinned .cp-btn.pin{color:var(--accent-blue);}
 </style>
 
 <script>
@@ -641,192 +604,40 @@ function showToast(msg, ok) {
 updateCount();
 
 // ── Ticker chip chart viewer ─────────────────────────────────────────
-// Delegated click on any .ticker-chip inside the main content area.
-// Opens a timeframe popover; clicking a timeframe spawns a floating
-// chart panel. Panels are draggable by titlebar and resizable via the
-// bottom-right grip. Pin toggles the accent border + prevents the
-// "close others" helper from dismissing it.
-const TIMEFRAMES = [
-  {label:'1H', interval:'1h', limit:300},
-  {label:'2H', interval:'2h', limit:300},
-  {label:'4H', interval:'4h', limit:300},
-  {label:'1D', interval:'1d', limit:365},
-];
-
-let _openPopover = null;
-function closePopover() {
-  if (_openPopover) { _openPopover.remove(); _openPopover = null; }
-}
-document.addEventListener('click', e => {
-  if (_openPopover && !_openPopover.contains(e.target) && !e.target.classList.contains('ticker-chip')) {
-    closePopover();
-  }
-});
+// Click a .ticker-chip → ChartTools shows a 4-source popover (Quick /
+// Finviz img / TradingView / Open ↗). Picking a timeframe in any row
+// spawns a floating chart panel via ChartTools.createFloatingPanel().
+//
+// Filter-aware auto-activation: this screener's filters dict is mapped
+// to the indicator IDs each filter implies (e.g. ta_sma50 → SMA50
+// overlay), so the chart opens with overlays that mirror what the
+// screener tested for. localStorage prefs override the defaults — once
+// the user toggles chips on/off, those preferences stick across opens.
+{% if not is_new %}
+const SCREENER_FILTERS = {{ preset.filters | tojson }};
+{% else %}
+const SCREENER_FILTERS = {};
+{% endif %}
 
 function bindTickerChips(root) {
-  (root || document).querySelectorAll('.ticker-chip').forEach(chip => {
-    if (chip.dataset.bound) return;
-    chip.dataset.bound = '1';
-    chip.addEventListener('click', e => {
-      e.stopPropagation();
-      openTfPopover(chip);
-    });
+  if (!window.ChartTools) return;
+  const indicators = ChartTools.filtersToIndicators(SCREENER_FILTERS);
+  ChartTools.bindTickerChips(root, {
+    indicators,
+    persistKey: 'universe_edit',
   });
-}
-
-function openTfPopover(chip) {
-  closePopover();
-  const sym = chip.dataset.symbol;
-  const rect = chip.getBoundingClientRect();
-  const pop = document.createElement('div');
-  pop.className = 'tf-popover';
-  pop.innerHTML = `<span class="tf-symbol">${sym}</span>` +
-    TIMEFRAMES.map(t => `<button class="tf-btn" data-iv="${t.interval}" data-lim="${t.limit}">${t.label}</button>`).join('');
-  document.body.appendChild(pop);
-  // Position below chip; if overflow bottom, place above
-  const popH = pop.offsetHeight, popW = pop.offsetWidth;
-  let top = rect.bottom + 4, left = rect.left;
-  if (top + popH > window.innerHeight - 10) top = rect.top - popH - 4;
-  if (left + popW > window.innerWidth - 10) left = window.innerWidth - popW - 10;
-  pop.style.top = top + 'px';
-  pop.style.left = Math.max(8, left) + 'px';
-  pop.querySelectorAll('.tf-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      const iv = btn.dataset.iv, lim = parseInt(btn.dataset.lim, 10);
-      closePopover();
-      openChartPanel(sym, iv, lim);
-    });
-  });
-  _openPopover = pop;
-}
-
-// ── Chart panel ──────────────────────────────────────────────────────
-let _panelCounter = 0;
-const PANEL_OFFSET_STEP = 24;
-
-function openChartPanel(symbol, interval, limit) {
-  const id = 'chart-panel-' + (++_panelCounter);
-  const panel = document.createElement('div');
-  panel.className = 'chart-panel';
-  panel.id = id;
-  const offset = (_panelCounter - 1) % 6 * PANEL_OFFSET_STEP;
-  const w = 560, h = 360;
-  panel.style.width = w + 'px';
-  panel.style.height = h + 'px';
-  panel.style.left = Math.max(20, window.innerWidth - w - 40 - offset) + 'px';
-  panel.style.top = (80 + offset) + 'px';
-  panel.innerHTML = `
-    <div class="cp-head">
-      <div>
-        <span class="cp-title">${symbol}</span>
-        <span class="cp-tf">${interval.toUpperCase()}</span>
-      </div>
-      <div class="cp-actions">
-        <button class="cp-btn pin" title="Pin">📌</button>
-        <button class="cp-btn close" title="Close">×</button>
-      </div>
-    </div>
-    <div class="cp-body"><div class="cp-chart" style="width:100%;height:100%;"></div></div>
-    <div class="cp-resize"></div>
-  `;
-  document.body.appendChild(panel);
-
-  // Wire close / pin
-  panel.querySelector('.cp-btn.close').addEventListener('click', () => panel.remove());
-  panel.querySelector('.cp-btn.pin').addEventListener('click', () => panel.classList.toggle('pinned'));
-
-  // Drag via titlebar
-  const head = panel.querySelector('.cp-head');
-  head.addEventListener('mousedown', e => {
-    if (e.target.closest('.cp-btn')) return;
-    const sx = e.clientX, sy = e.clientY;
-    const sl = panel.offsetLeft, st = panel.offsetTop;
-    const onMove = ev => {
-      panel.style.left = Math.max(0, Math.min(window.innerWidth - 40, sl + ev.clientX - sx)) + 'px';
-      panel.style.top  = Math.max(0, Math.min(window.innerHeight - 40, st + ev.clientY - sy)) + 'px';
-    };
-    const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
-    e.preventDefault();
-  });
-
-  // Resize via bottom-right grip
-  const grip = panel.querySelector('.cp-resize');
-  grip.addEventListener('mousedown', e => {
-    const sx = e.clientX, sy = e.clientY;
-    const sw = panel.offsetWidth, sh = panel.offsetHeight;
-    const onMove = ev => {
-      panel.style.width  = Math.max(320, sw + ev.clientX - sx) + 'px';
-      panel.style.height = Math.max(220, sh + ev.clientY - sy) + 'px';
-    };
-    const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
-    e.preventDefault(); e.stopPropagation();
-  });
-
-  // Render chart
-  const chartEl = panel.querySelector('.cp-chart');
-  loadChart(chartEl, symbol, interval, limit, panel);
-}
-
-async function loadChart(container, symbol, interval, limit, panel) {
-  if (typeof LightweightCharts === 'undefined') {
-    container.innerHTML = '<div style="padding:20px;color:var(--accent-red);font-size:12px;">Chart library failed to load.</div>';
-    return;
-  }
-  container.innerHTML = '<div style="padding:20px;color:var(--text-tertiary);font-size:12px;">Loading…</div>';
-  try {
-    const r = await fetch(`/api/bars/${symbol}?interval=${interval}&limit=${limit}`);
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const data = await r.json();
-    const bars = (data.bars || []).map(b => ({
-      time: b.time || b.timestamp || b.t,
-      open: b.open ?? b.o, high: b.high ?? b.h, low: b.low ?? b.l, close: b.close ?? b.c,
-    }));
-    if (!bars.length) {
-      container.innerHTML = '<div style="padding:20px;color:var(--text-tertiary);font-size:12px;">No bars available for this symbol/interval.</div>';
-      return;
-    }
-    container.innerHTML = '';
-    const chart = LightweightCharts.createChart(container, {
-      width: container.clientWidth,
-      height: container.clientHeight,
-      layout: { background: {color:'#0f1117'}, textColor: '#8b8fa8' },
-      grid: { vertLines: {color:'#1a1d27'}, horzLines: {color:'#1a1d27'} },
-      timeScale: { borderColor:'#2a2d37', timeVisible: interval !== '1d' && interval !== '1w' },
-      rightPriceScale: { borderColor:'#2a2d37' },
-      crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
-    });
-    const series = chart.addCandlestickSeries({
-      upColor:'#1db87a', downColor:'#e05252',
-      borderUpColor:'#1db87a', borderDownColor:'#e05252',
-      wickUpColor:'#1db87a', wickDownColor:'#e05252',
-    });
-    series.setData(bars);
-    chart.timeScale().fitContent();
-
-    // Resize observer keeps chart in sync with panel resizes
-    const ro = new ResizeObserver(() => {
-      chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
-    });
-    ro.observe(container);
-
-    // Tear down chart + observer when panel is removed
-    const mo = new MutationObserver(() => {
-      if (!document.body.contains(panel)) { ro.disconnect(); chart.remove(); mo.disconnect(); }
-    });
-    mo.observe(document.body, { childList: true });
-  } catch (err) {
-    container.innerHTML = `<div style="padding:20px;color:var(--accent-red);font-size:12px;">Failed to load: ${err}</div>`;
-  }
 }
 
 // Bind any chips rendered server-side on initial load
+window.addEventListener('DOMContentLoaded', () => bindTickerChips(document));
+// Also bind right away in case DOMContentLoaded already fired (script at end of body)
 bindTickerChips(document);
 </script>
 <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<script src="/static/chart_tools.js"></script>
+<script>
+// chart_tools.js loaded above; rebind chips now that the API is ready.
+if (window.ChartTools) bindTickerChips(document);
+</script>
 
 {% endblock %}

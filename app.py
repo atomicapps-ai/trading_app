@@ -21,6 +21,7 @@ from routers import (
     bars,
     broker,
     dashboard,
+    indicators,
     pending,
     settings as settings_router,
     stubs,
@@ -102,6 +103,7 @@ app.include_router(settings_router.router)
 app.include_router(broker.router)
 app.include_router(workflows.router)
 app.include_router(bars.router)
+app.include_router(indicators.router)
 app.include_router(universe.router)
 app.include_router(stubs.router)
 
