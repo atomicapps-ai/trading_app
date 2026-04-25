@@ -71,6 +71,16 @@ migration: `templates/_partials/_indicator_picker.html`,
 storage path. Side fix: `_probability_card.html` now guards on
 `probability is none`.
 
+**News feed on `/trades/{id}`: FIXED.** `routers/trade_detail.py` was
+calling `news_service.get_news(symbol, start=, end=)` but the service
+signature is `(symbol, as_of_ts=None, lookback_hours=N)` — every fetch
+was raising and the page rendered an empty news card. Now uses the
+correct kwargs (72h lookback), additionally fetches EDGAR filings (30d,
+8-K / 10-Q / 10-K), normalizes filings into the NewsItem shape, sorts
+newest-first, caps at 30 items, and improves the empty-state copy.
+Tested with AAPL (real EDGAR fillings render), SPY (no filings → clean
+empty state), and a bogus symbol (graceful empty).
+
 **Next chat options (pick one):**
 - (a) **Phase 5 backtest engine** — multi-year Alpaca 30-min replay to
   validate the DL strategy's 82.4% WR on a meaningful sample size.
@@ -78,10 +88,10 @@ storage path. Side fix: `_probability_card.html` now guards on
   memory only; an app restart drops the close. Add a SQLAlchemyJobStore
   (or rehydrate from open positions on startup) to make autonomous
   intraday trading restart-safe.
-- (c) **news_service.get_news kwarg fix** — `routers/trade_detail.py`
-  passes `start=`/`end=` but the service signature must differ; the
-  router catches and renders a graceful empty news card, but real news
-  isn't appearing on `/trades/{id}` until this is reconciled.
+- (c) **News feed enhancements** — distinguish news vs filings visually
+  (separate sections or tabs); add the filing form-type badge (8-K /
+  10-Q / 10-K) inline; cache the SEC ticker→CIK map at app startup so
+  the first `/trades/{id}` view doesn't pay a 3s download.
 
 ---
 

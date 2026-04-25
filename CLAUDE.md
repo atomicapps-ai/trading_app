@@ -1,13 +1,12 @@
 # TradeAgent — Project Context for Claude Code
 **Last synced:** 2026-04-25
 **Status:** Phase 4 + Phase 4.5 + Phase 6 edit-mode shipped; DL agent
-loop closed. Trade detail chart now uses the shared `chart_tools.js`
-helper (timeframe selector + chip UX consistent with /pending +
-/universe). Phase 4.5 indicator overlay+subplot stack is production.
+loop closed; news feed live on /trades/{id} (Alpaca news + EDGAR
+filings, 72h/30d, newest-first, capped at 30).
 **Next chat options:** see HANDOFF.md "Immediate next tasks" —
 (a) Phase 5 multi-year backtest engine, (b) persistent APScheduler
-job store (close_at_time jobs are in-memory only),
-(c) news_service.get_news kwarg fix on /trades/{id}.
+job store (close_at_time jobs are in-memory only), (c) news feed
+polish (filings vs news split, form-type badges, CIK-map prewarm).
 **Roadmap (current):**
 - Phase 4 ✅ all sub-items
 - DL-Filtered intraday strategy ✅ (detector + workflow + smoke + integration + 15:00 ET close)

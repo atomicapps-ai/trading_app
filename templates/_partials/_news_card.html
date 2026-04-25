@@ -15,8 +15,13 @@
 
   {% if not news_items %}
     <div class="text-secondary text-sm" style="padding: 12px 0;">
-      No recent news for this symbol.
-      {% if news_error %}<br><span class="text-tertiary">{{ news_error }}</span>{% endif %}
+      {% if news_error %}
+        News fetch failed.
+        <br><span class="text-tertiary mono text-sm">{{ news_error }}</span>
+      {% else %}
+        No news or filings in the last 72h / 30d for
+        <span class="mono">{{ trade.symbol }}</span>.
+      {% endif %}
     </div>
   {% else %}
 
