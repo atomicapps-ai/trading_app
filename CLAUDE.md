@@ -1,17 +1,16 @@
 # TradeAgent — Project Context for Claude Code
 **Last synced:** 2026-04-25
-**Status:** Phase 4 fully complete (scheduler shipped in main `70ccbe6`).
+**Status:** Phase 4 + Phase 6 edit-mode shipped; DL agent loop closed.
 DL-Filtered intraday detector + analysis dashboard + modular widget dashboard
-with settings layer + unified trade detail page all shipped across the
-2026-04-24/25 sessions. Only Phase-4-related leftover:
-`executioner.close_at_time()` for the 15:00 ET intraday time-stop (~1 hr).
-**Next chat options:** see HANDOFF.md "Immediate next tasks" — pick one of
-(a) Phase 6 edit-mode for active trades, (b) finish the executioner
-time-stop method, (c) Phase 5 multi-year backtest engine, (d) Phase 4.5 chart
-viewer + indicators on /pending and /universe (still queued).
+with settings layer + unified trade detail page + intraday time-stop close
++ active-trade edit form all shipped across the 2026-04-24/25 sessions.
+**Next chat options:** see HANDOFF.md "Immediate next tasks" — (a) Phase 5
+multi-year backtest engine, (b) Phase 4.5 chart viewer + indicators on
+/pending and /universe, (c) persistent APScheduler job store (close_at_time
+jobs are in-memory only — app restart drops them).
 **Roadmap (current):**
 - Phase 4 ✅ all sub-items
-- DL-Filtered intraday strategy ✅ (detector + workflow + smoke + integration; close_at_time pending)
+- DL-Filtered intraday strategy ✅ (detector + workflow + smoke + integration + 15:00 ET close)
 - Modular dashboard ✅ (Portfolio/Market/News tabs, 5 widgets, ⚙ settings infra)
 - Trade detail page ✅ (`/trades/{id}` unified, partials, indicator picker, VADER news)
 - Phase 5 — Backtest Engine + Strategy Review UI
@@ -105,6 +104,9 @@ trading_app/
 │   ├── executioner.py           ← ✅ Phase 4 (brought forward). Re-verifies all gates +
 │   │                              HumanAckRecord freshness, then places order via
 │   │                              BrokerAdapter. Research mode refuses all orders.
+│   │                              Auto-schedules `close_at_time()` after successful
+│   │                              placement when `time_stop.active` (intraday DL exit
+│   │                              at 15:00 ET via APScheduler one-shot date job).
 │   └── detectors/               ← 9 swing detectors + 1 intraday detector
 │       ├── __init__.py          ← ALL_DETECTORS (swing) + INTRADAY_DETECTORS (DL)
 │       ├── _helpers.py          ← pivot_highs/lows, volume_ratio, wick helpers

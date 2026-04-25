@@ -34,6 +34,7 @@ import logging
 import math
 from datetime import datetime, timedelta, timezone
 from typing import Any, Literal
+from zoneinfo import ZoneInfo
 
 from models.account import AccountState
 from models.signal import Signal
@@ -273,11 +274,33 @@ class PortfolioManager:
         # "structural" needs no extra params — caller-side logic uses
         # last-bar swing levels at execution time.
         trail = TrailingStop(**trail_kwargs)
-        sessions = int(rules["time_stop_sessions"])
-        deadline = (datetime.now(timezone.utc) + timedelta(days=sessions)).isoformat()
+        # Intraday strategies anchor the deadline to today's regular-session
+        # close (default 15:00 ET so the executioner has runway to flatten
+        # before the bell). Multi-session strategies count whole days from
+        # planning time. The string deadline is always UTC ISO-8601 — the
+        # scheduler handles tz conversion at fire time.
+        holding_period = str(
+            self._strategy_config.get("holding_period", "swing_days")
+        )
+        if holding_period == "intraday":
+            close_hour = int(rules.get("time_stop_close_et_hour", 15))
+            close_minute = int(rules.get("time_stop_close_et_minute", 0))
+            now_et = datetime.now(ZoneInfo("America/New_York"))
+            deadline_dt = now_et.replace(
+                hour=close_hour, minute=close_minute, second=0, microsecond=0,
+            )
+            if deadline_dt <= now_et:
+                deadline_dt += timedelta(days=1)
+            deadline = deadline_dt.astimezone(timezone.utc).isoformat()
+        else:
+            sessions = int(rules.get("time_stop_sessions", 5))
+            deadline = (
+                datetime.now(timezone.utc) + timedelta(days=sessions)
+            ).isoformat()
         time_stop = TimeStop(
             active=True,
-            condition=str(rules["time_stop_condition"]),
+            condition=str(rules.get("time_stop_condition",
+                                    _DEFAULT_RULES["time_stop_condition"])),
             deadline=deadline,
         )
         thesis_invalidation = ThesisInvalidation(
@@ -355,7 +378,7 @@ class PortfolioManager:
             "lenses_contributing": unique_lenses,
             "signal_ids": [s.signal_id for s in all_signals],
             "conviction": round(avg_strength, 2),
-            "expected_holding_period": "swing_days",
+            "expected_holding_period": holding_period,
             "similar_past_setups": [],  # Phase 7 memory lookup
             "memory_win_rate": None,
             "memory_avg_r": None,

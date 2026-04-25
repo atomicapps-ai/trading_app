@@ -590,6 +590,22 @@ async def record_execution(plan_id: str, execution: dict) -> bool:
         return cur.rowcount > 0
 
 
+async def update_plan_json(plan_id: str, plan: dict) -> bool:
+    """Overwrite the stored TradePlan for ``plan_id`` with ``plan``.
+
+    Used by the trade-detail edit form to persist mid-trade level changes
+    (entry / stop / TP / time-stop deadline). The status column is left
+    alone — edits don't change lifecycle stage.
+    """
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute(
+            "UPDATE pending_approvals SET plan_json = ? WHERE plan_id = ?",
+            (json.dumps(plan), plan_id),
+        )
+        await db.commit()
+        return cur.rowcount > 0
+
+
 async def expire_stale_plans(timeout_minutes: int = 30) -> int:
     """Mark pending plans older than ``timeout_minutes`` as expired.
 

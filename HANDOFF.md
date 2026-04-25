@@ -10,7 +10,7 @@ Read order: **CLAUDE.md** first (full spec + conventions), then this file.
 **Phase 4 fully complete.** Scheduler shipped via main `70ccbe6` (Capitol
 Trades commit) — workflow YAMLs auto-register from their `schedule:` field.
 
-**Two big features shipped this session (2026-04-25):**
+**Four features shipped this session (2026-04-25):**
 1. **Modular dashboard with widget settings layer** — Portfolio/Market/News
    tabs, 5 widgets (sector heatmap, Fear&Greed, SPY trend, strategy health,
    exploded stocks), schema-driven ⚙ settings persisted to SQLite per user.
@@ -19,19 +19,53 @@ Trades commit) — workflow YAMLs auto-register from their `schedule:` field.
    VWAP / RSI / ATR) persisted per user. Probability of success card
    (backtest WR + live WR sample-size-weighted blend). VADER news
    sentiment card. Postmortem card on closed trades. Levels card.
+4. **Phase 6 edit-mode for active trades.** Trade detail page now has
+   an Edit button that toggles a form for entry / stop / TP1 / TP2 /
+   time-stop deadline. POST `/api/trades/{id}/edit`:
+   - Validates input, persists to `plan_json` via
+     `db_service.update_plan_json`.
+   - If a `broker_order_id` exists and the entry price changed and
+     stage is `pending` or `approved`, pushes the change via
+     `adapter.modify_order(broker_order_id, {"limit_price": ...})`.
+     Phase 4 only places the entry at the broker, so stop/TP/deadline
+     are TradePlan-only.
+   - If the deadline moved, re-calls `executioner.close_at_time()`
+     (idempotent — `close_{plan_id}` job replaces).
+   - Refuses non-active stages (closed / rejected / expired) with 409.
+   New CSS group `.trade-edit-*` in `static/app.css`. Smoke test:
+   `scripts/smoke_trade_edit.py` (6/6 pass).
 
-**Only remaining DL integration item:** `executioner.close_at_time()` for
-the 15:00 ET intraday time-stop exit (~1 hr).
+3. **DL agent loop closed — `executioner.close_at_time()`.** Successful
+   entry placement now auto-schedules an APScheduler one-shot date job
+   that flattens the position via market order at the plan's
+   `time_stop.deadline`. Companion change: `portfolio_manager` computes
+   intraday deadlines as today's 15:00 ET (config-overridable) instead
+   of `now + 0 days`, and propagates `holding_period` through the plan
+   thesis. Smoke test: `scripts/smoke_close_at_time.py` covers happy
+   path, research-mode refusal, past/malformed deadline, missing symbol,
+   idempotent re-scheduling, and the portfolio_manager intraday
+   deadline calculation.
+
+**DL integration: COMPLETE.** `executioner.close_at_time()` shipped this
+session — DL plans now auto-schedule a 15:00 ET market-close on successful
+entry. Smoke test: `scripts/smoke_close_at_time.py` (7/7 pass).
+
+**Phase 6 edit-mode: COMPLETE.** Active trades (pending / approved / open)
+can be edited via the trade detail page. Editable fields: entry, stop,
+TP1, TP2, time-stop deadline. Persists to SQLite plan_json; pushes entry
+edits to broker via `modify_order` when an order is working; reschedules
+the close-at-time job idempotently when the deadline moves. Refuses
+edits on closed/rejected/expired trades. Smoke test:
+`scripts/smoke_trade_edit.py` (6/6 pass).
 
 **Next chat options (pick one):**
-- (a) **Phase 6 edit-mode** for active trades — modify stop/TP via
-  `executioner.modify_order()` (Alpaca + TS adapters both support it).
-  Form on the new `/trades/{id}` page when `trade.is_active`.
-- (b) **`executioner.close_at_time()`** — finishes the DL agent loop so it
-  closes positions at 15:00 ET autonomously.
-- (c) **Phase 5 backtest engine** — multi-year Alpaca 30-min replay to
+- (a) **Phase 5 backtest engine** — multi-year Alpaca 30-min replay to
   validate the DL strategy's 82.4% WR on a meaningful sample size.
-- (d) **Phase 4.5 chart viewer + indicators push** — still queued.
+- (b) **Phase 4.5 chart viewer + indicators push** — still queued.
+- (c) **Persistent APScheduler job store** — close_at_time jobs live in
+  memory only; an app restart drops the close. Add a SQLAlchemyJobStore
+  (or rehydrate from open positions on startup) to make autonomous
+  intraday trading restart-safe.
 
 ---
 
@@ -316,12 +350,22 @@ specifies `trail_mode: percent` + `trail_percent: 1.0` and that propagates
 through to the final TradePlan. Verified end-to-end in
 `scripts/smoke_intraday_pipeline.py`.
 
-#### ⬜ TODO #4 — `agents/executioner.py` `close_at_time(plan_id, deadline)`
-The TimeStop model already exists; the executioner needs one method that
-schedules a market-close at the given timestamp. Simplest implementation:
-APScheduler `sched.add_job(run_date=deadline)` whose action calls
-`place_order(side='close', broker_order_id=plan.entry_order_id)`. The
-scheduler dependency is now available (TODO #5 done — see below).
+#### ✅ TODO #4 — `agents/executioner.py` `close_at_time(plan, deadline, qty)`
+Shipped 2026-04-25. New method registers a one-shot APScheduler `date`
+job at `time_stop.deadline` keyed by `close_{plan_id}` (replaces on
+re-call). `_close_position_job` resolves the adapter at fire time,
+flattens via market order with the inverse side (`long` → `sell`,
+`short` → `buy_to_cover`). `execute_plan` auto-calls it on successful
+entry placement when `plan.setup.stop_loss.time_stop.active`. Refuses
+research mode, missing symbol, past/malformed deadline, qty<=0.
+Companion change: `agents/portfolio_manager.py` now reads
+`strategy_config.holding_period` and computes today's 15:00 ET (next
+day if past) for intraday plans, falling back to `now + sessions days`
+for swing. The thesis `expected_holding_period` is now config-driven
+instead of hardcoded `swing_days`. **Reliability caveat:** APScheduler
+uses an in-memory job store, so an app restart between scheduling and
+the deadline drops the close. Persistent job store (e.g. SQLAlchemy)
+or startup re-hydration from open positions is a follow-up.
 
 #### ✅ TODO #5 — `services/scheduler.py` — DONE by main `70ccbe6`
 APScheduler service shipped as part of the Capitol Trades copy-trading work.

@@ -26,8 +26,11 @@
     </div>
     <div class="trade-detail-actions">
       {% if trade.is_active %}
-        {# Phase 6 fills these in — for now disabled placeholders #}
-        <button class="btn" disabled title="Edit mode arrives in Phase 6">Edit</button>
+        <button class="btn" type="button"
+                onclick="document.getElementById('trade-edit-form').classList.toggle('is-open');
+                         this.classList.toggle('btn-primary');">
+          Edit
+        </button>
         {% if trade.stage == "pending" %}
           <a class="btn btn-primary" href="/pending/{{ trade.id }}">Approve flow →</a>
         {% endif %}
@@ -63,6 +66,59 @@
 
     {# RIGHT — strategy + levels + probability + news #}
     <div>
+
+      {# Edit form — collapsed by default; the Edit button toggles `.is-open`.
+         Only rendered for active trades. Inputs leave default-empty so the
+         user can change a single field without re-typing the others. #}
+      {% if trade.is_active %}
+      <div id="trade-edit-form" class="card trade-edit-card">
+        <div class="card-header">
+          <span class="card-title">Edit levels</span>
+          <span class="text-tertiary text-sm">leave blank to keep current</span>
+        </div>
+        <form hx-post="/api/trades/{{ trade.id }}/edit"
+              hx-target="#trade-edit-toast"
+              hx-swap="innerHTML">
+          <div class="trade-edit-grid">
+            <label>Entry
+              <input type="number" name="entry_price" step="0.01"
+                     placeholder="{{ '%.2f'|format(trade.entry_price) if trade.entry_price else '' }}">
+            </label>
+            <label>Stop
+              <input type="number" name="stop_price" step="0.01"
+                     placeholder="{{ '%.2f'|format(trade.stop_price) if trade.stop_price else '' }}">
+            </label>
+            <label>TP1
+              <input type="number" name="tp1_price" step="0.01"
+                     placeholder="{{ '%.2f'|format(trade.tp1_price) if trade.tp1_price else '' }}">
+            </label>
+            <label>TP2
+              <input type="number" name="tp2_price" step="0.01"
+                     placeholder="{{ '%.2f'|format(trade.tp2_price) if trade.tp2_price else '' }}">
+            </label>
+            <label class="trade-edit-deadline">Time-stop deadline (ET)
+              <input type="datetime-local" name="time_stop_deadline">
+            </label>
+          </div>
+          <div class="trade-edit-actions">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+            <span id="trade-edit-toast" class="trade-edit-toast"></span>
+          </div>
+          {% if trade.stage == 'open' %}
+          <p class="text-tertiary text-sm mt-8">
+            Position is open — entry edit is ignored at the broker
+            (already filled). Stop/TP/deadline update the plan only.
+          </p>
+          {% elif trade.stage == 'approved' %}
+          <p class="text-tertiary text-sm mt-8">
+            Entry is working at the broker — entry-price edit is pushed
+            via modify_order. Stop/TP update the plan only.
+          </p>
+          {% endif %}
+        </form>
+      </div>
+      <div class="mt-16"></div>
+      {% endif %}
 
       {# Levels #}
       <div class="card">
