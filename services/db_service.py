@@ -184,6 +184,96 @@ _SCHEMA = [
         PRIMARY KEY (user_id, widget_id, setting_key)
     )
     """,
+    # Senate eFD filings cache — populated by the Senate EFD scraper.
+    # Diff against new fetches detects fresh disclosures.
+    """
+    CREATE TABLE IF NOT EXISTS senate_filings (
+        ptr_id TEXT PRIMARY KEY,
+        senator_name TEXT NOT NULL,
+        senator_slug TEXT NOT NULL,
+        senator_first TEXT,
+        senator_last TEXT,
+        filing_date TEXT NOT NULL,
+        pdf_url TEXT NOT NULL,
+        raw_label TEXT,
+        first_seen_at TEXT NOT NULL,
+        last_seen_at TEXT NOT NULL
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_senate_filings_senator ON senate_filings(senator_slug, filing_date DESC)",
+    "CREATE INDEX IF NOT EXISTS idx_senate_filings_date ON senate_filings(filing_date DESC)",
+    # Senate trades — individual transactions parsed from PTR HTML tables.
+    # Key (ptr_id, row_num) is stable across re-parses so we can refresh
+    # without duplicating rows.
+    """
+    CREATE TABLE IF NOT EXISTS senate_trades (
+        ptr_id TEXT NOT NULL,
+        row_num INTEGER NOT NULL,
+        senator_slug TEXT NOT NULL,
+        senator_name TEXT NOT NULL,
+        transaction_date TEXT NOT NULL,
+        owner TEXT,
+        ticker TEXT,
+        asset_name TEXT,
+        asset_type TEXT,
+        transaction_type TEXT NOT NULL,
+        amount_min REAL,
+        amount_max REAL,
+        comment TEXT,
+        parsed_at TEXT NOT NULL,
+        PRIMARY KEY (ptr_id, row_num)
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_senate_trades_senator ON senate_trades(senator_slug, transaction_date DESC)",
+    "CREATE INDEX IF NOT EXISTS idx_senate_trades_ticker ON senate_trades(ticker, transaction_date DESC)",
+    # Stock lists — curated/dynamic ticker collections (S&P 500, NASDAQ-100, etc.)
+    """
+    CREATE TABLE IF NOT EXISTS stock_lists (
+        slug TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT DEFAULT '',
+        source_type TEXT DEFAULT 'static',
+        source_url TEXT DEFAULT '',
+        tickers_json TEXT NOT NULL DEFAULT '[]',
+        ticker_count INTEGER DEFAULT 0,
+        last_refreshed_at TEXT,
+        created_at TEXT NOT NULL
+    )
+    """,
+    # Performance cache for any politician (followed or not) — populated by
+    # /api/copy-trading/compute-all-performance so the add-politician dropdown
+    # can surface win rate without recomputing on every page load.
+    """
+    CREATE TABLE IF NOT EXISTS member_performance_cache (
+        slug TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        win_rate_30d REAL,
+        avg_return_30d REAL,
+        avg_spy_return_30d REAL,
+        perf_trade_count INTEGER,
+        computed_at TEXT NOT NULL
+    )
+    """,
+    # Followed politicians for copy-trading (one row per politician)
+    """
+    CREATE TABLE IF NOT EXISTS followed_politicians (
+        slug TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        party TEXT DEFAULT '',
+        chamber TEXT DEFAULT '',
+        score REAL DEFAULT 0,
+        trade_count_90d INTEGER DEFAULT 0,
+        buy_ratio_pct INTEGER DEFAULT 0,
+        last_trade_date TEXT DEFAULT '',
+        enabled INTEGER DEFAULT 1,
+        added_at TEXT NOT NULL,
+        win_rate_30d REAL,
+        avg_return_30d REAL,
+        avg_spy_return_30d REAL,
+        perf_trade_count INTEGER,
+        perf_computed_at TEXT
+    )
+    """,
     # Indexes for the queries we run often
     "CREATE INDEX IF NOT EXISTS idx_pending_status ON pending_approvals(status, ts_created DESC)",
     "CREATE INDEX IF NOT EXISTS idx_pending_symbol ON pending_approvals(symbol)",
@@ -202,6 +292,31 @@ _PENDING_EXPECTED_COLUMNS = {
 
 # universe_presets columns added after initial schema
 _UNIVERSE_EXPECTED_COLUMNS = {"title"}
+
+# followed_politicians columns added after initial schema
+_FOLLOWED_EXPECTED_COLUMNS = {
+    "win_rate_30d": "REAL",
+    "avg_return_30d": "REAL",
+    "avg_spy_return_30d": "REAL",
+    "perf_trade_count": "INTEGER",
+    "perf_computed_at": "TEXT",
+    "is_favorite": "INTEGER DEFAULT 0",
+}
+
+
+async def _migrate_followed_politicians(db: aiosqlite.Connection) -> None:
+    cursor = await db.execute("PRAGMA table_info(followed_politicians)")
+    rows = await cursor.fetchall()
+    existing = {r[1] for r in rows}
+    for col, sqltype in _FOLLOWED_EXPECTED_COLUMNS.items():
+        if col in existing:
+            continue
+        try:
+            await db.execute(f"ALTER TABLE followed_politicians ADD COLUMN {col} {sqltype}")
+            logger.info("db_service: added column followed_politicians.%s", col)
+        except aiosqlite.OperationalError as e:
+            if "duplicate column" not in str(e).lower():
+                logger.warning("db_service: migrate add %s failed: %s", col, e)
 
 
 async def _migrate_universe_presets(db: aiosqlite.Connection) -> None:
@@ -242,8 +357,11 @@ async def ensure_tables() -> None:
             await db.execute(stmt)
         await _migrate_pending_approvals(db)
         await _migrate_universe_presets(db)
+        await _migrate_followed_politicians(db)
         await db.commit()
     logger.info("db_service: tables ensured at %s", DB_PATH)
+    # Migrate legacy single-politician config into the new table (no-op if already done)
+    await migrate_single_politician_config()
 
 
 # ---------------------------------------------------------------------- #
@@ -947,3 +1065,335 @@ async def get_all_copy_config() -> dict[str, str]:
         cur = await db.execute("SELECT key, value FROM copy_trading_config")
         rows = await cur.fetchall()
     return {r["key"]: r["value"] for r in rows}
+
+
+# ---------------------------------------------------------------------- #
+# followed_politicians
+# ---------------------------------------------------------------------- #
+
+
+async def list_followed_politicians() -> list[dict]:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            # Favorites pinned to top, then by score desc
+            "SELECT * FROM followed_politicians ORDER BY is_favorite DESC, score DESC, name ASC"
+        )
+        rows = await cur.fetchall()
+    return [dict(r) for r in rows]
+
+
+async def toggle_followed_politician_favorite(slug: str, is_favorite: bool) -> None:
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            "UPDATE followed_politicians SET is_favorite = ? WHERE slug = ?",
+            (1 if is_favorite else 0, slug),
+        )
+        await db.commit()
+
+
+async def add_followed_politician(
+    slug: str,
+    name: str,
+    *,
+    party: str = "",
+    chamber: str = "",
+    score: float = 0.0,
+    trade_count_90d: int = 0,
+    buy_ratio_pct: int = 0,
+    last_trade_date: str = "",
+) -> None:
+    now = datetime.now(timezone.utc).isoformat()
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            """
+            INSERT INTO followed_politicians
+                (slug, name, party, chamber, score, trade_count_90d,
+                 buy_ratio_pct, last_trade_date, enabled, added_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?)
+            ON CONFLICT(slug) DO UPDATE SET
+                name = excluded.name,
+                party = excluded.party,
+                chamber = excluded.chamber,
+                score = excluded.score,
+                trade_count_90d = excluded.trade_count_90d,
+                buy_ratio_pct = excluded.buy_ratio_pct,
+                last_trade_date = excluded.last_trade_date
+            """,
+            (slug, name, party, chamber, score, trade_count_90d, buy_ratio_pct, last_trade_date, now),
+        )
+        await db.commit()
+
+
+async def remove_followed_politician(slug: str) -> None:
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute("DELETE FROM followed_politicians WHERE slug = ?", (slug,))
+        await db.commit()
+
+
+async def toggle_followed_politician(slug: str, enabled: bool) -> None:
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            "UPDATE followed_politicians SET enabled = ? WHERE slug = ?",
+            (1 if enabled else 0, slug),
+        )
+        await db.commit()
+
+
+async def update_followed_politician_stats(
+    slug: str,
+    *,
+    score: float | None = None,
+    trade_count_90d: int | None = None,
+    buy_ratio_pct: int | None = None,
+    last_trade_date: str | None = None,
+) -> None:
+    """Refresh the cached CT stats for a followed politician after a scan."""
+    fields, vals = [], []
+    if score is not None:
+        fields.append("score = ?"); vals.append(score)
+    if trade_count_90d is not None:
+        fields.append("trade_count_90d = ?"); vals.append(trade_count_90d)
+    if buy_ratio_pct is not None:
+        fields.append("buy_ratio_pct = ?"); vals.append(buy_ratio_pct)
+    if last_trade_date is not None:
+        fields.append("last_trade_date = ?"); vals.append(last_trade_date)
+    if not fields:
+        return
+    vals.append(slug)
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            f"UPDATE followed_politicians SET {', '.join(fields)} WHERE slug = ?",
+            vals,
+        )
+        await db.commit()
+
+
+async def get_member_performance_cache_map() -> dict[str, dict]:
+    """Return {slug: {win_rate_30d, avg_return_30d, perf_trade_count, computed_at}}
+    for all cached members. Used to enrich the add-politician dropdown."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute("SELECT * FROM member_performance_cache")
+        rows = await cur.fetchall()
+    return {r["slug"]: dict(r) for r in rows}
+
+
+async def upsert_member_performance(
+    slug: str,
+    name: str,
+    *,
+    win_rate_30d: float | None,
+    avg_return_30d: float | None,
+    avg_spy_return_30d: float | None,
+    perf_trade_count: int,
+) -> None:
+    now = datetime.now(timezone.utc).isoformat()
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            """
+            INSERT INTO member_performance_cache
+                (slug, name, win_rate_30d, avg_return_30d, avg_spy_return_30d,
+                 perf_trade_count, computed_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(slug) DO UPDATE SET
+                name = excluded.name,
+                win_rate_30d = excluded.win_rate_30d,
+                avg_return_30d = excluded.avg_return_30d,
+                avg_spy_return_30d = excluded.avg_spy_return_30d,
+                perf_trade_count = excluded.perf_trade_count,
+                computed_at = excluded.computed_at
+            """,
+            (slug, name, win_rate_30d, avg_return_30d, avg_spy_return_30d,
+             perf_trade_count, now),
+        )
+        await db.commit()
+
+
+async def update_followed_politician_performance(
+    slug: str,
+    *,
+    win_rate_30d: float | None,
+    avg_return_30d: float | None,
+    avg_spy_return_30d: float | None,
+    perf_trade_count: int,
+) -> None:
+    """Persist computed performance metrics for a followed politician."""
+    now = datetime.now(timezone.utc).isoformat()
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            """
+            UPDATE followed_politicians
+               SET win_rate_30d = ?, avg_return_30d = ?, avg_spy_return_30d = ?,
+                   perf_trade_count = ?, perf_computed_at = ?
+             WHERE slug = ?
+            """,
+            (win_rate_30d, avg_return_30d, avg_spy_return_30d, perf_trade_count, now, slug),
+        )
+        await db.commit()
+
+
+# ---------------------------------------------------------------------- #
+# senate_filings
+# ---------------------------------------------------------------------- #
+
+
+async def list_senate_filings(senator_slug: str | None = None, limit: int = 1000) -> list[dict]:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        if senator_slug:
+            cur = await db.execute(
+                """SELECT * FROM senate_filings
+                   WHERE senator_slug = ?
+                   ORDER BY filing_date DESC LIMIT ?""",
+                (senator_slug, limit),
+            )
+        else:
+            cur = await db.execute(
+                "SELECT * FROM senate_filings ORDER BY filing_date DESC LIMIT ?",
+                (limit,),
+            )
+        rows = await cur.fetchall()
+    return [dict(r) for r in rows]
+
+
+async def get_known_senate_ptr_ids() -> set[str]:
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute("SELECT ptr_id FROM senate_filings")
+        rows = await cur.fetchall()
+    return {r[0] for r in rows}
+
+
+async def upsert_senate_filings(filings: list[dict]) -> dict[str, int]:
+    """Bulk-insert filings; tracks new vs updated counts.
+
+    Returns {"new": N, "updated": M}. The caller can use `new` to drive the
+    "X new disclosures" UI badge.
+    """
+    if not filings:
+        return {"new": 0, "updated": 0}
+    now = datetime.now(timezone.utc).isoformat()
+    new = updated = 0
+    async with aiosqlite.connect(DB_PATH) as db:
+        for f in filings:
+            cur = await db.execute(
+                """
+                INSERT INTO senate_filings
+                    (ptr_id, senator_name, senator_slug, senator_first, senator_last,
+                     filing_date, pdf_url, raw_label, first_seen_at, last_seen_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(ptr_id) DO UPDATE SET
+                    last_seen_at = excluded.last_seen_at
+                """,
+                (
+                    f["ptr_id"], f["senator_name"], f["senator_slug"],
+                    f.get("senator_first", ""), f.get("senator_last", ""),
+                    f["filing_date"], f["pdf_url"], f.get("raw_label", ""),
+                    now, now,
+                ),
+            )
+            if cur.rowcount > 0:
+                new += 1
+            else:
+                updated += 1
+        await db.commit()
+    return {"new": new, "updated": updated}
+
+
+async def count_senate_filings() -> int:
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute("SELECT COUNT(*) FROM senate_filings")
+        return (await cur.fetchone())[0]
+
+
+# ---------------------------------------------------------------------- #
+# senate_trades — individual transaction rows parsed from PTR HTML tables
+# ---------------------------------------------------------------------- #
+
+
+async def list_senate_trades(
+    senator_slug: str | None = None, limit: int = 1000
+) -> list[dict]:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        if senator_slug:
+            cur = await db.execute(
+                """SELECT * FROM senate_trades
+                   WHERE senator_slug = ?
+                   ORDER BY transaction_date DESC LIMIT ?""",
+                (senator_slug, limit),
+            )
+        else:
+            cur = await db.execute(
+                "SELECT * FROM senate_trades ORDER BY transaction_date DESC LIMIT ?",
+                (limit,),
+            )
+        rows = await cur.fetchall()
+    return [dict(r) for r in rows]
+
+
+async def upsert_senate_trades(trades: list[dict]) -> int:
+    """Bulk upsert. Returns count of rows inserted/updated.
+
+    Each trade dict must include: ptr_id, row_num, senator_slug, senator_name,
+    transaction_date, transaction_type. Other fields default to empty.
+    """
+    if not trades:
+        return 0
+    now = datetime.now(timezone.utc).isoformat()
+    async with aiosqlite.connect(DB_PATH) as db:
+        for t in trades:
+            await db.execute(
+                """
+                INSERT INTO senate_trades
+                    (ptr_id, row_num, senator_slug, senator_name,
+                     transaction_date, owner, ticker, asset_name, asset_type,
+                     transaction_type, amount_min, amount_max, comment, parsed_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(ptr_id, row_num) DO UPDATE SET
+                    transaction_date = excluded.transaction_date,
+                    owner            = excluded.owner,
+                    ticker           = excluded.ticker,
+                    asset_name       = excluded.asset_name,
+                    asset_type       = excluded.asset_type,
+                    transaction_type = excluded.transaction_type,
+                    amount_min       = excluded.amount_min,
+                    amount_max       = excluded.amount_max,
+                    comment          = excluded.comment,
+                    parsed_at        = excluded.parsed_at
+                """,
+                (
+                    t["ptr_id"], t["row_num"],
+                    t["senator_slug"], t["senator_name"],
+                    t["transaction_date"], t.get("owner", ""),
+                    t.get("ticker", ""), t.get("asset_name", ""), t.get("asset_type", ""),
+                    t["transaction_type"], t.get("amount_min", 0.0), t.get("amount_max", 0.0),
+                    t.get("comment", ""), now,
+                ),
+            )
+        await db.commit()
+    return len(trades)
+
+
+async def get_parsed_ptr_ids() -> set[str]:
+    """Return set of ptr_ids that already have parsed trades cached."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute("SELECT DISTINCT ptr_id FROM senate_trades")
+        rows = await cur.fetchall()
+    return {r[0] for r in rows}
+
+
+async def migrate_single_politician_config() -> None:
+    """One-time migration: move the old single followed_politician config key
+    into the new followed_politicians table, then remove the old keys."""
+    cfg = await get_all_copy_config()
+    slug = cfg.get("followed_politician", "").strip()
+    name = cfg.get("followed_politician_name", "").strip()
+    if not slug:
+        return
+    # Check whether we've already migrated
+    existing = await list_followed_politicians()
+    if existing:
+        return
+    logger.info("db_service: migrating single-politician config (%s) to followed_politicians", slug)
+    await add_followed_politician(slug, name or slug)

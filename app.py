@@ -26,6 +26,7 @@ from routers import (
     indicators,
     pending,
     settings as settings_router,
+    stock_lists,
     stubs,
     trade_detail,
     trades,
@@ -119,6 +120,9 @@ app.include_router(broker.router)
 app.include_router(workflows.router)
 app.include_router(bars.router)
 app.include_router(indicators.router)
+# Register stock_lists BEFORE universe — universe has /universe/{preset_name}
+# which would shadow /universe/stock-lists if mounted in the wrong order.
+app.include_router(stock_lists.router)
 app.include_router(universe.router)
 app.include_router(copy_trading.router)
 app.include_router(stubs.router)

@@ -1,43 +1,34 @@
-"""Capitol Trades scraper and politician ranking service.
+"""Congressional trades data service.
 
-Fetches congressional trade disclosures from capitoltrades.com and ranks
-politicians by trading activity and recency.
+Originally targeted capitoltrades.com, but their API subdomain
+(api.capitoltrades.com) is dead and their new BFF (bff.capitoltrades.com)
+is currently broken (CloudFront Lambda errors). Rewritten to use the
+free, hosted, actively-maintained API from `ivanma9/CongressionalTrading`:
 
-Data note: STOCK Act requires disclosure within 45 days, so all data is
-delayed. The value is in consistent signal from active, high-conviction
-traders — not in speed.
+  https://congressional-trading-datastore-production-9fd6.up.railway.app
+
+Coverage: U.S. House of Representatives only (PTR filings parsed from
+disclosures-clerk.house.gov). Senate trades not included.
+
+Public interface preserved (CapitolTradesService class, PoliticianTrade /
+PoliticianScore dataclasses) so existing callers in scheduler.py and
+routers/copy_trading.py keep working.
 """
 from __future__ import annotations
 
-import json
 import logging
-import re
+import urllib.parse
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Any
 
 import httpx
 
 logger = logging.getLogger(__name__)
 
-_HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/124.0.0.0 Safari/537.36"
-    ),
-    "Accept": "application/json, text/html, */*",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Referer": "https://www.capitoltrades.com/trades",
-}
-
-# Regex to extract dollar amounts from range strings like "$100,001 - $250,000"
-_RANGE_RE = re.compile(r"\$?([\d,]+)\s*[-–]\s*\$?([\d,]+)")
-_OVER_RE = re.compile(r"[Oo]ver\s+\$?([\d,]+)")
-
 
 # --------------------------------------------------------------------------- #
-# Data models
+# Data models — kept compatible with the old api.capitoltrades.com shape
 # --------------------------------------------------------------------------- #
 
 
@@ -50,10 +41,10 @@ class PoliticianTrade:
     chamber: str
     ticker: str
     asset_name: str
-    asset_type: str           # stock, option, etf, crypto, other
-    transaction_type: str     # purchase, sale
-    transaction_date: str     # YYYY-MM-DD
-    published_date: str       # YYYY-MM-DD (when disclosed)
+    asset_type: str          # stock, bond, options, etc.
+    transaction_type: str    # purchase, sale, sale_partial, exchange
+    transaction_date: str    # YYYY-MM-DD
+    published_date: str      # YYYY-MM-DD (disclosure_date)
     amount_min: float
     amount_max: float
     amount_mid: float
@@ -71,95 +62,81 @@ class PoliticianScore:
     unique_tickers: int
     buy_ratio: float
     score: float
+    state: str = ""
+    district: str = ""
+
+
+@dataclass
+class PoliticianPerformance:
+    politician_slug: str
+    politician_name: str
+    total_trades: int
+    win_rate_30d: float | None       # 0.0–1.0
+    avg_return_30d: float | None     # decimal (0.05 = 5%)
+    avg_spy_return_30d: float | None # SPY benchmark over same horizon
 
 
 # --------------------------------------------------------------------------- #
-# Parsing helpers
+# Helpers
 # --------------------------------------------------------------------------- #
-
-
-def _parse_amount(raw: str) -> tuple[float, float]:
-    """Parse Capitol Trades amount string to (min, max) floats."""
-    if not raw:
-        return 1_001.0, 15_000.0
-    m = _RANGE_RE.search(raw)
-    if m:
-        lo = float(m.group(1).replace(",", ""))
-        hi = float(m.group(2).replace(",", ""))
-        return lo, hi
-    m = _OVER_RE.search(raw)
-    if m:
-        lo = float(m.group(1).replace(",", ""))
-        return lo, lo * 3
-    return 1_001.0, 15_000.0
 
 
 def _normalize_tx_type(raw: str) -> str:
-    raw = raw.lower().strip()
-    if raw in ("purchase", "buy", "bought"):
+    """Collapse the API's transaction_type into our internal {purchase, sale}."""
+    if not raw:
+        return ""
+    r = raw.lower().strip()
+    if r in ("purchase", "buy", "bought"):
         return "purchase"
-    if raw in ("sale", "sell", "sold", "sale_full", "sale_partial", "exchange"):
+    if r in ("sale", "sale_full", "sale_partial", "sell", "sold", "exchange"):
         return "sale"
-    return raw
+    return r
+
+
+def _name_to_slug(name: str) -> str:
+    """Generate a stable slug from a display name (kebab-case lowercase)."""
+    out = []
+    for ch in name.lower():
+        if ch.isalnum():
+            out.append(ch)
+        elif out and out[-1] != "-":
+            out.append("-")
+    return "".join(out).strip("-")
 
 
 def _parse_trade(raw: dict[str, Any]) -> PoliticianTrade | None:
-    """Parse one Capitol Trades API object into a PoliticianTrade."""
+    """Convert one ivanma9 API trade row into our PoliticianTrade dataclass."""
     try:
-        pol = raw.get("politician") or {}
-        asset = raw.get("asset") or {}
+        member_name = (raw.get("member_name") or "").strip()
+        ticker = (raw.get("ticker") or "").strip().upper()
+        if not member_name or not ticker:
+            return None  # Skip bond/non-equity rows with no ticker
 
-        ticker = (
-            asset.get("ticker")
-            or asset.get("symbol")
-            or asset.get("assetTicker")
-            or ""
-        ).strip().upper()
-        if not ticker or ticker in ("N/A", "NONE", ""):
+        slug = _name_to_slug(member_name)
+        amount_min = float(raw.get("amount_range_low") or 0)
+        amount_max = float(raw.get("amount_range_high") or amount_min)
+        tx_type = _normalize_tx_type(str(raw.get("transaction_type") or ""))
+        if tx_type not in ("purchase", "sale"):
             return None
 
-        amount_str = str(raw.get("amount") or raw.get("size") or "")
-        lo, hi = _parse_amount(amount_str)
-
-        tx_raw = str(raw.get("txType") or raw.get("type") or raw.get("transactionType") or "")
-        tx_type = _normalize_tx_type(tx_raw)
-
-        # Capitol Trades dates come as ISO strings; take first 10 chars (YYYY-MM-DD)
-        tx_date = str(raw.get("txDate") or raw.get("transactionDate") or "")[:10]
-        pub_date = str(raw.get("publishedDate") or raw.get("filedDate") or raw.get("disclosureDate") or "")[:10]
-        if not pub_date:
-            pub_date = tx_date
-
-        pol_name = (
-            pol.get("name")
-            or f"{pol.get('firstName', '')} {pol.get('lastName', '')}".strip()
-            or "Unknown"
-        )
-        pol_slug = pol.get("slug") or pol_name.lower().replace(" ", "-").replace(".", "")
-
-        trade_id = (
-            str(raw.get("_id") or raw.get("id") or "")
-            or f"{pol_slug}-{ticker}-{tx_date}-{tx_type}"
-        )
-
         return PoliticianTrade(
-            trade_id=trade_id,
-            politician_name=pol_name,
-            politician_slug=pol_slug,
-            party=str(pol.get("party") or pol.get("Party") or "Unknown"),
-            chamber=str(pol.get("chamber") or pol.get("Chamber") or "Unknown"),
+            trade_id=str(raw.get("id") or f"{slug}-{ticker}-{raw.get('transaction_date','')}-{tx_type}"),
+            politician_name=member_name,
+            politician_slug=slug,
+            party="",  # API doesn't expose party
+            chamber="House",
             ticker=ticker,
-            asset_name=str(asset.get("name") or asset.get("assetName") or ticker),
-            asset_type=str(asset.get("assetType") or asset.get("type") or "stock").lower(),
+            asset_name=str(raw.get("asset_description") or ticker),
+            asset_type=str(raw.get("asset_type") or "stock").lower(),
             transaction_type=tx_type,
-            transaction_date=tx_date,
-            published_date=pub_date,
-            amount_min=lo,
-            amount_max=hi,
-            amount_mid=(lo + hi) / 2,
+            transaction_date=str(raw.get("transaction_date") or "")[:10],
+            published_date=str(raw.get("disclosure_date") or raw.get("transaction_date") or "")[:10],
+            amount_min=amount_min,
+            amount_max=amount_max,
+            amount_mid=(amount_min + amount_max) / 2,
         )
     except Exception as exc:
-        logger.debug("Failed to parse trade row: %s | raw=%r", exc, raw)
+        logger.debug("parse_trade failed: %s | row=%r", exc, raw)
         return None
 
 
@@ -169,239 +146,323 @@ def _parse_trade(raw: dict[str, Any]) -> PoliticianTrade | None:
 
 
 class CapitolTradesService:
-    """Fetches and ranks congressional trade disclosures."""
+    """Wraps the ivanma9 hosted Congressional Trading API."""
 
-    # Capitol Trades runs a separate REST API backend
-    API_BASE = "https://api.capitoltrades.com"
-    SITE_BASE = "https://www.capitoltrades.com"
+    API_BASE = "https://congressional-trading-datastore-production-9fd6.up.railway.app"
     TIMEOUT = 25.0
+    PERFORMANCE_TIMEOUT = 60.0   # /performance is slower; involves price lookups
+    HEADERS = {"User-Agent": "TradeAgent/1.0 (+local)"}
 
     # ------------------------------------------------------------------ #
-    # Public interface
+    # Trades
     # ------------------------------------------------------------------ #
 
     async def fetch_recent_trades(self, pages: int = 5) -> list[PoliticianTrade]:
-        """Fetch the most recent trades across all politicians."""
-        trades = await self._fetch_api_trades(pages=pages)
-        if not trades:
-            logger.warning("Capitol Trades API returned nothing; falling back to HTML scrape")
-            trades = await self._fetch_html_trades(pages=min(pages, 2))
-        logger.info("Capitol Trades: fetched %d trades (%d pages requested)", len(trades), pages)
-        return trades
+        """Fetch the most recent disclosures across all members.
+
+        `pages` kept for backward compatibility — translated to a single
+        request with `limit = pages * 50` since the new API is offset-paged.
+        """
+        limit = max(50, pages * 50)
+        async with httpx.AsyncClient(headers=self.HEADERS, timeout=self.TIMEOUT) as client:
+            try:
+                r = await client.get(
+                    f"{self.API_BASE}/api/v1/trades/recent",
+                    params={"days": 90, "limit": limit},
+                )
+                if r.status_code != 200:
+                    logger.warning("trades/recent returned %s", r.status_code)
+                    return []
+                rows = r.json().get("trades", [])
+                trades = [t for row in rows if (t := _parse_trade(row))]
+                logger.info("fetch_recent_trades: %d parsed from %d rows", len(trades), len(rows))
+                return trades
+            except Exception as exc:
+                logger.warning("fetch_recent_trades failed: %s", exc)
+                return []
 
     async def fetch_politician_trades(
         self, politician_slug: str, pages: int = 10
     ) -> list[PoliticianTrade]:
-        """Fetch all trades for one politician by slug."""
-        all_trades: list[PoliticianTrade] = []
-        async with httpx.AsyncClient(
-            headers=_HEADERS, timeout=self.TIMEOUT, follow_redirects=True
-        ) as client:
-            for page in range(1, pages + 1):
-                try:
-                    resp = await client.get(
-                        f"{self.API_BASE}/trade",
-                        params={
-                            "page": page,
-                            "pageSize": 50,
-                            "sortBy": "-publishedDate",
-                            "politician": politician_slug,
-                        },
-                    )
-                    if resp.status_code != 200:
-                        logger.debug(
-                            "Politician trades page %d → HTTP %d", page, resp.status_code
-                        )
-                        break
-                    data = resp.json()
-                    items = data.get("data") or []
-                    if not items:
-                        break
-                    parsed = [t for item in items if (t := _parse_trade(item))]
-                    all_trades.extend(parsed)
-                    meta = data.get("meta") or {}
-                    total = meta.get("total") or meta.get("totalCount") or 0
-                    if len(all_trades) >= total and total > 0:
-                        break
-                except Exception as exc:
-                    logger.warning(
-                        "Failed fetching page %d for %s: %s", page, politician_slug, exc
-                    )
-                    break
-        return all_trades
+        """Fetch trades for one politician.
+
+        `politician_slug` may be a kebab-case slug (e.g. 'nancy-pelosi') or
+        a last-name fragment ('Pelosi'). The API does substring matching on
+        member_name, so we strip dashes and use whatever portion matches.
+        """
+        if not politician_slug:
+            return []
+        # Convert kebab slug back to a name fragment the API will match.
+        # 'nancy-pelosi' -> 'Pelosi' (last token is most distinctive)
+        tokens = politician_slug.replace("-", " ").split()
+        name_query = tokens[-1].title() if tokens else politician_slug
+        limit = max(100, pages * 50)
+
+        async with httpx.AsyncClient(headers=self.HEADERS, timeout=self.TIMEOUT) as client:
+            try:
+                r = await client.get(
+                    f"{self.API_BASE}/api/v1/trades",
+                    params={"member": name_query, "days": 365, "limit": limit},
+                )
+                if r.status_code != 200:
+                    logger.warning("trades?member=%s returned %s", name_query, r.status_code)
+                    return []
+                rows = r.json().get("trades", [])
+                trades = [t for row in rows if (t := _parse_trade(row))]
+                # Filter to exact slug match in case substring caught multiple members
+                trades = [t for t in trades if t.politician_slug == politician_slug] or trades
+                logger.info("fetch_politician_trades(%s): %d parsed", politician_slug, len(trades))
+                return trades
+            except Exception as exc:
+                logger.warning("fetch_politician_trades(%s) failed: %s", politician_slug, exc)
+                return []
+
+    # ------------------------------------------------------------------ #
+    # Member ranking
+    # ------------------------------------------------------------------ #
+
+    async def fetch_ranked_members(self, limit: int = 50, days: int = 365) -> list[PoliticianScore]:
+        """Fetch the most active members directly from the API's members endpoint.
+
+        Default `days=365` so members who traded once or twice in the last
+        year still appear (Pelosi's last trade was 99 days ago, would be
+        excluded by the API's default 90-day filter).
+        """
+        async with httpx.AsyncClient(headers=self.HEADERS, timeout=self.TIMEOUT) as client:
+            try:
+                r = await client.get(
+                    f"{self.API_BASE}/api/v1/members",
+                    params={"days": days, "limit": limit},
+                )
+                if r.status_code != 200:
+                    logger.warning("members returned %s", r.status_code)
+                    return []
+                members = r.json().get("members", [])
+            except Exception as exc:
+                logger.warning("fetch_ranked_members failed: %s", exc)
+                return []
+
+        today = datetime.now(timezone.utc).date()
+        scored: list[PoliticianScore] = []
+        for m in members:
+            name = (m.get("name") or "").strip()
+            if not name:
+                continue
+            slug = _name_to_slug(name)
+            count = int(m.get("trade_count") or 0)
+            last_date = str(m.get("latest_trade_date") or "")[:10]
+            try:
+                last = datetime.fromisoformat(last_date).date() if last_date else today
+                days_ago = max(0, (today - last).days)
+            except ValueError:
+                days_ago = 999
+            # Activity-weighted recency score
+            score = round(count * (100.0 / (days_ago + 1)), 2)
+            scored.append(PoliticianScore(
+                politician_name=name,
+                politician_slug=slug,
+                party="",          # not exposed by this API
+                chamber="House",
+                trade_count_90d=count,
+                last_trade_date=last_date,
+                days_since_last_trade=days_ago,
+                unique_tickers=0,  # not exposed
+                buy_ratio=0.0,     # not exposed
+                score=score,
+                state=str(m.get("state") or ""),
+                district=str(m.get("district") or ""),
+            ))
+        scored.sort(key=lambda x: x.score, reverse=True)
+        return scored
 
     def rank_politicians(
         self, trades: list[PoliticianTrade], top_n: int = 20
     ) -> list[PoliticianScore]:
-        """Rank politicians by trading activity and recency in the last 90 days."""
+        """Compatibility shim — the new API ranks members natively, but this
+        function is still called by routers/copy_trading.py with a trade list.
+        Compute the ranking from the trade list (slower than fetch_ranked_members)."""
         from collections import defaultdict
-
         today = datetime.now(timezone.utc).date()
-        cutoff = (today - timedelta(days=90)).isoformat()
-
         stats: dict[str, dict] = defaultdict(lambda: {
-            "name": "",
-            "party": "",
-            "chamber": "",
-            "recent_dates": [],
-            "tickers": set(),
-            "recent_buys": 0,
+            "name": "", "tickers": set(), "buys": 0, "dates": [],
         })
-
         for t in trades:
             s = stats[t.politician_slug]
             s["name"] = t.politician_name
-            s["party"] = t.party
-            s["chamber"] = t.chamber
-            if t.transaction_date >= cutoff:
-                s["recent_dates"].append(t.transaction_date)
-                s["tickers"].add(t.ticker)
-                if t.transaction_type == "purchase":
-                    s["recent_buys"] += 1
-
-        scores: list[PoliticianScore] = []
+            s["tickers"].add(t.ticker)
+            s["dates"].append(t.transaction_date)
+            if t.transaction_type == "purchase":
+                s["buys"] += 1
+        out: list[PoliticianScore] = []
         for slug, s in stats.items():
-            if not s["recent_dates"]:
+            if not s["dates"]:
                 continue
-            last_date = max(s["recent_dates"])
-            days_ago = (today - datetime.fromisoformat(last_date).date()).days
-            count = len(s["recent_dates"])
-            buy_ratio = s["recent_buys"] / count if count else 0.0
-            # Score: activity × recency × ticker diversity
-            score = count * (100.0 / (days_ago + 1)) * (1 + len(s["tickers"]) * 0.1)
-            scores.append(PoliticianScore(
+            last = max(s["dates"])
+            try:
+                days = max(0, (today - datetime.fromisoformat(last).date()).days)
+            except ValueError:
+                days = 999
+            count = len(s["dates"])
+            buy_ratio = s["buys"] / count if count else 0
+            score = round(count * (100.0 / (days + 1)) * (1 + len(s["tickers"]) * 0.1), 2)
+            out.append(PoliticianScore(
                 politician_name=s["name"],
                 politician_slug=slug,
-                party=s["party"],
-                chamber=s["chamber"],
+                party="", chamber="House",
                 trade_count_90d=count,
-                last_trade_date=last_date,
-                days_since_last_trade=days_ago,
+                last_trade_date=last,
+                days_since_last_trade=days,
                 unique_tickers=len(s["tickers"]),
                 buy_ratio=round(buy_ratio, 2),
-                score=round(score, 2),
+                score=score,
             ))
-
-        scores.sort(key=lambda x: x.score, reverse=True)
-        return scores[:top_n]
-
-    # ------------------------------------------------------------------ #
-    # Internal — API fetch
-    # ------------------------------------------------------------------ #
-
-    async def _fetch_api_trades(self, pages: int) -> list[PoliticianTrade]:
-        all_trades: list[PoliticianTrade] = []
-        async with httpx.AsyncClient(
-            headers=_HEADERS, timeout=self.TIMEOUT, follow_redirects=True
-        ) as client:
-            for page in range(1, pages + 1):
-                try:
-                    resp = await client.get(
-                        f"{self.API_BASE}/trade",
-                        params={"page": page, "pageSize": 50, "sortBy": "-publishedDate"},
-                    )
-                    if resp.status_code != 200:
-                        logger.debug("API page %d → HTTP %d", page, resp.status_code)
-                        break
-                    data = resp.json()
-                    items = data.get("data") or []
-                    if not items:
-                        break
-                    parsed = [t for item in items if (t := _parse_trade(item))]
-                    all_trades.extend(parsed)
-                    # Stop early if the page was short (last page)
-                    if len(items) < 50:
-                        break
-                except Exception as exc:
-                    logger.warning("Capitol Trades API page %d failed: %s", page, exc)
-                    break
-        return all_trades
+        out.sort(key=lambda x: x.score, reverse=True)
+        return out[:top_n]
 
     # ------------------------------------------------------------------ #
-    # Internal — HTML scrape fallback
+    # Performance metrics — the headline "trading success" measure
     # ------------------------------------------------------------------ #
 
-    async def _fetch_html_trades(self, pages: int) -> list[PoliticianTrade]:
-        """Scrape trades from the HTML page (Next.js __NEXT_DATA__ or table)."""
-        from bs4 import BeautifulSoup
+    async def fetch_politician_performance(
+        self, politician_slug: str, politician_name: str | None = None
+    ) -> PoliticianPerformance | None:
+        """Compute win-rate and avg 30-day return for a politician's trades.
 
-        all_trades: list[PoliticianTrade] = []
-        html_headers = {**_HEADERS, "Accept": "text/html,application/xhtml+xml,*/*"}
+        The hosted API exposes a /performance endpoint but it's buggy —
+        always returns total_trades=0. Instead we compute locally:
+          1. Fetch the politician's trades from the API
+          2. For each trade with a ticker, look up the close price on the
+             disclosure date and 30 days later via yfinance
+          3. Win = price moved the same direction as the trade (up for buys)
+          4. Aggregate: win_rate, avg_return, avg_spy_return for benchmark
+        """
+        if not politician_slug:
+            return None
 
-        async with httpx.AsyncClient(
-            headers=html_headers, timeout=self.TIMEOUT, follow_redirects=True
-        ) as client:
-            for page in range(1, pages + 1):
-                try:
-                    params = {"page": page} if page > 1 else {}
-                    resp = await client.get(f"{self.SITE_BASE}/trades", params=params)
-                    if resp.status_code != 200:
-                        break
-                    soup = BeautifulSoup(resp.text, "lxml")
+        trades = await self.fetch_politician_trades(politician_slug, pages=4)
+        if not trades:
+            return PoliticianPerformance(
+                politician_slug=politician_slug,
+                politician_name=politician_name or politician_slug,
+                total_trades=0,
+                win_rate_30d=None, avg_return_30d=None, avg_spy_return_30d=None,
+            )
 
-                    # Next.js embeds page data in a <script id="__NEXT_DATA__"> tag
-                    next_tag = soup.find("script", id="__NEXT_DATA__")
-                    if next_tag and next_tag.string:
-                        try:
-                            payload = json.loads(next_tag.string)
-                            page_props = payload.get("props", {}).get("pageProps", {})
-                            # Try multiple possible data locations
-                            raw_list = (
-                                page_props.get("trades", {}).get("data")
-                                or page_props.get("data")
-                                or []
-                            )
-                            if raw_list:
-                                parsed = [t for item in raw_list if (t := _parse_trade(item))]
-                                all_trades.extend(parsed)
-                                if parsed:
-                                    continue  # Got data; move to next page
-                        except (json.JSONDecodeError, AttributeError):
-                            pass
+        # Run the yfinance lookups in a thread (sync library, blocking calls)
+        import asyncio
+        return await asyncio.to_thread(
+            _compute_performance_locally,
+            politician_slug, politician_name or trades[0].politician_name, trades,
+        )
 
-                    # Fallback: look for a <table> with trade rows
-                    rows = soup.select("table tbody tr")
-                    for row in rows:
-                        cells = row.find_all("td")
-                        if len(cells) < 5:
-                            continue
-                        try:
-                            # Positional parsing: 0=politician, 1=asset, 2=type, 3=date, 4=filed, 5=amount
-                            pol_text = cells[0].get_text(" ", strip=True)
-                            asset_text = cells[1].get_text(" ", strip=True)
-                            ticker_m = re.search(r"\b([A-Z]{1,5})\b", asset_text)
-                            if not ticker_m:
-                                continue
-                            raw = {
-                                "_id": f"html-{pol_text[:20]}-{ticker_m.group()}-{page}-{len(all_trades)}",
-                                "politician": {
-                                    "name": pol_text,
-                                    "slug": pol_text.lower()[:40].replace(" ", "-"),
-                                    "party": "Unknown",
-                                    "chamber": "Unknown",
-                                },
-                                "asset": {
-                                    "ticker": ticker_m.group(),
-                                    "name": asset_text,
-                                    "assetType": "stock",
-                                },
-                                "txType": cells[2].get_text(strip=True),
-                                "txDate": cells[3].get_text(strip=True),
-                                "publishedDate": cells[4].get_text(strip=True) if len(cells) > 4 else "",
-                                "amount": cells[5].get_text(strip=True) if len(cells) > 5 else "",
-                            }
-                            t = _parse_trade(raw)
-                            if t:
-                                all_trades.append(t)
-                        except Exception:
-                            continue
 
-                    if not all_trades:
-                        # Nothing parsed on this page; stop trying
-                        break
+def _compute_performance_locally(
+    slug: str, name: str, trades: list[PoliticianTrade]
+) -> PoliticianPerformance:
+    """Compute win rate and avg return over a 30-day post-disclosure horizon.
 
-                except Exception as exc:
-                    logger.warning("HTML scrape page %d failed: %s", page, exc)
-                    break
+    Synchronous because yfinance is sync — call from asyncio.to_thread.
+    Only includes trades whose 30-day window is fully in the past.
+    """
+    from datetime import date, timedelta
+    import yfinance as yf
+    import pandas as pd
 
-        return all_trades
+    today = date.today()
+    cutoff = today - timedelta(days=31)  # need 30+ days of post-trade history
+    eligible = [t for t in trades if t.transaction_date and _to_date(t.transaction_date) and _to_date(t.transaction_date) <= cutoff]
+    if not eligible:
+        return PoliticianPerformance(
+            politician_slug=slug, politician_name=name, total_trades=0,
+            win_rate_30d=None, avg_return_30d=None, avg_spy_return_30d=None,
+        )
+
+    # Collect SPY benchmark range once
+    earliest = min(_to_date(t.transaction_date) for t in eligible)
+    spy_end = today
+    try:
+        spy_df = yf.download("SPY", start=earliest.isoformat(), end=spy_end.isoformat(),
+                             progress=False, auto_adjust=True, threads=False)
+        spy_close = spy_df["Close"]["SPY"] if isinstance(spy_df["Close"], pd.DataFrame) else spy_df["Close"]
+    except Exception as exc:
+        logger.warning("SPY download failed: %s", exc)
+        spy_close = None
+
+    returns: list[float] = []
+    spy_returns: list[float] = []
+    wins = 0
+    counted = 0
+
+    # Group trades by ticker so we download each ticker only once
+    by_ticker: dict[str, list[PoliticianTrade]] = {}
+    for t in eligible:
+        by_ticker.setdefault(t.ticker, []).append(t)
+
+    for ticker, ticker_trades in by_ticker.items():
+        try:
+            start_dt = min(_to_date(t.transaction_date) for t in ticker_trades) - timedelta(days=2)
+            end_dt = today
+            df = yf.download(ticker, start=start_dt.isoformat(), end=end_dt.isoformat(),
+                             progress=False, auto_adjust=True, threads=False)
+            if df.empty:
+                continue
+            close = df["Close"][ticker] if isinstance(df["Close"], pd.DataFrame) else df["Close"]
+        except Exception as exc:
+            logger.debug("yf download failed for %s: %s", ticker, exc)
+            continue
+
+        for t in ticker_trades:
+            d0 = _to_date(t.transaction_date)
+            d1 = d0 + timedelta(days=30)
+            try:
+                p0 = _nearest_close(close, d0)
+                p1 = _nearest_close(close, d1)
+                if p0 is None or p1 is None or p0 <= 0:
+                    continue
+                raw = (p1 - p0) / p0
+                # Win if direction matches: up for buy, down for sell
+                signed_return = raw if t.transaction_type == "purchase" else -raw
+                returns.append(signed_return)
+                counted += 1
+                if signed_return > 0:
+                    wins += 1
+                # SPY benchmark over same window
+                if spy_close is not None:
+                    sp0 = _nearest_close(spy_close, d0)
+                    sp1 = _nearest_close(spy_close, d1)
+                    if sp0 and sp1 and sp0 > 0:
+                        spy_returns.append((sp1 - sp0) / sp0)
+            except Exception:
+                continue
+
+    return PoliticianPerformance(
+        politician_slug=slug,
+        politician_name=name,
+        total_trades=counted,
+        win_rate_30d=wins / counted if counted else None,
+        avg_return_30d=sum(returns) / len(returns) if returns else None,
+        avg_spy_return_30d=sum(spy_returns) / len(spy_returns) if spy_returns else None,
+    )
+
+
+def _to_date(s: str):
+    from datetime import date
+    try:
+        return date.fromisoformat(s[:10])
+    except (ValueError, TypeError):
+        return None
+
+
+def _nearest_close(series, target_date) -> float | None:
+    """Find the close price on or just after target_date in a price series."""
+    import pandas as pd
+    if series is None or len(series) == 0:
+        return None
+    target = pd.Timestamp(target_date)
+    # Make timezone naive to match yfinance index
+    idx = series.index.tz_localize(None) if series.index.tz else series.index
+    matches = series.loc[idx >= target]
+    if matches.empty:
+        return None
+    val = matches.iloc[0]
+    return float(val) if val == val else None  # NaN check

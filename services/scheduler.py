@@ -106,7 +106,7 @@ def _register_copy_trading_jobs(sched: AsyncIOScheduler) -> None:
 
 
 async def _poll_capitol_trades_job() -> None:
-    """Fetch recent disclosures; queue copy-trade plans for new trades."""
+    """Fetch recent disclosures for all followed politicians; queue new copy-trade plans."""
     from services import db_service
     from services.capitol_trades_service import CapitolTradesService
     from services.settings_service import get_settings
@@ -119,40 +119,37 @@ async def _poll_capitol_trades_job() -> None:
             logger.info("Capitol Trades poll: disabled via config — skipping")
             return
 
-        pol_slug = cfg.get("followed_politician")
-        if not pol_slug:
-            logger.info("Capitol Trades poll: no politician configured — skipping")
+        followed = await db_service.list_followed_politicians()
+        active = [p for p in followed if p.get("enabled", 1)]
+        if not active:
+            logger.info("Capitol Trades poll: no politicians followed — skipping")
             return
 
         svc = CapitolTradesService()
-        # Fetch last 3 pages (up to 150 trades) to catch any we might have missed
-        all_trades = await svc.fetch_recent_trades(pages=3)
-        if not all_trades:
-            logger.warning("Capitol Trades poll: no trades returned")
-            await db_service.set_copy_config("last_scan_ts", datetime.now(timezone.utc).isoformat())
-            await db_service.set_copy_config("last_scan_count", "0")
-            return
-
-        # Filter to followed politician only
-        pol_trades = [t for t in all_trades if t.politician_slug == pol_slug]
-        logger.info(
-            "Capitol Trades poll: %d total trades, %d from %s",
-            len(all_trades), len(pol_trades), pol_slug,
-        )
-
-        # Dedup against what we already have in DB
         known_ids = await db_service.get_known_trade_ids()
-        new_trades = [t for t in pol_trades if t.trade_id not in known_ids]
-        logger.info("Capitol Trades poll: %d new trades to process", len(new_trades))
+        total_fetched = 0
+        total_queued = 0
 
-        queued = 0
-        for trade in new_trades:
-            await _process_one_trade(trade, cfg)
-            queued += 1
+        for pol in active:
+            pol_slug = pol["slug"]
+            pol_trades = await svc.fetch_politician_trades(pol_slug, pages=10)
+            total_fetched += len(pol_trades)
+            logger.info("Capitol Trades poll: fetched %d trades for %s", len(pol_trades), pol_slug)
+
+            new_trades = [t for t in pol_trades if t.trade_id not in known_ids]
+            for trade in new_trades:
+                await _process_one_trade(trade, cfg)
+                known_ids.add(trade.trade_id)
+                total_queued += 1
 
         await db_service.set_copy_config("last_scan_ts", datetime.now(timezone.utc).isoformat())
-        await db_service.set_copy_config("last_scan_count", str(queued))
-        logger.info("Capitol Trades poll: done — %d trades queued", queued)
+        await db_service.set_copy_config("last_scan_count", str(total_queued))
+        await db_service.set_copy_config("last_scan_total_fetched", str(total_fetched))
+        await db_service.set_copy_config("last_scan_error", "")
+        logger.info(
+            "Capitol Trades poll: done — %d politicians, %d fetched, %d queued",
+            len(active), total_fetched, total_queued,
+        )
 
     except Exception as exc:
         logger.exception("Capitol Trades poll failed: %s", exc)

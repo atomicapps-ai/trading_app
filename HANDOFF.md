@@ -1,11 +1,159 @@
-# Session Handoff — 2026-04-25
+# Session Handoff — 2026-04-25 (afternoon: Copy Insiders + Senate + Stock Lists)
 
 Short catch-up doc for resuming in a fresh Claude Code session.
 Read order: **CLAUDE.md** first (full spec + conventions), then this file.
 
 ---
 
-## Current state (post 2026-04-25 session)
+## What shipped this session (2026-04-25 PM)
+
+### TL;DR
+Copy Trading was rebuilt as **Copy Insiders** with both chambers, multi-follow,
+working data sources, real performance metrics, persistent state, and a
+sidebar-accordion redesign. Plus a new **Stock Lists** submenu with 10
+pre-loaded ticker collections.
+
+### Root-cause fix: Capitol Trades API was dead
+- `api.capitoltrades.com` no longer resolves (NXDOMAIN). The original
+  scraper was failing silently and returning 0 trades.
+- Replaced with the working hosted API at
+  `congressional-trading-datastore-production-9fd6.up.railway.app`
+  (open-source `ivanma9/CongressionalTrading` project; 24,492 trades,
+  daily-refreshed, free, no auth).
+- Hosted `/performance` endpoint exists but is broken (always returns
+  `total_trades: 0`). We compute locally with **yfinance** instead — same
+  win-rate / 30-day return / SPY benchmark methodology.
+
+### Senate via efdsearch.senate.gov
+- New `services/senate_efd_service.py` wraps the eFD search flow:
+  GET `/search/home/` → POST agreement → POST `/search/report/data/` → JSON list
+- **Critical discovery**: Senate PTRs are served as **structured HTML
+  tables**, not PDFs. No PDF library required — BeautifulSoup over the
+  `<table>` extracts trades cleanly.
+- New `senate_filings` table caches the PTR index (used for diff
+  detection). New `senate_trades` table caches individual transactions
+  parsed from each PTR (`(ptr_id, row_num)` PK).
+- `compute_senator_performance(slug, name)` adapts Senate trade rows to
+  the `PoliticianTrade` shape and feeds them through the same yfinance
+  pipeline used for House members. **Verified: Boozman = 64.1% win,
+  +1.88% avg 30d return, +2.35% alpha vs SPY (n=64 trades, 6 PTRs)**.
+
+### Composite ranking 1-10
+- `routers/copy_trading.py::_compute_composite_ranks` — for the dropdown
+- Inputs: `trade_count_90d` (0.25), `win_rate_30d` (0.40), `avg_return_30d` (0.35)
+- Each metric percentile-ranked across the cached cohort, weighted, binned
+  into deciles. Dropdown options colored 🔴 (1-5) / 🟢 (6-10).
+
+### UX changes
+- **Sidebar accordion**: Copy Trading → "Copy Insiders" parent group with
+  children Politician Rankings + Politician Trades. Universe parent group
+  with children Stock Screeners + Stock Lists. Open state persists in
+  localStorage. `templates/base.html` + `static/app.css` `.nav-group/.nav-child`.
+- **Persistent rankings cache**: `/api/copy-trading/politicians` writes the
+  result to `copy_trading_config.latest_rankings_json` so the leaderboard
+  re-renders on app restart without a manual click. "Loaded 5m ago"
+  timestamp shown next to Reload button (with absolute local time on hover).
+- **Pin to top** (favorites): `is_favorite` column on `followed_politicians`,
+  amber row tint, ⭐ button.
+- **Auto-compute on follow**: FastAPI `BackgroundTasks` kicks off the
+  yfinance computation when a politician is followed, so the row populates
+  within ~30s without a manual ↻ click. Chamber-aware dispatch routes
+  senators through the eFD pipeline.
+- **"No equity trades"** state: when `perf_trade_count == 0` after compute,
+  the followed-list row shows the explanation instead of blank dashes.
+  This catches cases like Cisneros (mostly bonds) and McCormick (54/55
+  trades non-equity).
+- **Senate stale banner**: amber banner above the dropdown when Senate
+  data is > 7 days old (`senate_last_refresh_at` config key).
+
+### Politician Trades page (`/copy-insiders/trades`)
+- Multi-select checkboxes with filter input
+- URL deep-link `?politicians=slug1,slug2`
+- Combined disclosure table sorted by trade date
+- **Ticker hover** → 250ms debounced floating chart popover (120 daily
+  bars from `/api/bars/{symbol}`, candlestick via Lightweight Charts)
+- Click ticker → opens Finviz quote (placeholder until `/ticker/{symbol}` ships)
+
+### Pending breadcrumb
+- When user clicks "View Queue →" from Copy Insiders, `/pending?ref=copy-trading`
+  shows a `← Copy Insiders › Approval Queue` breadcrumb in the left panel.
+  Originally placed above `.split-layout` but the negative `margin: -28px -32px`
+  was covering it; now placed inside `.split-left`.
+
+### New Universe submenu: Stock Lists
+- 10 default ticker collections — S&P 500, NASDAQ-100, Dow 30, S&P 400/600,
+  Magnificent 7, FAANG, SPDR Sector ETFs, AI Leaders, Crypto-Adjacent
+- Two source types: `wikipedia` (refreshable via `pd.read_html`) and `static`
+- Per-list refresh button + global "Refresh dynamic lists"
+- Detail page: ticker grid with filter, copy-all, click-through to Finviz
+- **Important fix**: `stock_lists.router` registered BEFORE `universe.router`
+  in `app.py` so `/universe/stock-lists` doesn't get shadowed by
+  `/universe/{preset_name}`.
+
+### Files added/changed
+```
+A  services/senate_efd_service.py       (eFD scraper + HTML PTR parser + perf adapter)
+A  services/stock_lists_service.py      (10 default lists, Wikipedia + static sources)
+A  routers/stock_lists.py               (page + JSON API + refresh endpoints)
+A  templates/copy_insiders/rankings.html  (leaderboard + multi-follow + composite rank)
+A  templates/copy_insiders/trades.html    (multi-select + disclosure table + ticker hover-chart)
+A  templates/stock_lists.html           (cards grid)
+A  templates/stock_list_detail.html     (ticker grid + filter + copy)
+M  app.py                               (register stock_lists router; ordering fix)
+M  routers/copy_trading.py              (rewrite around new service + Senate dispatch + many endpoints)
+M  routers/pending.py                   (read ?ref=copy-trading param + pass to template)
+M  services/capitol_trades_service.py   (rewrote to use ivanma9 API + local yfinance perf)
+M  services/db_service.py               (new tables: followed_politicians, member_performance_cache,
+                                         stock_lists, senate_filings, senate_trades; CRUD; migrations)
+M  services/scheduler.py                (poll job iterates followed_politicians; Senate path)
+M  static/app.css                       (.nav-group accordion styles)
+M  templates/base.html                  (sidebar rewritten as accordion with parent/child)
+M  templates/copy_trading.html          (legacy file kept; route redirects to /copy-insiders/rankings)
+M  templates/pending.html               (breadcrumb in .split-left when ref=copy-trading)
+M  CLAUDE.md / HANDOFF.md               (this update)
+```
+
+### Verified end-to-end against live APIs
+- ivanma9 House API: 92 members, Pelosi 61.1% win / +1.23% / +0.86% alpha (n=18)
+- eFD Senate scraper: 37 PTRs / 14 senators in last 90 days
+- Senate PTR parser: Boozman 64 equity trades across 6 PTRs, **64.1% win
+  rate, +2.35% alpha vs SPY**
+- All 89 routes register cleanly; DB migrates 12 tables idempotently
+
+### Scheduled jobs: 5 (unchanged this session — auto-diff job is #6, deferred)
+- `ct_morning` 07:00 ET Mon-Fri (Capitol Trades poll)
+- `ct_poll` 08:30 ET Mon-Fri (Capitol Trades poll)
+- `wf_morning_run` 08:30 ET Mon-Fri
+- `wf_double_lock_1030` 10:30 ET Mon-Fri
+- `wf_evening_run` 16:30 ET Mon-Fri
+
+---
+
+## Immediate next tasks for new session (pick one)
+
+### Option A — Senate auto-diff job (~30 min)
+Add a daily APScheduler job that hits `efdsearch.senate.gov`, compares
+returned `ptr_id`s to `db_service.get_known_senate_ptr_ids()`, and writes
+`copy_trading_config.senate_new_filings_count`. UI banner already exists;
+just needs the job wired.
+
+### Option B — `executioner.close_at_time(plan_id, deadline)` (~1 hr)
+Last DL-Filtered integration item. Adds an APScheduler `add_job(run_date=…)`
+that calls `place_order(side='close', broker_order_id=plan.entry_order_id)`
+at the TimeStop deadline. The DL workflow then runs end-to-end autonomously.
+
+### Option C — Phase 6 edit-mode for active trades
+On the new `/trades/{id}` page, when `trade.is_active`, show a form to
+modify stop / TP via `BrokerAdapter.modify_order()` (already verified in
+Alpaca + TS adapters). Skeleton is already in place.
+
+### Option D — Phase 5 multi-year backtest engine
+Walk-forward replay across cached bars; reuses every Phase 4 agent because
+detectors are pure functions of `(bars, config, as_of_ts)`.
+
+---
+
+## Earlier in 2026-04-25 session (morning) — preserved below
 
 **Phase 4 fully complete.** Scheduler shipped via main `70ccbe6` (Capitol
 Trades commit) — workflow YAMLs auto-register from their `schedule:` field.
