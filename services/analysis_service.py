@@ -43,6 +43,23 @@ DUMP_CSV: Path = PROJECT_ROOT / "claude_trades_dump.csv"
 
 Source = Literal["auto", "dump", "jsonl"]
 
+# Canonical column set every cut function expects. Used to produce a
+# well-typed empty frame when no data source is available, so the
+# /trades/analysis page renders an empty state instead of 500-ing.
+_CANONICAL_COLS = [
+    "sym", "date", "dir", "pnl_pct", "win",
+    "rsi14_d", "vix_level", "adx14_d",
+    "spy_aligned", "above_sma50_d", "prior_day_match",
+    "rs_vs_spy", "gap_pct", "or_size_vs_atr",
+    "entry", "exit", "exit_reason", "mfe_pct", "mae_pct",
+    "source",
+]
+
+
+def _empty_frame() -> pd.DataFrame:
+    """Properly-shaped empty DataFrame so cut functions don't KeyError."""
+    return pd.DataFrame({c: pd.Series(dtype="object") for c in _CANONICAL_COLS})
+
 
 # ── Loaders ────────────────────────────────────────────────────────────────
 def load_trades(
@@ -86,7 +103,7 @@ def _load_dump(apply_production_filter: bool = True) -> pd.DataFrame:
     "all signals" view (useful for "should we relax the filter?" debate).
     """
     if not DUMP_CSV.exists():
-        return pd.DataFrame()
+        return _empty_frame()
     df = pd.read_csv(DUMP_CSV)
     for col in ("entry", "exit", "exit_reason", "mfe_pct", "mae_pct"):
         if col not in df.columns:
@@ -127,7 +144,7 @@ def _load_jsonl() -> pd.DataFrame:
                     continue
                 rows.append(_flatten_record(rec))
     if not rows:
-        return pd.DataFrame()
+        return _empty_frame()
     df = pd.DataFrame(rows)
     df["source"] = "jsonl"
     return df
@@ -268,9 +285,11 @@ def by_binary(df: pd.DataFrame, column: str) -> list[dict]:
 
 
 def by_direction(df: pd.DataFrame) -> list[dict]:
+    if len(df) == 0 or "dir" not in df.columns:
+        return []
     out: list[dict] = []
     for d in ("LONG", "SHORT"):
-        sub = df[df["dir"].str.upper() == d]
+        sub = df[df["dir"].astype(str).str.upper() == d]
         if len(sub) == 0:
             continue
         pnls = sub["pnl_pct"].astype(float)
@@ -288,6 +307,8 @@ def by_direction(df: pd.DataFrame) -> list[dict]:
 
 
 def by_symbol(df: pd.DataFrame, min_trades: int = 1) -> list[dict]:
+    if len(df) == 0 or "sym" not in df.columns:
+        return []
     out: list[dict] = []
     for sym, sub in df.groupby("sym"):
         if len(sub) < min_trades:
@@ -309,6 +330,8 @@ def by_symbol(df: pd.DataFrame, min_trades: int = 1) -> list[dict]:
 
 def loser_clusters(df: pd.DataFrame) -> dict:
     """Group losing trades by feature buckets — surfaces failure modes."""
+    if len(df) == 0 or "pnl_pct" not in df.columns:
+        return dict(n=0, clusters=[])
     losers = df[df["pnl_pct"] < 0].copy()
     if len(losers) == 0:
         return dict(n=0, clusters=[])
@@ -380,6 +403,8 @@ def equity_curve(df: pd.DataFrame) -> list[dict]:
 
 def per_trade(df: pd.DataFrame, only_losses: bool = False) -> list[dict]:
     """Full per-trade ledger with the entry-feature vector."""
+    if len(df) == 0 or "pnl_pct" not in df.columns or "date" not in df.columns:
+        return []
     if only_losses:
         df = df[df["pnl_pct"] < 0]
     rows: list[dict] = []
