@@ -1,13 +1,13 @@
 # TradeAgent — Project Context for Claude Code
 **Last synced:** 2026-04-25
-**Status:** Phase 4 + Phase 6 edit-mode shipped; DL agent loop closed.
-DL-Filtered intraday detector + analysis dashboard + modular widget dashboard
-with settings layer + unified trade detail page + intraday time-stop close
-+ active-trade edit form all shipped across the 2026-04-24/25 sessions.
-**Next chat options:** see HANDOFF.md "Immediate next tasks" — (a) Phase 5
-multi-year backtest engine, (b) Phase 4.5 chart viewer + indicators on
-/pending and /universe, (c) persistent APScheduler job store (close_at_time
-jobs are in-memory only — app restart drops them).
+**Status:** Phase 4 + Phase 4.5 + Phase 6 edit-mode shipped; DL agent
+loop closed. Trade detail chart now uses the shared `chart_tools.js`
+helper (timeframe selector + chip UX consistent with /pending +
+/universe). Phase 4.5 indicator overlay+subplot stack is production.
+**Next chat options:** see HANDOFF.md "Immediate next tasks" —
+(a) Phase 5 multi-year backtest engine, (b) persistent APScheduler
+job store (close_at_time jobs are in-memory only),
+(c) news_service.get_news kwarg fix on /trades/{id}.
 **Roadmap (current):**
 - Phase 4 ✅ all sub-items
 - DL-Filtered intraday strategy ✅ (detector + workflow + smoke + integration + 15:00 ET close)

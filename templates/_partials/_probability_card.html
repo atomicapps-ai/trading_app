@@ -1,6 +1,15 @@
 {# Probability of success — backtest WR + live WR + blended.
-   Expects `probability` context: ProbabilityEstimate.to_dict() shape. #}
+   Expects `probability` context: ProbabilityEstimate.to_dict() shape, or
+   None (e.g. trade has no strategy_name, or compute() failed). #}
 {% set p = probability %}
+{% if p is none %}
+<div class="card">
+  <div class="card-header"><span class="card-title">Probability of success</span></div>
+  <div class="text-tertiary text-sm" style="padding: 12px 0;">
+    Strategy probability unavailable for this trade.
+  </div>
+</div>
+{% else %}
 <div class="card">
   <div class="card-header">
     <span class="card-title">Probability of success</span>
@@ -73,3 +82,4 @@
     {% endif %}
   {% endif %}
 </div>
+{% endif %}

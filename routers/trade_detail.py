@@ -2,14 +2,18 @@
 
 Resolves an id across both backends (pending_approvals + JSONL trade
 journal) via ``services.trade_lookup`` and renders the same template
-in either case. Active trades get the edit form (Phase 6 lights it
-up); closed trades get the postmortem card.
+in either case. Active trades get the edit form; closed trades get
+the postmortem card.
 
 Companion partials in templates/_partials/:
   _probability_card.html — backtest WR + live WR + blended
-  _news_card.html         — VADER-scored Alpaca News + EDGAR
-  _postmortem_card.html   — closed trades only
-  _indicator_picker.html  — chart overlay/subplot picker
+  _news_card.html        — VADER-scored Alpaca News + EDGAR
+  _postmortem_card.html  — closed trades only
+
+The chart on the page renders via the shared ``static/chart_tools.js``
+helper (same code path as /pending and /universe edit), with a
+``persistKey: "trade_detail"`` so per-user indicator picks survive in
+localStorage.
 """
 from __future__ import annotations
 
@@ -17,7 +21,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from services import (
@@ -26,15 +30,6 @@ from services import (
     probability_service,
     sentiment_service,
     trade_lookup,
-    widget_settings,
-)
-from services.indicator_registry import (
-    DEFAULT_OVERLAY_IDS,
-    DEFAULT_SUBPLOT_IDS,
-    INDICATORS,
-    indicators_by_category,
-    overlay_indicators,
-    subplot_indicators,
 )
 from services.settings_service import TEMPLATES_DIR, Settings, get_settings
 
@@ -42,11 +37,6 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
-
-# Hold for trade-chart indicator picks. Reuses the widget_settings
-# storage with a synthetic widget_id so the indicator selection
-# persists per user across machines.
-_TRADE_CHART_WIDGET_ID = "trade_chart"
 
 
 @router.get("/trades/{trade_id}", response_class=HTMLResponse)
@@ -85,21 +75,6 @@ async def trade_detail(
         logger.warning("trade_detail: news fetch failed for %s: %s",
                        trade.symbol, e)
 
-    # ── Indicator picks (per-user, persisted via widget_settings) ───────
-    saved_overlays = await widget_settings.get_with_default(
-        "default", _TRADE_CHART_WIDGET_ID, "selected_overlays",
-        DEFAULT_OVERLAY_IDS,
-    )
-    saved_subplots = await widget_settings.get_with_default(
-        "default", _TRADE_CHART_WIDGET_ID, "selected_subplots",
-        DEFAULT_SUBPLOT_IDS,
-    )
-    overlays_by_cat = {
-        cat: [s for s in specs if s.pane == "overlay"]
-        for cat, specs in indicators_by_category().items()
-        if any(s.pane == "overlay" for s in specs)
-    }
-
     return templates.TemplateResponse(
         request=request,
         name="trades/detail.html",
@@ -112,10 +87,6 @@ async def trade_detail(
             "news_items": news_items,
             "news_summary": news_summary,
             "news_error": news_error,
-            "overlays_by_category": overlays_by_cat,
-            "subplots": subplot_indicators(),
-            "selected_overlays": saved_overlays,
-            "selected_subplots": saved_subplots,
         },
     )
 
@@ -316,35 +287,3 @@ async def trade_edit(
     return HTMLResponse(
         f'<span class="toast toast-ok">Plan updated{broker_msg}.</span>'
     )
-
-
-@router.post("/api/trades/chart/indicators", response_class=JSONResponse)
-async def save_trade_chart_indicators(request: Request):
-    """Persist the indicator-pick state for the trade detail chart.
-
-    Body shape:
-        {"selected_overlays": ["sma_20", "vwap"],
-         "selected_subplots": ["rsi_14"]}
-
-    Validates ids against the global registry (defensive — drops unknown).
-    """
-    try:
-        payload = await request.json()
-    except Exception:                                          # noqa: BLE001
-        raise HTTPException(400, "invalid JSON body")
-
-    valid_ids = set(INDICATORS.keys())
-    overlays = [
-        i for i in (payload.get("selected_overlays") or [])
-        if i in valid_ids and INDICATORS[i].pane == "overlay"
-    ]
-    subplots = [
-        i for i in (payload.get("selected_subplots") or [])
-        if i in valid_ids and INDICATORS[i].pane == "subplot"
-    ]
-
-    await widget_settings.set_many(
-        "default", _TRADE_CHART_WIDGET_ID,
-        {"selected_overlays": overlays, "selected_subplots": subplots},
-    )
-    return {"saved": True, "overlays": overlays, "subplots": subplots}

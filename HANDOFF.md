@@ -58,14 +58,30 @@ the close-at-time job idempotently when the deadline moves. Refuses
 edits on closed/rejected/expired trades. Smoke test:
 `scripts/smoke_trade_edit.py` (6/6 pass).
 
+**Phase 4.5 chart viewer + indicators: COMPLETE** (was already shipped in
+main `730f3f3`; HANDOFF was stale on this point). `routers/indicators.py`
+exposes `GET /api/indicators/{symbol}` over the canonical
+`services/indicator_service.py`; `static/chart_tools.js` is the shared
+panel helper used by `/pending`, `/universe/*/edit`, AND now
+`/trades/{id}` (migrated this session — drops ~190 lines of bespoke
+chart JS, gains the timeframe selector + chip UX, persists picks via
+localStorage `chart.indicators.trade_detail`). Removed in the same
+migration: `templates/_partials/_indicator_picker.html`,
+`POST /api/trades/chart/indicators`, `_TRADE_CHART_WIDGET_ID` SQLite
+storage path. Side fix: `_probability_card.html` now guards on
+`probability is none`.
+
 **Next chat options (pick one):**
 - (a) **Phase 5 backtest engine** — multi-year Alpaca 30-min replay to
   validate the DL strategy's 82.4% WR on a meaningful sample size.
-- (b) **Phase 4.5 chart viewer + indicators push** — still queued.
-- (c) **Persistent APScheduler job store** — close_at_time jobs live in
+- (b) **Persistent APScheduler job store** — close_at_time jobs live in
   memory only; an app restart drops the close. Add a SQLAlchemyJobStore
   (or rehydrate from open positions on startup) to make autonomous
   intraday trading restart-safe.
+- (c) **news_service.get_news kwarg fix** — `routers/trade_detail.py`
+  passes `start=`/`end=` but the service signature must differ; the
+  router catches and renders a graceful empty news card, but real news
+  isn't appearing on `/trades/{id}` until this is reconciled.
 
 ---
 
