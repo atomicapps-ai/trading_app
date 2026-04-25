@@ -1,0 +1,74 @@
+strategy_name: double_lock
+version: "1.0"
+description: >
+  Intraday opening pattern. Two consecutive 30-min conviction candles
+  (c1 BULL.STR.HPRS.HVOL + c2 BULL.STR or c1 BEAR.STR.LPRS.HVOL + c2 BEAR.STR)
+  predict the day-close direction with 82% WR (n=17, 60-day window) when
+  combined with the regime filter below. Entry at 10:30 ET, exit at 15:00 ET.
+universe_filter_preset: liquid_momentum_core
+mode: paper
+active: true
+holding_period: intraday
+
+# PQS floor - this detector's clean fire scores 70+ before modifiers, so
+# anything qualifying here clears the standard 0.55 floor easily. The
+# higher floor is a safety net against partial / weak fires.
+min_signal_strength: 0.70
+
+risk:
+  # CRITICAL: 3% catastrophic stop. Tightening to 1% destroys the strategy
+  # (testing showed 8 of 17 filtered trades hit a 1% intraday excursion
+  # before recovering by 15:00). Keep 3% even though it triggers gate R7
+  # (min R:R) by default; see portfolio_rules.min_rr_ratio override below.
+  max_risk_pct_per_trade: 0.50
+  max_position_pct_of_equity: 8.0
+  min_rr_ratio: 0.30   # this strategy wins via WR, not R-multiple per win
+
+thresholds:
+  # ── Candle structure (matches scan_opening_patterns.py) ──
+  body_pct: 0.50         # STR body: |close - open| / range
+  press_hi: 0.50         # HPRS lower bound on c1 BULL: closepct >= 0.50
+  press_lo: 0.50         # LPRS upper bound on c1 BEAR: closepct <= 0.50
+  vol_mult: 1.20         # HVOL: c1 volume >= 1.2x slot median
+
+  # ── Regime filter (essential — without it WR drops to 43%) ──
+  vix_min: 20.0          # ^VIX previous close >= 20
+  adx_max: 35.0          # daily ADX(14) <= 35 (not in runaway trend)
+  rsi_long_lo:  40.0     # LONG : daily RSI(14) ranges
+  rsi_long_hi:  65.0
+  rsi_short_lo: 20.0     # SHORT: daily RSI(14) ranges
+  rsi_short_hi: 40.0
+
+  # ── Risk levels ──
+  cat_stop_pct: 3.0      # catastrophic stop, immutable from entry
+
+# Trail / time-stop knobs — read by portfolio_manager when assembling
+# the TradePlan. Test results: 1.0% trail activated only after +3%
+# favorable saved 0.29% drag vs baseline; never trips on normal trades.
+portfolio_rules:
+  trail_mode: percent
+  trail_percent: 1.0
+  trail_activate_after: "price >= entry + 1.0R"
+  # No trailing-ATR override; mode=percent uses trail_percent only.
+
+  # Hard time-stop at 15:00 ET (5h from 10:30 entry on a typical session).
+  time_stop_sessions: 0          # same-day exit, not multi-session
+  time_stop_condition: "exit at 15:00 ET bar close (intraday strategy)"
+
+  # Single signal qualifies (this detector is its own consensus check).
+  min_lenses_agreeing: 1
+  min_patterns_agreeing: 1
+  single_signal_override: 0.70
+
+# Cross-validation summary (for the audit trail)
+backtest_summary:
+  source: scripts/backtest_strategy2_indicators.py + cross_validate_dl.py
+  universe_size: 37
+  window: 60d (yfinance free-tier cap)
+  filtered_trades_n: 17
+  point_wr_pct: 82.4
+  bootstrap_95_ci_lo: 64.7
+  bootstrap_95_ci_hi: 100.0
+  profit_factor: 3.14
+  avg_pnl_pct_per_trade: 0.56
+  total_pnl_pct: 9.50

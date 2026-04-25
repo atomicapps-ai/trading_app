@@ -255,14 +255,24 @@ class PortfolioManager:
             do_not_enter_windows=["open_5min", "close_5min"],
         )
 
-        # Stop loss — initial hard stop + trailing + time stop + thesis
-        trail = TrailingStop(
+        # Stop loss — initial hard stop + trailing + time stop + thesis.
+        # trail_mode is config-driven so different strategies can use ATR,
+        # percent, or structural trails. Default "atr" matches the swing
+        # baseline; double_lock.yaml overrides to "percent" for example.
+        trail_mode = str(rules.get("trail_mode", "atr"))
+        trail_kwargs: dict = dict(
             active=True,
             activate_after=str(rules["trail_activate_after"]),
-            mode="atr",
-            atr_multiple=float(rules["trail_atr_multiple"]),
-            atr_period=int(rules["trail_atr_period"]),
+            mode=trail_mode,  # type: ignore[arg-type]
         )
+        if trail_mode == "atr":
+            trail_kwargs["atr_multiple"] = float(rules.get("trail_atr_multiple", 1.5))
+            trail_kwargs["atr_period"]   = int(rules.get("trail_atr_period", 14))
+        elif trail_mode == "percent":
+            trail_kwargs["percent"] = float(rules.get("trail_percent", 1.0))
+        # "structural" needs no extra params — caller-side logic uses
+        # last-bar swing levels at execution time.
+        trail = TrailingStop(**trail_kwargs)
         sessions = int(rules["time_stop_sessions"])
         deadline = (datetime.now(timezone.utc) + timedelta(days=sessions)).isoformat()
         time_stop = TimeStop(

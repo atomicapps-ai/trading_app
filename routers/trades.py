@@ -105,14 +105,5 @@ async def trades_table(
     )
 
 
-@router.get("/trades/analysis", response_class=HTMLResponse)
-async def trades_analysis(request: Request, s: Settings = Depends(get_settings)):
-    return templates.TemplateResponse(
-        request=request,
-        name="trades/analysis.html",
-        context={
-            "settings": s,
-            "app_version": "0.1.0",
-            "active_page": "analysis",
-        },
-    )
+# /trades/analysis moved to routers/analysis.py — real failure-analysis surface
+# replaces the Phase 6 placeholder. Registered in app.py.

@@ -35,7 +35,7 @@ from typing import Any, Literal
 import pandas as pd
 import yaml
 
-from agents.detectors import ALL_DETECTORS
+from agents.detectors import ALL_DETECTORS, INTRADAY_DETECTORS
 from models.pattern import PatternResult
 from models.signal import Evidence, KeyLevels, Signal
 from services.data_service import DataNotAvailableError, get_bars
@@ -98,6 +98,34 @@ def run_lens_technical(
 # --------------------------------------------------------------------------- #
 # PatternResult → Signal
 # --------------------------------------------------------------------------- #
+
+
+def run_lens_intraday(
+    symbol: str,
+    bars_30m: pd.DataFrame,
+    daily: pd.DataFrame,
+    vix_prev_close: float | None,
+    config: dict[str, Any],
+    as_of_ts: pd.Timestamp | None,
+) -> list[PatternResult]:
+    """Run every registered intraday detector and return any that fired.
+
+    Intraday detectors have a different signature than the swing
+    detectors in ``ALL_DETECTORS``. They take ``(bars_30m, daily,
+    vix_prev_close, config, as_of_ts)`` because they need same-day
+    30-minute bars + a prior-session VIX read to evaluate the regime
+    filter — neither of which the swing daily/hourly path provides.
+    """
+    results: list[PatternResult] = []
+    for name, fn in INTRADAY_DETECTORS.items():
+        try:
+            result = fn(bars_30m, daily, vix_prev_close, config, as_of_ts)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("intraday detector %s raised on %s: %s", name, symbol, e)
+            continue
+        if result is not None:
+            results.append(result)
+    return results
 
 
 def pattern_to_signal(
@@ -199,6 +227,54 @@ class Analyst:
         )
         return [pattern_to_signal(symbol, p) for p in qualifying]
 
+    async def run_intraday(
+        self,
+        symbol: str,
+        macro_context: dict[str, Any] | None = None,
+        as_of_ts: pd.Timestamp | None = None,
+    ) -> list[Signal]:
+        """Run intraday detectors (currently just double_lock_filtered).
+
+        Different data dependencies than ``run()``:
+          * 30-min bars for the entry candles (c1 9:30, c2 10:00)
+          * daily bars with RSI(14) + ADX(14) for the regime filter
+          * yesterday's ^VIX close from ``macro_context["vix_level"]``
+            (compute_macro_context returns this; at 10:30 ET on day D,
+            the latest available daily VIX close is D-1)
+
+        Returns Signals tagged ``timeframe="intraday"`` so the
+        portfolio_manager and UI can distinguish intraday plans from
+        the swing book.
+        """
+        try:
+            daily = await get_bars(symbol, "1d", as_of_ts=as_of_ts, min_bars=50)
+        except DataNotAvailableError as e:
+            logger.info("intraday analyst: skipping %s daily — %s", symbol, e)
+            return []
+        try:
+            bars_30m = await get_bars(symbol, "30m", as_of_ts=as_of_ts, min_bars=2)
+        except DataNotAvailableError as e:
+            logger.info("intraday analyst: skipping %s 30m — %s", symbol, e)
+            return []
+
+        daily_ind = add_indicators(daily)
+        vix_prev_close = (macro_context or {}).get("vix_level")
+
+        patterns = run_lens_intraday(
+            symbol, bars_30m, daily_ind, vix_prev_close,
+            self._strategy_config, as_of_ts,
+        )
+
+        qualifying = [p for p in patterns if p.pqs_total / 100.0 >= self._min_strength]
+        logger.info(
+            "Analyst.intraday %s: %d patterns fired, %d cleared PQS>=%.2f",
+            symbol, len(patterns), len(qualifying), self._min_strength,
+        )
+        return [
+            pattern_to_signal(symbol, p, lens="technical", timeframe="intraday")
+            for p in qualifying
+        ]
+
     # ---- Non-technical lens stubs ------------------------------------- #
 
     async def _run_lens_sentiment_stub(
@@ -227,7 +303,7 @@ async def run_analyst_on_shortlist(
     strategy_name: str = "swing_momentum",
     max_concurrency: int = 16,
 ) -> dict[str, list[Signal]]:
-    """Run the analyst across every shortlist symbol in parallel.
+    """Run the SWING analyst across every shortlist symbol in parallel.
 
     Per-symbol failures are logged and the symbol drops out silently —
     one bad ticker never kills a pipeline run.
@@ -242,6 +318,38 @@ async def run_analyst_on_shortlist(
                 return sym, sigs
             except Exception as e:  # noqa: BLE001
                 logger.warning("analyst failed on %s: %s", sym, e)
+                return sym, []
+
+    results = await asyncio.gather(*(_one(s) for s in shortlist))
+    return {sym: sigs for sym, sigs in results if sigs}
+
+
+async def run_intraday_on_shortlist(
+    shortlist: list[str],
+    settings: Settings,
+    macro_context: dict[str, Any] | None = None,
+    as_of_ts: pd.Timestamp | None = None,
+    strategy_name: str = "double_lock",
+    max_concurrency: int = 16,
+) -> dict[str, list[Signal]]:
+    """Run the INTRADAY analyst across the shortlist.
+
+    Mirror of ``run_analyst_on_shortlist`` for intraday detectors.
+    Defaults to the ``double_lock`` strategy config; pass another
+    ``strategy_name`` if more intraday strategies join later.
+    """
+    analyst = Analyst(settings, strategy_name=strategy_name)
+    sem = asyncio.Semaphore(max_concurrency)
+
+    async def _one(sym: str) -> tuple[str, list[Signal]]:
+        async with sem:
+            try:
+                sigs = await analyst.run_intraday(
+                    sym, macro_context=macro_context, as_of_ts=as_of_ts,
+                )
+                return sym, sigs
+            except Exception as e:  # noqa: BLE001
+                logger.warning("intraday analyst failed on %s: %s", sym, e)
                 return sym, []
 
     results = await asyncio.gather(*(_one(s) for s in shortlist))

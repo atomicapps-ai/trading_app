@@ -7,7 +7,12 @@ frame is sliced to `df.loc[:as_of_ts]` so no future bars leak in.
 
 Cache layout:
     data/historical/{SYMBOL}_{interval}.csv
-    intervals: "1d" (daily), "1h" (hourly)
+    intervals: "1d" (daily), "1h" (hourly), "30m" (intraday — 60-day cap)
+
+The 30-min interval was added for the intraday Double Lock detector
+(``agents/detectors/double_lock_filtered.py``). yfinance only returns
+the last ~60 days of 30-min bars, so this interval's cache turns over
+quickly — pre-market refresh is essential for live use.
 
 CSV format (new downloads, auto_adjust=True):
     Date (index, tz-aware), Open, High, Low, Close, Volume
@@ -42,13 +47,15 @@ log = logging.getLogger(__name__)
 
 HISTORICAL_DIR: Path = DATA_DIR / "historical"
 
-Interval = Literal["1d", "1h"]
+Interval = Literal["1d", "1h", "30m"]
 
 # yfinance download windows per interval. Hourly data from Yahoo is
-# only reliably available for the last ~730 days.
+# only reliably available for the last ~730 days. 30-min bars cap at
+# ~60 days (so we always request 60d and let Yahoo trim).
 _DEFAULT_PERIOD: dict[Interval, str] = {
     "1d": "20y",
     "1h": "2y",
+    "30m": "60d",
 }
 
 # Minimum bars the caller must actually receive before we call the

@@ -27,13 +27,18 @@ from agents.detectors.ascending_triangle import detect_ascending_descending_tria
 from agents.detectors.bull_flag import detect_bull_flag
 from agents.detectors.cup_and_handle import detect_cup_and_handle
 from agents.detectors.double_bottom_top import detect_double_bottom_top
+from agents.detectors.double_lock_filtered import detect_double_lock_filtered
 from agents.detectors.inside_bar_nr7 import detect_inside_bar_nr7
 from agents.detectors.rsi_divergence import detect_rsi_divergence
 from agents.detectors.volatility_squeeze import detect_volatility_squeeze
 from agents.detectors.vwap_reclaim import detect_vwap_reclaim
 from agents.detectors.wyckoff_accumulation import detect_wyckoff_accumulation
 
-# Map name -> callable for the analyst to iterate
+# Map name -> callable for the SWING analyst to iterate. The analyst
+# invokes each as fn(daily, hourly, config, as_of_ts, macro_context=...).
+# Detectors that need a different signature (e.g. intraday 30m bars +
+# VIX context for double_lock_filtered) live in INTRADAY_DETECTORS and
+# are dispatched by the workflow that knows how to feed them.
 ALL_DETECTORS = {
     "volatility_squeeze": detect_volatility_squeeze,
     "inside_bar_nr7": detect_inside_bar_nr7,
@@ -46,12 +51,22 @@ ALL_DETECTORS = {
     "wyckoff_accumulation": detect_wyckoff_accumulation,
 }
 
+# Intraday detectors — different signature than ALL_DETECTORS. Each
+# entry expects (bars_30m, daily, vix_prev_close, config, as_of_ts).
+# Dispatched by intraday workflows (e.g. workflows/double_lock_1030.yaml)
+# rather than the standard swing analyst.
+INTRADAY_DETECTORS = {
+    "double_lock_filtered": detect_double_lock_filtered,
+}
+
 __all__ = [
     "ALL_DETECTORS",
+    "INTRADAY_DETECTORS",
     "detect_ascending_descending_triangle",
     "detect_bull_flag",
     "detect_cup_and_handle",
     "detect_double_bottom_top",
+    "detect_double_lock_filtered",
     "detect_inside_bar_nr7",
     "detect_rsi_divergence",
     "detect_volatility_squeeze",

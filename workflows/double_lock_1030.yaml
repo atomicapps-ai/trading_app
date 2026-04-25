@@ -1,0 +1,49 @@
+workflow_id: double_lock_1030
+description: >
+  Intraday Double Lock signal detection. Fires once daily at 10:30 ET,
+  immediately after the 10:00 30-min candle closes. The detector reads
+  today's two opening 30-min bars + yesterday's daily indicators
+  (RSI14, ADX14) + previous VIX close and emits a signal only if the
+  full filter clears. Approval flow + executioner placement handled by
+  the same pipeline as the swing strategies.
+default_mode: paper
+schedule: "30 10 * * 1-5"   # 10:30 ET Mon-Fri
+
+# IMPORTANT: this workflow is NOT yet executable end-to-end. It needs
+# two small changes that aren't in the workflow_engine yet (see
+# HANDOFF.md "Integration TODO"):
+#   1. data_service.get_bars() needs '30m' interval support
+#   2. analyze step needs to fetch 30m bars + VIX prev close and pass
+#      them to the double_lock_filtered detector through a separate
+#      lens or signature
+# Until both land, this YAML serves as the spec; the smoke test
+# (scripts/smoke_double_lock_filtered.py) exercises the detector
+# directly against the trade dump to prove correctness.
+
+steps:
+  - id: filter_universe
+    kind: filter_universe
+    params:
+      preset: liquid_momentum_core
+      shortlist_size: 50
+
+  - id: compute_macro
+    kind: compute_macro
+    depends_on: [filter_universe]
+
+  - id: analyze
+    kind: analyze
+    params:
+      lenses: [technical]
+      strategy: double_lock
+      # Detector needs intraday context — the analyzer wires this in
+      # once data_service supports 30m bars.
+      intraday_30m: true
+      vix_required: true
+    depends_on: [compute_macro]
+
+  - id: plan
+    kind: plan
+    params:
+      strategy: double_lock
+    depends_on: [analyze]

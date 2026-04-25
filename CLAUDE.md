@@ -102,8 +102,8 @@ trading_app/
 │   ├── executioner.py           ← ✅ Phase 4 (brought forward). Re-verifies all gates +
 │   │                              HumanAckRecord freshness, then places order via
 │   │                              BrokerAdapter. Research mode refuses all orders.
-│   └── detectors/               ← 9 pattern detectors, all pure fn of (bars, config, as_of_ts)
-│       ├── __init__.py          ← ALL_DETECTORS list + run_all() entry point
+│   └── detectors/               ← 9 swing detectors + 1 intraday detector
+│       ├── __init__.py          ← ALL_DETECTORS (swing) + INTRADAY_DETECTORS (DL)
 │       ├── _helpers.py          ← pivot_highs/lows, volume_ratio, wick helpers
 │       ├── bull_flag.py
 │       ├── inside_bar_nr7.py
@@ -113,7 +113,10 @@ trading_app/
 │       ├── double_bottom_top.py
 │       ├── ascending_triangle.py
 │       ├── cup_and_handle.py
-│       └── wyckoff_accumulation.py
+│       ├── wyckoff_accumulation.py
+│       └── double_lock_filtered.py  ← intraday opener; fires 10:30 ET only;
+│                                      82% WR backtest (n=17, see HANDOFF.md);
+│                                      separate INTRADAY_DETECTORS registry
 │
 ├── brokers/
 │   ├── __init__.py
