@@ -76,28 +76,66 @@
     </div>
     {% endif %}
 
-    {# Full list #}
-    <div class="news-list">
-      {% for item in news_items %}
-        {% set s = item.sentiment %}
-        <div class="news-item news-item-{{ s.label }}">
-          <a class="news-headline" href="{{ item.url }}" target="_blank" rel="noopener">
-            {{ item.headline }}
-          </a>
-          <div class="news-meta">
-            <span class="mono {% if s.compound >= 0.05 %}text-accent-green
-                              {% elif s.compound <= -0.05 %}text-accent-red
-                              {% else %}text-tertiary{% endif %}">
-              {{ "%+.3f"|format(s.compound) }}
-            </span>
-            <span class="text-tertiary">·</span>
-            <span class="text-tertiary">{{ item.source }}</span>
-            <span class="text-tertiary">·</span>
-            <span class="text-tertiary text-sm">{{ item.published_at[:16]|replace("T", " ") }}</span>
+    {# Two grouped sections — news first (most recent activity), filings
+       below (cadence is quarterly so they're a separate signal). The
+       items dict carries a `form_type` field for filings (None for news)
+       so we partition with a single pass. #}
+    {% set news_only = news_items | rejectattr("source", "equalto", "edgar") | list %}
+    {% set filings_only = news_items | selectattr("source", "equalto", "edgar") | list %}
+
+    {% if news_only %}
+    <div class="news-section">
+      <div class="news-section-label">News
+        <span class="text-tertiary text-sm">· {{ news_only|length }}</span>
+      </div>
+      <div class="news-list">
+        {% for item in news_only %}
+          {% set s = item.sentiment %}
+          <div class="news-item news-item-{{ s.label }}">
+            <a class="news-headline" href="{{ item.url }}" target="_blank" rel="noopener">
+              {{ item.display_headline or item.headline }}
+            </a>
+            <div class="news-meta">
+              <span class="mono {% if s.compound >= 0.05 %}text-accent-green
+                                {% elif s.compound <= -0.05 %}text-accent-red
+                                {% else %}text-tertiary{% endif %}">
+                {{ "%+.3f"|format(s.compound) }}
+              </span>
+              <span class="text-tertiary">·</span>
+              <span class="text-tertiary">{{ item.source }}</span>
+              <span class="text-tertiary">·</span>
+              <span class="text-tertiary text-sm">{{ item.published_at[:16]|replace("T", " ") }}</span>
+            </div>
           </div>
-        </div>
-      {% endfor %}
+        {% endfor %}
+      </div>
     </div>
+    {% endif %}
+
+    {% if filings_only %}
+    <div class="news-section">
+      <div class="news-section-label">SEC Filings
+        <span class="text-tertiary text-sm">· {{ filings_only|length }}</span>
+      </div>
+      <div class="news-list">
+        {% for item in filings_only %}
+          <div class="news-item news-item-filing">
+            <a class="news-headline" href="{{ item.url }}" target="_blank" rel="noopener">
+              {% if item.form_type %}
+                <span class="filing-badge filing-{{ item.form_type|lower|replace('-', '') }}">{{ item.form_type }}</span>
+              {% endif %}
+              {{ item.display_headline or item.headline }}
+            </a>
+            <div class="news-meta">
+              <span class="text-tertiary">SEC EDGAR</span>
+              <span class="text-tertiary">·</span>
+              <span class="text-tertiary text-sm">{{ item.published_at[:16]|replace("T", " ") }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
 
   {% endif %}
 </div>

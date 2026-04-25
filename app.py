@@ -82,6 +82,16 @@ async def lifespan(_: FastAPI):
         start_scheduler()
     except Exception as exc:
         logger.error("Scheduler failed to start: %s", exc)
+    # Prewarm the SEC ticker→CIK map in the background so the first
+    # /trades/{id} render after a fresh checkout doesn't stall on the
+    # ~3s SEC download. Fire-and-forget — failures are logged inside
+    # prewarm_cik_map and never bubble up.
+    try:
+        import asyncio as _asyncio
+        from services.news_service import prewarm_cik_map
+        _asyncio.create_task(prewarm_cik_map())
+    except Exception as exc:
+        logger.error("CIK prewarm task scheduling failed: %s", exc)
     yield
     try:
         from services.scheduler import stop_scheduler

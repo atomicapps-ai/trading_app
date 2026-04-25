@@ -131,25 +131,42 @@ M  CLAUDE.md / HANDOFF.md               (this update)
 
 ## Immediate next tasks for new session (pick one)
 
-### Option A — Senate auto-diff job (~30 min)
-Add a daily APScheduler job that hits `efdsearch.senate.gov`, compares
-returned `ptr_id`s to `db_service.get_known_senate_ptr_ids()`, and writes
-`copy_trading_config.senate_new_filings_count`. UI banner already exists;
-just needs the job wired.
+### Option A — Senate auto-diff job ✅ SHIPPED 2026-04-25
+`services.scheduler._senate_diff_job` runs 06:00 ET Mon-Sat. Fetches
+last-30-days PTRs, diffs against `senate_filings` cache, persists new
+ones via `upsert_senate_filings`, bumps `senate_new_filings_count` in
+`copy_trading_config`. The rankings page now has a green "N new
+disclosures" banner that resets when the user clicks ↻ Senate.
+**Note:** the job ID is `senate_daily_diff` (visible in `sched.get_jobs()`).
+The all-members API response now includes `senate_new_filings_count`,
+`senate_last_diff_at`, and the legacy `senate_last_refresh_at` /
+`senate_needs_refresh` (unchanged).
 
-### Option B — `executioner.close_at_time(plan_id, deadline)` (~1 hr)
-Last DL-Filtered integration item. Adds an APScheduler `add_job(run_date=…)`
-that calls `place_order(side='close', broker_order_id=plan.entry_order_id)`
-at the TimeStop deadline. The DL workflow then runs end-to-end autonomously.
+### Option B — News feed polish ✅ SHIPPED 2026-04-25
+Three improvements:
+1. **News vs filings split** — `_news_card.html` partitions items by
+   `source` and renders them under separate "News" and "SEC Filings"
+   section headers, each with its own count.
+2. **Form-type badges** — `routers/trade_detail.py` extracts a
+   structured `form_type` field from the EDGAR headline prefix and
+   strips the prefix from `display_headline`. The partial renders a
+   colored badge per form type — `filing-8k` (amber), `filing-10q`
+   (cyan), `filing-10k` (purple), `filing-s1`/`filing-s3` (lime),
+   `filing-def14a`/`filing-defa14a` (pink), gray fallback for the rest.
+3. **CIK map prewarm at startup** — new `news_service.prewarm_cik_map()`
+   runs as a fire-and-forget background task in app lifespan. The first
+   `/trades/{id}` view after a fresh checkout no longer pays the ~3s
+   SEC ticker→CIK download cost (10,341 mappings cached on first hit).
 
-### Option C — Phase 6 edit-mode for active trades
-On the new `/trades/{id}` page, when `trade.is_active`, show a form to
-modify stop / TP via `BrokerAdapter.modify_order()` (already verified in
-Alpaca + TS adapters). Skeleton is already in place.
-
-### Option D — Phase 5 multi-year backtest engine
+### Option C — Phase 5 multi-year backtest engine
 Walk-forward replay across cached bars; reuses every Phase 4 agent because
 detectors are pure functions of `(bars, config, as_of_ts)`.
+
+### Option D — Persistent APScheduler job store
+`close_at_time` jobs live in memory only; an app restart between
+scheduling and 15:00 ET drops the close. Add a SQLAlchemyJobStore (or
+rehydrate from open positions on startup) to make autonomous intraday
+trading restart-safe.
 
 ---
 

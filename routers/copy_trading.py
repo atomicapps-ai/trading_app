@@ -445,15 +445,22 @@ async def get_all_members() -> dict:
 
     out.sort(key=lambda x: x["name"].lower())
 
-    # Senate freshness signal for the UI banner
+    # Senate freshness signal for the UI banner. The auto-diff job runs
+    # daily (services.scheduler._senate_diff_job) and bumps
+    # senate_new_filings_count whenever it finds PTR ids not yet in the
+    # cache. The count is reset by the manual Refresh Senate button.
     cfg = await db_service.get_all_copy_config()
     last_refresh = cfg.get("senate_last_refresh_at", "")
+    last_diff = cfg.get("senate_last_diff_at", "")
+    new_count = int(cfg.get("senate_new_filings_count", "0") or 0)
     needs_refresh = _senate_needs_refresh(last_refresh)
 
     return {
         "ok": True,
         "members": out,
         "senate_last_refresh_at": last_refresh,
+        "senate_last_diff_at": last_diff,
+        "senate_new_filings_count": new_count,
         "senate_needs_refresh": needs_refresh,
         "senate_count": sum(1 for m in out if m["chamber"] == "Senate"),
         "house_count": sum(1 for m in out if m["chamber"] == "House"),
@@ -566,13 +573,22 @@ async def refresh_senate(days_back: int = 365) -> dict:
         d["senator_slug"] = _slug_from_name(f.senator_name)
         filing_dicts.append(d)
 
+    # True new count via PTR-id diff (the upsert's own counter is unreliable
+    # because SQLite returns rowcount=1 for both INSERT and ON CONFLICT UPDATE).
+    fetched_ids = {f.ptr_id for f in filings}
+    known_ids = await db_service.get_known_senate_ptr_ids()
+    new_in_this_refresh = len(fetched_ids - known_ids)
+
     counts = await db_service.upsert_senate_filings(filing_dicts)
     now = datetime.now(timezone.utc).isoformat()
     await db_service.set_copy_config("senate_last_refresh_at", now)
+    # Manual refresh acknowledges all new filings — reset the counter and clear errors
+    await db_service.set_copy_config("senate_new_filings_count", "0")
+    await db_service.set_copy_config("senate_last_diff_error", "")
     return {
         "ok": True,
         "fetched": len(filings),
-        "new_filings": counts["new"],
+        "new_filings": new_in_this_refresh,
         "updated_filings": counts["updated"],
         "senate_last_refresh_at": now,
         "unique_senators": len({f["senator_slug"] for f in filing_dicts}),

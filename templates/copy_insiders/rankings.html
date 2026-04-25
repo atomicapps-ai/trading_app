@@ -35,6 +35,11 @@
         <div id="senate-stale-banner" style="display:none;font-size:11px;padding:6px 8px;margin-bottom:6px;border-radius:4px;background:rgba(255,193,7,.1);border:1px solid rgba(255,193,7,.3);color:var(--accent-amber);">
           Senate data is stale — <a href="#" onclick="refreshSenate();return false;" style="color:var(--accent-amber);text-decoration:underline;">refresh now</a>.
         </div>
+        <div id="senate-new-banner" style="display:none;font-size:11px;padding:6px 8px;margin-bottom:6px;border-radius:4px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.35);color:var(--accent-green);">
+          <span id="senate-new-count">0</span> new Senate disclosures since last refresh —
+          <a href="#" onclick="refreshSenate();return false;" style="color:var(--accent-green);text-decoration:underline;">load them</a>.
+          <span id="senate-new-meta" style="color:var(--text-tertiary);font-size:10px;margin-left:6px;"></span>
+        </div>
         <div style="display:flex;gap:6px;">
           <select id="member-select" class="form-input" style="flex:1;font-size:12px;" disabled>
             <option value="">Loading members…</option>
@@ -267,6 +272,23 @@ async function loadMemberDropdown() {
     // Toggle stale banner
     const banner = document.getElementById("senate-stale-banner");
     if (banner) banner.style.display = data.senate_needs_refresh ? "" : "none";
+    // New-disclosures banner — bumped daily by the senate_daily_diff
+    // scheduler job, reset by manual ↻ Senate.
+    const newBanner = document.getElementById("senate-new-banner");
+    const newCount  = data.senate_new_filings_count || 0;
+    if (newBanner) {
+      if (newCount > 0) {
+        document.getElementById("senate-new-count").textContent = newCount;
+        const meta = document.getElementById("senate-new-meta");
+        if (meta && data.senate_last_diff_at) {
+          const dt = new Date(data.senate_last_diff_at);
+          meta.textContent = `(scanned ${dt.toLocaleString()})`;
+        }
+        newBanner.style.display = "";
+      } else {
+        newBanner.style.display = "none";
+      }
+    }
     renderMemberOptions("");
     sel.disabled = false; btn.disabled = false;
   } catch(e) {

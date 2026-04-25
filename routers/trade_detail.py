@@ -116,7 +116,20 @@ async def trade_detail(
         items.sort(key=lambda n: n.published_at, reverse=True)
         items = items[:MAX_NEWS_RENDERED]
         scored = sentiment_service.score_items(items)
-        news_items = [s.to_dict() for s in scored]
+        news_items = []
+        for src_item, sc in zip(items, scored):
+            d = sc.to_dict()
+            # Pull structured form_type out of the EDGAR headline so the
+            # partial can render a colored badge (8-K / 10-Q / 10-K / S-1 etc.)
+            # instead of the raw "FORM: title" prefix in the body text.
+            if src_item.source == "edgar" and ": " in src_item.headline:
+                form_type, _, rest = src_item.headline.partition(": ")
+                d["form_type"] = form_type.strip()
+                d["display_headline"] = rest.strip() or src_item.headline
+            else:
+                d["form_type"] = None
+                d["display_headline"] = src_item.headline
+            news_items.append(d)
         news_summary = sentiment_service.summarize(items).to_dict()
 
     if fetch_errors and not news_items:

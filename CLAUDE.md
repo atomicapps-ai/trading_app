@@ -14,12 +14,14 @@ persistent rankings cache, Universe → Stock Lists submenu (10 default
 lists), sidebar accordion. **Verified perf: Pelosi 61.1% win / +0.86%
 alpha; Boozman 64.1% win / +2.35% alpha** (yfinance-based, since the
 hosted /performance endpoint is broken upstream).
-**Next chat options:** (a) wire **Senate auto-diff job** for daily
-refresh detection — small, ~30 min; (b) **Phase 5 multi-year backtest
-engine** — multi-year Alpaca 30-min replay validating DL's 82.4% WR;
-(c) **persistent APScheduler job store** so `close_at_time` survives
-app restarts; (d) **news feed polish** (filings/news split, form-type
-badges, CIK-map prewarm).
+**Next chat options:** (a) **Phase 5 multi-year backtest engine** —
+multi-year Alpaca 30-min replay validating DL's 82.4% WR; (b)
+**persistent APScheduler job store** so `close_at_time` survives app
+restarts; (c) **dashboard widget for senate new-filings count** —
+surface the same `senate_new_filings_count` on the home dashboard so
+the user sees it without navigating to /copy-insiders/rankings.
+(Senate auto-diff job and news feed polish shipped 2026-04-25 — see
+HANDOFF.md for details.)
 **Roadmap (current):**
 - Phase 4 ✅ all sub-items
 - DL-Filtered intraday strategy ✅ (detector + workflow + smoke + integration + 15:00 ET close)

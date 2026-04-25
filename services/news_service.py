@@ -314,6 +314,24 @@ def _bucket_by_date(items: list[NewsItem]) -> dict[str, list[NewsItem]]:
 # --------------------------------------------------------------------------- #
 
 
+async def prewarm_cik_map() -> int:
+    """Eagerly populate the SEC ticker→CIK map cache.
+
+    Called from app lifespan as a background task so the first
+    /trades/{id} render doesn't pay the ~3s SEC download cost. Idempotent
+    — _load_cik_map_sync no-ops if the cache file already exists. Returns
+    the size of the loaded map (0 on failure; failure is logged not raised).
+    """
+    try:
+        m = await asyncio.to_thread(_load_cik_map_sync)
+        if m:
+            log.info("CIK map prewarm: %d ticker mappings ready", len(m))
+        return len(m)
+    except Exception as e:                                    # noqa: BLE001
+        log.warning("CIK map prewarm failed: %s", e)
+        return 0
+
+
 def _load_cik_map_sync() -> dict[str, str]:
     """Return {TICKER: CIK} with CIKs zero-padded to 10 chars."""
     if EDGAR_CIK_MAP_PATH.exists():

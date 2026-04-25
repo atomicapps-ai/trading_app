@@ -53,6 +53,7 @@ def start_scheduler() -> None:
         return
 
     _register_copy_trading_jobs(sched)
+    _register_senate_diff_job(sched)
     _register_workflow_jobs(sched)
 
     sched.start()
@@ -268,6 +269,99 @@ async def _process_one_trade(trade, cfg: dict) -> None:
     logger.info(
         "Copy trade queued: %s %s %s plan_id=%s",
         trade.politician_name, trade.transaction_type, trade.ticker, plan.plan_id,
+    )
+
+
+# --------------------------------------------------------------------------- #
+# Job: Senate eFD daily diff
+# --------------------------------------------------------------------------- #
+
+
+def _register_senate_diff_job(sched: AsyncIOScheduler) -> None:
+    """Daily 06:00 ET diff against efdsearch.senate.gov.
+
+    Fetches the last 30 days of PTR filings, compares to the cached
+    ``senate_filings`` table, and writes:
+      copy_trading_config.senate_last_refresh_at  -> now (ISO)
+      copy_trading_config.senate_new_filings_count -> #new since last manual refresh
+      copy_trading_config.senate_last_diff_at     -> now (ISO)
+      copy_trading_config.senate_last_diff_error  -> exception text on failure
+
+    The "new since last manual refresh" semantics keep the counter
+    monotonic across daily diffs — it only resets when the user clicks
+    "Refresh Senate" on the rankings page (see
+    ``routers/copy_trading.refresh_senate``).
+    """
+    sched.add_job(
+        _senate_diff_job,
+        CronTrigger(
+            day_of_week="mon-sat",  # eFD doesn't update Sundays
+            hour="6", minute="0",
+            timezone="America/New_York",
+        ),
+        id="senate_daily_diff",
+        name="Senate eFD daily diff",
+        replace_existing=True,
+        misfire_grace_time=900,   # 15 min — not time-critical
+    )
+    logger.info("Registered Senate eFD daily diff job (06:00 ET Mon-Sat)")
+
+
+async def _senate_diff_job() -> None:
+    """Fetch last-30-days PTR filings, diff, persist, update config."""
+    from dataclasses import asdict
+    from services import db_service
+    from services.senate_efd_service import SenateEFDService
+
+    logger.info("Senate diff: starting")
+    started = datetime.now(timezone.utc).isoformat()
+    try:
+        svc = SenateEFDService()
+        # 30-day window is enough for daily diffs; the manual Refresh
+        # Senate button uses 365d for a full backfill.
+        filings = await svc.fetch_ptr_filings(
+            days_back=30, page_size=100, max_pages=10,
+        )
+    except Exception as exc:
+        logger.exception("Senate diff: fetch failed")
+        try:
+            await db_service.set_copy_config(
+                "senate_last_diff_error",
+                f"{started}: {exc}",
+            )
+        except Exception:
+            pass
+        return
+
+    # Compute the true new count by diffing PTR ids against the cache
+    # before the upsert (the upsert's own counter mis-attributes due to
+    # SQLite ON CONFLICT rowcount behavior).
+    fetched_ids = {f.ptr_id for f in filings}
+    known_ids = await db_service.get_known_senate_ptr_ids()
+    new_ids = fetched_ids - known_ids
+
+    # Persist (idempotent — the upsert no-ops on existing PTRs)
+    filing_dicts = []
+    for f in filings:
+        from routers.copy_trading import _slug_from_name
+        d = asdict(f)
+        d["senator_slug"] = _slug_from_name(f.senator_name)
+        filing_dicts.append(d)
+    await db_service.upsert_senate_filings(filing_dicts)
+
+    cfg = await db_service.get_all_copy_config()
+    prior = int(cfg.get("senate_new_filings_count", "0") or 0)
+    new_total = prior + len(new_ids)
+
+    now = datetime.now(timezone.utc).isoformat()
+    await db_service.set_copy_config("senate_last_diff_at", now)
+    await db_service.set_copy_config("senate_new_filings_count", str(new_total))
+    # Clear any prior error so the UI can stop showing it
+    await db_service.set_copy_config("senate_last_diff_error", "")
+
+    logger.info(
+        "Senate diff: fetched=%d new=%d (running unread=%d)",
+        len(filings), len(new_ids), new_total,
     )
 
 
