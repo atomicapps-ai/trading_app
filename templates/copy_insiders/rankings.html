@@ -1,0 +1,556 @@
+{% extends "base.html" %}
+{% block title %}Politician Rankings — TradeAgent{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Politician Rankings</h1>
+  <p class="page-subtitle">Browse, rank, follow, and pin congressional traders. Data: U.S. House Clerk PTRs (Senate coming soon).</p>
+</div>
+
+<div class="cr-layout">
+
+  {# ===== LEFT: Following (favorites pinned to top) ===== #}
+  <div class="cr-left">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">
+          Following ({{ followed|length }})
+          {% set fav_count = followed | selectattr("is_favorite") | list | length %}
+          {% if fav_count %}<span class="badge badge-amber" style="margin-left:6px;">⭐ {{ fav_count }}</span>{% endif %}
+        </span>
+        <a href="/copy-insiders/trades" class="btn btn-sm btn-secondary">View Trades →</a>
+      </div>
+
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);">
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+          <span>Add a politician — House + Senate:</span>
+          <span style="display:flex;gap:4px;">
+            <button class="btn btn-sm" id="refresh-senate-btn" style="padding:2px 8px;font-size:10px;background:var(--surface-3);border:1px solid var(--border);"
+                    onclick="refreshSenate()" title="Pull fresh Senate disclosures from efdsearch.senate.gov">↻ Senate</button>
+            <button class="btn btn-sm" id="compute-all-btn" style="padding:2px 8px;font-size:10px;background:var(--surface-3);border:1px solid var(--border);"
+                    onclick="computeAllPerformance()" title="Compute win rate for all uncached members (~5-10s each, slow!)">↻ Win-rates</button>
+          </span>
+        </div>
+        <div id="senate-stale-banner" style="display:none;font-size:11px;padding:6px 8px;margin-bottom:6px;border-radius:4px;background:rgba(255,193,7,.1);border:1px solid rgba(255,193,7,.3);color:var(--accent-amber);">
+          Senate data is stale — <a href="#" onclick="refreshSenate();return false;" style="color:var(--accent-amber);text-decoration:underline;">refresh now</a>.
+        </div>
+        <div style="display:flex;gap:6px;">
+          <select id="member-select" class="form-input" style="flex:1;font-size:12px;" disabled>
+            <option value="">Loading members…</option>
+          </select>
+          <button class="btn btn-sm btn-secondary" id="add-btn" onclick="addSelectedPolitician()" disabled>+ Add</button>
+        </div>
+        <div id="member-select-meta" style="font-size:10px;color:var(--text-secondary);margin-top:4px;"></div>
+      </div>
+
+      {% if followed %}
+        <div style="overflow-x:auto;">
+          <table class="data-table" style="font-size:11px;">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Politician</th>
+                <th style="text-align:right" title="Computed from 30-day post-disclosure price moves">Win %</th>
+                <th style="text-align:right">Avg Return</th>
+                <th style="text-align:right" title="Return above SPY benchmark over same windows">Alpha</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="followed-tbody">
+              {% for p in followed %}
+              {% set no_equity = p.perf_computed_at and (p.perf_trade_count == 0 or p.perf_trade_count is none) and p.win_rate_30d is none %}
+              {% set not_computed = not p.perf_computed_at %}
+              <tr id="followed-row-{{ p.slug }}" {% if p.is_favorite %}style="background:rgba(255,193,7,.05);"{% endif %}>
+                <td style="text-align:center;width:24px;">
+                  <button class="favorite-star" data-slug="{{ p.slug }}" data-fav="{{ 'true' if p.is_favorite else 'false' }}"
+                          onclick="toggleFavorite('{{ p.slug }}', this)"
+                          title="{% if p.is_favorite %}Unpin from top{% else %}Pin to top{% endif %}"
+                          style="background:none;border:0;cursor:pointer;font-size:14px;line-height:1;color:{% if p.is_favorite %}var(--accent-amber){% else %}var(--text-tertiary){% endif %};">
+                    {% if p.is_favorite %}⭐{% else %}☆{% endif %}
+                  </button>
+                </td>
+                <td>
+                  <div style="font-weight:600;">{{ p.name }}</div>
+                  <div style="font-size:10px;color:var(--text-secondary);">
+                    {{ p.chamber }}
+                    {% if p.trade_count_90d %} · {{ p.trade_count_90d }} trades/90d{% endif %}
+                    {% if p.perf_trade_count %} · n={{ p.perf_trade_count }}{% endif %}
+                  </div>
+                </td>
+
+                {% if no_equity %}
+                  {# All trades were bonds / non-equity — won't ever produce metrics #}
+                  <td colspan="3" style="text-align:center;color:var(--text-tertiary);font-style:italic;font-size:11px;"
+                      title="This member's recent disclosures are all non-equity (e.g. municipal bonds). No win-rate can be computed.">
+                    No equity trades
+                  </td>
+                {% elif not_computed %}
+                  <td colspan="3" style="text-align:center;color:var(--text-tertiary);font-size:11px;">
+                    <span style="opacity:.7;">computing…</span>
+                  </td>
+                {% else %}
+                  <td style="text-align:right;font-weight:700;{% if p.win_rate_30d is not none %}color:{% if p.win_rate_30d >= 0.6 %}var(--accent-green){% elif p.win_rate_30d >= 0.4 %}var(--accent-amber){% else %}var(--accent-red){% endif %};{% endif %}">
+                    {% if p.win_rate_30d is not none %}{{ (p.win_rate_30d * 100) | round(0) }}%{% else %}—{% endif %}
+                  </td>
+                  <td style="text-align:right;{% if p.avg_return_30d is not none %}color:{% if p.avg_return_30d > 0 %}var(--accent-green){% else %}var(--accent-red){% endif %};{% endif %}">
+                    {% if p.avg_return_30d is not none %}{{ (p.avg_return_30d * 100) | round(2) }}%{% else %}—{% endif %}
+                  </td>
+                  <td style="text-align:right;{% if p.win_rate_30d is not none and p.avg_spy_return_30d is not none %}color:{% if (p.avg_return_30d - p.avg_spy_return_30d) > 0 %}var(--accent-green){% else %}var(--accent-red){% endif %};{% endif %}">
+                    {% if p.win_rate_30d is not none and p.avg_spy_return_30d is not none %}
+                      {{ ((p.avg_return_30d - p.avg_spy_return_30d) * 100) | round(2) }}%
+                    {% else %}—{% endif %}
+                  </td>
+                {% endif %}
+                <td style="text-align:right;white-space:nowrap;">
+                  <a href="/copy-insiders/trades?politicians={{ p.slug }}" class="btn btn-sm" style="padding:2px 6px;font-size:10px;background:var(--surface-3);border:1px solid var(--border);" title="View this politician's trades">→</a>
+                  <button class="btn btn-sm" style="padding:2px 6px;font-size:10px;background:var(--surface-3);border:1px solid var(--border);"
+                          onclick="refreshPerformance('{{ p.slug }}', this)" title="Recompute metrics (slow ~10s)">↻</button>
+                  <label class="toggle-switch" style="margin:0 4px;vertical-align:middle;" title="Pause / resume">
+                    <input type="checkbox" {% if p.enabled %}checked{% endif %}
+                           onchange="toggleFollowed('{{ p.slug }}', this.checked)">
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <button class="btn btn-sm" style="padding:2px 6px;background:var(--surface-3);border:1px solid var(--border);color:var(--accent-red);"
+                          onclick="unfollow('{{ p.slug }}', '{{ p.name | replace("'", "\\'") }}')">×</button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state" style="padding:20px;text-align:center;color:var(--text-secondary);font-size:13px;">
+          No politicians followed yet. Pick one from the dropdown above, or click Follow on the rankings table →
+        </div>
+      {% endif %}
+    </div>
+
+    {# Config card (compact) #}
+    <div class="card" style="margin-top:16px;">
+      <div class="card-header">
+        <span class="card-title">Auto-Copy Config</span>
+        <label class="toggle-switch" title="Enable / disable auto-copy">
+          <input type="checkbox" id="ct-enabled-toggle" {% if config.enabled %}checked{% endif %} onchange="saveEnabled(this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="card-body" style="font-size:12px;color:var(--text-secondary);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <label class="form-label" style="margin:0;">Max per trade:</label>
+          <input id="ct-max-usd" type="number" min="100" step="100" class="form-input" style="width:100px;font-size:12px;" value="{{ config.max_per_trade_usd }}">
+          <button class="btn btn-sm btn-secondary" onclick="saveMaxUsd()">Save</button>
+        </div>
+        <div>
+          {% if config.last_scan_ts %}
+            Last scan {{ config.last_scan_ts[:19].replace("T"," ") }} UTC · New: <strong>{{ config.last_scan_count }}</strong>
+            {% if config.last_scan_total_fetched %} · Fetched: {{ config.last_scan_total_fetched }}{% endif %}
+          {% else %}No scan run yet.{% endif %}
+          {% if config.last_scan_error %}<div style="color:var(--accent-red);">Error: {{ config.last_scan_error[-160:] }}</div>{% endif %}
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="btn btn-primary" id="scan-btn" onclick="runScan()">Scan Now</button>
+        <span id="scan-status" style="font-size:12px;color:var(--text-secondary);margin-left:10px;"></span>
+      </div>
+    </div>
+  </div>
+
+  {# ===== RIGHT: Live rankings ===== #}
+  <div class="cr-right">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Top House Traders (last 90 days)</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span id="last-reload-stamp" style="font-size:11px;color:var(--text-secondary);">
+            {% if cached_rankings_at %}
+              <span title="Rendered from cache; click Reload to fetch fresh">
+                Loaded <span id="last-reload-time" data-iso="{{ cached_rankings_at }}">…</span>
+              </span>
+            {% else %}
+              <span style="color:var(--text-tertiary);">Never loaded</span>
+            {% endif %}
+          </span>
+          <button class="btn btn-sm btn-secondary" id="load-pol-btn" onclick="loadPoliticians()">
+            {% if cached_rankings %}Reload{% else %}Load Rankings{% endif %}
+          </button>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);padding:8px 16px 0;">
+        <strong>Score</strong> = trade_count × recency. Use this to pick high-activity members worth following.
+      </div>
+      <div id="politicians-table-container">
+        {% if not cached_rankings %}
+        <div class="empty-state" style="padding:24px;text-align:center;color:var(--text-secondary);font-size:13px;">
+          Click "Load Rankings" to fetch the latest leaderboard.
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+  .cr-layout { display: grid; grid-template-columns: 460px 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 1100px) { .cr-layout { grid-template-columns: 1fr; } }
+
+  .toggle-switch { position:relative;display:inline-block;width:36px;height:20px; }
+  .toggle-switch input { opacity:0;width:0;height:0; }
+  .toggle-slider { position:absolute;cursor:pointer;inset:0;background:var(--surface-3);border-radius:10px;transition:.2s; }
+  .toggle-slider:before { content:"";position:absolute;height:14px;width:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s; }
+  input:checked + .toggle-slider { background:var(--accent-green); }
+  input:checked + .toggle-slider:before { transform:translateX(16px); }
+
+  .badge { display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600; }
+  .badge-blue  { background:#1d3557;color:#74b2ff; }
+  .badge-red   { background:#3d1a1a;color:#ff7070; }
+  .badge-green { background:#1a3d2a;color:#6dba8c; }
+  .badge-amber { background:#3d2e00;color:#f0b429; }
+  .badge-gray  { background:var(--surface-3);color:var(--text-secondary); }
+
+  .pol-table { width:100%;border-collapse:collapse;font-size:13px; }
+  .pol-table th { padding:8px 10px;text-align:left;color:var(--text-secondary);font-weight:500;border-bottom:1px solid var(--border); }
+  .pol-table td { padding:7px 10px;border-bottom:1px solid var(--border-dim);vertical-align:middle; }
+  .pol-table tr:hover td { background:var(--surface-2); }
+  .follow-btn { padding:3px 10px;font-size:11px;background:var(--surface-3);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text-primary);white-space:nowrap; }
+  .follow-btn:hover { background:var(--accent);color:#fff;border-color:var(--accent); }
+  .follow-btn.active { background:var(--accent-green);color:#fff;border-color:var(--accent-green); }
+</style>
+
+<script>
+let followedSlugs = new Set({{ followed | map(attribute='slug') | list | tojson }});
+let _allMembers = [];
+// Server-rendered cache — seeded from the most recent /politicians fetch so the
+// leaderboard survives app restarts and page reloads without a manual click.
+let _lastRanked = {{ cached_rankings | tojson }};
+
+// ---- API helpers ----
+async function apiPost(url, body)  { const r = await fetch(url, { method:"POST",  headers:{"Content-Type":"application/json"}, body:JSON.stringify(body) }); if(!r.ok) throw new Error(await r.text()); return r.json(); }
+async function apiPatch(url, body) { const r = await fetch(url, { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body) }); if(!r.ok) throw new Error(await r.text()); return r.json(); }
+async function apiDelete(url)      { const r = await fetch(url, { method:"DELETE" }); if(!r.ok) throw new Error(await r.text()); return r.json(); }
+
+// ---- Config ----
+async function saveMaxUsd() {
+  const v = parseFloat(document.getElementById("ct-max-usd").value);
+  if (isNaN(v) || v < 100) { showToast("Enter ≥ 100", "error"); return; }
+  try { await apiPost("/api/copy-trading/config", { max_per_trade_usd: v }); showToast("Saved", "success"); }
+  catch(e) { showToast("Save failed: " + e.message, "error"); }
+}
+async function saveEnabled(checked) {
+  try { await apiPost("/api/copy-trading/config", { enabled: checked }); showToast(checked ? "Enabled" : "Paused", "info"); }
+  catch(e) { showToast("Save failed: " + e.message, "error"); }
+}
+
+// ---- Scan ----
+async function runScan() {
+  const btn = document.getElementById("scan-btn");
+  btn.disabled = true; btn.textContent = "Scanning…";
+  try {
+    const r = await fetch("/api/copy-trading/scan", { method: "POST" });
+    const d = await r.json();
+    showToast(`Scan: ${d.last_scan_count} new`, "success");
+    if (d.last_scan_count > 0) setTimeout(() => location.reload(), 1500);
+  } catch(e) { showToast("Scan failed: " + e.message, "error"); }
+  finally { btn.disabled = false; btn.textContent = "Scan Now"; }
+}
+
+// ---- Member dropdown ----
+async function loadMemberDropdown() {
+  const sel = document.getElementById("member-select");
+  const btn = document.getElementById("add-btn");
+  try {
+    const r = await fetch("/api/copy-trading/all-members");
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const data = await r.json();
+    _allMembers = data.members || [];
+    // Toggle stale banner
+    const banner = document.getElementById("senate-stale-banner");
+    if (banner) banner.style.display = data.senate_needs_refresh ? "" : "none";
+    renderMemberOptions("");
+    sel.disabled = false; btn.disabled = false;
+  } catch(e) {
+    sel.innerHTML = '<option value="">Failed: ' + escHtml(e.message) + '</option>';
+  }
+}
+
+async function refreshSenate() {
+  const btn = document.getElementById("refresh-senate-btn");
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = "Refreshing…";
+  try {
+    const r = await fetch("/api/copy-trading/refresh-senate", { method: "POST" });
+    if (!r.ok) throw new Error(await r.text());
+    const d = await r.json();
+    showToast(`Senate: ${d.fetched} filings · ${d.new_filings} new · ${d.unique_senators} senators`, "success");
+    setTimeout(() => location.reload(), 1200);
+  } catch(e) {
+    showToast("Senate refresh failed: " + e.message, "error");
+    btn.disabled = false; btn.textContent = orig;
+  }
+}
+function renderMemberOptions(filter) {
+  const sel = document.getElementById("member-select");
+  const f = (filter || "").toLowerCase();
+  const sorted = _allMembers
+    .filter(m => !followedSlugs.has(m.slug))
+    .filter(m => !f || m.name.toLowerCase().includes(f))
+    .sort((a, b) => {
+      // 1) Sort by composite rank (high to low) when both have one
+      if (a.composite_rank != null && b.composite_rank != null) return b.composite_rank - a.composite_rank;
+      if (a.composite_rank != null) return -1;
+      if (b.composite_rank != null) return 1;
+      // 2) Then by win rate
+      if (a.win_rate_30d != null && b.win_rate_30d != null) return b.win_rate_30d - a.win_rate_30d;
+      if (a.win_rate_30d != null) return -1;
+      if (b.win_rate_30d != null) return 1;
+      // 3) Then by raw activity
+      return (b.trade_count_90d || 0) - (a.trade_count_90d || 0);
+    });
+
+  const opts = sorted.map(m => {
+    const isSenate = m.chamber === "Senate";
+    const chamberTag = isSenate ? "[S] " : "";
+    const loc      = m.state ? ` (${m.state}-${m.district})` : "";
+    // Win rate colored signal: green if >=50%, red if <50% — only when computed
+    const winNum   = m.win_rate_30d != null ? Math.round(m.win_rate_30d * 100) : null;
+    const winText  = winNum != null ? ` · Win ${winNum}%` : "";
+
+    // Activity descriptor differs by chamber — Senate shows filings, House shows trades
+    let n = "";
+    if (isSenate) {
+      const total = m.filing_count_total || 0;
+      const recent = m.trade_count_90d || 0;
+      n = total ? ` · ${recent} filings/90d` : "";
+    } else if (m.perf_trade_count != null) {
+      n = ` · n=${m.perf_trade_count}`;
+    } else if (m.trade_count_90d) {
+      n = ` · ${m.trade_count_90d} trades`;
+    }
+
+    // Composite rank: 1-5 below average (red), 6-10 above (green)
+    // Senate rows have no rank yet (no PDF parsing); they get a neutral grey marker.
+    let rankBadge = "", color = "", title = "";
+    if (m.composite_rank != null) {
+      const r = m.composite_rank;
+      const isAbove = r >= 6;
+      const dot = isAbove ? "🟢" : "🔴";
+      rankBadge = `${dot} #${r}/10  `;
+      color = isAbove ? "#26a69a" : "#ef5350";
+      title = `Composite rank ${r}/10 — ${isAbove ? "above average" : "below average"} based on trades + win rate + return`;
+    } else if (winNum != null) {
+      color = winNum >= 50 ? "#26a69a" : "#ef5350";
+    } else if (isSenate) {
+      // Distinguish Senate rows from "uncached House" so the user knows to expect different metrics
+      title = "Senate filing — trade-level metrics require PDF parsing (coming soon)";
+    }
+
+    const styleAttr = color ? ` style="color:${color};"` : "";
+    const titleAttr = title ? ` title="${escAttr(title)}"` : "";
+    const label     = `${rankBadge}${chamberTag}${m.name}${loc}${winText}${n}`;
+    return `<option value="${escAttr(m.slug)}"${styleAttr}${titleAttr}>${escHtml(label)}</option>`;
+  });
+
+  const ranked  = _allMembers.filter(m => m.composite_rank != null).length;
+  const cached  = _allMembers.filter(m => m.win_rate_30d != null).length;
+  const houseN  = _allMembers.filter(m => m.chamber !== "Senate").length;
+  const senateN = _allMembers.filter(m => m.chamber === "Senate").length;
+  document.getElementById("member-select-meta").textContent =
+    `${houseN} House · ${senateN} Senate · ${cached} with win-rate · ${ranked} ranked 1-10`;
+  sel.innerHTML = '<option value="">— Select a politician —</option>' + opts.join("");
+}
+async function addSelectedPolitician() {
+  const sel = document.getElementById("member-select");
+  const slug = sel.value;
+  if (!slug) { showToast("Pick a politician", "error"); return; }
+  const m = _allMembers.find(x => x.slug === slug);
+  if (!m) return;
+  try {
+    await apiPost("/api/copy-trading/follow", {
+      slug: m.slug, name: m.name, chamber: "House",
+      trade_count_90d: m.trade_count_90d || 0, last_trade_date: m.last_trade_date || "",
+    });
+    followedSlugs.add(m.slug);
+    showToast("Added " + m.name, "success");
+    setTimeout(() => location.reload(), 800);
+  } catch(e) { showToast("Failed: " + e.message, "error"); }
+}
+async function computeAllPerformance() {
+  const btn = document.getElementById("compute-all-btn");
+  if (!confirm("Compute win rates for all uncached members? Takes ~5-15s each.")) return;
+  btn.disabled = true; btn.textContent = "Computing…";
+  try {
+    const r = await fetch("/api/copy-trading/compute-all-performance", { method: "POST" });
+    if (!r.ok) throw new Error(await r.text());
+    const d = await r.json();
+    showToast(`Done — ${d.computed} computed, ${d.failed} failed`, "success");
+    setTimeout(() => location.reload(), 1500);
+  } catch(e) { showToast("Compute failed: " + e.message, "error"); btn.disabled = false; btn.textContent = "↻ Compute all"; }
+}
+
+// ---- Followed politician actions ----
+async function toggleFollowed(slug, enabled) {
+  try { await apiPatch("/api/copy-trading/follow/" + encodeURIComponent(slug), { enabled }); showToast(enabled ? "Resumed" : "Paused", "info"); }
+  catch(e) { showToast("Failed: " + e.message, "error"); }
+}
+async function unfollow(slug, name) {
+  if (!confirm(`Stop following ${name}?`)) return;
+  try {
+    await apiDelete("/api/copy-trading/follow/" + encodeURIComponent(slug));
+    document.getElementById("followed-row-" + slug)?.remove();
+    followedSlugs.delete(slug);
+    showToast("Unfollowed " + name, "info");
+  } catch(e) { showToast("Failed: " + e.message, "error"); }
+}
+async function toggleFavorite(slug, btn) {
+  const isFav = btn.dataset.fav === "true";
+  try {
+    await apiPatch("/api/copy-trading/favorite/" + encodeURIComponent(slug), { is_favorite: !isFav });
+    btn.dataset.fav = (!isFav).toString();
+    btn.textContent = !isFav ? "⭐" : "☆";
+    btn.style.color = !isFav ? "var(--accent-amber)" : "var(--text-tertiary)";
+    btn.title = !isFav ? "Unpin from top" : "Pin to top";
+    showToast(!isFav ? "Pinned to top" : "Unpinned", "success");
+    setTimeout(() => location.reload(), 600);
+  } catch(e) { showToast("Failed: " + e.message, "error"); }
+}
+async function refreshPerformance(slug, btn) {
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = "…";
+  try {
+    const r = await fetch("/api/copy-trading/performance/" + encodeURIComponent(slug), { method: "POST" });
+    if (!r.ok) throw new Error(await r.text());
+    const d = await r.json();
+    const wr = d.win_rate_30d != null ? (d.win_rate_30d * 100).toFixed(0) + "%" : "—";
+    showToast(`${d.name}: ${wr} win (${d.trade_count} trades)`, "success");
+    setTimeout(() => location.reload(), 1000);
+  } catch(e) { showToast("Compute failed: " + e.message, "error"); btn.disabled = false; btn.textContent = orig; }
+}
+
+// ---- Rankings (right panel) ----
+async function loadPoliticians() {
+  const btn = document.getElementById("load-pol-btn");
+  const container = document.getElementById("politicians-table-container");
+  btn.disabled = true; btn.textContent = "Loading…";
+  container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-secondary);">Fetching…</div>';
+  try {
+    const r = await fetch("/api/copy-trading/politicians?pages=5");
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const data = await r.json();
+    _lastRanked = data.politicians || [];
+    renderPoliticiansTable(_lastRanked);
+    updateLastReloadStamp(data.cached_at || new Date().toISOString());
+  } catch(e) {
+    container.innerHTML = `<div style="padding:20px;color:var(--accent-red);font-size:13px;">Failed: ${escHtml(e.message)}</div>`;
+  } finally { btn.disabled = false; btn.textContent = "Reload"; }
+}
+
+// ---- "Last reloaded" timestamp helpers ----
+function formatRelative(iso) {
+  if (!iso) return "";
+  const then = new Date(iso);
+  const now  = new Date();
+  const sec  = Math.max(0, Math.floor((now - then) / 1000));
+  if (sec < 60)        return "just now";
+  if (sec < 3600)      return Math.floor(sec / 60) + "m ago";
+  if (sec < 86400)     return Math.floor(sec / 3600) + "h ago";
+  if (sec < 604800)    return Math.floor(sec / 86400) + "d ago";
+  return then.toLocaleDateString();
+}
+function formatAbsolute(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  // Local time, short form
+  return d.toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" });
+}
+function updateLastReloadStamp(iso) {
+  const stamp  = document.getElementById("last-reload-stamp");
+  const target = document.getElementById("last-reload-time");
+  if (!stamp) return;
+  if (!target) {
+    // First-ever reload — replace the "Never loaded" placeholder
+    stamp.innerHTML = `<span title="${escAttr(formatAbsolute(iso))}">Loaded <span id="last-reload-time" data-iso="${escAttr(iso)}">${escHtml(formatRelative(iso))}</span></span>`;
+  } else {
+    target.dataset.iso = iso;
+    target.textContent = formatRelative(iso);
+    target.parentElement.title = formatAbsolute(iso);
+  }
+}
+// Tick the relative timestamp every minute so "5m ago" stays accurate
+setInterval(() => {
+  const el = document.getElementById("last-reload-time");
+  if (el && el.dataset.iso) el.textContent = formatRelative(el.dataset.iso);
+}, 60_000);
+function renderPoliticiansTable(politicians) {
+  if (!politicians?.length) {
+    document.getElementById("politicians-table-container").innerHTML =
+      '<div style="padding:20px;text-align:center;color:var(--text-secondary);">No data.</div>';
+    return;
+  }
+  const rows = politicians.map(p => {
+    const isFollowed = followedSlugs.has(p.slug);
+    const scoreColor = p.score > 50 ? 'var(--accent-green)' : p.score > 20 ? 'var(--accent-amber)' : 'var(--text-secondary)';
+    return `<tr>
+      <td>
+        <div style="font-weight:600">${escHtml(p.name)}</div>
+        <div style="font-size:11px;color:var(--text-secondary)">${escHtml(p.chamber)}${p.state ? ' · ' + p.state + '-' + p.district : ''}</div>
+      </td>
+      <td style="text-align:right"><span style="font-weight:700;color:${scoreColor}">${p.score}</span></td>
+      <td style="text-align:right"><span style="font-weight:600">${p.trade_count_90d}</span></td>
+      <td style="color:var(--text-secondary);font-size:12px">${p.last_trade_date || "—"}</td>
+      <td style="text-align:right;white-space:nowrap;">
+        <a href="/copy-insiders/trades?politicians=${encodeURIComponent(p.slug)}" class="btn btn-sm" style="padding:2px 6px;font-size:10px;background:var(--surface-3);border:1px solid var(--border);" title="View trades">trades</a>
+        <button class="follow-btn ${isFollowed ? 'active' : ''}" data-slug="${escAttr(p.slug)}" data-name="${escAttr(p.name)}" onclick="handleFollowClick(this)">${isFollowed ? '✓ Following' : 'Follow'}</button>
+      </td>
+    </tr>`;
+  }).join("");
+  document.getElementById("politicians-table-container").innerHTML = `
+    <table class="pol-table">
+      <thead><tr><th>Name</th><th style="text-align:right">Score ↓</th><th style="text-align:right">Trades</th><th>Last Trade</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+function handleFollowClick(btn) {
+  const slug = btn.dataset.slug, name = btn.dataset.name;
+  if (followedSlugs.has(slug)) {
+    unfollow(slug, name);
+  } else {
+    const m = _lastRanked.find(p => p.slug === slug);
+    if (m) {
+      apiPost("/api/copy-trading/follow", {
+        slug: m.slug, name: m.name, chamber: m.chamber || "House",
+        trade_count_90d: m.trade_count_90d || 0, last_trade_date: m.last_trade_date || "",
+      }).then(() => {
+        followedSlugs.add(slug);
+        btn.textContent = "✓ Following"; btn.classList.add("active");
+        showToast("Now following " + name, "success");
+      }).catch(e => showToast("Failed: " + e.message, "error"));
+    }
+  }
+}
+
+function escHtml(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function escAttr(s) { return String(s||"").replace(/'/g,"\\'").replace(/"/g,"&quot;"); }
+function showToast(msg, type) {
+  const t = document.createElement("div");
+  t.textContent = msg;
+  t.style.cssText = "position:fixed;bottom:24px;right:24px;z-index:9999;padding:10px 16px;border-radius:6px;font-size:13px;max-width:320px;border:1px solid var(--border);color:var(--text-primary);background:" + ({success:"#1a3d2a",error:"#3d1a1a",info:"var(--surface-3)"}[type]||"var(--surface-3)");
+  document.body.appendChild(t); setTimeout(() => t.remove(), 3500);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadMemberDropdown();
+
+  // If the server pre-seeded cached rankings, render them immediately and
+  // format the timestamp from its data-iso attribute.
+  if (_lastRanked && _lastRanked.length) {
+    renderPoliticiansTable(_lastRanked);
+  }
+  const stampEl = document.getElementById("last-reload-time");
+  if (stampEl && stampEl.dataset.iso) {
+    stampEl.textContent = formatRelative(stampEl.dataset.iso);
+    stampEl.parentElement.title = formatAbsolute(stampEl.dataset.iso);
+  }
+});
+</script>
+{% endblock %}

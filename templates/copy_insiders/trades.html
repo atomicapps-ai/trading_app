@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+{% block title %}Politician Trades — TradeAgent{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Politician Trades</h1>
+  <p class="page-subtitle">Pick one or more politicians on the left to see their combined disclosures. Hover any ticker for a quick chart.</p>
+</div>
+
+<div class="pt-layout">
+
+  {# ===== LEFT: politician multi-select ===== #}
+  <aside class="pt-left">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Politicians</span>
+        <button class="btn btn-sm btn-secondary" id="select-all-btn" onclick="selectAllPoliticians(true)">Select all</button>
+      </div>
+      <div style="padding:8px 12px;border-bottom:1px solid var(--border);display:flex;gap:6px;align-items:center;">
+        <input id="pol-filter" placeholder="Filter…" class="form-input" style="flex:1;font-size:12px;" oninput="filterPoliticians(this.value)">
+        <button class="btn btn-sm" style="padding:2px 8px;font-size:10px;background:var(--surface-3);border:1px solid var(--border);" onclick="selectAllPoliticians(false)">Clear</button>
+      </div>
+      <div class="pt-pol-list" id="pol-list">
+        {% if followed %}
+          {% for p in followed %}
+            <label class="pt-pol-item" data-name="{{ p.name | lower }}">
+              <input type="checkbox" class="pol-checkbox" data-slug="{{ p.slug }}" data-name="{{ p.name }}" onchange="onSelectionChange()">
+              <span class="pt-pol-info">
+                <span class="pt-pol-name">{% if p.is_favorite %}⭐ {% endif %}{{ p.name }}</span>
+                <span class="pt-pol-meta">{{ p.chamber }}{% if p.win_rate_30d is not none %} · {{ (p.win_rate_30d * 100)|round(0) }}% win{% endif %}</span>
+              </span>
+            </label>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state" style="padding:16px;text-align:center;color:var(--text-secondary);font-size:12px;">
+            No politicians followed yet.<br>
+            <a href="/copy-insiders/rankings" style="color:var(--accent);">Pick some on the Rankings page →</a>
+          </div>
+        {% endif %}
+      </div>
+      <div class="card-footer" id="selection-footer" style="font-size:11px;color:var(--text-secondary);">
+        <span id="selection-count">0 selected</span>
+      </div>
+    </div>
+  </aside>
+
+  {# ===== RIGHT: trade table ===== #}
+  <main class="pt-right">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title" id="trades-title">Disclosures</span>
+        <button class="btn btn-sm btn-secondary" id="reload-btn" onclick="loadTrades()" disabled>Reload</button>
+      </div>
+      <div id="trades-container">
+        <div class="empty-state" style="padding:36px;text-align:center;color:var(--text-secondary);font-size:13px;">
+          Pick at least one politician on the left to load their disclosures.
+        </div>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+{# Floating chart-preview popover anchored to the hovered ticker chip #}
+<div id="ticker-popover" class="ticker-popover" style="display:none;">
+  <div class="popover-header">
+    <span class="popover-symbol"></span>
+    <a class="popover-finviz-link" href="#" target="_blank" rel="noopener" title="Open in Finviz">Finviz ↗</a>
+  </div>
+  <div class="popover-chart" id="popover-chart"></div>
+  <div class="popover-meta"></div>
+</div>
+
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+  .pt-layout { display: grid; grid-template-columns: 280px 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 960px) { .pt-layout { grid-template-columns: 1fr; } }
+
+  .pt-left { position: sticky; top: 16px; }
+  .pt-pol-list { max-height: 60vh; overflow-y: auto; }
+  .pt-pol-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 12px; cursor: pointer;
+    border-bottom: 1px solid var(--border-dim);
+    font-size: 12px;
+  }
+  .pt-pol-item:hover { background: var(--surface-2); }
+  .pt-pol-item input[type="checkbox"] { margin: 0; cursor: pointer; }
+  .pt-pol-info { display: flex; flex-direction: column; flex: 1; }
+  .pt-pol-name { color: var(--text-primary); font-weight: 500; }
+  .pt-pol-meta { color: var(--text-secondary); font-size: 10px; }
+
+  .pt-trades-table { width:100%;border-collapse:collapse;font-size:12px; }
+  .pt-trades-table th { padding:8px 10px;text-align:left;color:var(--text-secondary);font-weight:500;border-bottom:1px solid var(--border);background:var(--surface-1);position:sticky;top:0; }
+  .pt-trades-table td { padding:7px 10px;border-bottom:1px solid var(--border-dim);vertical-align:middle; }
+  .pt-trades-table tr:hover td { background:var(--surface-2); }
+
+  .ticker-chip {
+    display:inline-flex;align-items:center;gap:3px;
+    padding:2px 8px;border-radius:4px;background:var(--tint-blue);color:var(--accent-blue);
+    font-weight:600;font-family:var(--font-mono,monospace);font-size:11px;
+    cursor:pointer;border:1px solid transparent;
+  }
+  .ticker-chip:hover { border-color:var(--accent-blue); }
+
+  .badge { display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600; }
+  .badge-green { background:#1a3d2a;color:#6dba8c; }
+  .badge-red { background:#3d1a1a;color:#ff7070; }
+  .badge-amber { background:#3d2e00;color:#f0b429; }
+  .badge-gray { background:var(--surface-3);color:var(--text-secondary); }
+
+  /* Hover-chart popover */
+  .ticker-popover {
+    position: fixed; z-index: 9999;
+    width: 360px; height: 240px;
+    background: var(--surface-1, #1a1d29);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.5);
+    padding: 8px;
+    display: flex; flex-direction: column;
+  }
+  .popover-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 4px; padding: 0 4px;
+  }
+  .popover-symbol { font-family: var(--font-mono, monospace); font-weight: 700; color: var(--text-primary); }
+  .popover-finviz-link { font-size: 10px; color: var(--accent); text-decoration: none; }
+  .popover-finviz-link:hover { text-decoration: underline; }
+  .popover-chart { flex: 1; min-height: 0; }
+  .popover-meta { font-size: 10px; color: var(--text-secondary); padding: 4px; text-align: center; }
+</style>
+
+<script>
+const URL_PARAMS = new URLSearchParams(window.location.search);
+const PRESELECTED = (URL_PARAMS.get("politicians") || "").split(",").filter(Boolean);
+
+function escHtml(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+// ---- Politician selection ----
+function selectAllPoliticians(checked) {
+  document.querySelectorAll(".pol-checkbox").forEach(cb => { cb.checked = checked; });
+  onSelectionChange();
+}
+function filterPoliticians(q) {
+  const f = q.toLowerCase().trim();
+  document.querySelectorAll(".pt-pol-item").forEach(el => {
+    el.style.display = (!f || el.dataset.name.includes(f)) ? "" : "none";
+  });
+}
+function getSelectedSlugs() {
+  return [...document.querySelectorAll(".pol-checkbox:checked")].map(cb => cb.dataset.slug);
+}
+function onSelectionChange() {
+  const slugs = getSelectedSlugs();
+  document.getElementById("selection-count").textContent = slugs.length + " selected";
+  document.getElementById("reload-btn").disabled = slugs.length === 0;
+  if (slugs.length > 0) loadTrades();
+  // Update URL so the selection is shareable
+  const url = new URL(window.location.href);
+  if (slugs.length) url.searchParams.set("politicians", slugs.join(","));
+  else url.searchParams.delete("politicians");
+  history.replaceState(null, "", url.toString());
+}
+
+// ---- Trade loading ----
+async function loadTrades() {
+  const slugs = getSelectedSlugs();
+  if (!slugs.length) return;
+  const container = document.getElementById("trades-container");
+  const title = document.getElementById("trades-title");
+
+  title.textContent = `Disclosures (loading ${slugs.length} politician${slugs.length>1?"s":""}…)`;
+  container.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-secondary);">Fetching from Capitol API…</div>';
+
+  try {
+    const r = await fetch("/api/copy-trading/disclosures?slugs=" + encodeURIComponent(slugs.join(",")) + "&limit=300");
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const data = await r.json();
+    title.textContent = `${data.total} disclosure${data.total !== 1 ? "s" : ""} from ${slugs.length} politician${slugs.length>1?"s":""}`;
+    renderTrades(data.trades);
+  } catch (e) {
+    container.innerHTML = `<div style="padding:24px;color:var(--accent-red);">Failed: ${escHtml(e.message)}</div>`;
+  }
+}
+
+function renderTrades(trades) {
+  if (!trades.length) {
+    document.getElementById("trades-container").innerHTML =
+      '<div style="padding:24px;text-align:center;color:var(--text-secondary);">No disclosures found for the selection.</div>';
+    return;
+  }
+  const rows = trades.map(t => {
+    const tx = t.transaction_type === "purchase"
+      ? '<span class="badge badge-green">BUY</span>'
+      : '<span class="badge badge-red">SELL</span>';
+    const amt = t.amount_min
+      ? `$${Math.round(t.amount_min).toLocaleString()}–$${Math.round(t.amount_max).toLocaleString()}`
+      : "—";
+    return `<tr>
+      <td>${escHtml(t.transaction_date)}</td>
+      <td style="font-size:11px;color:var(--text-secondary);">${escHtml(t.published_date || "")}</td>
+      <td><strong>${escHtml(t.politician_name)}</strong></td>
+      <td>
+        <span class="ticker-chip"
+              data-symbol="${escHtml(t.ticker)}"
+              onmouseenter="showTickerPopover(event, this)"
+              onmouseleave="hideTickerPopover()"
+              onclick="openTickerDetail('${escHtml(t.ticker)}')">${escHtml(t.ticker)}</span>
+      </td>
+      <td>${tx}</td>
+      <td style="font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-secondary);">${escHtml(t.asset_name || "")}</td>
+      <td style="text-align:right;font-size:11px;">${amt}</td>
+    </tr>`;
+  }).join("");
+  document.getElementById("trades-container").innerHTML = `
+    <div style="overflow-x:auto;">
+      <table class="pt-trades-table">
+        <thead><tr>
+          <th>Traded</th><th>Disclosed</th><th>Politician</th><th>Ticker</th><th>Type</th><th>Asset</th><th style="text-align:right">Amount</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+// ---- Ticker hover-chart popover ----
+let _popoverChart = null;
+let _popoverTimer = null;
+let _activeSymbol = null;
+
+function showTickerPopover(event, el) {
+  const symbol = el.dataset.symbol;
+  if (!symbol) return;
+  // Debounce so casual mouseovers don't fire requests
+  clearTimeout(_popoverTimer);
+  _popoverTimer = setTimeout(() => positionAndLoadPopover(el, symbol), 250);
+}
+function hideTickerPopover() {
+  clearTimeout(_popoverTimer);
+  setTimeout(() => {
+    const pop = document.getElementById("ticker-popover");
+    if (!pop.matches(":hover")) {
+      pop.style.display = "none";
+      _activeSymbol = null;
+    }
+  }, 150);
+}
+
+async function positionAndLoadPopover(anchor, symbol) {
+  const pop = document.getElementById("ticker-popover");
+  const rect = anchor.getBoundingClientRect();
+  // Position to the right of the chip; flip to left if no room
+  let left = rect.right + 8;
+  if (left + 360 > window.innerWidth) left = rect.left - 360 - 8;
+  let top = rect.top - 4;
+  if (top + 240 > window.innerHeight) top = window.innerHeight - 250;
+  pop.style.left = Math.max(8, left) + "px";
+  pop.style.top  = Math.max(8, top)  + "px";
+
+  pop.querySelector(".popover-symbol").textContent = symbol;
+  pop.querySelector(".popover-finviz-link").href = `https://finviz.com/quote.ashx?t=${encodeURIComponent(symbol)}`;
+  pop.querySelector(".popover-meta").textContent = "Loading…";
+  pop.style.display = "flex";
+
+  if (_activeSymbol === symbol && _popoverChart) return;
+  _activeSymbol = symbol;
+
+  try {
+    const r = await fetch(`/api/bars/${encodeURIComponent(symbol)}?interval=1d&limit=120`);
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const data = await r.json();
+    const bars = (data.bars || []).map(b => ({ time: Math.floor(b.t / 1000), open: b.o, high: b.h, low: b.l, close: b.c }));
+    if (!bars.length) {
+      pop.querySelector(".popover-meta").textContent = "No bar data for " + symbol;
+      return;
+    }
+    drawPopoverChart(bars);
+    const first = bars[0].close, last = bars[bars.length-1].close;
+    const pct = ((last - first) / first * 100).toFixed(2);
+    pop.querySelector(".popover-meta").innerHTML =
+      `${bars.length} days · last $${last.toFixed(2)} · <span style="color:${pct >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'};">${pct >= 0 ? "+" : ""}${pct}%</span>`;
+  } catch (e) {
+    pop.querySelector(".popover-meta").textContent = "Failed: " + e.message;
+  }
+}
+
+function drawPopoverChart(bars) {
+  const container = document.getElementById("popover-chart");
+  container.innerHTML = "";
+  if (_popoverChart) { try { _popoverChart.remove(); } catch(_){} _popoverChart = null; }
+  _popoverChart = LightweightCharts.createChart(container, {
+    layout: { background: { type: "solid", color: "transparent" }, textColor: "#888" },
+    grid: { vertLines: { visible: false }, horzLines: { color: "rgba(255,255,255,0.04)" } },
+    rightPriceScale: { borderVisible: false },
+    timeScale: { borderVisible: false, timeVisible: false },
+    crosshair: { mode: 0 },
+    width: container.clientWidth, height: container.clientHeight,
+  });
+  const series = _popoverChart.addCandlestickSeries({
+    upColor: "#26a69a", downColor: "#ef5350",
+    borderUpColor: "#26a69a", borderDownColor: "#ef5350",
+    wickUpColor: "#26a69a", wickDownColor: "#ef5350",
+  });
+  series.setData(bars);
+  _popoverChart.timeScale().fitContent();
+}
+
+// Keep popover open if user moves cursor onto it
+document.getElementById("ticker-popover").addEventListener("mouseleave", () => {
+  document.getElementById("ticker-popover").style.display = "none";
+  _activeSymbol = null;
+});
+
+function openTickerDetail(symbol) {
+  // Future: route to /ticker/{symbol} when that page exists.
+  // For now we open Finviz in a new tab — the realistic alternative.
+  window.open(`https://finviz.com/quote.ashx?t=${encodeURIComponent(symbol)}`, "_blank", "noopener");
+}
+
+// ---- Init ----
+document.addEventListener("DOMContentLoaded", () => {
+  // Pre-select politicians passed via ?politicians=slug1,slug2
+  if (PRESELECTED.length) {
+    document.querySelectorAll(".pol-checkbox").forEach(cb => {
+      if (PRESELECTED.includes(cb.dataset.slug)) cb.checked = true;
+    });
+    onSelectionChange();
+  }
+});
+</script>
+{% endblock %}

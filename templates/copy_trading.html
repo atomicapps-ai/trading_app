@@ -8,12 +8,12 @@
 </div>
 
 {% macro party_badge(party) %}
-  {% if party == "Democrat" or party == "Democratic" %}
+  {% if party == "Democrat" or party == "Democratic" or party.startswith("D") %}
     <span class="badge badge-blue">D</span>
-  {% elif party == "Republican" %}
+  {% elif party == "Republican" or party.startswith("R") %}
     <span class="badge badge-red">R</span>
   {% else %}
-    <span class="badge badge-gray">{{ party[:1] }}</span>
+    <span class="badge badge-gray">{{ party[:1] if party else "?" }}</span>
   {% endif %}
 {% endmacro %}
 
@@ -34,60 +34,129 @@
   {# ===== LEFT COLUMN ===== #}
   <div class="ct-left">
 
-    {# Config card #}
+    {# Global config card #}
     <div class="card" id="config-card">
       <div class="card-header">
         <span class="card-title">Configuration</span>
         <label class="toggle-switch" title="Enable / disable auto-copy">
           <input type="checkbox" id="ct-enabled-toggle"
-                 {% if config.get("enabled", "true") == "true" %}checked{% endif %}
+                 {% if config.enabled %}checked{% endif %}
                  onchange="saveEnabled(this.checked)">
           <span class="toggle-slider"></span>
         </label>
       </div>
       <div class="card-body">
         <div class="form-row">
-          <label class="form-label">Following</label>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <input id="ct-pol-name"
-                   class="form-input" style="flex:1"
-                   placeholder="e.g. Nancy Pelosi"
-                   value="{{ config.get('followed_politician_name','') }}">
-            <button class="btn btn-sm btn-primary" onclick="saveFollowedPolitician()">Save</button>
-          </div>
-          <div id="ct-pol-slug-display" style="font-size:11px;color:var(--text-secondary);margin-top:4px;">
-            slug: {{ config.get('followed_politician','—') }}
-          </div>
-        </div>
-        <div class="form-row" style="margin-top:12px;">
           <label class="form-label">Max per trade (USD)</label>
           <div style="display:flex;gap:8px;align-items:center;">
             <input id="ct-max-usd" type="number" min="100" step="100"
                    class="form-input" style="width:120px"
-                   value="{{ config.get('max_per_trade_usd','5000') }}">
+                   value="{{ config.max_per_trade_usd }}">
             <button class="btn btn-sm btn-secondary" onclick="saveMaxUsd()">Save</button>
           </div>
         </div>
         <div class="ct-scan-info" style="margin-top:14px;font-size:12px;color:var(--text-secondary);">
-          {% if config.get("last_scan_ts") %}
-            Last scan: <span style="color:var(--text-primary);">{{ config["last_scan_ts"][:19].replace("T"," ") }} UTC</span>
-            · Found: <strong>{{ config.get("last_scan_count","0") }}</strong> new
+          {% if config.last_scan_ts %}
+            Last scan: <span style="color:var(--text-primary);">{{ config.last_scan_ts[:19].replace("T"," ") }} UTC</span>
+            {% if config.last_scan_total_fetched %}
+              · Fetched: <strong>{{ config.last_scan_total_fetched }}</strong>
+            {% endif %}
+            · New: <strong>{{ config.last_scan_count }}</strong>
+            {% if config.last_scan_count == 0 and config.last_scan_total_fetched and config.last_scan_total_fetched != "0" %}
+              <span style="color:var(--accent-amber);">(all already recorded)</span>
+            {% elif config.last_scan_count == 0 %}
+              <span style="color:var(--accent-amber);">(no new disclosures)</span>
+            {% endif %}
           {% else %}
             No scan run yet.
           {% endif %}
-          {% if config.get("last_scan_error") %}
-            <div style="color:var(--accent-red);margin-top:4px;">
-              Error: {{ config["last_scan_error"][-120:] }}
-            </div>
+          {% if config.last_scan_error %}
+            <div style="color:var(--accent-red);margin-top:4px;">Error: {{ config.last_scan_error[-200:] }}</div>
           {% endif %}
         </div>
       </div>
       <div class="card-footer">
-        <button class="btn btn-primary" id="scan-btn" onclick="runScan()">
-          Scan Capitol Trades Now
-        </button>
+        <button class="btn btn-primary" id="scan-btn" onclick="runScan()">Scan Now</button>
         <span id="scan-status" style="font-size:12px;color:var(--text-secondary);margin-left:10px;"></span>
       </div>
+    </div>
+
+    {# Followed politicians card #}
+    <div class="card" style="margin-top:16px;" id="followed-card">
+      <div class="card-header">
+        <span class="card-title">Following ({{ followed|length }})</span>
+        <a href="/pending?ref=copy-trading" class="btn btn-sm btn-secondary">View Queue →</a>
+      </div>
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);">
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
+          <span>Add a politician — pick from the list or click Follow in the rankings →</span>
+          <button class="btn btn-sm" id="compute-all-btn" style="padding:2px 8px;font-size:10px;background:var(--surface-3);border:1px solid var(--border);"
+                  onclick="computeAllPerformance()" title="Compute win rate for all uncached members (~5-10s each, slow!)">↻ Compute all</button>
+        </div>
+        <div style="display:flex;gap:6px;position:relative;">
+          <select id="member-select" class="form-input" style="flex:1;font-size:12px;" disabled>
+            <option value="">Loading members…</option>
+          </select>
+          <button class="btn btn-sm btn-secondary" id="add-btn" onclick="addSelectedPolitician()" disabled>+ Add</button>
+        </div>
+        <div id="member-select-meta" style="font-size:10px;color:var(--text-secondary);margin-top:4px;"></div>
+      </div>
+      {% if followed %}
+        <div style="overflow-x:auto;">
+          <table class="data-table" style="font-size:11px;">
+            <thead>
+              <tr>
+                <th>Politician</th>
+                <th style="text-align:right" title="Computed from 30-day post-disclosure price moves">Win %</th>
+                <th style="text-align:right" title="Average 30-day return relative to trade direction">Avg Return</th>
+                <th style="text-align:right" title="Return above SPY benchmark over same windows">Alpha</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="followed-tbody">
+              {% for p in followed %}
+              <tr id="followed-row-{{ p.slug }}">
+                <td>
+                  <div style="font-weight:600;">{{ p.name }}</div>
+                  <div style="font-size:10px;color:var(--text-secondary);">
+                    {{ p.chamber }}
+                    {% if p.trade_count_90d %} · {{ p.trade_count_90d }} trades/90d{% endif %}
+                    {% if p.perf_trade_count %} · n={{ p.perf_trade_count }}{% endif %}
+                  </div>
+                </td>
+                <td style="text-align:right;font-weight:700;{% if p.win_rate_30d is not none %}color:{% if p.win_rate_30d >= 0.6 %}var(--accent-green){% elif p.win_rate_30d >= 0.4 %}var(--accent-amber){% else %}var(--accent-red){% endif %};{% endif %}">
+                  {% if p.win_rate_30d is not none %}{{ (p.win_rate_30d * 100) | round(0) }}%{% else %}—{% endif %}
+                </td>
+                <td style="text-align:right;{% if p.avg_return_30d is not none %}color:{% if p.avg_return_30d > 0 %}var(--accent-green){% else %}var(--accent-red){% endif %};{% endif %}">
+                  {% if p.avg_return_30d is not none %}{{ (p.avg_return_30d * 100) | round(2) }}%{% else %}—{% endif %}
+                </td>
+                <td style="text-align:right;{% if p.win_rate_30d is not none and p.avg_spy_return_30d is not none %}color:{% if (p.avg_return_30d - p.avg_spy_return_30d) > 0 %}var(--accent-green){% else %}var(--accent-red){% endif %};{% endif %}">
+                  {% if p.win_rate_30d is not none and p.avg_spy_return_30d is not none %}
+                    {{ ((p.avg_return_30d - p.avg_spy_return_30d) * 100) | round(2) }}%
+                  {% else %}—{% endif %}
+                </td>
+                <td style="text-align:right;white-space:nowrap;">
+                  <button class="btn btn-sm" style="padding:2px 6px;font-size:10px;background:var(--surface-3);border:1px solid var(--border);"
+                          onclick="refreshPerformance('{{ p.slug }}', this)" title="Recompute metrics (slow ~10s)">↻</button>
+                  <label class="toggle-switch" style="margin:0 4px;vertical-align:middle;" title="Pause / resume">
+                    <input type="checkbox" {% if p.enabled %}checked{% endif %}
+                           onchange="toggleFollowed('{{ p.slug }}', this.checked)">
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <button class="btn btn-sm" style="padding:2px 6px;background:var(--surface-3);border:1px solid var(--border);color:var(--accent-red);"
+                          onclick="unfollow('{{ p.slug }}', '{{ p.name | replace("'", "\\'") }}')">×</button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state" style="padding:20px;text-align:center;color:var(--text-secondary);font-size:13px;">
+          No politicians followed yet.<br>
+          <span style="font-size:12px;">Load the rankings on the right and click Follow.</span>
+        </div>
+      {% endif %}
     </div>
 
     {# Disclaimer #}
@@ -95,8 +164,7 @@
       <div class="card-body" style="font-size:12px;color:var(--text-secondary);line-height:1.6;">
         <strong style="color:var(--accent-amber);">Data lag notice</strong><br>
         Under the STOCK Act, members of Congress have <strong>45 days</strong> to disclose
-        trades. All signals from Capitol Trades are delayed. This bot copies the
-        <em>disclosure</em>, not the original trade. Run in <strong>paper mode</strong>
+        trades. All signals from Capitol Trades are delayed. Run in <strong>paper mode</strong>
         to validate performance before switching to live.
       </div>
     </div>
@@ -109,9 +177,12 @@
     {# Politician Leaderboard #}
     <div class="card" id="leaderboard-card">
       <div class="card-header">
-        <span class="card-title">Top Politicians by Activity (last 90 days)</span>
-        <button class="btn btn-sm btn-secondary" id="load-pol-btn"
-                onclick="loadPoliticians()">Load Rankings</button>
+        <span class="card-title">Politician Rankings — Top Traders (last 90 days)</span>
+        <button class="btn btn-sm btn-secondary" id="load-pol-btn" onclick="loadPoliticians()">Load Rankings</button>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);padding:8px 16px 0;">
+        <strong>CT Score</strong> = activity × recency × ticker diversity.
+        <strong>Win Rate</strong> = % of buys where price rose 30 days post-disclosure (computed from historical data).
       </div>
       <div id="politicians-table-container">
         <div class="empty-state" style="padding:24px;text-align:center;color:var(--text-secondary);font-size:13px;">
@@ -123,14 +194,7 @@
     {# Recent Trade Feed #}
     <div class="card" style="margin-top:16px;">
       <div class="card-header">
-        <span class="card-title">
-          {% if config.get("followed_politician_name") %}
-            {{ config["followed_politician_name"] }}'s Trades (from DB)
-          {% else %}
-            Recent Trades (configure a politician above)
-          {% endif %}
-        </span>
-        <a href="/pending" class="btn btn-sm btn-secondary">View Queue →</a>
+        <span class="card-title">Recent Disclosures (all followed politicians)</span>
       </div>
 
       {% if recent_trades %}
@@ -138,6 +202,7 @@
           <table class="data-table">
             <thead>
               <tr>
+                <th>Politician</th>
                 <th>Ticker</th>
                 <th>Type</th>
                 <th>Asset</th>
@@ -150,6 +215,7 @@
             <tbody>
               {% for t in recent_trades %}
               <tr>
+                <td style="font-size:12px;font-weight:600;">{{ t.politician_name }}</td>
                 <td><span class="ticker-chip">{{ t.ticker }}</span></td>
                 <td>
                   {% if t.transaction_type == "purchase" %}
@@ -158,7 +224,7 @@
                     <span class="badge badge-red">SELL</span>
                   {% endif %}
                 </td>
-                <td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                <td style="font-size:12px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
                   {{ t.asset_name or t.ticker }}
                   {% if t.asset_type not in ("stock","etf","") %}
                     <span style="color:var(--accent-amber);font-size:10px;">{{ t.asset_type }}</span>
@@ -179,10 +245,10 @@
         </div>
       {% else %}
         <div class="empty-state" style="padding:24px;text-align:center;color:var(--text-secondary);font-size:13px;">
-          {% if config.get("followed_politician") %}
-            No trades recorded yet. Run a scan to fetch disclosures.
+          {% if followed %}
+            No disclosures recorded yet. Run a scan to fetch trades.
           {% else %}
-            Configure a politician to follow, then run a scan.
+            Follow politicians above, then run a scan.
           {% endif %}
         </div>
       {% endif %}
@@ -197,11 +263,11 @@
 <style>
   .ct-layout {
     display: grid;
-    grid-template-columns: 320px 1fr;
+    grid-template-columns: 360px 1fr;
     gap: 16px;
     align-items: start;
   }
-  @media (max-width: 900px) {
+  @media (max-width: 960px) {
     .ct-layout { grid-template-columns: 1fr; }
     .ct-left { order: 2; }
     .ct-right { order: 1; }
@@ -230,17 +296,22 @@
   .pol-table { width:100%;border-collapse:collapse;font-size:13px; }
   .pol-table th { padding:8px 10px;text-align:left;color:var(--text-secondary);font-weight:500;
                   border-bottom:1px solid var(--border); }
-  .pol-table td { padding:7px 10px;border-bottom:1px solid var(--border-dim); }
+  .pol-table td { padding:7px 10px;border-bottom:1px solid var(--border-dim);vertical-align:middle; }
   .pol-table tr:hover td { background:var(--surface-2); }
   .pol-score { font-weight:700;color:var(--accent-green); }
+  .pol-winrate { font-weight:600; }
   .follow-btn { padding:3px 10px;font-size:11px;background:var(--surface-3);
-                border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text-primary); }
+                border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text-primary);
+                white-space:nowrap; }
   .follow-btn:hover { background:var(--accent);color:#fff;border-color:var(--accent); }
   .follow-btn.active { background:var(--accent-green);color:#fff;border-color:var(--accent-green); }
+  .follow-btn.unfollow:hover { background:var(--accent-red);border-color:var(--accent-red); }
+  .metric-label { font-size:10px;color:var(--text-secondary);display:block;margin-top:1px; }
 </style>
 
 <script>
-const currentSlug = {{ config.get("followed_politician", "") | tojson }};
+// Track which politicians are currently followed (slugs)
+let followedSlugs = new Set({{ followed | map(attribute='slug') | list | tojson }});
 
 async function apiPost(url, body) {
   const r = await fetch(url, {
@@ -252,20 +323,23 @@ async function apiPost(url, body) {
   return r.json();
 }
 
-async function saveFollowedPolitician() {
-  const name = document.getElementById("ct-pol-name").value.trim();
-  if (!name) return;
-  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-  try {
-    await apiPost("/api/copy-trading/config", {
-      followed_politician: slug,
-      followed_politician_name: name,
-    });
-    document.getElementById("ct-pol-slug-display").textContent = "slug: " + slug;
-    showToast("Following " + name, "success");
-  } catch(e) { showToast("Save failed: " + e.message, "error"); }
+async function apiDelete(url) {
+  const r = await fetch(url, { method: "DELETE" });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
 }
 
+async function apiPatch(url, body) {
+  const r = await fetch(url, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+// ---- Config ----
 async function saveMaxUsd() {
   const val = parseFloat(document.getElementById("ct-max-usd").value);
   if (isNaN(val) || val < 100) { showToast("Enter a value ≥ 100", "error"); return; }
@@ -282,52 +356,267 @@ async function saveEnabled(checked) {
   } catch(e) { showToast("Save failed: " + e.message, "error"); }
 }
 
+// ---- Scan ----
 async function runScan() {
   const btn = document.getElementById("scan-btn");
   const status = document.getElementById("scan-status");
-  btn.disabled = true;
-  btn.textContent = "Scanning…";
-  status.textContent = "";
+  btn.disabled = true; btn.textContent = "Scanning…"; status.textContent = "";
   try {
     const r = await fetch("/api/copy-trading/scan", { method: "POST" });
     const data = await r.json();
     if (data.ok) {
       const ts = data.last_scan_ts ? data.last_scan_ts.slice(0, 19).replace("T", " ") + " UTC" : "—";
-      status.textContent = `Done at ${ts} — ${data.last_scan_count} new`;
+      status.textContent = `Done — ${data.last_scan_count} new`;
       showToast(`Scan complete: ${data.last_scan_count} new trade(s) queued`, "success");
       if (data.last_scan_count > 0) setTimeout(() => location.reload(), 1500);
     } else {
-      status.textContent = "Scan returned error";
-      showToast("Scan error: " + (data.error || "unknown"), "error");
+      status.textContent = "Error"; showToast("Scan error: " + (data.error || "unknown"), "error");
     }
   } catch(e) {
-    status.textContent = "Network error";
-    showToast("Scan failed: " + e.message, "error");
+    status.textContent = "Network error"; showToast("Scan failed: " + e.message, "error");
   } finally {
-    btn.disabled = false;
-    btn.textContent = "Scan Capitol Trades Now";
+    btn.disabled = false; btn.textContent = "Scan Now";
   }
 }
+
+// ---- Member dropdown (populated on page load from /api/copy-trading/all-members) ----
+let _allMembers = [];
+
+async function loadMemberDropdown() {
+  const sel = document.getElementById("member-select");
+  const btn = document.getElementById("add-btn");
+  try {
+    const r = await fetch("/api/copy-trading/all-members");
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const data = await r.json();
+    _allMembers = data.members || [];
+    renderMemberOptions("");
+    sel.disabled = false;
+    btn.disabled = false;
+    document.getElementById("member-select-meta").textContent =
+      `${_allMembers.length} House members available · House Clerk PTR data only (Senate not yet supported)`;
+  } catch(e) {
+    sel.innerHTML = '<option value="">Failed to load: ' + escHtml(e.message) + '</option>';
+    document.getElementById("member-select-meta").innerHTML =
+      '<span style="color:var(--accent-red);">Could not load member list. Check console.</span>';
+    console.error(e);
+  }
+}
+
+function renderMemberOptions(filter) {
+  const sel = document.getElementById("member-select");
+  const f = (filter || "").toLowerCase();
+
+  // Sort: cached perf first (highest win rate), then by trade count
+  const sorted = _allMembers
+    .filter(m => !followedSlugs.has(m.slug))
+    .filter(m => !f || m.name.toLowerCase().includes(f) || (m.state||"").toLowerCase() === f)
+    .sort((a, b) => {
+      const aw = a.win_rate_30d, bw = b.win_rate_30d;
+      if (aw != null && bw != null) return bw - aw;
+      if (aw != null) return -1;
+      if (bw != null) return 1;
+      return (b.trade_count_90d || 0) - (a.trade_count_90d || 0);
+    });
+
+  const opts = sorted.map(m => {
+    const loc   = m.state ? ` (${m.state}-${m.district})` : "";
+    const win   = m.win_rate_30d != null
+                  ? ` · Win ${Math.round(m.win_rate_30d * 100)}%`
+                  : "";
+    const n     = m.perf_trade_count != null
+                  ? ` · n=${m.perf_trade_count}`
+                  : (m.trade_count_90d ? ` · ${m.trade_count_90d} trades` : "");
+    return `<option value="${escAttr(m.slug)}">${escHtml(m.name)}${loc}${win}${n}</option>`;
+  });
+
+  // Count how many have win-rate cached for the meta display
+  const cached = _allMembers.filter(m => m.win_rate_30d != null).length;
+  const total  = _allMembers.length;
+  document.getElementById("member-select-meta").textContent =
+    `${total} House members · ${cached} with computed win rate · House Clerk PTR data only (Senate not yet supported)`;
+
+  sel.innerHTML = '<option value="">— Select a politician —</option>' + opts.join("");
+}
+
+// ---- Bulk compute win-rates for everyone in the dropdown ----
+async function computeAllPerformance() {
+  const btn = document.getElementById("compute-all-btn");
+  const meta = document.getElementById("member-select-meta");
+  if (!confirm("This will compute win rates for all uncached members. Takes ~5-15s per member. Continue?")) return;
+  btn.disabled = true; btn.textContent = "Computing…";
+  meta.textContent = "Computing performance metrics, this may take several minutes…";
+  try {
+    const r = await fetch("/api/copy-trading/compute-all-performance", { method: "POST" });
+    if (!r.ok) throw new Error(await r.text());
+    const data = await r.json();
+    showToast(`Done — ${data.computed} computed, ${data.skipped_no_eligible_trades} skipped (no recent trades), ${data.failed} failed`, "success");
+    setTimeout(() => location.reload(), 1500);
+  } catch(e) {
+    showToast("Compute failed: " + e.message, "error");
+    btn.disabled = false; btn.textContent = "↻ Compute all";
+  }
+}
+
+async function addSelectedPolitician() {
+  const sel = document.getElementById("member-select");
+  const slug = sel.value;
+  if (!slug) {
+    showToast("Pick a politician from the dropdown first", "error");
+    return;
+  }
+  const member = _allMembers.find(m => m.slug === slug);
+  if (!member) return;
+  try {
+    await apiPost("/api/copy-trading/follow", {
+      slug: member.slug,
+      name: member.name,
+      chamber: "House",
+      trade_count_90d: member.trade_count_90d || 0,
+      last_trade_date: member.last_trade_date || "",
+    });
+    followedSlugs.add(member.slug);
+    addFollowedRow({
+      slug: member.slug, name: member.name, party: "", chamber: "House",
+      score: 0, trade_count_90d: member.trade_count_90d || 0,
+      buy_ratio_pct: 0, last_trade_date: member.last_trade_date || "",
+    });
+    sel.value = "";
+    renderMemberOptions("");  // refresh to hide newly-followed
+    showToast("Added " + member.name + " — click ↻ to compute performance", "success");
+  } catch(e) { showToast("Failed: " + e.message, "error"); }
+}
+
+// Kick off the dropdown fetch on page load
+document.addEventListener("DOMContentLoaded", loadMemberDropdown);
+
+// ---- Performance refresh (computes win-rate + avg return via yfinance) ----
+async function refreshPerformance(slug, btn) {
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = "…";
+  try {
+    const r = await fetch("/api/copy-trading/performance/" + encodeURIComponent(slug), { method: "POST" });
+    if (!r.ok) throw new Error(await r.text());
+    const data = await r.json();
+    const wr = data.win_rate_30d != null ? (data.win_rate_30d * 100).toFixed(0) + "%" : "—";
+    const ar = data.avg_return_30d != null ? (data.avg_return_30d * 100).toFixed(2) + "%" : "—";
+    showToast(`${data.name}: ${wr} win, ${ar} avg (${data.trade_count} trades)`, "success");
+    // Reload to show updated metrics
+    setTimeout(() => location.reload(), 1200);
+  } catch(e) {
+    showToast("Compute failed: " + e.message, "error");
+    btn.disabled = false; btn.textContent = orig;
+  }
+}
+
+// ---- Follow / unfollow ----
+async function followPolitician(pol) {
+  try {
+    await apiPost("/api/copy-trading/follow", pol);
+    followedSlugs.add(pol.slug);
+    updateFollowButton(pol.slug, true);
+    addFollowedRow(pol);
+    showToast("Now following " + pol.name, "success");
+  } catch(e) { showToast("Failed: " + e.message, "error"); }
+}
+
+async function unfollow(slug, name) {
+  if (!confirm(`Stop following ${name}?`)) return;
+  try {
+    await apiDelete("/api/copy-trading/follow/" + encodeURIComponent(slug));
+    followedSlugs.delete(slug);
+    updateFollowButton(slug, false);
+    const row = document.getElementById("followed-row-" + slug);
+    if (row) row.remove();
+    // Show empty state if no rows left
+    const tbody = document.getElementById("followed-tbody");
+    if (tbody && !tbody.querySelector("tr")) {
+      document.getElementById("followed-card").querySelector(".empty-state") ||
+        document.getElementById("followed-card").insertAdjacentHTML("beforeend",
+          '<div class="empty-state" style="padding:20px;text-align:center;color:var(--text-secondary);font-size:13px;">No politicians followed yet.<br><span style="font-size:12px;">Load the rankings on the right and click Follow.</span></div>');
+    }
+    showToast("Unfollowed " + name, "info");
+  } catch(e) { showToast("Failed: " + e.message, "error"); }
+}
+
+async function toggleFollowed(slug, enabled) {
+  try {
+    await apiPatch("/api/copy-trading/follow/" + encodeURIComponent(slug), { enabled });
+    showToast(enabled ? "Resumed" : "Paused", "info");
+  } catch(e) { showToast("Failed: " + e.message, "error"); }
+}
+
+function updateFollowButton(slug, isFollowed) {
+  const btn = document.getElementById("follow-btn-" + slug);
+  if (!btn) return;
+  if (isFollowed) {
+    btn.textContent = "✓ Following"; btn.classList.add("active", "unfollow");
+    btn.onclick = () => unfollow(slug, btn.dataset.name);
+  } else {
+    btn.textContent = "Follow"; btn.classList.remove("active", "unfollow");
+    const pol = _lastRanked.find(p => p.slug === slug);
+    if (pol) btn.onclick = () => followPolitician(pol);
+  }
+}
+
+function addFollowedRow(pol) {
+  const tbody = document.getElementById("followed-tbody");
+  if (!tbody) { location.reload(); return; }
+  // Remove empty-state if present
+  const empty = document.getElementById("followed-card").querySelector(".empty-state");
+  if (empty) empty.remove();
+
+  const partyBadge = pol.party.startsWith("D") ? '<span class="badge badge-blue">D</span>'
+                   : pol.party.startsWith("R") ? '<span class="badge badge-red">R</span>'
+                   : `<span class="badge badge-gray">${escHtml(pol.party[0] || "?")}</span>`;
+
+  const tr = document.createElement("tr");
+  tr.id = "followed-row-" + pol.slug;
+  tr.innerHTML = `
+    <td>
+      <div style="display:flex;align-items:center;gap:6px;">
+        ${partyBadge}
+        <div>
+          <div style="font-weight:600;">${escHtml(pol.name)}</div>
+          <div style="font-size:11px;color:var(--text-secondary);">${escHtml(pol.chamber)}${pol.last_trade_date ? ' · Last: ' + pol.last_trade_date : ''}</div>
+        </div>
+      </div>
+    </td>
+    <td style="text-align:right;font-weight:700;color:var(--accent-green);">${(pol.score||0).toFixed(1)}</td>
+    <td style="text-align:right;">${pol.trade_count_90d||0}</td>
+    <td style="text-align:right;">${pol.buy_ratio_pct||0}%</td>
+    <td style="text-align:right;">
+      <label class="toggle-switch" style="margin-right:6px;">
+        <input type="checkbox" checked onchange="toggleFollowed('${escAttr(pol.slug)}', this.checked)">
+        <span class="toggle-slider"></span>
+      </label>
+      <button class="btn btn-sm" style="background:var(--surface-3);border:1px solid var(--border);color:var(--accent-red);"
+              onclick="unfollow('${escAttr(pol.slug)}', '${escAttr(pol.name)}')">×</button>
+    </td>`;
+  tbody.appendChild(tr);
+}
+
+// ---- Rankings loader ----
+let _lastRanked = [];
 
 async function loadPoliticians() {
   const btn = document.getElementById("load-pol-btn");
   const container = document.getElementById("politicians-table-container");
-  btn.disabled = true;
-  btn.textContent = "Loading…";
+  btn.disabled = true; btn.textContent = "Loading…";
   container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-secondary);">Fetching from Capitol Trades…</div>';
   try {
     const r = await fetch("/api/copy-trading/politicians?pages=5");
     if (!r.ok) throw new Error("HTTP " + r.status);
     const data = await r.json();
-    renderPoliticiansTable(data.politicians);
+    _lastRanked = data.politicians || [];
+    renderPoliticiansTable(_lastRanked);
   } catch(e) {
     container.innerHTML = `<div style="padding:20px;color:var(--accent-red);font-size:13px;">
-      Failed to load: ${e.message}<br>
+      Failed to load: ${escHtml(e.message)}<br>
       <small>Capitol Trades may be rate-limiting. Try again in a moment.</small>
     </div>`;
   } finally {
-    btn.disabled = false;
-    btn.textContent = "Reload";
+    btn.disabled = false; btn.textContent = "Reload";
   }
 }
 
@@ -337,38 +626,58 @@ function renderPoliticiansTable(politicians) {
       '<div style="padding:20px;text-align:center;color:var(--text-secondary);">No data returned.</div>';
     return;
   }
+
   const rows = politicians.map(p => {
-    const isFollowed = p.slug === currentSlug;
+    const isFollowed = followedSlugs.has(p.slug);
+    const scoreColor = p.score > 50 ? 'var(--accent-green)' : p.score > 20 ? 'var(--accent-amber)' : 'var(--text-secondary)';
+    const buyColor   = p.buy_ratio_pct >= 70 ? 'var(--accent-green)' : p.buy_ratio_pct <= 30 ? 'var(--accent-red)' : 'var(--text-primary)';
+    const btnLabel   = isFollowed ? '✓ Following' : 'Follow';
+    const btnCls     = isFollowed ? 'follow-btn active unfollow' : 'follow-btn';
     return `<tr>
       <td>
         <div style="font-weight:600">${escHtml(p.name)}</div>
-        <div style="font-size:11px;color:var(--text-secondary)">${escHtml(p.chamber)} · ${escHtml(p.state || "")}</div>
+        <div style="font-size:11px;color:var(--text-secondary)">${escHtml(p.chamber)}</div>
       </td>
       <td>${partyBadge(p.party)}</td>
-      <td style="text-align:right;font-weight:600">${p.trade_count_90d}</td>
-      <td style="color:var(--text-secondary);font-size:12px">${p.last_trade_date || "—"}</td>
-      <td style="text-align:right">${p.unique_tickers}</td>
-      <td style="text-align:right">${p.buy_ratio_pct}%</td>
-      <td class="pol-score" style="text-align:right">${p.score}</td>
+      <td style="text-align:right">
+        <span style="font-weight:700;color:${scoreColor}">${p.score}</span>
+        <span class="metric-label">CT Score</span>
+      </td>
+      <td style="text-align:right">
+        <span style="font-weight:600">${p.trade_count_90d}</span>
+        <span class="metric-label">90d trades</span>
+      </td>
+      <td style="text-align:right;color:var(--text-secondary);font-size:12px">${p.last_trade_date || "—"}</td>
+      <td style="text-align:right">
+        <span style="font-weight:600">${p.unique_tickers}</span>
+        <span class="metric-label">tickers</span>
+      </td>
+      <td style="text-align:right">
+        <span style="font-weight:600;color:${buyColor}">${p.buy_ratio_pct}%</span>
+        <span class="metric-label">buys</span>
+      </td>
       <td>
-        <button class="follow-btn ${isFollowed ? 'active' : ''}"
-                onclick="selectPolitician('${escAttr(p.slug)}', '${escAttr(p.name)}')"
-                id="follow-${escAttr(p.slug)}">
-          ${isFollowed ? '✓ Following' : 'Follow'}
+        <button class="${btnCls}"
+                id="follow-btn-${escAttr(p.slug)}"
+                data-slug="${escAttr(p.slug)}"
+                data-name="${escAttr(p.name)}"
+                onclick="handleFollowClick(this)">
+          ${btnLabel}
         </button>
       </td>
     </tr>`;
   }).join("");
+
   document.getElementById("politicians-table-container").innerHTML = `
     <table class="pol-table">
       <thead>
         <tr>
           <th>Name</th><th>Party</th>
-          <th style="text-align:right">Trades 90d</th>
+          <th style="text-align:right">Score ↓</th>
+          <th style="text-align:right">Trades</th>
           <th>Last Trade</th>
           <th style="text-align:right">Tickers</th>
           <th style="text-align:right">Buy %</th>
-          <th style="text-align:right">Score</th>
           <th></th>
         </tr>
       </thead>
@@ -376,30 +685,22 @@ function renderPoliticiansTable(politicians) {
     </table>`;
 }
 
-async function selectPolitician(slug, name) {
-  try {
-    await apiPost("/api/copy-trading/config", {
-      followed_politician: slug,
-      followed_politician_name: name,
-    });
-    // Update button states
-    document.querySelectorAll(".follow-btn").forEach(b => {
-      b.classList.remove("active");
-      b.textContent = "Follow";
-    });
-    const btn = document.getElementById("follow-" + slug);
-    if (btn) { btn.classList.add("active"); btn.textContent = "✓ Following"; }
-    document.getElementById("ct-pol-name").value = name;
-    document.getElementById("ct-pol-slug-display").textContent = "slug: " + slug;
-    showToast("Now following " + name, "success");
-  } catch(e) { showToast("Failed: " + e.message, "error"); }
+function handleFollowClick(btn) {
+  const slug = btn.dataset.slug;
+  const name = btn.dataset.name;
+  if (followedSlugs.has(slug)) {
+    unfollow(slug, name);
+  } else {
+    const pol = _lastRanked.find(p => p.slug === slug);
+    if (pol) followPolitician(pol);
+  }
 }
 
 function partyBadge(party) {
   if (!party) return "";
   if (party.startsWith("D")) return '<span class="badge badge-blue">D</span>';
   if (party.startsWith("R")) return '<span class="badge badge-red">R</span>';
-  return `<span class="badge badge-gray">${party[0]}</span>`;
+  return `<span class="badge badge-gray">${escHtml(party[0])}</span>`;
 }
 
 function escHtml(s) {

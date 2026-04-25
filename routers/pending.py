@@ -106,6 +106,7 @@ def _normalize_status(status: str | None) -> str:
 async def pending_page(
     request: Request,
     status: str | None = Query(default="pending"),
+    ref: str | None = Query(default=None),
     s: Settings = Depends(get_settings),
 ):
     stale_minutes = s.execution.stale_plan_timeout_minutes
@@ -125,6 +126,7 @@ async def pending_page(
             "filter_status": status,
             "status_counts": counts,
             "stale_minutes": stale_minutes,
+            "ref": ref,
         },
     )
 

@@ -1,19 +1,30 @@
 # TradeAgent — Project Context for Claude Code
-**Last synced:** 2026-04-25
-**Status:** Phase 4 fully complete (scheduler shipped in main `70ccbe6`).
-DL-Filtered intraday detector + analysis dashboard + modular widget dashboard
-with settings layer + unified trade detail page all shipped across the
-2026-04-24/25 sessions. Only Phase-4-related leftover:
-`executioner.close_at_time()` for the 15:00 ET intraday time-stop (~1 hr).
-**Next chat options:** see HANDOFF.md "Immediate next tasks" — pick one of
-(a) Phase 6 edit-mode for active trades, (b) finish the executioner
-time-stop method, (c) Phase 5 multi-year backtest engine, (d) Phase 4.5 chart
-viewer + indicators on /pending and /universe (still queued).
+**Last synced:** 2026-04-25 (afternoon — Copy Insiders + Senate + Stock Lists session)
+**Status:** Phase 4 fully complete + DL-Filtered intraday + modular widget
+dashboard + unified trade detail. Latest session (2026-04-25 PM) shipped the
+Copy Insiders refactor: dead Capitol Trades API replaced with the working
+ivanma9 hosted API, Senate eFD scraper + HTML PTR parser added (covers both
+chambers now), 92 House + 14 Senate members in the dropdown, composite
+1-10 rank for politicians, multi-politician follow with auto-compute on
+follow, persistent rankings cache, Universe → Stock Lists submenu (10
+default lists, Wikipedia-sourced), sidebar accordion with Copy Insiders
+parent group. Pending: senate_filings auto-diff job, executioner
+`close_at_time()`, Phase 5 backtest engine.
+**Next chat options:** (a) wire **Senate auto-diff job** (#6 scheduler job)
+for daily refresh detection — small, ~30 min; (b) finish
+**`executioner.close_at_time()`** for DL agent's 15:00 ET exit (~1 hr);
+(c) **Phase 6 edit-mode** for active trades on `/trades/{id}`; (d) **Phase
+5 multi-year backtest engine**; (e) Phase 4.5 chart viewer + indicators on
+/pending and /universe (still queued).
 **Roadmap (current):**
 - Phase 4 ✅ all sub-items
 - DL-Filtered intraday strategy ✅ (detector + workflow + smoke + integration; close_at_time pending)
 - Modular dashboard ✅ (Portfolio/Market/News tabs, 5 widgets, ⚙ settings infra)
 - Trade detail page ✅ (`/trades/{id}` unified, partials, indicator picker, VADER news)
+- Copy Insiders ✅ (House via ivanma9 API + Senate via eFD HTML parser; multi-follow,
+  composite rank, performance via yfinance, sidebar accordion, persistent cache)
+- Stock Lists ✅ (Universe submenu; 10 defaults — S&P 500/400/600, NASDAQ-100, Dow 30,
+  Magnificent 7, FAANG, SPDR sectors, AI Leaders, Crypto-Adjacent)
 - Phase 5 — Backtest Engine + Strategy Review UI
 - Phase 4.5 — Chart viewer sources + indicators (deferred)
 - Phase 6 — ntfy push notifications + mobile CSS pass + risk_manager postmortem
@@ -460,6 +471,91 @@ POST /broker/halt                  → emergency stop (cancel all, halt flag)
 GET  /console                      → console.html (SSE log stream)
 GET  /api/sse/logs                 → SSE stream for agent console
 ```
+
+### Copy Insiders + Stock Lists routes (added 2026-04-25 PM)
+```
+GET  /copy-trading                 → 307 redirect → /copy-insiders/rankings
+GET  /copy-insiders                → 307 redirect → /copy-insiders/rankings
+GET  /copy-insiders/rankings       → leaderboard + multi-follow + composite rank
+GET  /copy-insiders/trades         → multi-select politicians, view disclosures, ticker hover-chart
+GET  /universe/stock-lists         → 10 default ticker lists (cards)
+GET  /universe/stock-lists/{slug}  → ticker grid + filter + copy-all + Finviz links
+
+GET  /api/copy-trading/all-members        → House (ivanma9) + Senate (eFD cache), composite rank, last_refresh
+POST /api/copy-trading/follow             → add politician to followed_politicians; auto-fires perf compute background task
+DELETE /api/copy-trading/follow/{slug}    → unfollow
+PATCH  /api/copy-trading/follow/{slug}    → toggle enabled
+PATCH  /api/copy-trading/favorite/{slug}  → pin to top of followed list
+GET  /api/copy-trading/followed           → JSON list
+GET  /api/copy-trading/disclosures?slugs=…  → multi-politician disclosure feed
+POST /api/copy-trading/performance/{slug}   → compute win-rate / 30-day return; chamber-aware dispatch
+POST /api/copy-trading/compute-all-performance  → bulk compute House + Senate
+POST /api/copy-trading/refresh-senate     → scrape efdsearch.senate.gov, cache filings
+POST /api/copy-trading/parse-senator/{slug} → parse all PTR HTML tables, cache trades, compute perf
+GET  /api/copy-trading/politicians        → House leaderboard (cached in copy_trading_config)
+POST /api/copy-trading/scan               → manual Capitol Trades poll (now uses ivanma9)
+GET  /api/copy-trading/queue              → recent disclosure rows from politician_trades
+
+GET  /api/stock-lists                     → all lists (seeds defaults if empty)
+GET  /api/stock-lists/{slug}              → one list with full ticker array
+POST /api/stock-lists/{slug}/refresh      → re-fetch from source (Wikipedia for index lists)
+POST /api/stock-lists/refresh-all         → refresh all dynamic lists
+```
+
+---
+
+## Copy Insiders subsystem (added 2026-04-25 PM)
+
+### Data sources
+- **House** — `congressional-trading-datastore-production-9fd6.up.railway.app`
+  (the `ivanma9/CongressionalTrading` open-source REST API). Replaced the dead
+  `api.capitoltrades.com` (which now NXDOMAIN's). 24,492 trades, daily-refreshed
+  at the source. Free, no auth.
+- **Senate** — `efdsearch.senate.gov/search/`. No public API; we accept the
+  prohibition agreement once per session, hit `/search/report/data/` for the
+  PTR list, then fetch each `/search/view/ptr/{ptr_id}/` page (which renders
+  trades as **structured HTML tables, not PDFs** — no PDF parser needed).
+
+### Performance metric (the "trading success" measure)
+The hosted ivanma9 `/performance` endpoint exists but always returns 0 trades —
+broken on their side. We compute locally with **yfinance** in
+`services/capitol_trades_service.py::_compute_performance_locally`:
+1. For each trade with a ticker, fetch the close price on disclosure date and 30 days later
+2. Win = price moved the same direction as the trade (up for buy, down for sell)
+3. Aggregate: `win_rate_30d`, `avg_return_30d`, `avg_spy_return_30d` (benchmark)
+4. Senators reuse the exact same function via shape adaptation in
+   `services/senate_efd_service.py::compute_senator_performance`
+
+### Composite rank (1-10) for the dropdown
+Computed in `routers/copy_trading.py::_compute_composite_ranks`:
+- Inputs: `trade_count_90d` (0.25 weight), `win_rate_30d` (0.40), `avg_return_30d` (0.35)
+- Each metric percentile-ranked across the cohort of members with cached perf
+- Weighted sum binned into deciles 1-10
+- Dropdown options colored 🔴 (1-5 below avg) or 🟢 (6-10 above avg)
+
+### DB tables (all owned by `services/db_service.py`)
+- `followed_politicians` — multi-follow with per-row enabled toggle, favorite pin,
+  cached perf metrics
+- `member_performance_cache` — keyed perf metrics for any politician (followed or not)
+- `senate_filings` — eFD PTR filing index (used for diff detection on next refresh)
+- `senate_trades` — individual rows parsed from PTR HTML tables `(ptr_id, row_num)` PK
+- `politician_trades` — pre-existing; legacy Capitol Trades feed
+- `copy_trading_config` — k/v store; now holds `latest_rankings_json`,
+  `latest_rankings_at`, `senate_last_refresh_at`
+
+### Stock Lists subsystem
+- `services/stock_lists_service.py` — 10 default lists in `_DEFAULTS`. Two
+  source types: `wikipedia` (S&P 500/400/600, NASDAQ-100, Dow 30 — refreshable
+  via `pd.read_html`) and `static` (Mag 7, FAANG, sector ETFs, etc.).
+- Wikipedia scraping requires a descriptive User-Agent or returns 403.
+- Routes registered BEFORE `universe.router` in `app.py` so
+  `/universe/stock-lists` doesn't get shadowed by `/universe/{preset_name}`.
+
+### Sidebar accordion
+- `templates/base.html` rewrote nav into parent/child groups with chevron toggles
+- `static/app.css` `.nav-group / .nav-parent / .nav-children / .nav-child` block
+- Open state persists in `localStorage['sidebar.openGroups']`
+- Active child auto-expands its parent
 
 ---
 

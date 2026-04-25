@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Stock Lists — TradeAgent{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+  <div>
+    <h1 class="page-title">Stock Lists</h1>
+    <p class="page-subtitle">Curated and dynamic ticker collections — index constituents, theme baskets, and custom watchlists.</p>
+  </div>
+  <button class="btn btn-secondary" onclick="refreshAll()" id="refresh-all-btn">↻ Refresh dynamic lists</button>
+</div>
+
+<div class="sl-grid">
+  {% for lst in lists %}
+  <a href="/universe/stock-lists/{{ lst.slug }}" class="sl-card-link">
+    <div class="sl-card">
+      <div class="sl-card-head">
+        <span class="sl-card-title">{{ lst.name }}</span>
+        <span class="sl-source-badge sl-source-{{ lst.source_type }}">{{ lst.source_type }}</span>
+      </div>
+      <p class="sl-desc">{{ lst.description or "—" }}</p>
+      <div class="sl-card-meta">
+        <span><strong>{{ lst.ticker_count }}</strong> tickers</span>
+        <span class="sl-refresh-stamp">
+          {% if lst.last_refreshed_at %}
+            updated {{ lst.last_refreshed_at[:10] }}
+          {% else %}
+            never refreshed
+          {% endif %}
+        </span>
+      </div>
+      {% if lst.tickers %}
+        <div class="sl-ticker-preview">
+          {% for t in lst.tickers[:8] %}<span class="ticker-chip">{{ t }}</span>{% endfor %}
+          {% if lst.ticker_count > 8 %}<span style="color:var(--text-secondary);font-size:11px;">+{{ lst.ticker_count - 8 }} more</span>{% endif %}
+        </div>
+      {% endif %}
+      <div class="sl-card-actions">
+        {% if lst.source_type == 'wikipedia' %}
+          <button class="btn btn-sm btn-secondary" onclick="event.preventDefault();event.stopPropagation();refreshOne('{{ lst.slug }}', this);">↻ Refresh</button>
+        {% endif %}
+        <span class="sl-card-arrow">View →</span>
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+
+<style>
+  .sl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+  .sl-card-link { text-decoration: none; color: inherit; display: block; }
+  .sl-card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: border-color .15s, transform .1s;
+    height: 100%;
+  }
+  .sl-card-link:hover .sl-card { border-color: var(--accent); transform: translateY(-1px); }
+
+  .sl-card-head { display:flex;justify-content:space-between;align-items:flex-start;gap:8px; }
+  .sl-card-title { font-size:14px;font-weight:600;color:var(--text-primary);line-height:1.3; }
+  .sl-source-badge {
+    font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;text-transform:uppercase;
+    background:var(--surface-3);color:var(--text-secondary);
+  }
+  .sl-source-wikipedia { background:#1d3557;color:#74b2ff; }
+  .sl-source-static { background:#3d2e00;color:#f0b429; }
+
+  .sl-desc { font-size:12px;color:var(--text-secondary);margin:0;line-height:1.5; }
+  .sl-card-meta { display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary); }
+  .sl-card-meta strong { color:var(--text-primary); }
+
+  .sl-ticker-preview { display:flex;flex-wrap:wrap;gap:4px;align-items:center; }
+  .ticker-chip {
+    display:inline-block;padding:1px 7px;border-radius:3px;background:var(--tint-blue);color:var(--accent-blue);
+    font-family:var(--font-mono,monospace);font-size:10px;font-weight:600;
+  }
+
+  .sl-card-actions { display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:6px;border-top:1px solid var(--border-dim); }
+  .sl-card-arrow { font-size:12px;color:var(--accent); }
+  .sl-refresh-stamp { color:var(--text-tertiary); }
+</style>
+
+<script>
+async function refreshOne(slug, btn) {
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = "…";
+  try {
+    const r = await fetch(`/api/stock-lists/${encodeURIComponent(slug)}/refresh`, { method: "POST" });
+    if (!r.ok) throw new Error(await r.text());
+    const d = await r.json();
+    showToast(`${slug}: ${d.ticker_count} tickers`, "success");
+    setTimeout(() => location.reload(), 800);
+  } catch(e) {
+    showToast("Refresh failed: " + e.message, "error");
+    btn.disabled = false; btn.textContent = orig;
+  }
+}
+
+async function refreshAll() {
+  const btn = document.getElementById("refresh-all-btn");
+  if (!confirm("Refresh all dynamic (Wikipedia-sourced) lists? Takes ~10-30s.")) return;
+  btn.disabled = true; btn.textContent = "Refreshing…";
+  try {
+    const r = await fetch("/api/stock-lists/refresh-all", { method: "POST" });
+    if (!r.ok) throw new Error(await r.text());
+    const d = await r.json();
+    showToast(`Refreshed ${d.refreshed}, skipped ${d.skipped_static} static, ${d.failed.length} failed`, "success");
+    setTimeout(() => location.reload(), 1200);
+  } catch(e) {
+    showToast("Refresh-all failed: " + e.message, "error");
+    btn.disabled = false; btn.textContent = "↻ Refresh dynamic lists";
+  }
+}
+
+function showToast(msg, type) {
+  const t = document.createElement("div");
+  t.textContent = msg;
+  t.style.cssText = "position:fixed;bottom:24px;right:24px;z-index:9999;padding:10px 16px;border-radius:6px;font-size:13px;max-width:320px;border:1px solid var(--border);color:var(--text-primary);background:" + ({success:"#1a3d2a",error:"#3d1a1a",info:"var(--surface-3)"}[type]||"var(--surface-3)");
+  document.body.appendChild(t); setTimeout(() => t.remove(), 3500);
+}
+</script>
+{% endblock %}

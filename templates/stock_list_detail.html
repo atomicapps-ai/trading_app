@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}{{ list.name }} — Stock Lists — TradeAgent{% endblock %}
+
+{% block content %}
+<nav style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);margin-bottom:12px;">
+  <a href="/universe/stock-lists" style="color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:4px;">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+    Stock Lists
+  </a>
+  <span>›</span>
+  <span style="color:var(--text-primary);">{{ list.name }}</span>
+</nav>
+
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+  <div>
+    <h1 class="page-title">{{ list.name }}</h1>
+    <p class="page-subtitle">{{ list.description }}</p>
+    <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">
+      <strong>{{ list.ticker_count }}</strong> tickers ·
+      Source: <span class="sl-source-badge sl-source-{{ list.source_type }}">{{ list.source_type }}</span>
+      {% if list.source_url %} · <a href="{{ list.source_url }}" target="_blank" rel="noopener" style="color:var(--accent);">view source ↗</a>{% endif %}
+      {% if list.last_refreshed_at %} · last refreshed {{ list.last_refreshed_at[:10] }}{% endif %}
+    </div>
+  </div>
+  {% if list.source_type == 'wikipedia' %}
+    <button class="btn btn-secondary" id="refresh-btn" onclick="refreshThis()">↻ Refresh from source</button>
+  {% endif %}
+</div>
+
+<div class="card" style="padding:16px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;">
+    <input id="ticker-filter" placeholder="Filter tickers…" class="form-input" style="flex:1;font-size:12px;max-width:300px;" oninput="filterTickers(this.value)">
+    <button class="btn btn-sm btn-secondary" onclick="copyAllTickers()">Copy all</button>
+  </div>
+  <div class="ticker-grid" id="ticker-grid">
+    {% for t in list.tickers %}
+      <a class="ticker-cell" data-symbol="{{ t }}" target="_blank" rel="noopener"
+         href="https://finviz.com/quote.ashx?t={{ t }}" title="Open {{ t }} in Finviz">
+        {{ t }}
+      </a>
+    {% endfor %}
+  </div>
+  {% if not list.tickers %}
+    <div class="empty-state" style="padding:36px;text-align:center;color:var(--text-secondary);font-size:13px;">
+      No tickers in this list yet.
+      {% if list.source_type == 'wikipedia' %}
+        Click <strong>Refresh from source</strong> to populate.
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+
+<style>
+  .ticker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 6px;
+  }
+  .ticker-cell {
+    display: flex; align-items: center; justify-content: center;
+    padding: 8px 4px;
+    background: var(--tint-blue);
+    color: var(--accent-blue);
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color .1s, background .1s;
+  }
+  .ticker-cell:hover {
+    background: var(--accent-blue);
+    color: #fff;
+    border-color: var(--accent-blue);
+  }
+  .sl-source-badge { font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;text-transform:uppercase; }
+  .sl-source-wikipedia { background:#1d3557;color:#74b2ff; }
+  .sl-source-static { background:#3d2e00;color:#f0b429; }
+</style>
+
+<script>
+function filterTickers(q) {
+  const f = q.trim().toUpperCase();
+  document.querySelectorAll(".ticker-cell").forEach(el => {
+    el.style.display = (!f || el.dataset.symbol.includes(f)) ? "" : "none";
+  });
+}
+
+async function copyAllTickers() {
+  const tickers = [...document.querySelectorAll(".ticker-cell")]
+    .filter(el => el.style.display !== "none")
+    .map(el => el.dataset.symbol);
+  await navigator.clipboard.writeText(tickers.join(","));
+  showToast(`Copied ${tickers.length} tickers to clipboard`, "success");
+}
+
+async function refreshThis() {
+  const btn = document.getElementById("refresh-btn");
+  btn.disabled = true; btn.textContent = "Refreshing…";
+  try {
+    const r = await fetch(`/api/stock-lists/{{ list.slug }}/refresh`, { method: "POST" });
+    if (!r.ok) throw new Error(await r.text());
+    const d = await r.json();
+    showToast(`Refreshed: ${d.ticker_count} tickers`, "success");
+    setTimeout(() => location.reload(), 800);
+  } catch(e) {
+    showToast("Refresh failed: " + e.message, "error");
+    btn.disabled = false; btn.textContent = "↻ Refresh from source";
+  }
+}
+
+function showToast(msg, type) {
+  const t = document.createElement("div");
+  t.textContent = msg;
+  t.style.cssText = "position:fixed;bottom:24px;right:24px;z-index:9999;padding:10px 16px;border-radius:6px;font-size:13px;max-width:320px;border:1px solid var(--border);color:var(--text-primary);background:" + ({success:"#1a3d2a",error:"#3d1a1a",info:"var(--surface-3)"}[type]||"var(--surface-3)");
+  document.body.appendChild(t); setTimeout(() => t.remove(), 3500);
+}
+</script>
+{% endblock %}
