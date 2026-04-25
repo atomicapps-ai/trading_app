@@ -555,6 +555,130 @@ class ExplodedStocksWidget(Widget):
 
 
 # --------------------------------------------------------------------------- #
+# Widget: Market Headlines (News tab)
+# --------------------------------------------------------------------------- #
+
+
+# Default watchlist for the headlines stream — major indices + a handful of
+# bellwethers. User-overridable via settings_schema.
+_HEADLINES_DEFAULT_WATCHLIST = [
+    "SPY", "QQQ", "AAPL", "NVDA", "MSFT", "TSLA", "AMZN", "META",
+]
+
+
+class MarketHeadlinesWidget(Widget):
+    """Combined Alpaca news + EDGAR filings stream across a small watchlist.
+
+    Pulls per-symbol news (last 24h) for each symbol in the watchlist plus
+    EDGAR 8-K / 10-Q / 10-K filings (last 14d), VADER-scores every item,
+    sorts newest-first, caps at 25. Empty watchlists or full credential-
+    less environments degrade to a graceful empty state — never throws.
+
+    User-configurable: edit the watchlist (comma-separated tickers) and
+    toggle whether EDGAR filings are included.
+    """
+
+    id = "market_headlines"
+    title = "Market Headlines"
+    size = "wide"
+    tab = "news"
+    refresh_seconds = 600   # 10 min
+
+    user_configurable = True
+    settings_schema = {
+        "watchlist": {
+            "type": "text",
+            "label": "Watchlist (comma-separated)",
+            "default": ",".join(_HEADLINES_DEFAULT_WATCHLIST),
+            "help": "Symbols to pull news for. Up to ~12 keeps latency reasonable.",
+        },
+        "include_filings": {
+            "type": "bool",
+            "label": "Include EDGAR filings",
+            "default": True,
+            "help": "Adds 8-K / 10-Q / 10-K filings from the last 14 days.",
+        },
+        "max_items": {
+            "type": "int",
+            "label": "Max items rendered",
+            "default": 25,
+            "min": 5, "max": 100, "step": 5,
+        },
+    }
+
+    async def get_data(self) -> dict[str, Any]:
+        from services import news_service, sentiment_service  # local import
+
+        cfg = await self.resolve_settings()
+        raw = str(cfg.get("watchlist", "") or "")
+        symbols = [s.strip().upper() for s in raw.split(",") if s.strip()]
+        if not symbols:
+            symbols = _HEADLINES_DEFAULT_WATCHLIST
+        include_filings = bool(cfg.get("include_filings", True))
+        max_items = int(cfg.get("max_items", 25))
+
+        async def _news(sym: str) -> list:
+            try:
+                return await news_service.get_news(sym, lookback_hours=24)
+            except Exception as e:                            # noqa: BLE001
+                logger.warning("market_headlines news %s: %s", sym, e)
+                return []
+
+        async def _filings(sym: str) -> list:
+            if not include_filings:
+                return []
+            try:
+                fs = await news_service.get_filings(sym, lookback_days=14)
+                # Coerce filings into NewsItem-shaped objects so the
+                # partial renders one unified stream.
+                return [
+                    news_service.NewsItem(
+                        source="edgar", symbol=sym,
+                        headline=f"{f.form_type}: {f.title}",
+                        body=None, published_at=f.filed_at, url=f.url,
+                        article_id=f.accession_no, author="SEC EDGAR",
+                    )
+                    for f in fs
+                ]
+            except Exception as e:                            # noqa: BLE001
+                logger.warning("market_headlines filings %s: %s", sym, e)
+                return []
+
+        # Run all fetches in parallel. asyncio.gather preserves order so
+        # we know which results came from which symbol if we ever want
+        # per-symbol grouping later.
+        news_lists, filing_lists = await asyncio.gather(
+            asyncio.gather(*(_news(s) for s in symbols)),
+            asyncio.gather(*(_filings(s) for s in symbols)),
+        )
+        items: list = []
+        for lst in news_lists:
+            items.extend(lst)
+        for lst in filing_lists:
+            items.extend(lst)
+
+        items.sort(key=lambda n: n.published_at, reverse=True)
+        items = items[:max_items]
+        scored = sentiment_service.score_items(items)
+
+        # Decorate scored dicts with the symbol so the widget can show
+        # per-headline ticker badges.
+        rows: list[dict[str, Any]] = []
+        for item, sc in zip(items, scored):
+            d = sc.to_dict()
+            d["symbol"] = item.symbol
+            rows.append(d)
+
+        summary = sentiment_service.summarize(items).to_dict() if items else {}
+        return {
+            "rows": rows,
+            "summary": summary,
+            "watchlist": symbols,
+            "include_filings": include_filings,
+        }
+
+
+# --------------------------------------------------------------------------- #
 # Registry
 # --------------------------------------------------------------------------- #
 
@@ -565,6 +689,7 @@ WIDGETS: list[Widget] = [
     SpyTrendWidget(),
     StrategyHealthWidget(),
     ExplodedStocksWidget(),
+    MarketHeadlinesWidget(),
 ]
 
 
@@ -586,4 +711,61 @@ def widgets_by_tab() -> dict[str, list[Widget]]:
     out: dict[str, list[Widget]] = {tab: [] for tab, _ in TAB_ORDER}
     for w in enabled_widgets():
         out.setdefault(w.tab, []).append(w)
+    return out
+
+
+# --------------------------------------------------------------------------- #
+# Layout overrides — per-user widget order and size-class overrides
+# --------------------------------------------------------------------------- #
+
+
+# Synthetic widget id under which layout state lives in user_widget_settings.
+# Keys: "<tab>.order" -> ordered list of widget ids
+#       "<widget_id>.size" -> "sm" | "md" | "lg" | "wide" override
+LAYOUT_WIDGET_ID = "__layout__"
+
+
+async def widgets_by_tab_for_user(user_id: str = "default") -> dict[str, list[dict[str, Any]]]:
+    """Tab → ordered list of widget descriptors honoring user overrides.
+
+    Each descriptor is a flat dict the template iterates without needing
+    to call methods on the Widget. Order is the saved per-tab order
+    (unknown widgets appended; missing widgets dropped). Size honors any
+    saved override; falls back to ``Widget.size``.
+    """
+    from services import widget_settings as ws
+
+    saved = await ws.get_all(user_id, LAYOUT_WIDGET_ID)
+    grouped = widgets_by_tab()
+    out: dict[str, list[dict[str, Any]]] = {}
+    for tab, widgets in grouped.items():
+        order_key = f"{tab}.order"
+        saved_order = saved.get(order_key) or []
+        if isinstance(saved_order, list):
+            by_id = {w.id: w for w in widgets}
+            ordered: list[Widget] = []
+            seen: set[str] = set()
+            for wid in saved_order:
+                if wid in by_id and wid not in seen:
+                    ordered.append(by_id[wid])
+                    seen.add(wid)
+            for w in widgets:
+                if w.id not in seen:
+                    ordered.append(w)
+            widgets = ordered
+        descriptors: list[dict[str, Any]] = []
+        for w in widgets:
+            size = saved.get(f"{w.id}.size") or w.size
+            if size not in ("sm", "md", "lg", "wide"):
+                size = w.size
+            descriptors.append({
+                "id": w.id,
+                "title": w.title,
+                "size": size,
+                "default_size": w.size,
+                "refresh_seconds": w.refresh_seconds,
+                "user_configurable": w.user_configurable,
+                "tab": w.tab,
+            })
+        out[tab] = descriptors
     return out

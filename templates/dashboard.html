@@ -42,14 +42,22 @@
   {% if widgets_by_tab.portfolio %}
   <div class="widget-grid mt-16">
     {% for w in widgets_by_tab.portfolio %}
-      <div class="widget widget-{{ w.size }}" id="widget-{{ w.id }}">
+      <div class="widget widget-{{ w.size }}"
+           id="widget-{{ w.id }}"
+           data-widget-id="{{ w.id }}"
+           data-widget-tab="{{ w.tab }}"
+           draggable="true">
         <div class="widget-header">
+          <span class="widget-grip" title="Drag to reorder">⋮⋮</span>
           <span class="widget-title">{{ w.title }}</span>
-          {% if w.user_configurable %}
-            <button type="button" class="widget-settings-btn"
-                    title="Configure {{ w.title }}"
-                    onclick="openWidgetSettings('{{ w.id }}')">⚙</button>
-          {% endif %}
+          <span style="flex:1"></span>
+          <button type="button" class="widget-size-btn"
+                  title="Cycle widget size"
+                  data-current-size="{{ w.size }}"
+                  onclick="cycleWidgetSize('{{ w.id }}')">▣</button>
+          <button type="button" class="widget-settings-btn"
+                  title="Configure {{ w.title }}"
+                  onclick="openWidgetSettings('{{ w.id }}')">⚙</button>
         </div>
         <div class="widget-body"
              hx-get="/api/dashboard/widgets/{{ w.id }}"
@@ -164,8 +172,23 @@
   {% if widgets_by_tab.market %}
   <div class="widget-grid">
     {% for w in widgets_by_tab.market %}
-      <div class="widget widget-{{ w.size }}">
-        <div class="widget-header"><span class="widget-title">{{ w.title }}</span></div>
+      <div class="widget widget-{{ w.size }}"
+           id="widget-{{ w.id }}"
+           data-widget-id="{{ w.id }}"
+           data-widget-tab="{{ w.tab }}"
+           draggable="true">
+        <div class="widget-header">
+          <span class="widget-grip" title="Drag to reorder">⋮⋮</span>
+          <span class="widget-title">{{ w.title }}</span>
+          <span style="flex:1"></span>
+          <button type="button" class="widget-size-btn"
+                  title="Cycle widget size"
+                  data-current-size="{{ w.size }}"
+                  onclick="cycleWidgetSize('{{ w.id }}')">▣</button>
+          <button type="button" class="widget-settings-btn"
+                  title="Configure {{ w.title }}"
+                  onclick="openWidgetSettings('{{ w.id }}')">⚙</button>
+        </div>
         <div class="widget-body"
              hx-get="/api/dashboard/widgets/{{ w.id }}"
              hx-trigger="revealed once, every {{ w.refresh_seconds }}s"
@@ -187,8 +210,23 @@
   {% if widgets_by_tab.news %}
   <div class="widget-grid">
     {% for w in widgets_by_tab.news %}
-      <div class="widget widget-{{ w.size }}">
-        <div class="widget-header"><span class="widget-title">{{ w.title }}</span></div>
+      <div class="widget widget-{{ w.size }}"
+           id="widget-{{ w.id }}"
+           data-widget-id="{{ w.id }}"
+           data-widget-tab="{{ w.tab }}"
+           draggable="true">
+        <div class="widget-header">
+          <span class="widget-grip" title="Drag to reorder">⋮⋮</span>
+          <span class="widget-title">{{ w.title }}</span>
+          <span style="flex:1"></span>
+          <button type="button" class="widget-size-btn"
+                  title="Cycle widget size"
+                  data-current-size="{{ w.size }}"
+                  onclick="cycleWidgetSize('{{ w.id }}')">▣</button>
+          <button type="button" class="widget-settings-btn"
+                  title="Configure {{ w.title }}"
+                  onclick="openWidgetSettings('{{ w.id }}')">⚙</button>
+        </div>
         <div class="widget-body"
              hx-get="/api/dashboard/widgets/{{ w.id }}"
              hx-trigger="revealed once, every {{ w.refresh_seconds }}s"
@@ -349,6 +387,125 @@
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !wsModal.hidden) closeWidgetSettings();
   });
+
+  // ── Settings modal: size picker chip toggle (single-select) ─────────
+  // The universal "Size" chip-row in the settings modal lives outside
+  // the settings_schema, so wsSerialize ignores it. We listen separately,
+  // POST the new size to /api/dashboard/layout, and re-style the live
+  // widget without a page reload.
+  document.addEventListener('click', async (e) => {
+    const chip = e.target.closest('[data-size-picker] .ws-chip');
+    if (!chip || !wsCurrentWidgetId) return;
+    const picker = chip.closest('[data-size-picker]');
+    picker.querySelectorAll('.ws-chip').forEach(
+      c => c.classList.remove('ws-chip-on'));
+    chip.classList.add('ws-chip-on');
+    const newSize = chip.dataset.size;
+    try {
+      await fetch('/api/dashboard/layout', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({size: {[wsCurrentWidgetId]: newSize}}),
+      });
+      applyWidgetSize(wsCurrentWidgetId, newSize);
+    } catch (err) {
+      console.warn('size save failed', err);
+    }
+  });
+
+  // ── Per-widget size cycle button (▣ in header) ──────────────────────
+  const SIZE_CYCLE = ['sm', 'md', 'lg', 'wide'];
+
+  function applyWidgetSize(widgetId, newSize) {
+    const card = document.getElementById('widget-' + widgetId);
+    if (!card) return;
+    SIZE_CYCLE.forEach(s => card.classList.remove('widget-' + s));
+    card.classList.add('widget-' + newSize);
+    const btn = card.querySelector('.widget-size-btn');
+    if (btn) btn.dataset.currentSize = newSize;
+  }
+
+  async function cycleWidgetSize(widgetId) {
+    const card = document.getElementById('widget-' + widgetId);
+    if (!card) return;
+    const btn = card.querySelector('.widget-size-btn');
+    const cur = btn ? btn.dataset.currentSize : 'md';
+    const next = SIZE_CYCLE[(SIZE_CYCLE.indexOf(cur) + 1) % SIZE_CYCLE.length];
+    applyWidgetSize(widgetId, next);
+    try {
+      await fetch('/api/dashboard/layout', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({size: {[widgetId]: next}}),
+      });
+    } catch (err) {
+      console.warn('size cycle save failed', err);
+    }
+  }
+
+  // ── Drag-to-reorder within a tab — native HTML5 DnD ─────────────────
+  // Each widget card is draggable. On drop within the same tab's grid,
+  // the dragged card is inserted before the card under the cursor (or
+  // appended if dropped past the last sibling). The new order POSTs to
+  // /api/dashboard/layout — the next page-load reflects it.
+  (function initDnd() {
+    let draggedEl = null;
+
+    document.addEventListener('dragstart', (e) => {
+      const card = e.target.closest('.widget');
+      if (!card) return;
+      draggedEl = card;
+      card.classList.add('widget-dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      // Required for Firefox to actually start the drag
+      try { e.dataTransfer.setData('text/plain', card.dataset.widgetId); } catch (_) {}
+    });
+
+    document.addEventListener('dragend', (e) => {
+      if (draggedEl) {
+        draggedEl.classList.remove('widget-dragging');
+        draggedEl = null;
+      }
+      document.querySelectorAll('.widget-drop-target').forEach(
+        el => el.classList.remove('widget-drop-target'));
+    });
+
+    document.addEventListener('dragover', (e) => {
+      if (!draggedEl) return;
+      const grid = e.target.closest('.widget-grid');
+      if (!grid || !grid.contains(draggedEl)) return;
+      e.preventDefault();   // allow drop
+      const target = e.target.closest('.widget');
+      if (target && target !== draggedEl && grid.contains(target)) {
+        document.querySelectorAll('.widget-drop-target').forEach(
+          el => el.classList.remove('widget-drop-target'));
+        target.classList.add('widget-drop-target');
+        const rect = target.getBoundingClientRect();
+        const before = (e.clientX - rect.left) < (rect.width / 2);
+        if (before) grid.insertBefore(draggedEl, target);
+        else        grid.insertBefore(draggedEl, target.nextSibling);
+      }
+    });
+
+    document.addEventListener('drop', async (e) => {
+      if (!draggedEl) return;
+      const grid = e.target.closest('.widget-grid');
+      if (!grid) return;
+      e.preventDefault();
+      const tab = draggedEl.dataset.widgetTab;
+      const order = [...grid.querySelectorAll('.widget')]
+                       .map(el => el.dataset.widgetId);
+      try {
+        await fetch('/api/dashboard/layout', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({tab, order}),
+        });
+      } catch (err) {
+        console.warn('layout save failed', err);
+      }
+    });
+  })();
 </script>
 
 {% endblock %}

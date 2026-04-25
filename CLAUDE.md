@@ -1,12 +1,14 @@
 # TradeAgent — Project Context for Claude Code
 **Last synced:** 2026-04-25
-**Status:** Phase 4 + Phase 4.5 + Phase 6 edit-mode shipped; DL agent
-loop closed; news feed live on /trades/{id} (Alpaca news + EDGAR
-filings, 72h/30d, newest-first, capped at 30).
+**Status:** Phase 4 + 4.5 + 6 edit-mode shipped; DL agent loop closed;
+news feed live on /trades/{id}; dashboard widgets gained universal ⚙
+gear, drag-to-reorder, and size-cycle (sm/md/lg/wide). News tab
+populated with `MarketHeadlinesWidget`. Fear & Greed gauge rebuilt
+with proportional bands.
 **Next chat options:** see HANDOFF.md "Immediate next tasks" —
 (a) Phase 5 multi-year backtest engine, (b) persistent APScheduler
-job store (close_at_time jobs are in-memory only), (c) news feed
-polish (filings vs news split, form-type badges, CIK-map prewarm).
+job store, (c) news feed polish (filings/news split, form-type badges,
+CIK-map prewarm).
 **Roadmap (current):**
 - Phase 4 ✅ all sub-items
 - DL-Filtered intraday strategy ✅ (detector + workflow + smoke + integration + 15:00 ET close)

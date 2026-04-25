@@ -1,0 +1,55 @@
+{# Market Headlines — combined Alpaca news + EDGAR filings stream across a
+   user-configurable watchlist. Each row: symbol badge · headline · source ·
+   sentiment compound · timestamp. Sorted newest-first.
+   Expects context: rows, summary, watchlist, include_filings. #}
+<div class="mh-wrap">
+  {% if not rows %}
+    <div class="text-secondary text-sm" style="padding: 12px 0;">
+      No news in the last 24h for
+      <span class="mono">{{ watchlist|join(', ') }}</span>.
+      {% if include_filings %}
+        <br><span class="text-tertiary">EDGAR filings (last 14d) included — none found either.</span>
+      {% else %}
+        <br><span class="text-tertiary">EDGAR filings disabled (toggle in settings).</span>
+      {% endif %}
+    </div>
+  {% else %}
+    {% if summary and summary.n %}
+    <div class="mh-summary">
+      <span class="text-tertiary">{{ summary.n }} items</span>
+      {% if summary.avg_compound is not none %}
+        · <span class="text-tertiary">avg compound</span>
+        <span class="mono {% if summary.avg_compound >= 0.05 %}text-accent-green
+                          {% elif summary.avg_compound <= -0.05 %}text-accent-red{% endif %}">
+          {{ '%+.3f'|format(summary.avg_compound) }}
+        </span>
+      {% endif %}
+      {% if summary.label and summary.label != 'n/a' %}
+        · <span class="badge sentiment-{{ summary.label }}">{{ summary.label|replace('_', ' ') }}</span>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="mh-list">
+      {% for r in rows %}
+        {% set s = r.sentiment %}
+        <a class="mh-row {% if s.compound >= 0.05 %}mh-row-pos{% elif s.compound <= -0.05 %}mh-row-neg{% endif %}"
+           href="{{ r.url }}" target="_blank" rel="noopener">
+          <span class="mh-symbol mono">{{ r.symbol }}</span>
+          <span class="mh-headline">{{ r.headline }}</span>
+          <span class="mh-meta">
+            <span class="mono {% if s.compound >= 0.05 %}text-accent-green
+                              {% elif s.compound <= -0.05 %}text-accent-red
+                              {% else %}text-tertiary{% endif %}">
+              {{ '%+.2f'|format(s.compound) }}
+            </span>
+            <span class="text-tertiary">·</span>
+            <span class="text-tertiary text-sm">{{ r.source }}</span>
+            <span class="text-tertiary">·</span>
+            <span class="text-tertiary text-sm">{{ r.published_at[:16]|replace('T', ' ') }}</span>
+          </span>
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

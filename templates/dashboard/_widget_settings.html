@@ -15,6 +15,30 @@
   </div>
 
   <div class="ws-body">
+
+    {# ── Universal section: size + meta — present on every widget ── #}
+    <div class="ws-field" data-key="__size__" data-kind="size_cycle">
+      <label class="ws-label">
+        <span>Size</span>
+        <span class="ws-help">Snaps to the 12-column responsive grid. Resets along with the rest of layout.</span>
+      </label>
+      <div class="ws-chip-row" data-size-picker>
+        {% for size in ["sm", "md", "lg", "wide"] %}
+          <button type="button"
+                  class="ws-chip {% if size == current_size %}ws-chip-on{% endif %}"
+                  data-value="{{ size }}"
+                  data-size="{{ size }}">{{ size|upper }}</button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="ws-field" data-key="__meta__" data-kind="readonly">
+      <label class="ws-label"><span>Refresh</span></label>
+      <div class="text-tertiary text-sm mono">every {{ widget.refresh_seconds }}s</div>
+    </div>
+
+    {% if widget.settings_schema %}<hr class="ws-divider">{% endif %}
+
     {% for key, spec in widget.settings_schema.items() %}
       {% set kind = spec.type %}
       {% set value = current.get(key) %}

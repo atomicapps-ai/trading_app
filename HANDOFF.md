@@ -81,6 +81,27 @@ newest-first, caps at 30 items, and improves the empty-state copy.
 Tested with AAPL (real EDGAR fillings render), SPY (no filings → clean
 empty state), and a bogus symbol (graceful empty).
 
+**Dashboard polish: shipped this session.**
+- Fear & Greed gauge rebuilt with **proportional band widths** (45° /
+  36° / 18° / 36° / 45° matching the 0–25 / 25–45 / 45–55 / 55–75 /
+  75–100 score thresholds) instead of uniform 36° wedges, so the band
+  color the needle points at always matches the readout. Score + label
+  moved inside the SVG hub for a more compact card.
+- New `MarketHeadlinesWidget` populates the previously empty News tab.
+  Pulls Alpaca news (24h) + EDGAR filings (14d) for a configurable
+  watchlist, VADER-scored, sorted newest-first, capped at 25.
+- **Universal ⚙ on every widget** (not just configurable ones); the
+  panel always offers size cycle + reset, with the schema-driven form
+  appearing only for configurable widgets.
+- **Drag-to-reorder** widgets within a tab via native HTML5 DnD
+  (no library). Order persists per-tab to a synthetic `__layout__`
+  widget id under SQLite `user_widget_settings`.
+- **Size cycle button** (▣) on every widget header — cycles
+  `sm → md → lg → wide`, snaps to the existing 12-col responsive grid.
+  Per-widget override stored as `<widget_id>.size` in the same layout
+  row. New endpoints: `POST /api/dashboard/layout` (order/size),
+  `DELETE /api/dashboard/layout` (reset).
+
 **Next chat options (pick one):**
 - (a) **Phase 5 backtest engine** — multi-year Alpaca 30-min replay to
   validate the DL strategy's 82.4% WR on a meaningful sample size.

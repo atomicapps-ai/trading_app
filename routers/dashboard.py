@@ -21,7 +21,12 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
 from services import widget_settings as ws
-from services.dashboard_widgets import TAB_ORDER, get_widget, widgets_by_tab
+from services.dashboard_widgets import (
+    LAYOUT_WIDGET_ID,
+    TAB_ORDER,
+    get_widget,
+    widgets_by_tab_for_user,
+)
 from services.indicator_registry import INDICATORS, indicators_by_category
 from services.settings_service import TEMPLATES_DIR, Settings, get_settings
 from services.stub_data import (
@@ -50,9 +55,10 @@ async def dashboard(request: Request, s: Settings = Depends(get_settings)):
             "account": STUB_ACCOUNT,
             "pending": STUB_PENDING,
             "open_positions": STUB_OPEN_POSITIONS,
-            # Widgets organized by tab. Template iterates TAB_ORDER + this dict.
+            # Widgets organized by tab. Returned as descriptor dicts that
+            # already carry user-applied size overrides + saved order.
             "tabs": TAB_ORDER,
-            "widgets_by_tab": widgets_by_tab(),
+            "widgets_by_tab": await widgets_by_tab_for_user(),
         },
     )
 
@@ -88,23 +94,25 @@ async def dashboard_widget(widget_id: str, request: Request):
 
 @router.get("/api/dashboard/widgets/{widget_id}/settings", response_class=HTMLResponse)
 async def widget_settings_panel(widget_id: str, request: Request):
-    """Render the settings modal body for one widget.
+    """Render the settings modal body for any widget.
 
-    Schema-driven: iterates ``widget.settings_schema`` and emits a control
-    per declared key (multiselect, number, bool, text). Current values
-    come from ``widget.resolve_settings()`` so the form prefills with
-    whatever the user previously saved.
+    All widgets get a panel: configurable widgets see their schema-driven
+    form on top of the universal section (size cycle, refresh interval,
+    reset). Non-configurable widgets just see the universal section.
     """
     widget = get_widget(widget_id)
-    if widget is None or not widget.user_configurable:
-        raise HTTPException(404, f"widget {widget_id} not configurable")
-    current = await widget.resolve_settings()
+    if widget is None:
+        raise HTTPException(404, f"unknown widget: {widget_id}")
+    current = await widget.resolve_settings() if widget.settings_schema else {}
+    saved_layout = await ws.get_all("default", LAYOUT_WIDGET_ID)
+    current_size = saved_layout.get(f"{widget_id}.size") or widget.size
     return templates.TemplateResponse(
         request=request,
         name="dashboard/_widget_settings.html",
         context={
             "widget": widget,
             "current": current,
+            "current_size": current_size,
             "indicators_by_category": indicators_by_category(),
             "all_indicators": list(INDICATORS.values()),
         },
@@ -119,8 +127,13 @@ async def widget_settings_save(widget_id: str, request: Request):
     extra keys are silently dropped (defensive).
     """
     widget = get_widget(widget_id)
-    if widget is None or not widget.user_configurable:
-        raise HTTPException(404, f"widget {widget_id} not configurable")
+    if widget is None:
+        raise HTTPException(404, f"unknown widget: {widget_id}")
+    if not widget.user_configurable:
+        # Non-configurable widgets accept no per-widget keys; their size
+        # override goes through the layout endpoint.
+        return {"saved": [], "ignored": list((await request.json()).keys())
+                if request else []}
     try:
         payload: dict[str, Any] = await request.json()
     except Exception:                                          # noqa: BLE001
@@ -137,11 +150,68 @@ async def widget_settings_save(widget_id: str, request: Request):
 @router.delete("/api/dashboard/widgets/{widget_id}/settings",
                response_class=JSONResponse)
 async def widget_settings_reset(widget_id: str):
-    """Drop every saved override for this widget — falls back to defaults."""
+    """Drop every saved override for this widget plus its layout state."""
     widget = get_widget(widget_id)
-    if widget is None or not widget.user_configurable:
-        raise HTTPException(404, f"widget {widget_id} not configurable")
+    if widget is None:
+        raise HTTPException(404, f"unknown widget: {widget_id}")
     await ws.reset_widget("default", widget_id)
+    # Also drop the per-widget size override stored under __layout__.
+    await ws.delete("default", LAYOUT_WIDGET_ID, f"{widget_id}.size")
+    return {"reset": True}
+
+
+# --------------------------------------------------------------------------- #
+# Layout — drag-to-reorder + per-widget size cycle
+# --------------------------------------------------------------------------- #
+
+
+@router.post("/api/dashboard/layout", response_class=JSONResponse)
+async def dashboard_layout_save(request: Request):
+    """Persist layout changes. Body shape:
+
+        {
+          "tab": "market",                         # optional, with "order"
+          "order": ["sector_heatmap", "fear_greed", ...],   # new order
+          "size": {"widget_id": "sm" | "md" | "lg" | "wide"} # optional
+        }
+
+    Either or both keys are accepted. Unknown widget ids and bad sizes
+    are silently dropped — defensive against stale frontend caches.
+    """
+    try:
+        payload: dict[str, Any] = await request.json()
+    except Exception:                                          # noqa: BLE001
+        raise HTTPException(400, "invalid JSON body")
+
+    tab = payload.get("tab")
+    order = payload.get("order")
+    size = payload.get("size") or {}
+
+    valid_widget_ids = {w.id for w in
+                        __import__("services.dashboard_widgets",
+                                    fromlist=["WIDGETS"]).WIDGETS}
+    valid_sizes = {"sm", "md", "lg", "wide"}
+    valid_tabs = {t for t, _ in TAB_ORDER}
+
+    updates: dict[str, Any] = {}
+    if tab in valid_tabs and isinstance(order, list):
+        clean_order = [w for w in order
+                       if isinstance(w, str) and w in valid_widget_ids]
+        updates[f"{tab}.order"] = clean_order
+    if isinstance(size, dict):
+        for wid, val in size.items():
+            if wid in valid_widget_ids and val in valid_sizes:
+                updates[f"{wid}.size"] = val
+
+    if updates:
+        await ws.set_many("default", LAYOUT_WIDGET_ID, updates)
+    return {"saved": list(updates.keys())}
+
+
+@router.delete("/api/dashboard/layout", response_class=JSONResponse)
+async def dashboard_layout_reset():
+    """Drop every layout override (order + size) — back to defaults."""
+    await ws.reset_widget("default", LAYOUT_WIDGET_ID)
     return {"reset": True}
 
 
