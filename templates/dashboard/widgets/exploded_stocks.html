@@ -1,0 +1,58 @@
+{# Exploded stocks — top up/down movers from the watch universe.
+   Two columns: ups (green) and downs (red). Empty in calm regimes. #}
+{% if not ups and not downs %}
+  <div class="empty">
+    No stocks with |daily move| ≥ {{ threshold }}% across {{ universe_size }} watched names.
+  </div>
+{% else %}
+<div class="explosions">
+  <div class="explosion-col">
+    <div class="explosion-header">
+      <span class="text-accent-green">▲ Up explosions</span>
+      <span class="text-tertiary text-sm">{{ ups|length }}</span>
+    </div>
+    {% if ups %}
+      <table class="explosion-table">
+        <tbody>
+        {% for r in ups %}
+          <tr>
+            <td><span class="mono">{{ r.sym }}</span></td>
+            <td class="num mono text-accent-green">{{ '%+.2f'|format(r.pct) }}%</td>
+            <td class="num mono text-tertiary">${{ '%.2f'|format(r.close) }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="explosion-empty text-tertiary text-sm">none</div>
+    {% endif %}
+  </div>
+
+  <div class="explosion-col">
+    <div class="explosion-header">
+      <span class="text-accent-red">▼ Down explosions</span>
+      <span class="text-tertiary text-sm">{{ downs|length }}</span>
+    </div>
+    {% if downs %}
+      <table class="explosion-table">
+        <tbody>
+        {% for r in downs %}
+          <tr>
+            <td><span class="mono">{{ r.sym }}</span></td>
+            <td class="num mono text-accent-red">{{ '%+.2f'|format(r.pct) }}%</td>
+            <td class="num mono text-tertiary">${{ '%.2f'|format(r.close) }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="explosion-empty text-tertiary text-sm">none</div>
+    {% endif %}
+  </div>
+</div>
+<div class="widget-footer">
+  <span class="text-tertiary text-sm">
+    Threshold |Δ| ≥ {{ threshold }}% across {{ universe_size }} watched names · daily close-to-close
+  </span>
+</div>
+{% endif %}

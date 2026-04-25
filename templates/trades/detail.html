@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+{% block title %}{{ trade.symbol }} — {{ trade.stage|upper }} — TradeAgent{% endblock %}
+{% block content %}
+
+<div class="trade-detail-page">
+
+  {# ===== Top bar — symbol, stage, direction, edit/close affordances ===== #}
+  <div class="trade-detail-head">
+    <div>
+      <h2 class="trade-detail-title">
+        <span class="mono">{{ trade.symbol }}</span>
+        {% if trade.direction %}
+          <span class="badge {% if trade.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">
+            {{ trade.direction|upper }}
+          </span>
+        {% endif %}
+        {% if trade.strategy_name %}
+          <span class="badge badge-gray mono">{{ trade.strategy_name }}</span>
+        {% endif %}
+      </h2>
+      <div class="trade-detail-sub text-tertiary text-sm">
+        {{ trade.stage|upper }}
+        {% if trade.mode %}· mode {{ trade.mode }}{% endif %}
+        {% if trade.ts_created %}· created {{ trade.ts_created[:19]|replace("T", " ") }}{% endif %}
+      </div>
+    </div>
+    <div class="trade-detail-actions">
+      {% if trade.is_active %}
+        {# Phase 6 fills these in — for now disabled placeholders #}
+        <button class="btn" disabled title="Edit mode arrives in Phase 6">Edit</button>
+        {% if trade.stage == "pending" %}
+          <a class="btn btn-primary" href="/pending/{{ trade.id }}">Approve flow →</a>
+        {% endif %}
+      {% else %}
+        <a class="btn" href="/trades">← All trades</a>
+      {% endif %}
+    </div>
+  </div>
+
+  {# ===== Two-column layout ============================================ #}
+  <div class="two-col mt-16">
+
+    {# LEFT — chart + indicator picker #}
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Chart</span>
+          <span class="text-tertiary text-sm">click chips to overlay indicators · saved to your dashboard</span>
+        </div>
+
+        {% include "_partials/_indicator_picker.html" %}
+
+        <div id="trade-chart" style="height: 380px; margin-top: 12px;"></div>
+        <div id="trade-subplot" style="height: 120px; margin-top: 4px;"></div>
+        <div id="trade-chart-error" class="text-accent-red text-sm" style="display: none;"></div>
+      </div>
+
+      {# Postmortem renders only for closed trades — partial gates itself #}
+      <div class="mt-16">
+        {% include "_partials/_postmortem_card.html" %}
+      </div>
+    </div>
+
+    {# RIGHT — strategy + levels + probability + news #}
+    <div>
+
+      {# Levels #}
+      <div class="card">
+        <div class="card-header"><span class="card-title">Levels</span></div>
+        <table class="data-table">
+          <tbody>
+            <tr><td class="text-tertiary">Entry</td>
+                <td class="num mono">
+                  {% if trade.entry_price %}${{ "%.2f"|format(trade.entry_price) }}
+                  {% else %}—{% endif %}
+                </td></tr>
+            <tr><td class="text-tertiary">Stop</td>
+                <td class="num mono text-accent-red">
+                  {% if trade.stop_price %}${{ "%.2f"|format(trade.stop_price) }}
+                  {% else %}—{% endif %}
+                </td></tr>
+            <tr><td class="text-tertiary">TP1</td>
+                <td class="num mono text-accent-green">
+                  {% if trade.tp1_price %}${{ "%.2f"|format(trade.tp1_price) }}
+                  {% else %}—{% endif %}
+                </td></tr>
+            <tr><td class="text-tertiary">TP2</td>
+                <td class="num mono text-accent-green">
+                  {% if trade.tp2_price %}${{ "%.2f"|format(trade.tp2_price) }}
+                  {% else %}—{% endif %}
+                </td></tr>
+            {% if trade.position_size %}
+            <tr><td class="text-tertiary">Size</td>
+                <td class="num mono">{{ trade.position_size }} shares</td></tr>
+            {% endif %}
+            {% if trade.position_risk_usd %}
+            <tr><td class="text-tertiary">Risk</td>
+                <td class="num mono">${{ "%.0f"|format(trade.position_risk_usd) }}</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-16">
+        {% include "_partials/_probability_card.html" %}
+      </div>
+
+      <div class="mt-16">
+        {% include "_partials/_news_card.html" %}
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{# ===================================================================== #}
+{# Chart wiring — Lightweight Charts main pane + optional subplot pane.  #}
+{# Indicator chip toggles persist to /api/trades/chart/indicators and    #}
+{# redraw the overlays. Bars come from the existing /api/bars endpoint.  #}
+{# ===================================================================== #}
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<script>
+(function() {
+  const SYMBOL  = {{ trade.symbol|tojson }};
+  const ENTRY   = {{ trade.entry_price|tojson if trade.entry_price else "null" }};
+  const STOP    = {{ trade.stop_price|tojson  if trade.stop_price  else "null" }};
+  const TP1     = {{ trade.tp1_price|tojson   if trade.tp1_price   else "null" }};
+  const TP2     = {{ trade.tp2_price|tojson   if trade.tp2_price   else "null" }};
+
+  const overlayContainer = document.getElementById('trade-chart');
+  const subplotContainer = document.getElementById('trade-subplot');
+  const errorEl = document.getElementById('trade-chart-error');
+  const picker  = document.querySelector('[data-trade-chart-picker]');
+
+  if (!overlayContainer || !window.LightweightCharts) return;
+
+  const chartOpts = {
+    layout: {
+      background: { type: "solid", color: "transparent" },
+      textColor: "rgba(229, 231, 235, 0.85)",
+    },
+    grid: {
+      vertLines: { color: "rgba(75, 85, 99, 0.2)" },
+      horzLines: { color: "rgba(75, 85, 99, 0.2)" },
+    },
+    rightPriceScale: { borderVisible: false },
+    timeScale: { borderVisible: false, timeVisible: true },
+  };
+
+  const chart = LightweightCharts.createChart(overlayContainer, {
+    ...chartOpts, height: overlayContainer.clientHeight,
+  });
+  const candleSeries = chart.addCandlestickSeries({
+    upColor: '#1db87a', downColor: '#e05252', borderVisible: false,
+    wickUpColor: '#1db87a', wickDownColor: '#e05252',
+  });
+
+  // Plan levels as horizontal price lines
+  function priceLine(value, color, label) {
+    if (value == null) return null;
+    return candleSeries.createPriceLine({
+      price: value, color, lineWidth: 1, lineStyle: LightweightCharts.LineStyle.Dashed,
+      axisLabelVisible: true, title: label,
+    });
+  }
+  priceLine(ENTRY, "#60a5fa", "Entry");
+  priceLine(STOP,  "#e05252", "Stop");
+  priceLine(TP1,   "#1db87a", "TP1");
+  priceLine(TP2,   "#22d3ee", "TP2");
+
+  // Subplot — single series for now (RSI, ATR, MACD, etc.). Hidden until a
+  // subplot indicator is selected.
+  const subplotChart = LightweightCharts.createChart(subplotContainer, {
+    ...chartOpts, height: subplotContainer.clientHeight,
+  });
+  let subplotSeries = null;
+  subplotContainer.style.display = 'none';
+
+  // Bar data + indicator state
+  let bars = null;            // last fetched bars
+  let overlaySeries = {};     // id -> series instance
+
+  async function loadBars() {
+    try {
+      const r = await fetch(`/api/bars/${SYMBOL}?interval=1d&limit=300`);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const j = await r.json();
+      bars = j.bars || j;     // be liberal with response shape
+      const candleData = bars.map(b => ({
+        time: b.time || b.t || b.date,
+        open: b.open ?? b.o, high: b.high ?? b.h,
+        low:  b.low  ?? b.l, close: b.close ?? b.c,
+      }));
+      candleSeries.setData(candleData);
+      chart.timeScale().fitContent();
+      await refreshOverlays();
+      await refreshSubplot();
+    } catch (e) {
+      errorEl.style.display = 'block';
+      errorEl.textContent = `Chart load failed: ${e.message}`;
+    }
+  }
+
+  function getSelected(pane) {
+    if (!picker) return [];
+    return [...picker.querySelectorAll(`.ind-chip-on[data-pane="${pane}"]`)]
+      .map(c => ({ id: c.dataset.id, color: c.dataset.color }));
+  }
+
+  async function fetchIndicator(id) {
+    // /api/indicators/{symbol}?indicators=sma20,vwap → response shape:
+    //   { indicators: { sma20: [{time, value}, ...], vwap: [...] } }
+    const r = await fetch(
+      `/api/indicators/${SYMBOL}?interval=1d&indicators=${id}&limit=300`);
+    if (!r.ok) throw new Error(`indicator ${id}: HTTP ${r.status}`);
+    const j = await r.json();
+    const series = (j.indicators || {})[id] || [];
+    return series
+      .map(p => ({ time: p.time || p.t, value: p.value ?? p.v }))
+      .filter(p => p.value != null && p.time);
+  }
+
+  async function refreshOverlays() {
+    // Drop any series no longer selected
+    const selected = getSelected('overlay');
+    const selectedIds = new Set(selected.map(s => s.id));
+    for (const id of Object.keys(overlaySeries)) {
+      if (!selectedIds.has(id)) {
+        try { chart.removeSeries(overlaySeries[id]); } catch {}
+        delete overlaySeries[id];
+      }
+    }
+    // Add new ones
+    for (const sel of selected) {
+      if (overlaySeries[sel.id]) continue;
+      try {
+        const data = await fetchIndicator(sel.id);
+        const series = chart.addLineSeries({
+          color: sel.color, lineWidth: 1.5, priceLineVisible: false,
+          lastValueVisible: false,
+        });
+        series.setData(data);
+        overlaySeries[sel.id] = series;
+      } catch (e) {
+        console.warn('overlay indicator failed:', sel.id, e);
+      }
+    }
+  }
+
+  async function refreshSubplot() {
+    const selected = getSelected('subplot');
+    if (selected.length === 0) {
+      subplotContainer.style.display = 'none';
+      return;
+    }
+    // Single subplot indicator at a time — first selected wins.
+    const sel = selected[0];
+    subplotContainer.style.display = 'block';
+    try {
+      const data = await fetchIndicator(sel.id);
+      if (subplotSeries) subplotChart.removeSeries(subplotSeries);
+      subplotSeries = subplotChart.addLineSeries({
+        color: sel.color, lineWidth: 1.5,
+      });
+      subplotSeries.setData(data);
+      subplotChart.timeScale().fitContent();
+    } catch (e) {
+      console.warn('subplot indicator failed:', sel.id, e);
+    }
+  }
+
+  async function persistSelection() {
+    const overlays = getSelected('overlay').map(s => s.id);
+    const subplots = getSelected('subplot').map(s => s.id);
+    try {
+      await fetch('/api/trades/chart/indicators', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          selected_overlays: overlays, selected_subplots: subplots,
+        }),
+      });
+    } catch (e) {
+      console.warn('persist indicator selection failed:', e);
+    }
+  }
+
+  // Chip click — toggle, persist, redraw the relevant pane
+  if (picker) {
+    picker.addEventListener('click', async (e) => {
+      const chip = e.target.closest('.ind-chip');
+      if (!chip) return;
+      chip.classList.toggle('ind-chip-on');
+      await persistSelection();
+      if (chip.dataset.pane === 'overlay') await refreshOverlays();
+      else await refreshSubplot();
+    });
+  }
+
+  // Resize handlers
+  window.addEventListener('resize', () => {
+    chart.applyOptions({ width: overlayContainer.clientWidth });
+    subplotChart.applyOptions({ width: subplotContainer.clientWidth });
+  });
+
+  loadBars();
+})();
+</script>
+
+{% endblock %}

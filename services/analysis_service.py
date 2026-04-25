@@ -423,6 +423,9 @@ def per_trade(df: pd.DataFrame, only_losses: bool = False) -> list[dict]:
             exit_reason=r.get("exit_reason") if pd.notna(r.get("exit_reason")) else None,
             mfe_pct=_fmt(r.get("mfe_pct"), 2),
             mae_pct=_fmt(r.get("mae_pct"), 2),
+            # trade_id only present on JSONL-sourced rows; dump rows have None,
+            # so the template should render the row non-clickable in that case.
+            trade_id=r.get("trade_id") if pd.notna(r.get("trade_id")) else None,
         ))
     return rows
 

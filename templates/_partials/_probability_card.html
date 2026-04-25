@@ -1,0 +1,75 @@
+{# Probability of success — backtest WR + live WR + blended.
+   Expects `probability` context: ProbabilityEstimate.to_dict() shape. #}
+{% set p = probability %}
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Probability of success</span>
+    {% if p.confidence == "strong" %}
+      <span class="badge badge-green">strong confidence</span>
+    {% elif p.confidence == "moderate" %}
+      <span class="badge badge-blue">moderate</span>
+    {% elif p.confidence == "weak" %}
+      <span class="badge badge-amber">weak — small sample</span>
+    {% else %}
+      <span class="badge badge-gray">unknown</span>
+    {% endif %}
+  </div>
+
+  {% if p.blended_wr is none %}
+    <div class="text-secondary text-sm" style="padding: 12px 0;">
+      No backtest summary or live trades for
+      <span class="mono">{{ p.strategy_name }}</span>.
+    </div>
+  {% else %}
+    <div class="prob-headline">
+      <div class="prob-blended">
+        <span class="prob-blended-value mono">{{ "%.1f"|format(p.blended_wr) }}%</span>
+        <span class="prob-blended-sub text-tertiary">blended (n={{ p.blended_n }})</span>
+      </div>
+    </div>
+
+    <div class="prob-breakdown">
+      <div class="prob-row">
+        <span class="prob-label text-tertiary">Backtest</span>
+        <span class="prob-value mono">
+          {% if p.backtest_wr is not none %}
+            {{ "%.1f"|format(p.backtest_wr) }}%
+            <span class="text-tertiary">(n={{ p.backtest_n }})</span>
+          {% else %}<span class="text-tertiary">—</span>{% endif %}
+        </span>
+      </div>
+      {% if p.backtest_ci_lo is not none %}
+      <div class="prob-row">
+        <span class="prob-label text-tertiary">95% CI</span>
+        <span class="prob-value mono text-tertiary">
+          {{ "%.1f"|format(p.backtest_ci_lo) }}%
+          – {{ "%.1f"|format(p.backtest_ci_hi) }}%
+        </span>
+      </div>
+      {% endif %}
+      <div class="prob-row">
+        <span class="prob-label text-tertiary">Live (this strategy)</span>
+        <span class="prob-value mono">
+          {% if p.live_wr is not none %}
+            {{ "%.1f"|format(p.live_wr) }}%
+            <span class="text-tertiary">(n={{ p.live_n }})</span>
+          {% else %}
+            <span class="text-tertiary">no trades yet</span>
+          {% endif %}
+        </span>
+      </div>
+      {% if p.live_pf is not none %}
+      <div class="prob-row">
+        <span class="prob-label text-tertiary">Live PF</span>
+        <span class="prob-value mono">{{ "%.2f"|format(p.live_pf) }}</span>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if p.notes %}
+      <div class="text-tertiary text-sm" style="margin-top: 8px;">
+        {% for note in p.notes %}<div>· {{ note }}</div>{% endfor %}
+      </div>
+    {% endif %}
+  {% endif %}
+</div>

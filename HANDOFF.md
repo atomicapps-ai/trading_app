@@ -1,18 +1,157 @@
-# Session Handoff — 2026-04-24
+# Session Handoff — 2026-04-25
 
 Short catch-up doc for resuming in a fresh Claude Code session.
 Read order: **CLAUDE.md** first (full spec + conventions), then this file.
 
 ---
 
-## Current state
+## Current state (post 2026-04-25 session)
 
-**Phases 1–4 substantially complete.**
-One Phase 4 item remains: `services/scheduler.py` (APScheduler).
-Phase 5 (Backtest Engine) is queued. **Next chat should do the Phase 4.5 chart-viewer
-+ indicators push** (detailed further below), or pick up from the DL-Filtered
-integration TODO below — the new intraday detector ships in this session but isn't
-fully wired into the workflow engine yet.
+**Phase 4 fully complete.** Scheduler shipped via main `70ccbe6` (Capitol
+Trades commit) — workflow YAMLs auto-register from their `schedule:` field.
+
+**Two big features shipped this session (2026-04-25):**
+1. **Modular dashboard with widget settings layer** — Portfolio/Market/News
+   tabs, 5 widgets (sector heatmap, Fear&Greed, SPY trend, strategy health,
+   exploded stocks), schema-driven ⚙ settings persisted to SQLite per user.
+2. **Unified trade detail page** at `/trades/{id}` — works for active
+   pending plans AND closed JSONL trades. Indicator picker (SMA / EMA /
+   VWAP / RSI / ATR) persisted per user. Probability of success card
+   (backtest WR + live WR sample-size-weighted blend). VADER news
+   sentiment card. Postmortem card on closed trades. Levels card.
+
+**Only remaining DL integration item:** `executioner.close_at_time()` for
+the 15:00 ET intraday time-stop exit (~1 hr).
+
+**Next chat options (pick one):**
+- (a) **Phase 6 edit-mode** for active trades — modify stop/TP via
+  `executioner.modify_order()` (Alpaca + TS adapters both support it).
+  Form on the new `/trades/{id}` page when `trade.is_active`.
+- (b) **`executioner.close_at_time()`** — finishes the DL agent loop so it
+  closes positions at 15:00 ET autonomously.
+- (c) **Phase 5 backtest engine** — multi-year Alpaca 30-min replay to
+  validate the DL strategy's 82.4% WR on a meaningful sample size.
+- (d) **Phase 4.5 chart viewer + indicators push** — still queued.
+
+---
+
+## What shipped this session (2026-04-25)
+
+### Modular dashboard — 3 tabs + 5 widgets + settings infrastructure
+
+Replaced the single hardcoded dashboard with a registry-driven widget grid
+under three tabs (**Portfolio** / **Market** / **News**).
+
+**Widgets shipped:**
+- `SectorHeatmapWidget` — 11 SPDR sector ETFs as colored tiles (Market tab)
+- `FearGreedWidget` — CNN's index as a semicircle SVG gauge (Market tab,
+  cached 30 min server-side via httpx)
+- `SpyTrendWidget` — 1W/1M/3M/1Y/5Y % returns as a horizontal strip
+  (Market tab)
+- `StrategyHealthWidget` — per-active-strategy live WR vs backtest WR with
+  drift indicator (Portfolio tab)
+- `ExplodedStocksWidget` — top up/down movers from a 32-symbol universe,
+  user-configurable threshold + max-per-side (Market tab; ⚙ enabled)
+
+**Settings architecture (three-layer):**
+1. Global registry in code (`services/dashboard_widgets.py`, `indicator_registry.py`)
+2. YAML defaults (`strategy_configs/*.yaml`)
+3. SQLite per-user overrides (new `user_widget_settings` table)
+
+**Files:**
+```
+A  services/dashboard_widgets.py            (Widget ABC + 5 widget classes + WIDGETS registry)
+A  services/widget_settings.py              (SQLite get/set/reset, JSON-encoded values)
+A  services/indicator_registry.py           (IndicatorSpec catalog: sma20/sma50/sma200/ema20/vwap/rsi/atr)
+A  templates/dashboard/widgets/sector_heatmap.html
+A  templates/dashboard/widgets/fear_greed.html       (semicircle SVG gauge with 5 color bands + needle)
+A  templates/dashboard/widgets/spy_trend.html
+A  templates/dashboard/widgets/strategy_health.html
+A  templates/dashboard/widgets/exploded_stocks.html
+A  templates/dashboard/widgets/_error.html           (per-widget failure isolation card)
+A  templates/dashboard/_widget_settings.html         (schema-driven settings modal body)
+M  templates/dashboard.html                          (tabs + widget grid + ⚙ icon + modal JS)
+M  routers/dashboard.py                              (widget dispatcher + settings endpoints)
+M  services/db_service.py                            (user_widget_settings table)
+```
+
+**Architecture pattern for adding widgets:**
+1. Subclass `Widget`, fill in `id` / `title` / `size` / `tab` / `refresh_seconds`,
+   implement `async def get_data()` returning template context.
+2. Drop a partial at `templates/dashboard/widgets/{id}.html`.
+3. Append the new instance to `WIDGETS` list.
+
+To make a widget user-configurable: set `user_configurable = True` and
+populate `settings_schema = {key: {type, default, label, ...}}`. The ⚙
+icon, modal, validation, and SQLite persistence work automatically.
+
+### Unified trade detail page (`/trades/{id}`)
+
+Single detail surface for any trade — active or closed — backed by a
+storage-agnostic lookup over `pending_approvals` (SQLite) + JSONL trade
+journal.
+
+**Cards on the page:**
+- Top bar — symbol, direction badge, strategy name, lifecycle stage
+- Left col — chart with **indicator chip toggles** (overlay + subplot panes)
+- Right col — Levels · Probability of success · News + sentiment
+- Postmortem card (closed trades only — auto-gates on `trade.is_closed`)
+
+**Indicator picker:** chip toggles for SMA20 / SMA50 / SMA200 / EMA20 / VWAP
+(overlay) + RSI / ATR (subplot). Selection persists per-user via
+`user_widget_settings` with `widget_id="trade_chart"` so the same set
+loads on any browser/machine.
+
+**Probability blend formula:** sample-size weighted average of
+`strategy_configs/{name}.yaml.backtest_summary.point_wr_pct` and live WR
+from JSONL trades for that strategy. Confidence rating: strong / moderate /
+weak / unknown based on combined n + agreement.
+
+**News sentiment:** VADER (free, lexicon-driven) over Alpaca News results
+from `news_service.get_news(symbol, last 24h)`. Returns compound score
+[-1, 1] + categorical label (very_negative → very_positive).
+
+**Files:**
+```
+A  routers/trade_detail.py                  (GET /trades/{id} + POST /api/trades/chart/indicators)
+A  services/probability_service.py          (compute() returns ProbabilityEstimate)
+A  services/sentiment_service.py            (VADER score_text/score_items/summarize)
+A  services/trade_lookup.py                 (unified TradeView over pending_approvals + JSONL)
+A  templates/trades/detail.html             (the page; Lightweight Charts + indicator picker JS)
+A  templates/_partials/_probability_card.html
+A  templates/_partials/_news_card.html
+A  templates/_partials/_postmortem_card.html
+A  templates/_partials/_indicator_picker.html
+M  app.py                                    (registered trade_detail router)
+M  templates/trades/_table.html              (clickable rows linking to /trades/{trade_id})
+M  templates/trades/analysis.html            (clickable ledger rows when trade_id present)
+M  services/analysis_service.py              (per_trade adds trade_id field)
+M  static/app.css                            (.trade-detail-*, .prob-*, .news-*, .postmortem-*, .ind-chip, .trade-row-clickable)
+```
+
+### Quick-fix: dashboard sizing + production filter on /trades/analysis
+
+- Stat-card font 22→18px and label 11→10px (per user feedback "numbers too huge")
+- Fear/Greed gauge max-width 320→200, score 36→24px
+- SPY trend rows tightened (padding, gap, font sizes)
+- `/trades/analysis` defaults to "production-filter" view (matches the
+  82.4% backtest headline). `?raw=1` toggle shows all 81 unfiltered DL signals.
+- Empty-frame guards added to every cut function so missing data never
+  500s the analysis page.
+
+### Phase 6 (edit-mode) — DEFERRED
+
+Decision: ship Phases 1–5 in this session, defer Phase 6 to next session.
+Reason: edit-mode requires testing broker round-trip (`modify_order`)
+which is meatier than expected. Want fresh context for that.
+
+Skeleton already in place: every TradeView has an `is_active` property,
+the detail page top bar has a placeholder Edit button, and all three
+broker adapters (Alpaca, TradeStation, historical) implement
+`modify_order(broker_order_id, changes)`. Wiring the form + handler
+is the missing piece.
+
+---
 
 ---
 

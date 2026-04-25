@@ -174,8 +174,9 @@ input, select, textarea { font: inherit; color: inherit; }
   flex-direction: column;
   gap: 4px;
 }
-.stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.4px; }
-.stat-value { font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.stat-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.4px; }
+.stat-value { font-size: 18px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.stat-sub   { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
 .stat-sub { font-size: 11px; color: var(--text-tertiary); }
 
 /* Badges -------------------------------------------------------------- */
@@ -529,3 +530,522 @@ input, select, textarea { font: inherit; color: inherit; }
 
 /* Empty state placeholder */
 .empty-state { padding: 32px; text-align: center; color: var(--text-secondary); font-size: 13px; }
+
+/* ==========================================================================
+ * Tabs — top-level dashboard navigation (Portfolio / Market / News)
+ * ========================================================================== */
+.tab-nav {
+  display: flex; gap: 2px;
+  border-bottom: 1px solid var(--surface-3);
+  margin-bottom: 16px;
+}
+.tab-button {
+  background: transparent;
+  border: none;
+  padding: 10px 18px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 120ms ease, border-color 120ms ease;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.tab-button:hover { color: #e5e7eb; }
+.tab-button-active {
+  color: var(--accent-blue, #4a8bf4);
+  border-bottom-color: var(--accent-blue, #4a8bf4);
+}
+.tab-count {
+  display: inline-block;
+  font-size: 10px;
+  background: var(--surface-3);
+  color: var(--text-secondary);
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.tab-button-active .tab-count {
+  background: var(--tint-blue);
+  color: var(--accent-blue, #4a8bf4);
+}
+.tab-pane { display: none; }
+.tab-pane-active { display: block; }
+.mt-16 { margin-top: 16px; }
+
+/* ==========================================================================
+ * Widget settings modal (⚙ panel)
+ * Schema-driven form with chip-toggle multiselects + standard inputs.
+ * ========================================================================== */
+.widget-settings-btn {
+  background: transparent; border: none; color: var(--text-secondary);
+  cursor: pointer; font-size: 14px; padding: 0 4px; line-height: 1;
+  transition: color 120ms ease;
+}
+.widget-settings-btn:hover { color: var(--accent-blue, #4a8bf4); }
+
+.ws-modal {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+}
+.ws-modal[hidden] { display: none; }
+.ws-modal-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(15, 17, 23, 0.72);
+  backdrop-filter: blur(2px);
+}
+.ws-modal-card {
+  position: relative;
+  width: min(640px, 92vw);
+  max-height: 86vh;
+  overflow-y: auto;
+  background: var(--surface-2);
+  border: 1px solid var(--surface-3);
+  border-radius: 10px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+}
+
+.ws-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--surface-3);
+}
+.ws-title { font-size: 14px; font-weight: 500; margin: 0; }
+.ws-close {
+  background: transparent; border: none; color: var(--text-secondary);
+  font-size: 22px; line-height: 1; cursor: pointer; padding: 0 4px;
+}
+.ws-close:hover { color: #e5e7eb; }
+
+.ws-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 16px; }
+
+.ws-field { display: flex; flex-direction: column; gap: 6px; }
+.ws-label {
+  display: flex; align-items: baseline; gap: 8px;
+  font-size: 12px; font-weight: 500; color: #e5e7eb;
+}
+.ws-help { font-size: 11px; color: var(--text-secondary); font-weight: 400; }
+
+.ws-category { margin-top: 4px; }
+.ws-category-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.ws-chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.ws-chip {
+  background: var(--surface-1);
+  border: 1px solid var(--surface-3);
+  color: var(--text-secondary);
+  padding: 4px 10px; border-radius: 16px;
+  font-size: 11px; font-weight: 500;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: all 120ms ease;
+  font-family: inherit;
+}
+.ws-chip:hover { color: #e5e7eb; border-color: #6b7280; }
+.ws-chip-on {
+  background: var(--tint-blue);
+  border-color: var(--accent-blue, #4a8bf4);
+  color: var(--accent-blue, #4a8bf4);
+}
+.ws-chip-pane {
+  font-size: 9px; opacity: 0.6; text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.ws-input {
+  background: var(--surface-1);
+  border: 1px solid var(--surface-3);
+  color: #e5e7eb;
+  padding: 6px 10px; border-radius: 4px;
+  font-family: var(--font-mono); font-size: 12px;
+  max-width: 200px;
+}
+.ws-toggle {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12px; color: #e5e7eb; cursor: pointer;
+}
+
+.ws-footer {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--surface-3);
+  background: var(--surface-1);
+}
+
+/* ==========================================================================
+ * Trade detail page (/trades/{id}) — head bar, partials, chart picker
+ * ========================================================================== */
+.trade-detail-page { display: flex; flex-direction: column; gap: 4px; }
+.trade-detail-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px;
+}
+.trade-detail-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 18px; font-weight: 500; margin: 0 0 4px 0;
+}
+.trade-detail-sub { font-size: 12px; }
+.trade-detail-actions { display: flex; gap: 8px; align-items: center; }
+
+/* Probability card */
+.prob-headline {
+  display: flex; align-items: baseline; gap: 16px;
+  margin-bottom: 12px;
+}
+.prob-blended { display: flex; flex-direction: column; gap: 2px; }
+.prob-blended-value {
+  font-size: 28px; font-weight: 600; color: #e5e7eb;
+  font-variant-numeric: tabular-nums; line-height: 1;
+}
+.prob-blended-sub { font-size: 11px; }
+.prob-breakdown { display: flex; flex-direction: column; gap: 4px; }
+.prob-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 4px 0; font-size: 12px;
+  border-bottom: 1px solid rgba(75, 85, 99, 0.15);
+}
+.prob-row:last-child { border-bottom: none; }
+.prob-label { font-size: 12px; }
+.prob-value { font-size: 12px; }
+
+/* News + sentiment card */
+.news-summary {
+  display: flex; flex-wrap: wrap; gap: 14px;
+  padding: 6px 0 10px;
+  border-bottom: 1px solid var(--surface-3);
+  margin-bottom: 10px;
+}
+.news-summary-metric {
+  display: flex; flex-direction: column; gap: 2px;
+  font-size: 12px;
+}
+.news-highlights { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.news-highlight {
+  padding: 8px 10px; border-radius: 6px;
+  background: var(--surface-1);
+  border-left: 3px solid var(--surface-3);
+}
+.news-highlight-pos { border-left-color: var(--accent-green); }
+.news-highlight-neg { border-left-color: var(--accent-red); }
+.news-highlight-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
+.news-list { display: flex; flex-direction: column; gap: 4px; max-height: 360px; overflow-y: auto; }
+.news-item {
+  padding: 6px 8px; border-radius: 4px;
+  background: var(--surface-1);
+  border-left: 2px solid var(--surface-3);
+}
+.news-item-positive,      .news-item-very_positive { border-left-color: var(--accent-green); }
+.news-item-negative,      .news-item-very_negative { border-left-color: var(--accent-red); }
+.news-headline {
+  display: block; font-size: 12px; line-height: 1.4;
+  color: #e5e7eb; text-decoration: none;
+}
+.news-headline:hover { color: var(--accent-blue, #4a8bf4); text-decoration: underline; }
+.news-meta {
+  font-size: 11px; margin-top: 2px;
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline;
+}
+
+.sentiment-very_positive { background: var(--tint-green); color: var(--accent-green); }
+.sentiment-positive      { background: var(--tint-green); color: var(--accent-green); }
+.sentiment-neutral       { background: var(--tint-gray);  color: var(--text-secondary); }
+.sentiment-negative      { background: var(--tint-red);   color: var(--accent-red); }
+.sentiment-very_negative { background: var(--tint-red);   color: var(--accent-red); }
+
+/* Postmortem card */
+.postmortem-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  padding: 6px 0;
+}
+@media (max-width: 700px) { .postmortem-grid { grid-template-columns: repeat(2, 1fr); } }
+.postmortem-metric {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 6px 8px;
+  background: var(--surface-1);
+  border-radius: 4px;
+  font-size: 12px;
+}
+.postmortem-metric .mono { font-size: 14px; font-weight: 600; }
+.postmortem-lifecycle {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--surface-3);
+  font-size: 12px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.postmortem-tags {
+  margin-top: 10px; padding-top: 8px;
+  border-top: 1px solid var(--surface-3);
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+}
+
+/* Indicator picker (trade chart) — chip toggles grouped by category */
+.indicator-picker { display: flex; flex-direction: column; gap: 10px; }
+.indicator-picker-section { display: flex; flex-direction: column; gap: 6px; }
+.indicator-picker-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px;
+  color: var(--text-secondary); font-weight: 600;
+}
+.ind-chip-row {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+}
+.ind-category {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
+  margin-right: 4px;
+}
+.ind-chip {
+  background: var(--surface-1);
+  border: 1px solid var(--surface-3);
+  color: var(--text-secondary);
+  padding: 3px 10px; border-radius: 14px;
+  font-size: 11px; font-weight: 500; cursor: pointer;
+  transition: all 120ms ease;
+  font-family: inherit;
+}
+.ind-chip:hover { color: #e5e7eb; border-color: #6b7280; }
+.ind-chip-on {
+  background: var(--tint-blue);
+  border-color: var(--accent-blue, #4a8bf4);
+  color: var(--accent-blue, #4a8bf4);
+}
+
+/* Clickable trade rows — used by /trades, /trades/analysis, /pending list */
+.trade-row-clickable {
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+.trade-row-clickable:hover { background: rgba(74, 139, 244, 0.06); }
+.trade-row-link {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 600;
+}
+.trade-row-link:hover { color: var(--accent-blue, #4a8bf4); text-decoration: underline; }
+
+/* ==========================================================================
+ * Dashboard widget grid + widget chrome
+ *
+ * Layout: 12-col responsive grid. Widget sizes pick a span: sm=3, md=4, lg=6,
+ * wide=12. Each widget has consistent header (title) + body (HTMX content).
+ * Failure of one widget renders a small error card; rest unaffected.
+ * ========================================================================== */
+.widget-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+  margin-bottom: 4px;
+}
+.widget {
+  background: var(--surface-2);
+  border: 1px solid var(--surface-3);
+  border-radius: 8px;
+  padding: 14px 16px;
+  min-height: 110px;
+  display: flex;
+  flex-direction: column;
+}
+.widget-sm   { grid-column: span 3; }
+.widget-md   { grid-column: span 4; }
+.widget-lg   { grid-column: span 6; }
+.widget-wide { grid-column: span 12; }
+@media (max-width: 1100px) {
+  .widget-sm   { grid-column: span 6; }
+  .widget-md   { grid-column: span 6; }
+  .widget-lg   { grid-column: span 12; }
+}
+@media (max-width: 700px) {
+  .widget-sm, .widget-md, .widget-lg { grid-column: span 12; }
+}
+.widget-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.widget-title {
+  font-size: 13px; font-weight: 500; color: #e5e7eb;
+  letter-spacing: 0.2px;
+}
+.widget-body { flex: 1; }
+.widget-footer {
+  margin-top: 10px; padding-top: 8px;
+  border-top: 1px solid var(--surface-3);
+}
+.widget-error {
+  padding: 10px 12px;
+  background: var(--tint-red);
+  border-radius: 6px;
+}
+
+/* Sector heatmap — 11 SPDR sector tiles in a responsive grid.
+ * Color intensity (sector-i0..i4) scales with |daily %|. Up = green tint,
+ * down = red tint. sector-na is the no-data fallback (gray). */
+.sector-heatmap {
+  display: grid;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+  gap: 6px;
+}
+@media (max-width: 1300px) { .sector-heatmap { grid-template-columns: repeat(6, 1fr); } }
+@media (max-width: 700px)  { .sector-heatmap { grid-template-columns: repeat(3, 1fr); } }
+.sector-tile {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 12px 8px; border-radius: 6px; min-height: 76px;
+  border: 1px solid var(--surface-3);
+  transition: filter 120ms ease;
+}
+.sector-tile:hover { filter: brightness(1.15); }
+.sector-sym   { font-family: var(--font-mono); font-weight: 700; font-size: 13px; letter-spacing: 0.2px; }
+.sector-pct   { font-family: var(--font-mono); font-size: 13px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.sector-label { font-size: 10px; color: var(--text-secondary); margin-top: 4px; text-align: center; line-height: 1.2; }
+.sector-na    { background: var(--surface-1); color: var(--text-secondary); }
+
+/* Up tones — light to deep green */
+.sector-up.sector-i0 { background: rgba(29, 184, 122, 0.05); }
+.sector-up.sector-i1 { background: rgba(29, 184, 122, 0.12); }
+.sector-up.sector-i2 { background: rgba(29, 184, 122, 0.22); }
+.sector-up.sector-i3 { background: rgba(29, 184, 122, 0.36); }
+.sector-up.sector-i4 { background: rgba(29, 184, 122, 0.55); }
+.sector-up .sector-pct  { color: var(--accent-green); }
+.sector-up.sector-i4 .sector-pct,
+.sector-up.sector-i4 .sector-sym   { color: #f0fdf4; }
+.sector-up.sector-i4 .sector-label { color: rgba(240, 253, 244, 0.85); }
+
+/* Down tones — light to deep red */
+.sector-down.sector-i0 { background: rgba(224, 82, 82, 0.05); }
+.sector-down.sector-i1 { background: rgba(224, 82, 82, 0.12); }
+.sector-down.sector-i2 { background: rgba(224, 82, 82, 0.22); }
+.sector-down.sector-i3 { background: rgba(224, 82, 82, 0.36); }
+.sector-down.sector-i4 { background: rgba(224, 82, 82, 0.55); }
+.sector-down .sector-pct  { color: var(--accent-red); }
+.sector-down.sector-i4 .sector-pct,
+.sector-down.sector-i4 .sector-sym   { color: #fef2f2; }
+.sector-down.sector-i4 .sector-label { color: rgba(254, 242, 242, 0.85); }
+
+/* ==========================================================================
+ * Fear & Greed gauge widget
+ * ========================================================================== */
+.fg-gauge {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 2px 0 6px;
+}
+.fg-gauge-svg { width: 100%; max-width: 200px; height: auto; }
+.fg-readout { text-align: center; margin-top: -10px; }
+.fg-score   { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; }
+.fg-label   { font-size: 11px; font-weight: 500; margin-top: 2px; letter-spacing: 0.3px; text-transform: uppercase; }
+
+.fg-extreme-fear  { color: #dc2626; }
+.fg-fear          { color: #f59e0b; }
+.fg-neutral       { color: #fbbf24; }
+.fg-greed         { color: #84cc16; }
+.fg-extreme-greed { color: #16a34a; }
+.fg-na            { color: var(--text-tertiary, #595d76); }
+
+.fg-history {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  font-size: 12px; margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--surface-3);
+  width: 100%;
+  justify-content: center;
+}
+
+/* ==========================================================================
+ * SPY trend strip widget — five rows: period | bar | % | bull/bear badge
+ * ========================================================================== */
+.spy-trend { display: flex; flex-direction: column; gap: 3px; }
+.spy-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 60px 52px;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+}
+.spy-period {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
+}
+.spy-track {
+  height: 8px; border-radius: 3px;
+  background: var(--surface-1);
+  overflow: hidden;
+  position: relative;
+}
+.spy-bar {
+  height: 100%; border-radius: 4px;
+  transition: width 320ms ease;
+}
+.spy-bull { background: linear-gradient(90deg, rgba(29,184,122,0.55), rgba(29,184,122,0.95)); }
+.spy-bear { background: linear-gradient(90deg, rgba(224,82,82,0.55), rgba(224,82,82,0.95)); }
+.spy-pct  { font-size: 12px; text-align: right; }
+.spy-tag  { text-align: right; }
+
+/* ==========================================================================
+ * Strategy health widget — per-strategy row
+ * ========================================================================== */
+.strategy-health { display: flex; flex-direction: column; gap: 8px; }
+.strategy-row {
+  padding: 10px 12px;
+  border: 1px solid var(--surface-3);
+  border-left: 3px solid var(--surface-3);
+  border-radius: 6px;
+  background: var(--surface-1);
+}
+.strategy-green  { border-left-color: var(--accent-green); }
+.strategy-blue   { border-left-color: var(--accent-blue, #4a8bf4); }
+.strategy-red    { border-left-color: var(--accent-red); }
+.strategy-gray   { border-left-color: var(--text-tertiary, #595d76); }
+
+.strategy-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 8px; margin-bottom: 6px;
+}
+.strategy-name { font-size: 13px; font-weight: 600; }
+.strategy-desc { margin-top: 2px; line-height: 1.3; }
+
+.strategy-badge-green  { background: var(--tint-green); color: var(--accent-green); }
+.strategy-badge-blue   { background: var(--tint-blue);  color: var(--accent-blue, #4a8bf4); }
+.strategy-badge-red    { background: var(--tint-red);   color: var(--accent-red); }
+.strategy-badge-gray   { background: var(--tint-gray);  color: var(--text-secondary); }
+
+.strategy-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 4px;
+}
+@media (max-width: 700px) { .strategy-metrics { grid-template-columns: repeat(2, 1fr); } }
+.strategy-metric {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 4px 0;
+  font-size: 12px;
+}
+
+/* ==========================================================================
+ * Exploded stocks widget — two-column up / down lists
+ * ========================================================================== */
+.explosions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 700px) { .explosions { grid-template-columns: 1fr; } }
+.explosion-col {
+  background: var(--surface-1);
+  border: 1px solid var(--surface-3);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+.explosion-header {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.2px;
+}
+.explosion-table { width: 100%; font-size: 12px; }
+.explosion-table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid rgba(75,85,99,0.12);
+}
+.explosion-table tr:last-child td { border-bottom: none; }
+.explosion-empty { padding: 8px 6px; font-style: italic; }

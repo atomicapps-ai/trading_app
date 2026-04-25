@@ -1,0 +1,87 @@
+{# Widget settings panel — schema-driven form rendered by the dispatcher.
+   Each entry in widget.settings_schema produces one control:
+     type=indicator_multiselect → grouped chip toggles (overlay/subplot)
+     type=multiselect           → flat chip toggles from `choices`
+     type=number / int          → numeric input
+     type=bool                  → checkbox
+     type=text / string         → text input
+   On submit, the JS in dashboard.html serializes form state to JSON and
+   POSTs to /api/dashboard/widgets/{id}/settings. #}
+
+<form id="widget-settings-form" data-widget-id="{{ widget.id }}">
+  <div class="ws-header">
+    <h3 class="ws-title">{{ widget.title }} — settings</h3>
+    <button type="button" class="ws-close" onclick="closeWidgetSettings()">×</button>
+  </div>
+
+  <div class="ws-body">
+    {% for key, spec in widget.settings_schema.items() %}
+      {% set kind = spec.type %}
+      {% set value = current.get(key) %}
+      <div class="ws-field" data-key="{{ key }}" data-kind="{{ kind }}">
+        <label class="ws-label">
+          <span>{{ spec.label or key }}</span>
+          {% if spec.help %}
+            <span class="ws-help">{{ spec.help }}</span>
+          {% endif %}
+        </label>
+
+        {% if kind == "indicator_multiselect" %}
+          {# Group indicators by category. Selected ones get .ws-chip-on. #}
+          {% set selected = value or spec.default or [] %}
+          {% for category, specs in indicators_by_category.items() %}
+            <div class="ws-category">
+              <div class="ws-category-label">{{ category|replace("_", " ") }}</div>
+              <div class="ws-chip-row">
+                {% for ind in specs %}
+                  <button type="button"
+                          class="ws-chip {% if ind.id in selected %}ws-chip-on{% endif %}"
+                          data-value="{{ ind.id }}"
+                          data-pane="{{ ind.pane }}"
+                          title="{{ ind.description or ind.label }}">
+                    {{ ind.label }}
+                    <span class="ws-chip-pane">{{ ind.pane }}</span>
+                  </button>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+
+        {% elif kind == "multiselect" %}
+          {% set selected = value or spec.default or [] %}
+          <div class="ws-chip-row">
+            {% for choice in spec.choices or [] %}
+              <button type="button"
+                      class="ws-chip {% if choice.value in selected %}ws-chip-on{% endif %}"
+                      data-value="{{ choice.value }}">{{ choice.label }}</button>
+            {% endfor %}
+          </div>
+
+        {% elif kind == "number" or kind == "int" %}
+          <input type="number" class="ws-input"
+                 value="{{ value if value is not none else spec.default }}"
+                 {% if spec.min is defined %}min="{{ spec.min }}"{% endif %}
+                 {% if spec.max is defined %}max="{{ spec.max }}"{% endif %}
+                 {% if spec.step is defined %}step="{{ spec.step }}"{% endif %}>
+
+        {% elif kind == "bool" %}
+          <label class="ws-toggle">
+            <input type="checkbox" {% if value %}checked{% endif %}>
+            <span>{{ spec.checkbox_label or "Enabled" }}</span>
+          </label>
+
+        {% else %}
+          <input type="text" class="ws-input"
+                 value="{{ value if value is not none else (spec.default or '') }}">
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="ws-footer">
+    <button type="button" class="btn" onclick="resetWidgetSettings('{{ widget.id }}')">Reset to defaults</button>
+    <div style="flex: 1"></div>
+    <button type="button" class="btn" onclick="closeWidgetSettings()">Cancel</button>
+    <button type="button" class="btn btn-primary" onclick="saveWidgetSettings()">Save</button>
+  </div>
+</form>

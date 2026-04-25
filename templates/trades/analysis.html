@@ -254,9 +254,17 @@
       </thead>
       <tbody>
         {% for t in ledger %}
-          <tr {% if not t.win %}style="background: rgba(239, 68, 68, 0.04);"{% endif %}>
+          <tr {% if t.trade_id %}class="trade-row-clickable"
+                                  onclick="if (!event.target.closest('a, button, .badge')) location.href='/trades/{{ t.trade_id }}'"{% endif %}
+              style="{% if not t.win %}background: rgba(239, 68, 68, 0.04);{% endif %}">
             <td class="text-sm mono">{{ t.date }}</td>
-            <td><span class="mono">{{ t.sym }}</span></td>
+            <td>
+              {% if t.trade_id %}
+                <a href="/trades/{{ t.trade_id }}" class="trade-row-link mono">{{ t.sym }}</a>
+              {% else %}
+                <span class="mono">{{ t.sym }}</span>
+              {% endif %}
+            </td>
             <td><span class="badge {% if t.dir == 'LONG' %}badge-green{% else %}badge-red{% endif %}" style="font-size: 10px; padding: 1px 6px;">{{ t.dir }}</span></td>
             <td class="num mono {% if t.pnl_pct >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(t.pnl_pct) }}</td>
             <td class="num mono">{% if t.rsi14_d is not none %}{{ "%.1f"|format(t.rsi14_d) }}{% endif %}</td>

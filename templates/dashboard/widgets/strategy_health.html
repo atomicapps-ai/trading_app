@@ -1,0 +1,61 @@
+{# Strategy health — per-active-strategy live WR vs backtest WR + drift badge.
+   Status colors: green=above backtest, blue=within CI, red=below CI floor,
+   gray=no live trades yet. #}
+{% if not rows %}
+  <div class="empty">No active strategies configured.</div>
+{% else %}
+<div class="strategy-health">
+  {% for r in rows %}
+    <div class="strategy-row strategy-{{ r.status }}">
+      <div class="strategy-head">
+        <div>
+          <div class="strategy-name mono">{{ r.name }}</div>
+          {% if r.description %}
+            <div class="strategy-desc text-tertiary text-sm">{{ r.description }}</div>
+          {% endif %}
+        </div>
+        <span class="badge strategy-badge-{{ r.status }}">{{ r.status_label }}</span>
+      </div>
+      <div class="strategy-metrics">
+        <div class="strategy-metric">
+          <span class="text-tertiary text-sm">Live WR</span>
+          {% if r.live_wr is not none %}
+            <span class="mono"><strong>{{ '%.1f'|format(r.live_wr) }}%</strong>
+              <span class="text-tertiary">(n={{ r.live_n }})</span></span>
+          {% else %}
+            <span class="text-tertiary">—</span>
+          {% endif %}
+        </div>
+        <div class="strategy-metric">
+          <span class="text-tertiary text-sm">Backtest WR</span>
+          {% if r.bt_wr is not none %}
+            <span class="mono">{{ '%.1f'|format(r.bt_wr) }}%
+              {% if r.ci_lo is not none %}<span class="text-tertiary">(CI {{ '%.1f'|format(r.ci_lo) }}+)</span>{% endif %}
+            </span>
+          {% else %}
+            <span class="text-tertiary">not set</span>
+          {% endif %}
+        </div>
+        <div class="strategy-metric">
+          <span class="text-tertiary text-sm">Drift</span>
+          {% if r.drift is not none %}
+            <span class="mono {% if r.drift >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">
+              {{ '%+.1f'|format(r.drift) }} pp
+            </span>
+          {% else %}
+            <span class="text-tertiary">—</span>
+          {% endif %}
+        </div>
+        <div class="strategy-metric">
+          <span class="text-tertiary text-sm">Live PF</span>
+          {% if r.live_pf is not none %}
+            <span class="mono">{{ '%.2f'|format(r.live_pf) }}</span>
+          {% else %}
+            <span class="text-tertiary">—</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}

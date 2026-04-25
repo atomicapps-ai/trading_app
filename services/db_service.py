@@ -167,11 +167,29 @@ _SCHEMA = [
         updated_at TEXT NOT NULL
     )
     """,
+    # Per-user dashboard widget settings — three-layer settings model:
+    # 1. global registry (code) defines what exists
+    # 2. settings.yaml / strategy YAMLs define defaults
+    # 3. THIS table stores user overrides
+    # Read order: this table → YAML default → code default.
+    # `user_id` is "default" for the single-user local case; multi-user
+    # later just changes the WHERE clause.
+    """
+    CREATE TABLE IF NOT EXISTS user_widget_settings (
+        user_id       TEXT NOT NULL DEFAULT 'default',
+        widget_id     TEXT NOT NULL,
+        setting_key   TEXT NOT NULL,
+        setting_value TEXT NOT NULL,
+        updated_at    TEXT NOT NULL,
+        PRIMARY KEY (user_id, widget_id, setting_key)
+    )
+    """,
     # Indexes for the queries we run often
     "CREATE INDEX IF NOT EXISTS idx_pending_status ON pending_approvals(status, ts_created DESC)",
     "CREATE INDEX IF NOT EXISTS idx_pending_symbol ON pending_approvals(symbol)",
     "CREATE INDEX IF NOT EXISTS idx_pipeline_ts ON pipeline_runs(ts_start DESC)",
     "CREATE INDEX IF NOT EXISTS idx_memory_symbol ON trade_memory(symbol, ts_entered DESC)",
+    "CREATE INDEX IF NOT EXISTS idx_widget_settings_lookup ON user_widget_settings(user_id, widget_id)",
 ]
 
 

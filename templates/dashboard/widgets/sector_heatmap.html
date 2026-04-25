@@ -1,0 +1,32 @@
+{# Sector heatmap — 11 SPDR sector ETFs as colored tiles.
+   Tile color intensity scales with |pct|. Click to open chart panel later. #}
+<div class="sector-heatmap">
+  {% for s in sectors %}
+    {% if s.pct is none %}
+      <div class="sector-tile sector-na" title="{{ s.error or 'no data' }}">
+        <span class="sector-sym">{{ s.sym }}</span>
+        <span class="sector-pct">—</span>
+        <span class="sector-label">{{ s.label }}</span>
+      </div>
+    {% else %}
+      {# Color: green for up, red for down. Intensity bucket from |pct|. #}
+      {% set abs_pct = s.pct if s.pct >= 0 else -s.pct %}
+      {% if abs_pct >= 2.0 %}{% set intensity = 4 %}
+      {% elif abs_pct >= 1.0 %}{% set intensity = 3 %}
+      {% elif abs_pct >= 0.5 %}{% set intensity = 2 %}
+      {% elif abs_pct >= 0.1 %}{% set intensity = 1 %}
+      {% else %}{% set intensity = 0 %}
+      {% endif %}
+      {% set tone = 'sector-up' if s.pct >= 0 else 'sector-down' %}
+      <div class="sector-tile {{ tone }} sector-i{{ intensity }}"
+           title="{{ s.label }} ({{ s.sym }}) close ${{ '%.2f'|format(s.close) }}">
+        <span class="sector-sym">{{ s.sym }}</span>
+        <span class="sector-pct">{{ '%+.2f'|format(s.pct) }}%</span>
+        <span class="sector-label">{{ s.label }}</span>
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
+<div class="widget-footer">
+  <span class="text-tertiary text-sm">Daily close-to-close · refreshes every 5 min</span>
+</div>

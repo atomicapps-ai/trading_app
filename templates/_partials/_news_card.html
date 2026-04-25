@@ -1,0 +1,98 @@
+{# News + sentiment card — VADER-scored items for the symbol.
+   Expects context: news_items (list of ScoredNewsItem.to_dict()) and
+   news_summary (AggregateSentiment.to_dict()). Both may be empty/None
+   if news_service is offline or no articles match the lookback. #}
+{% set ns = news_summary %}
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">News & sentiment
+      {% if ns and ns.n %}<span class="text-tertiary text-sm" style="margin-left: 6px;">{{ ns.n }} articles</span>{% endif %}
+    </span>
+    {% if ns and ns.label and ns.label != "n/a" %}
+      <span class="badge sentiment-{{ ns.label }}">{{ ns.label|replace("_", " ") }}</span>
+    {% endif %}
+  </div>
+
+  {% if not news_items %}
+    <div class="text-secondary text-sm" style="padding: 12px 0;">
+      No recent news for this symbol.
+      {% if news_error %}<br><span class="text-tertiary">{{ news_error }}</span>{% endif %}
+    </div>
+  {% else %}
+
+    {# Aggregate stats row #}
+    {% if ns and ns.avg_compound is not none %}
+    <div class="news-summary">
+      <div class="news-summary-metric">
+        <span class="text-tertiary text-sm">Avg compound</span>
+        <span class="mono {% if ns.avg_compound >= 0.05 %}text-accent-green
+                          {% elif ns.avg_compound <= -0.05 %}text-accent-red{% endif %}">
+          {{ "%+.3f"|format(ns.avg_compound) }}
+        </span>
+      </div>
+      {% for label, count in ns.counts.items() %}
+        <div class="news-summary-metric">
+          <span class="text-tertiary text-sm">{{ label|replace("_", " ") }}</span>
+          <span class="mono">{{ count }}</span>
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {# Highlights — most positive / most negative #}
+    {% if ns and (ns.most_positive or ns.most_negative) %}
+    <div class="news-highlights">
+      {% if ns.most_positive %}
+        {% set p = ns.most_positive %}
+        <div class="news-highlight news-highlight-pos">
+          <span class="news-highlight-label text-accent-green">▲ Most positive</span>
+          <a class="news-headline" href="{{ p.url }}" target="_blank" rel="noopener">
+            {{ p.headline }}
+          </a>
+          <div class="news-meta text-tertiary">
+            <span class="mono">{{ "%+.3f"|format(p.sentiment.compound) }}</span> ·
+            {{ p.source }}
+          </div>
+        </div>
+      {% endif %}
+      {% if ns.most_negative %}
+        {% set n = ns.most_negative %}
+        <div class="news-highlight news-highlight-neg">
+          <span class="news-highlight-label text-accent-red">▼ Most negative</span>
+          <a class="news-headline" href="{{ n.url }}" target="_blank" rel="noopener">
+            {{ n.headline }}
+          </a>
+          <div class="news-meta text-tertiary">
+            <span class="mono">{{ "%+.3f"|format(n.sentiment.compound) }}</span> ·
+            {{ n.source }}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {# Full list #}
+    <div class="news-list">
+      {% for item in news_items %}
+        {% set s = item.sentiment %}
+        <div class="news-item news-item-{{ s.label }}">
+          <a class="news-headline" href="{{ item.url }}" target="_blank" rel="noopener">
+            {{ item.headline }}
+          </a>
+          <div class="news-meta">
+            <span class="mono {% if s.compound >= 0.05 %}text-accent-green
+                              {% elif s.compound <= -0.05 %}text-accent-red
+                              {% else %}text-tertiary{% endif %}">
+              {{ "%+.3f"|format(s.compound) }}
+            </span>
+            <span class="text-tertiary">·</span>
+            <span class="text-tertiary">{{ item.source }}</span>
+            <span class="text-tertiary">·</span>
+            <span class="text-tertiary text-sm">{{ item.published_at[:16]|replace("T", " ") }}</span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+  {% endif %}
+</div>

@@ -1,0 +1,82 @@
+{# Postmortem — closed trades only. Outcome, MFE/MAE, exit reason,
+   learning tags. Expects `trade` (TradeView) where stage == "closed". #}
+{% if trade and trade.is_closed %}
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Postmortem</span>
+    {% if trade.win is not none %}
+      {% if trade.win %}
+        <span class="badge badge-green">WIN</span>
+      {% else %}
+        <span class="badge badge-red">LOSS</span>
+      {% endif %}
+    {% endif %}
+  </div>
+
+  <div class="postmortem-grid">
+    <div class="postmortem-metric">
+      <span class="text-tertiary text-sm">P&amp;L %</span>
+      <span class="mono {% if trade.pnl_pct is not none and trade.pnl_pct >= 0 %}text-accent-green
+                        {% elif trade.pnl_pct is not none %}text-accent-red{% endif %}">
+        {% if trade.pnl_pct is not none %}{{ "%+.2f"|format(trade.pnl_pct) }}%{% else %}—{% endif %}
+      </span>
+    </div>
+    <div class="postmortem-metric">
+      <span class="text-tertiary text-sm">P&amp;L $</span>
+      <span class="mono {% if trade.pnl_usd is not none and trade.pnl_usd >= 0 %}text-accent-green
+                        {% elif trade.pnl_usd is not none %}text-accent-red{% endif %}">
+        {% if trade.pnl_usd is not none %}{{ "%+.2f"|format(trade.pnl_usd) }}{% else %}—{% endif %}
+      </span>
+    </div>
+    <div class="postmortem-metric">
+      <span class="text-tertiary text-sm">R-multiple</span>
+      <span class="mono {% if trade.pnl_r is not none and trade.pnl_r >= 0 %}text-accent-green
+                        {% elif trade.pnl_r is not none %}text-accent-red{% endif %}">
+        {% if trade.pnl_r is not none %}{{ "%+.2f"|format(trade.pnl_r) }}R{% else %}—{% endif %}
+      </span>
+    </div>
+    <div class="postmortem-metric">
+      <span class="text-tertiary text-sm">Exit reason</span>
+      <span class="mono">{{ trade.exit_reason or "—" }}</span>
+    </div>
+    <div class="postmortem-metric">
+      <span class="text-tertiary text-sm">MFE</span>
+      <span class="mono">
+        {% if trade.mfe_pct is not none %}{{ "%+.2f"|format(trade.mfe_pct) }}%{% else %}—{% endif %}
+      </span>
+    </div>
+    <div class="postmortem-metric">
+      <span class="text-tertiary text-sm">MAE</span>
+      <span class="mono">
+        {% if trade.mae_pct is not none %}{{ "%+.2f"|format(trade.mae_pct) }}%{% else %}—{% endif %}
+      </span>
+    </div>
+  </div>
+
+  {# Lifecycle timestamps #}
+  <div class="postmortem-lifecycle">
+    {% if trade.ts_entered %}
+      <div><span class="text-tertiary">Entered:</span>
+           <span class="mono">{{ trade.ts_entered[:19]|replace("T", " ") }}</span></div>
+    {% endif %}
+    {% if trade.ts_exited %}
+      <div><span class="text-tertiary">Exited:</span>
+           <span class="mono">{{ trade.ts_exited[:19]|replace("T", " ") }}</span></div>
+    {% endif %}
+  </div>
+
+  {# Learning tags from TradeRecord.postmortem if present in raw #}
+  {% set pm = (trade.raw.postmortem if trade.raw and trade.raw.postmortem is defined else {}) %}
+  {% if pm and pm.get %}
+    {% set tags = pm.get("learning_tags") or [] %}
+    {% if tags %}
+      <div class="postmortem-tags">
+        <span class="text-tertiary text-sm">Learning tags:</span>
+        {% for tag in tags %}
+          <span class="badge badge-gray">{{ tag }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endif %}
+</div>
+{% endif %}

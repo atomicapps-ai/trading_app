@@ -1,0 +1,39 @@
+{# SPY trend strip — 5 horizontal rows, one per lookback period.
+   Bar length normalized to max |%| across visible rows. Color by direction. #}
+{% if error %}
+  <div class="empty">{{ error }}</div>
+{% elif not rows %}
+  <div class="empty">SPY history not cached yet.</div>
+{% else %}
+<div class="spy-trend">
+  {% for r in rows %}
+    <div class="spy-row">
+      <div class="spy-period">{{ r.label }}</div>
+      <div class="spy-track">
+        {% if r.available %}
+          <div class="spy-bar {% if r.bullish %}spy-bull{% else %}spy-bear{% endif %}"
+               style="width: {{ r.bar_pct }}%;"></div>
+        {% endif %}
+      </div>
+      {% if r.available %}
+        <div class="spy-pct mono {% if r.bullish %}text-accent-green{% else %}text-accent-red{% endif %}">
+          {{ '%+.2f'|format(r.pct) }}%
+        </div>
+        <div class="spy-tag">
+          {% if r.bullish %}
+            <span class="badge badge-green">BULL</span>
+          {% else %}
+            <span class="badge badge-red">BEAR</span>
+          {% endif %}
+        </div>
+      {% else %}
+        <div class="spy-pct text-tertiary">—</div>
+        <div class="spy-tag text-tertiary text-sm">need history</div>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+<div class="widget-footer">
+  <span class="text-tertiary text-sm">SPY {% if current %}@ ${{ '%.2f'|format(current) }}{% endif %} · daily close-to-close</span>
+</div>
+{% endif %}

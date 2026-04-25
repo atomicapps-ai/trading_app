@@ -1,18 +1,21 @@
 # TradeAgent — Project Context for Claude Code
-**Last synced:** 2026-04-24
-**Status:** Phases 1–4 substantially complete. Phase 4 core (agents, workflow engine,
-executioner, SQLite, /universe UI with SQLite-backed Stock Screener manager, dual-chart
-/pending) all landed. One Phase 4 item remains: `services/scheduler.py` (APScheduler).
-Opening candle research session completed (2026-04-24) — see "Opening Candle Research"
-section below and HANDOFF.md for full findings.
-**Next chat:** Phase 4.5 — chart viewer sources + indicators push (4 chart sources per
-ticker + filter-aware indicator auto-activation + shared `static/chart_tools.js` across
-/pending and /universe) — detailed plan in HANDOFF.md.
-Phase 5 (Backtest Engine) queued after Phase 4.5.
+**Last synced:** 2026-04-25
+**Status:** Phase 4 fully complete (scheduler shipped in main `70ccbe6`).
+DL-Filtered intraday detector + analysis dashboard + modular widget dashboard
+with settings layer + unified trade detail page all shipped across the
+2026-04-24/25 sessions. Only Phase-4-related leftover:
+`executioner.close_at_time()` for the 15:00 ET intraday time-stop (~1 hr).
+**Next chat options:** see HANDOFF.md "Immediate next tasks" — pick one of
+(a) Phase 6 edit-mode for active trades, (b) finish the executioner
+time-stop method, (c) Phase 5 multi-year backtest engine, (d) Phase 4.5 chart
+viewer + indicators on /pending and /universe (still queued).
 **Roadmap (current):**
-- Phase 4 ✅ (minus scheduler) — Agents + Workflow Engine + Executioner + UI polish
-- Phase 4.5 NEXT — Chart viewer sources + indicators (see HANDOFF.md "Next session plan")
+- Phase 4 ✅ all sub-items
+- DL-Filtered intraday strategy ✅ (detector + workflow + smoke + integration; close_at_time pending)
+- Modular dashboard ✅ (Portfolio/Market/News tabs, 5 widgets, ⚙ settings infra)
+- Trade detail page ✅ (`/trades/{id}` unified, partials, indicator picker, VADER news)
 - Phase 5 — Backtest Engine + Strategy Review UI
+- Phase 4.5 — Chart viewer sources + indicators (deferred)
 - Phase 6 — ntfy push notifications + mobile CSS pass + risk_manager postmortem
 - Phase 7 — Memory, learning loop, polish
 **Companion docs:**
@@ -191,9 +194,30 @@ trading_app/
 │   │                              load_finviz_catalog(), get_catalog_flat/grouped(),
 │   │                              load_filter_config(), scrape_finviz_filters(),
 │   │                              seed_from_yaml_if_empty()
-│   └── finviz_catalog.json      ← 76 usable Finviz filters (Elite-only stripped).
-│                                   Each entry: {id, label, tab, category, options[]}.
-│                                   Parsed once from Finviz HTML; committed to repo.
+│   ├── finviz_catalog.json      ← 76 usable Finviz filters (Elite-only stripped).
+│   │                               Each entry: {id, label, tab, category, options[]}.
+│   │                               Parsed once from Finviz HTML; committed to repo.
+│   │
+│   ├── analysis_service.py      ← Failure analysis data layer for /trades/analysis;
+│   │                               auto-detects JSONL vs dump, production-filter toggle.
+│   ├── dashboard_widgets.py     ← Modular Widget registry + base class. Each widget
+│   │                               sets size/tab/refresh_seconds. Configurable via
+│   │                               settings_schema → ⚙ icon → SQLite persistence.
+│   ├── widget_settings.py       ← SQLite-backed get/set/reset for per-user widget
+│   │                               overrides (table user_widget_settings).
+│   ├── indicator_registry.py    ← Global IndicatorSpec catalog — single source for
+│   │                               every indicator picker UI. Aligns with
+│   │                               /api/indicators contract (sma20, vwap, rsi, atr…).
+│   ├── probability_service.py   ← Backtest WR + live WR sample-size-weighted blend
+│   │                               per strategy. Reads strategy YAML's backtest_summary
+│   │                               and live trades from analysis_service.
+│   ├── sentiment_service.py     ← VADER scoring (free) over NewsItems from
+│   │                               news_service. Returns SentimentScore + aggregate.
+│   ├── trade_lookup.py          ← Unified "trade by id" — abstracts pending_approvals
+│   │                               (SQLite) + trade_logs/*.jsonl. Returns TradeView.
+│   └── scheduler.py             ← APScheduler — auto-globs workflows/*.yaml and
+│                                   registers cron jobs from each `schedule:` field.
+│                                   Capitol Trades polling. (Shipped in main 70ccbe6.)
 │
 ├── templates/
 │   ├── base.html                ← Shell: sidebar, topbar, mode badge, ET clock, HALT

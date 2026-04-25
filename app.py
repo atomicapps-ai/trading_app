@@ -27,6 +27,7 @@ from routers import (
     pending,
     settings as settings_router,
     stubs,
+    trade_detail,
     trades,
     universe,
     workflows,
@@ -112,6 +113,7 @@ app.include_router(dashboard.router)
 app.include_router(pending.router)
 app.include_router(trades.router)
 app.include_router(analysis.router)
+app.include_router(trade_detail.router)
 app.include_router(settings_router.router)
 app.include_router(broker.router)
 app.include_router(workflows.router)

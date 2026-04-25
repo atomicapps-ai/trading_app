@@ -20,9 +20,9 @@
   </thead>
   <tbody>
     {% for t in rows %}
-      <tr>
+      <tr class="trade-row-clickable" onclick="if (!event.target.closest('a, button, .badge')) location.href='/trades/{{ t.trade_id }}'">
         <td class="text-secondary text-sm">{{ t.date_fmt }}</td>
-        <td class="mono">{{ t.symbol }}</td>
+        <td class="mono"><a href="/trades/{{ t.trade_id }}" class="trade-row-link">{{ t.symbol }}</a></td>
         <td><span class="badge {% if t.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ t.direction|upper }}</span></td>
         <td class="text-secondary text-sm">{{ t.strategy }}</td>
         <td class="num mono">${{ "%.2f"|format(t.entry) }}</td>

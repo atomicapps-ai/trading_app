@@ -1,0 +1,64 @@
+{# Fear & Greed gauge — semicircle SVG dial with 5 colored bands + needle.
+   Score 0=Extreme Fear (left, red) → 100=Extreme Greed (right, green). #}
+{% if score is none %}
+  <div class="empty">{% if error %}{{ error }}{% else %}Score unavailable.{% endif %}</div>
+{% else %}
+<div class="fg-gauge">
+  <svg viewBox="0 0 240 140" class="fg-gauge-svg" xmlns="http://www.w3.org/2000/svg">
+    {# Background arc — full semicircle, neutral track #}
+    <path d="M 20 120 A 100 100 0 0 1 220 120" fill="none"
+          stroke="rgba(75,85,99,0.25)" stroke-width="22" stroke-linecap="round"/>
+
+    {# Five colored band segments. Each spans 36° of the 180° semicircle.
+       Path computed: arc with start/end on radius=100 around (120,120). #}
+    {# 0–25 (extreme fear) -180° to -144° #}
+    <path d="M 20 120 A 100 100 0 0 1 60.49 41.22"
+          fill="none" stroke="#dc2626" stroke-width="22"/>
+    {# 25–45 (fear) -144° to -108° #}
+    <path d="M 60.49 41.22 A 100 100 0 0 1 119.07 20.00"
+          fill="none" stroke="#f59e0b" stroke-width="22"/>
+    {# 45–55 (neutral) -108° to -72° — actually 81 to 159, 10° span centered #}
+    <path d="M 100.49 20.61 A 100 100 0 0 1 139.51 20.61"
+          fill="none" stroke="#fbbf24" stroke-width="22"/>
+    {# 55–75 (greed) -72° to -36° #}
+    <path d="M 120.93 20.00 A 100 100 0 0 1 179.51 41.22"
+          fill="none" stroke="#84cc16" stroke-width="22"/>
+    {# 75–100 (extreme greed) -36° to 0° #}
+    <path d="M 179.51 41.22 A 100 100 0 0 1 220 120"
+          fill="none" stroke="#16a34a" stroke-width="22"/>
+
+    {# Needle — rotates around hub (120,120). 0 score -> -90°, 100 -> +90°. #}
+    <g transform="translate(120,120) rotate({{ needle_angle }})">
+      <line x1="0" y1="0" x2="0" y2="-86" stroke="#e5e7eb" stroke-width="3"
+            stroke-linecap="round"/>
+      <circle cx="0" cy="0" r="9" fill="#e5e7eb"/>
+      <circle cx="0" cy="0" r="4" fill="#0f1117"/>
+    </g>
+  </svg>
+
+  <div class="fg-readout">
+    <div class="fg-score {{ label_class }}">{{ '%.0f'|format(score) }}</div>
+    <div class="fg-label {{ label_class }}">{{ label }}</div>
+  </div>
+
+  {% if prev_close is not none or month_ago is not none or year_ago is not none %}
+  <div class="fg-history">
+    {% if prev_close is not none %}
+      <div><span class="text-tertiary">Prev close:</span>
+           <span class="mono">{{ '%.0f'|format(prev_close) }}</span></div>
+    {% endif %}
+    {% if month_ago is not none %}
+      <div><span class="text-tertiary">1 month ago:</span>
+           <span class="mono">{{ '%.0f'|format(month_ago) }}</span></div>
+    {% endif %}
+    {% if year_ago is not none %}
+      <div><span class="text-tertiary">1 year ago:</span>
+           <span class="mono">{{ '%.0f'|format(year_ago) }}</span></div>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+<div class="widget-footer">
+  <span class="text-tertiary text-sm">Source: CNN · cached 30 min</span>
+</div>
+{% endif %}

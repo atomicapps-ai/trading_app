@@ -1,108 +1,354 @@
 {% extends "base.html" %}
 {% block title %}Dashboard — TradeAgent{% endblock %}
 {% block content %}
-<div class="two-col">
 
-  {# ===== Left column ===== #}
-  <div>
+{# ============================================================ #}
+{# Tab nav — Portfolio | Market | News                          #}
+{# Pure CSS-driven tabs: each pane has class .tab-pane and the  #}
+{# active one gets .tab-pane-active. Tab buttons toggle via a   #}
+{# tiny <script> that swaps the active class. State doesn't     #}
+{# need to persist across reloads (defaults to first tab).      #}
+{# ============================================================ #}
+<div class="tab-nav" role="tablist">
+  {% for tab_id, tab_label in tabs %}
+    <button type="button"
+            class="tab-button {% if loop.first %}tab-button-active{% endif %}"
+            data-tab="{{ tab_id }}"
+            role="tab"
+            aria-selected="{{ 'true' if loop.first else 'false' }}">
+      {{ tab_label }}
+      {% set count = (widgets_by_tab[tab_id] | default([])) | length %}
+      {% if count %}<span class="tab-count">{{ count }}</span>{% endif %}
+    </button>
+  {% endfor %}
+</div>
 
-    {# Stat row — loaded via HTMX on page open #}
-    <div hx-get="/api/dashboard/stats" hx-trigger="load" hx-swap="innerHTML">
-      <div class="stat-grid">
-        <div class="stat-card"><span class="stat-label">Loading…</span></div>
-        <div class="stat-card"><span class="stat-label">Loading…</span></div>
-        <div class="stat-card"><span class="stat-label">Loading…</span></div>
-        <div class="stat-card"><span class="stat-label">Loading…</span></div>
-      </div>
-    </div>
+{# ============================================================ #}
+{# Tab pane: PORTFOLIO  — your account, positions, strategies   #}
+{# ============================================================ #}
+<div class="tab-pane tab-pane-active" data-pane="portfolio">
 
-    {# Pending approvals #}
-    <div class="card mt-24">
-      <div class="card-header">
-        <span class="card-title">Pending approvals
-          <span class="badge badge-amber" style="margin-left: 8px;">{{ pending|length }}</span>
-        </span>
-        <a href="/pending" class="text-sm text-secondary">View all →</a>
-      </div>
-      {% if pending %}
-        {% for p in pending[:3] %}
-          <div class="pending-card" onclick="location.href='/pending/{{ p.plan_id }}'">
-            <div class="pending-row">
-              <span class="pending-symbol">{{ p.symbol }}</span>
-              <span class="badge {% if p.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ p.direction|upper }}</span>
-              <span class="badge badge-gray">{{ p.strategy }}</span>
-              <span class="pending-meta">{{ p.ts_created[11:16] }} ET · {{ (p.conviction * 100)|round|int }}% conv</span>
-            </div>
-            <div class="pending-row pending-prices">
-              Entry <span class="mono">${{ "%.2f"|format(p.entry) }}</span>
-              · Stop <span class="mono">${{ "%.2f"|format(p.stop) }}</span>
-              · TP1 <span class="mono">${{ "%.2f"|format(p.tp1) }}</span>
-              · Risk <span class="mono">${{ "%.0f"|format(p.risk_usd) }}</span>
-              <a href="/pending/{{ p.plan_id }}" class="btn btn-primary" style="margin-left: auto; padding: 4px 12px; font-size: 12px;">Review</a>
-            </div>
-          </div>
-        {% endfor %}
-      {% else %}
-        <div class="text-secondary text-sm" style="padding: 16px 0;">No trades awaiting approval.</div>
-      {% endif %}
-    </div>
-
-    {# Open positions table #}
-    <div class="card mt-24">
-      <div class="card-header">
-        <span class="card-title">Open positions ({{ open_positions|length }})</span>
-      </div>
-      {% if open_positions %}
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Symbol</th><th>Dir</th>
-              <th class="num">Entry</th><th class="num">Current</th>
-              <th class="num">P&amp;L $</th><th class="num">P&amp;L %</th><th class="num">R</th>
-              <th class="num">Stop</th><th>Strategy</th><th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for pos in open_positions %}
-              <tr>
-                <td><span class="mono">{{ pos.symbol }}</span></td>
-                <td><span class="badge {% if pos.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ pos.direction|upper }}</span></td>
-                <td class="num mono">${{ "%.2f"|format(pos.entry) }}</td>
-                <td class="num mono">${{ "%.2f"|format(pos.current) }}</td>
-                <td class="num mono {% if pos.pnl_usd >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(pos.pnl_usd) }}</td>
-                <td class="num mono {% if pos.pnl_pct >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(pos.pnl_pct) }}%</td>
-                <td class="num mono {% if pos.pnl_r >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(pos.pnl_r) }}R</td>
-                <td class="num mono text-secondary">${{ "%.2f"|format(pos.stop) }}</td>
-                <td class="text-secondary text-sm">{{ pos.strategy }}</td>
-                <td><button class="btn" disabled title="Manual close: use broker platform">Close</button></td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <div class="empty">No open positions.</div>
-      {% endif %}
+  {# Stat row — loaded via HTMX on page open #}
+  <div hx-get="/api/dashboard/stats" hx-trigger="load" hx-swap="innerHTML">
+    <div class="stat-grid">
+      <div class="stat-card"><span class="stat-label">Loading…</span></div>
+      <div class="stat-card"><span class="stat-label">Loading…</span></div>
+      <div class="stat-card"><span class="stat-label">Loading…</span></div>
+      <div class="stat-card"><span class="stat-label">Loading…</span></div>
     </div>
   </div>
 
-  {# ===== Right column ===== #}
-  <div>
+  {# Portfolio-tab widgets (Strategy Health, etc.) #}
+  {% if widgets_by_tab.portfolio %}
+  <div class="widget-grid mt-16">
+    {% for w in widgets_by_tab.portfolio %}
+      <div class="widget widget-{{ w.size }}" id="widget-{{ w.id }}">
+        <div class="widget-header">
+          <span class="widget-title">{{ w.title }}</span>
+          {% if w.user_configurable %}
+            <button type="button" class="widget-settings-btn"
+                    title="Configure {{ w.title }}"
+                    onclick="openWidgetSettings('{{ w.id }}')">⚙</button>
+          {% endif %}
+        </div>
+        <div class="widget-body"
+             hx-get="/api/dashboard/widgets/{{ w.id }}"
+             hx-trigger="load, every {{ w.refresh_seconds }}s"
+             hx-swap="innerHTML">
+          <div class="empty">Loading…</div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
-    {# Agent status — HTMX loaded #}
-    <div class="card">
-      <div class="card-header"><span class="card-title">Agent status</span></div>
-      <div hx-get="/api/dashboard/agents" hx-trigger="load" hx-swap="innerHTML">
-        <div class="text-secondary text-sm" style="padding: 12px 0;">Loading agents…</div>
+  <div class="two-col mt-16">
+
+    {# ===== Left column ===== #}
+    <div>
+
+      {# Pending approvals #}
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Pending approvals
+            <span class="badge badge-amber" style="margin-left: 8px;">{{ pending|length }}</span>
+          </span>
+          <a href="/pending" class="text-sm text-secondary">View all →</a>
+        </div>
+        {% if pending %}
+          {% for p in pending[:3] %}
+            <div class="pending-card" onclick="location.href='/pending/{{ p.plan_id }}'">
+              <div class="pending-row">
+                <span class="pending-symbol">{{ p.symbol }}</span>
+                <span class="badge {% if p.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ p.direction|upper }}</span>
+                <span class="badge badge-gray">{{ p.strategy }}</span>
+                <span class="pending-meta">{{ p.ts_created[11:16] }} ET · {{ (p.conviction * 100)|round|int }}% conv</span>
+              </div>
+              <div class="pending-row pending-prices">
+                Entry <span class="mono">${{ "%.2f"|format(p.entry) }}</span>
+                · Stop <span class="mono">${{ "%.2f"|format(p.stop) }}</span>
+                · TP1 <span class="mono">${{ "%.2f"|format(p.tp1) }}</span>
+                · Risk <span class="mono">${{ "%.0f"|format(p.risk_usd) }}</span>
+                <a href="/pending/{{ p.plan_id }}" class="btn btn-primary" style="margin-left: auto; padding: 4px 12px; font-size: 12px;">Review</a>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="text-secondary text-sm" style="padding: 16px 0;">No trades awaiting approval.</div>
+        {% endif %}
+      </div>
+
+      {# Open positions table #}
+      <div class="card mt-24">
+        <div class="card-header">
+          <span class="card-title">Open positions ({{ open_positions|length }})</span>
+        </div>
+        {% if open_positions %}
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Symbol</th><th>Dir</th>
+                <th class="num">Entry</th><th class="num">Current</th>
+                <th class="num">P&amp;L $</th><th class="num">P&amp;L %</th><th class="num">R</th>
+                <th class="num">Stop</th><th>Strategy</th><th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pos in open_positions %}
+                <tr>
+                  <td><span class="mono">{{ pos.symbol }}</span></td>
+                  <td><span class="badge {% if pos.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ pos.direction|upper }}</span></td>
+                  <td class="num mono">${{ "%.2f"|format(pos.entry) }}</td>
+                  <td class="num mono">${{ "%.2f"|format(pos.current) }}</td>
+                  <td class="num mono {% if pos.pnl_usd >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(pos.pnl_usd) }}</td>
+                  <td class="num mono {% if pos.pnl_pct >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(pos.pnl_pct) }}%</td>
+                  <td class="num mono {% if pos.pnl_r >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(pos.pnl_r) }}R</td>
+                  <td class="num mono text-secondary">${{ "%.2f"|format(pos.stop) }}</td>
+                  <td class="text-secondary text-sm">{{ pos.strategy }}</td>
+                  <td><button class="btn" disabled title="Manual close: use broker platform">Close</button></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="empty">No open positions.</div>
+        {% endif %}
       </div>
     </div>
 
-    {# Today's activity — auto-refresh every 60s #}
-    <div class="card mt-24">
-      <div class="card-header"><span class="card-title">Today's activity</span></div>
-      <div hx-get="/api/dashboard/activity" hx-trigger="load, every 60s" hx-swap="innerHTML">
-        <div class="text-secondary text-sm" style="padding: 12px 0;">Loading…</div>
+    {# ===== Right column ===== #}
+    <div>
+      {# Agent status — HTMX loaded #}
+      <div class="card">
+        <div class="card-header"><span class="card-title">Agent status</span></div>
+        <div hx-get="/api/dashboard/agents" hx-trigger="load" hx-swap="innerHTML">
+          <div class="text-secondary text-sm" style="padding: 12px 0;">Loading agents…</div>
+        </div>
+      </div>
+
+      {# Today's activity — auto-refresh every 60s #}
+      <div class="card mt-24">
+        <div class="card-header"><span class="card-title">Today's activity</span></div>
+        <div hx-get="/api/dashboard/activity" hx-trigger="load, every 60s" hx-swap="innerHTML">
+          <div class="text-secondary text-sm" style="padding: 12px 0;">Loading…</div>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+{# ============================================================ #}
+{# Tab pane: MARKET  — sector heatmap, fear/greed, SPY trend... #}
+{# ============================================================ #}
+<div class="tab-pane" data-pane="market">
+  {% if widgets_by_tab.market %}
+  <div class="widget-grid">
+    {% for w in widgets_by_tab.market %}
+      <div class="widget widget-{{ w.size }}">
+        <div class="widget-header"><span class="widget-title">{{ w.title }}</span></div>
+        <div class="widget-body"
+             hx-get="/api/dashboard/widgets/{{ w.id }}"
+             hx-trigger="revealed once, every {{ w.refresh_seconds }}s"
+             hx-swap="innerHTML">
+          <div class="empty">Loading…</div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    <div class="empty-state">No market widgets registered.</div>
+  {% endif %}
+</div>
+
+{# ============================================================ #}
+{# Tab pane: NEWS  — placeholder until a news service lands     #}
+{# ============================================================ #}
+<div class="tab-pane" data-pane="news">
+  {% if widgets_by_tab.news %}
+  <div class="widget-grid">
+    {% for w in widgets_by_tab.news %}
+      <div class="widget widget-{{ w.size }}">
+        <div class="widget-header"><span class="widget-title">{{ w.title }}</span></div>
+        <div class="widget-body"
+             hx-get="/api/dashboard/widgets/{{ w.id }}"
+             hx-trigger="revealed once, every {{ w.refresh_seconds }}s"
+             hx-swap="innerHTML">
+          <div class="empty">Loading…</div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    <div class="card">
+      <div class="card-header"><span class="card-title">News</span></div>
+      <div class="text-secondary text-sm" style="padding: 12px 0;">
+        News widgets coming. Source candidates: Alpaca News API (already in
+        <span class="mono">.env</span>), EDGAR filings feed, RSS aggregation.
+        Will surface market-moving headlines + per-symbol news once wired.
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+{# ============================================================ #}
+{# Widget settings modal — shared by every configurable widget. #}
+{# Stays empty until openWidgetSettings(id) fetches the panel.  #}
+{# ============================================================ #}
+<div id="ws-modal" class="ws-modal" hidden>
+  <div class="ws-modal-backdrop" onclick="closeWidgetSettings()"></div>
+  <div class="ws-modal-card" id="ws-modal-card">
+    <div class="empty">Loading…</div>
+  </div>
+</div>
+
+<script>
+  // ── Tab switcher ─────────────────────────────────────────────────────
+  (function() {
+    const buttons = document.querySelectorAll('.tab-button');
+    const panes   = document.querySelectorAll('.tab-pane');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.tab;
+        buttons.forEach(b => {
+          b.classList.toggle('tab-button-active', b === btn);
+          b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+        });
+        panes.forEach(p => {
+          p.classList.toggle('tab-pane-active', p.dataset.pane === target);
+        });
+        if (window.htmx) {
+          panes.forEach(p => {
+            if (p.dataset.pane === target) {
+              p.querySelectorAll('[hx-trigger]').forEach(el => {
+                window.htmx.trigger(el, 'revealed');
+              });
+            }
+          });
+        }
+      });
+    });
+  })();
+
+  // ── Widget settings modal ───────────────────────────────────────────
+  // openWidgetSettings(id)  — fetches the panel HTML and shows the modal
+  // closeWidgetSettings()   — hides the modal
+  // saveWidgetSettings()    — serializes form state, POSTs JSON, closes,
+  //                           re-fetches the widget body so it picks up
+  //                           the new settings
+  // resetWidgetSettings(id) — DELETEs all overrides for this widget
+  //
+  // Chip toggles inside the panel are simple: click toggles .ws-chip-on.
+  // Form serialization walks .ws-field elements and reads each kind.
+
+  const wsModal = document.getElementById('ws-modal');
+  const wsCard  = document.getElementById('ws-modal-card');
+  let   wsCurrentWidgetId = null;
+
+  async function openWidgetSettings(widgetId) {
+    wsCurrentWidgetId = widgetId;
+    wsCard.innerHTML = '<div class="empty">Loading…</div>';
+    wsModal.hidden = false;
+    try {
+      const r = await fetch(`/api/dashboard/widgets/${widgetId}/settings`);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      wsCard.innerHTML = await r.text();
+      wsCard.addEventListener('click', wsHandleChipClick);
+    } catch (e) {
+      wsCard.innerHTML =
+        `<div class="widget-error">⚠ Failed to load settings: ${e.message}</div>`;
+    }
+  }
+
+  function closeWidgetSettings() {
+    wsModal.hidden = true;
+    wsCard.innerHTML = '';
+    wsCurrentWidgetId = null;
+  }
+
+  function wsHandleChipClick(e) {
+    const chip = e.target.closest('.ws-chip');
+    if (!chip) return;
+    chip.classList.toggle('ws-chip-on');
+  }
+
+  function wsSerialize(form) {
+    const out = {};
+    form.querySelectorAll('.ws-field').forEach(field => {
+      const key  = field.dataset.key;
+      const kind = field.dataset.kind;
+      if (kind === 'indicator_multiselect' || kind === 'multiselect') {
+        out[key] = [...field.querySelectorAll('.ws-chip-on')]
+                     .map(c => c.dataset.value);
+      } else if (kind === 'number' || kind === 'int') {
+        const v = field.querySelector('input').value;
+        out[key] = (kind === 'int') ? parseInt(v, 10) : parseFloat(v);
+      } else if (kind === 'bool') {
+        out[key] = field.querySelector('input[type=checkbox]').checked;
+      } else {
+        out[key] = field.querySelector('input').value;
+      }
+    });
+    return out;
+  }
+
+  async function saveWidgetSettings() {
+    if (!wsCurrentWidgetId) return;
+    const form = document.getElementById('widget-settings-form');
+    if (!form) return;
+    const payload = wsSerialize(form);
+    try {
+      const r = await fetch(
+        `/api/dashboard/widgets/${wsCurrentWidgetId}/settings`,
+        {method: 'POST',
+         headers: {'Content-Type': 'application/json'},
+         body: JSON.stringify(payload)});
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      // Re-trigger the widget body so it re-fetches with new settings
+      const body = document.querySelector(
+        `#widget-${wsCurrentWidgetId} .widget-body`);
+      if (body && window.htmx) window.htmx.trigger(body, 'load');
+      closeWidgetSettings();
+    } catch (e) {
+      alert('Failed to save settings: ' + e.message);
+    }
+  }
+
+  async function resetWidgetSettings(widgetId) {
+    if (!confirm('Reset this widget to defaults?')) return;
+    try {
+      await fetch(`/api/dashboard/widgets/${widgetId}/settings`,
+                  {method: 'DELETE'});
+      // Reload the panel to show defaults
+      openWidgetSettings(widgetId);
+    } catch (e) {
+      alert('Failed to reset: ' + e.message);
+    }
+  }
+
+  // Esc closes the modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !wsModal.hidden) closeWidgetSettings();
+  });
+</script>
+
 {% endblock %}

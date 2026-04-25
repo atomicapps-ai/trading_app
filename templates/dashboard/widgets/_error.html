@@ -1,0 +1,10 @@
+{# Generic widget-failure card. Rendered by the dispatcher when a
+   widget's get_data() raises. Other widgets keep working — failure
+   is isolated per-widget by design. #}
+<div class="widget-error">
+  <div class="text-accent-red text-sm">⚠ Widget error</div>
+  <div class="text-tertiary text-sm" style="margin-top: 4px;">
+    <span class="mono">{{ widget_id }}</span>:
+    {{ error }}
+  </div>
+</div>
