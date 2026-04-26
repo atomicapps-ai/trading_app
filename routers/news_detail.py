@@ -85,6 +85,14 @@ async def news_detail(
         )
 
     score = sentiment_service.score_news_item(found).to_dict()
+
+    # If the source flagged the body as HTML, sanitize before rendering
+    # — the template uses ``|safe`` only after this allowlist scrub.
+    # Plain-text bodies pass through untouched and Jinja escapes them
+    # in the normal way.
+    if found.body and found.body_format == "html":
+        found.body = news_service.sanitize_html(found.body)
+
     return templates.TemplateResponse(
         request=request,
         name="news/detail.html",

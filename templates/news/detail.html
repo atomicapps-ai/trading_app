@@ -69,13 +69,24 @@
 
       <div class="card mt-16">
         <div class="card-header">
-          <span class="card-title">Article</span>
+          <span class="card-title">Article
+            {% if item.body_format == 'html' %}
+              <span class="text-tertiary text-sm" style="margin-left:6px;">· HTML</span>
+            {% endif %}
+          </span>
           <a class="btn btn-sm btn-primary" href="{{ item.url }}" target="_blank" rel="noopener">
             Open original ↗
           </a>
         </div>
         {% if item.body %}
-          <div class="news-detail-body">{{ item.body }}</div>
+          {% if item.body_format == 'html' %}
+            {# Body already passed through services.news_service.sanitize_html
+               in the router — allowlist of safe formatting tags only,
+               attributes scrubbed, javascript:/data: URLs blocked. #}
+            <div class="news-detail-body news-detail-body-html">{{ item.body | safe }}</div>
+          {% else %}
+            <div class="news-detail-body">{{ item.body }}</div>
+          {% endif %}
         {% else %}
           <div class="text-tertiary text-sm" style="padding: 12px 0;">
             This source doesn't return full article text — open the

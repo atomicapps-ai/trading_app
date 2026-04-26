@@ -173,11 +173,22 @@ class WebullNewsSource(NewsSource):
                     and not (isinstance(v, (dict, list)) and len(v) > 50)
                 }
 
+                # Some Webull builds return content under "content" /
+                # "newsContent". Detect HTML so the detail view formats
+                # it correctly.
+                from services.news_service import looks_like_html
+                body = _pick(raw, "content", "newsContent", "fullText")
+                body_str = str(body) if body else None
+                body_format = (
+                    "html" if (body_str and looks_like_html(body_str)) else "text"
+                )
+
                 items.append(NewsItem(
                     source="webull",
                     symbol=symbol.upper(),
                     headline=str(headline),
-                    body=None,
+                    body=body_str,
+                    body_format=body_format,
                     published_at=published,
                     url=str(url),
                     article_id=article_id,

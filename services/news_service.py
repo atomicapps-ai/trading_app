@@ -43,6 +43,7 @@ import asyncio
 import json
 import logging
 import os
+import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterable, Literal
@@ -108,6 +109,12 @@ class NewsItem(BaseModel):
     symbol: str
     headline: str
     body: str | None = None
+    body_format: Literal["text", "html"] = "text"
+    """Rendering hint for ``body``. Alpaca returns Benzinga-formatted HTML
+    in the ``content`` field; Webull is plain text in most builds; EDGAR
+    has no body. The detail view passes the body through a stdlib-based
+    HTML sanitizer (allowlist of safe tags + attribute scrubbing) before
+    rendering when this is ``html``, plain-escape otherwise."""
     published_at: datetime    # UTC-aware
     url: str
     article_id: str           # source-specific unique id
@@ -204,6 +211,14 @@ def _alpaca_cache_path(symbol: str, date_iso: str) -> Path:
 
 
 def _read_news_cache_sync(symbol: str, date_iso: str) -> list[NewsItem]:
+    """Load cached items, re-detecting body_format on read.
+
+    Caches written before the body_format field existed default to
+    "text" via the model — but Alpaca's cached content is HTML. Rather
+    than rewriting every existing cache file, we sniff on read and
+    flip the field when the body looks tag-shaped. This is cheap (a
+    single regex per item) and makes the migration zero-downtime.
+    """
     path = _alpaca_cache_path(symbol, date_iso)
     if not path.exists():
         return []
@@ -214,7 +229,14 @@ def _read_news_cache_sync(symbol: str, date_iso: str) -> list[NewsItem]:
             if not line:
                 continue
             try:
-                out.append(NewsItem.model_validate_json(line))
+                item = NewsItem.model_validate_json(line)
+                if (
+                    item.body
+                    and item.body_format == "text"
+                    and looks_like_html(item.body)
+                ):
+                    item.body_format = "html"
+                out.append(item)
             except Exception as e:
                 log.warning("corrupt news cache line in %s: %s", path, e)
     return out
@@ -229,6 +251,139 @@ def _write_news_cache_sync(symbol: str, date_iso: str, items: list[NewsItem]) ->
         for item in items:
             f.write(item.model_dump_json())
             f.write("\n")
+
+
+# --------------------------------------------------------------------------- #
+# Body-format detection + minimal HTML sanitizer
+# --------------------------------------------------------------------------- #
+#
+# Why we sanitize at all
+# ----------------------
+# Alpaca's news content (and any source that flags ``body_format="html"``)
+# eventually flows into a Jinja template that uses ``|safe``. Raw HTML
+# from a third party is a textbook XSS vector — even from "trusted"
+# sources we can't guarantee an upstream pipeline never re-publishes a
+# malicious headline. Best-of-both: keep formatting (paragraphs, links,
+# basic emphasis) but drop tags + attributes that could execute JS.
+#
+# Why hand-roll instead of bleach
+# -------------------------------
+# bleach is the standard answer, but it pulls in another dep (and html5lib
+# behind it). The detail-page rendering is one place; an allowlist
+# whitelist-then-strip via ``html.parser`` covers the realistic threat
+# model (Benzinga article content, EDGAR-style markup) without taking on
+# a transitive dependency tree.
+
+_HTML_TAG_RE = re.compile(r"<\s*[a-zA-Z][a-zA-Z0-9]*(?:\s[^<>]*)?>")
+
+# Tags we let through — formatting + structure only, nothing executable.
+_ALLOWED_TAGS = frozenset({
+    "p", "br", "hr",
+    "strong", "b", "em", "i", "u", "s", "small", "sub", "sup",
+    "blockquote", "code", "pre",
+    "ul", "ol", "li",
+    "h1", "h2", "h3", "h4", "h5", "h6",
+    "a", "img",
+    "table", "thead", "tbody", "tr", "th", "td",
+    "span", "div",
+})
+# Attributes allowed per tag — anything else is dropped silently.
+_ALLOWED_ATTRS: dict[str, set[str]] = {
+    "a":   {"href", "title"},
+    "img": {"src", "alt", "title"},
+    # span/div may carry a class — tolerate it but don't pass styles
+    "span": {"class"}, "div": {"class"},
+}
+# Block any URL whose protocol isn't safe (javascript:, data:, vbscript:).
+_SAFE_URL_RE = re.compile(r"^(?:https?:|mailto:|/|#)", re.I)
+
+
+def looks_like_html(s: str | None) -> bool:
+    """Cheap heuristic: does ``s`` contain at least one HTML tag?
+
+    Used by sources that don't know their own format up front (Webull,
+    future RSS adapters). The Alpaca source still sets the format
+    explicitly when its SDK gives us the structured ``content`` field.
+    """
+    if not s or not isinstance(s, str):
+        return False
+    return bool(_HTML_TAG_RE.search(s))
+
+
+def sanitize_html(s: str | None) -> str:
+    """Allowlist-based HTML sanitizer using stdlib ``html.parser``.
+
+    Drops every tag not in ``_ALLOWED_TAGS`` (the surrounding text is
+    preserved), strips attributes outside the per-tag allowlist, and
+    refuses URLs whose scheme isn't safe. Output is a string of HTML
+    that's safe to pass through Jinja's ``|safe`` filter.
+
+    Returns "" when input is falsy. Returns the original on parser
+    failure rather than crashing the page.
+    """
+    if not s:
+        return ""
+
+    from html.parser import HTMLParser
+    from html import escape as html_escape
+
+    class _Sanitizer(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.out: list[str] = []
+            self._skip_until: str | None = None  # for <script>/<style> drop
+
+        def handle_starttag(self, tag, attrs):
+            if self._skip_until:
+                return
+            tag = tag.lower()
+            if tag in {"script", "style", "iframe", "object", "embed"}:
+                self._skip_until = tag
+                return
+            if tag not in _ALLOWED_TAGS:
+                return
+            allowed = _ALLOWED_ATTRS.get(tag, set())
+            kept: list[tuple[str, str]] = []
+            for k, v in attrs:
+                if not k or k.lower() not in allowed:
+                    continue
+                if k.lower() in {"href", "src"} and v:
+                    if not _SAFE_URL_RE.match(v.strip()):
+                        continue
+                kept.append((k.lower(), v or ""))
+            attr_str = "".join(f' {k}="{html_escape(v, quote=True)}"' for k, v in kept)
+            self.out.append(f"<{tag}{attr_str}>")
+
+        def handle_endtag(self, tag):
+            tag = tag.lower()
+            if self._skip_until == tag:
+                self._skip_until = None
+                return
+            if self._skip_until:
+                return
+            if tag in _ALLOWED_TAGS:
+                self.out.append(f"</{tag}>")
+
+        def handle_startendtag(self, tag, attrs):
+            self.handle_starttag(tag, attrs)
+            # void elements close themselves; non-void shouldn't reach this
+            if tag.lower() in {"br", "hr", "img"}:
+                pass
+
+        def handle_data(self, data):
+            if self._skip_until:
+                return
+            self.out.append(html_escape(data, quote=False))
+
+    try:
+        p = _Sanitizer()
+        p.feed(s)
+        p.close()
+        return "".join(p.out)
+    except Exception as e:                                    # noqa: BLE001
+        log.warning("sanitize_html failed: %s — falling back to plain text", e)
+        from html import escape as html_escape
+        return html_escape(s)
 
 
 def _alpaca_item_to_news(item, default_symbol: str) -> NewsItem | None:
@@ -257,11 +412,18 @@ def _alpaca_item_to_news(item, default_symbol: str) -> NewsItem | None:
                if default_symbol.upper() in {s.upper() for s in symbols}
                else str(symbols[0]).upper())
 
+        # Alpaca's ``content`` field is Benzinga-sourced HTML — paragraphs,
+        # links, occasional <img>. ``summary`` is plain text. Mark the
+        # format on the item so the detail-view sanitizer knows whether
+        # to render it raw vs escaped.
+        body_format = "html" if (body and looks_like_html(body)) else "text"
+
         return NewsItem(
             source="alpaca",
             symbol=sym,
             headline=headline,
             body=body,
+            body_format=body_format,
             published_at=published,
             url=url,
             article_id=str(item_id),

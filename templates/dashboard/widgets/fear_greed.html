@@ -13,7 +13,9 @@
   <div class="empty">{% if error %}{{ error }}{% else %}Score unavailable.{% endif %}</div>
 {% else %}
 <div class="fg-gauge">
-  <svg viewBox="0 0 240 130" class="fg-gauge-svg" xmlns="http://www.w3.org/2000/svg">
+  {# viewBox extended to 145 high so the FEAR / GREED end-labels at
+     y=138 fit inside the box without clipping. #}
+  <svg viewBox="0 0 240 145" class="fg-gauge-svg" xmlns="http://www.w3.org/2000/svg">
     {# Background track — full semicircle, neutral gray #}
     <path d="M 20 120 A 100 100 0 0 1 220 120"
           fill="none" stroke="rgba(75,85,99,0.25)" stroke-width="18"/>
@@ -34,6 +36,12 @@
     <path d="M 190.71 49.29 A 100 100 0 0 1 220 120"
           fill="none" stroke="#16a34a" stroke-width="18" stroke-linecap="butt"/>
 
+    {# End-of-arc labels. "FEAR" sits under the leftmost (red) band end,
+       "GREED" under the rightmost (green) band end. y=138 keeps them
+       below the 18px-wide stroke and above the viewBox edge. #}
+    <text x="20" y="138" text-anchor="middle" class="fg-arc-label fg-extreme-fear">FEAR</text>
+    <text x="220" y="138" text-anchor="middle" class="fg-arc-label fg-extreme-greed">GREED</text>
+
     {# Needle — rotates around hub (120,120). 0 score → -90°, 100 → +90°. #}
     <g transform="translate(120,120) rotate({{ needle_angle }})">
       <line x1="0" y1="0" x2="0" y2="-86" stroke="#e5e7eb" stroke-width="3"
@@ -41,13 +49,17 @@
       <circle cx="0" cy="0" r="8" fill="#e5e7eb"/>
       <circle cx="0" cy="0" r="3.5" fill="#0f1117"/>
     </g>
-
-    {# Score readout — placed inside the SVG below the hub for compact layout. #}
-    <text x="120" y="106" text-anchor="middle"
-          class="fg-score-svg {{ label_class }}">{{ '%.0f'|format(score) }}</text>
-    <text x="120" y="120" text-anchor="middle"
-          class="fg-label-svg {{ label_class }}">{{ label|upper }}</text>
   </svg>
+
+  {# Score readout — pulled OUT of the SVG. The previous in-SVG text
+     elements were colliding with the needle hub at the gauge center
+     because the only visually-empty area inside the semicircle is the
+     hub itself. As an HTML row directly below the SVG it has room to
+     breathe. #}
+  <div class="fg-readout">
+    <span class="fg-score {{ label_class }}">{{ '%.0f'|format(score) }}</span>
+    <span class="fg-label {{ label_class }}">{{ label|upper }}</span>
+  </div>
 
   {% if prev_close is not none or month_ago is not none or year_ago is not none %}
   <div class="fg-history">

@@ -949,6 +949,11 @@ input, select, textarea { font: inherit; color: inherit; }
 .widget-grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
+  /* Cards on the same row would otherwise stretch to match the tallest
+     sibling — that's how the Fear & Greed card ended up with ~250px of
+     bottom whitespace when paired with a wider Sector Heatmap. ``start``
+     keeps each card at its content height. */
+  align-items: start;
   gap: 16px;
   margin-bottom: 4px;
 }
@@ -1040,14 +1045,20 @@ input, select, textarea { font: inherit; color: inherit; }
  * Fear & Greed gauge widget
  * ========================================================================== */
 .fg-gauge {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
   padding: 0;
 }
-.fg-gauge-svg { width: 100%; max-width: 180px; height: auto; }
-.fg-score-svg { font-size: 18px; font-weight: 700; font-family: var(--font-mono);
-                font-variant-numeric: tabular-nums; }
-.fg-label-svg { font-size: 7.5px; font-weight: 600; letter-spacing: 0.5px;
+.fg-gauge-svg { width: 100%; max-width: 220px; height: auto; }
+.fg-arc-label { font-size: 9px; font-weight: 700; letter-spacing: 0.6px;
                 font-family: var(--font-mono); text-transform: uppercase; }
+.fg-readout {
+  display: flex; align-items: baseline; gap: 8px;
+  margin-top: -8px;   /* tuck up under the gauge baseline */
+}
+.fg-score { font-size: 26px; font-weight: 700; font-family: var(--font-mono);
+            font-variant-numeric: tabular-nums; line-height: 1; }
+.fg-label { font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+            text-transform: uppercase; }
 
 .fg-extreme-fear  { fill: #dc2626; color: #dc2626; }
 .fg-fear          { fill: #f59e0b; color: #f59e0b; }
@@ -1126,6 +1137,62 @@ input, select, textarea { font: inherit; color: inherit; }
   font-size: 14px; line-height: 1.55; color: var(--text-primary, #d1d5db);
   white-space: pre-wrap;
 }
+/* When the source returned HTML, the wrapper drops `pre-wrap` so
+   <p>/<br> drive the layout instead of raw newlines, and we style
+   the allowed tags so paragraphs/links/images look right in the
+   dark theme. */
+.news-detail-body-html { white-space: normal; }
+.news-detail-body-html p           { margin: 0 0 12px 0; }
+.news-detail-body-html p:last-child{ margin-bottom: 0; }
+.news-detail-body-html a {
+  color: var(--accent-blue, #60a5fa); text-decoration: underline;
+  text-decoration-thickness: 1px; text-underline-offset: 2px;
+}
+.news-detail-body-html a:hover { text-decoration-thickness: 2px; }
+.news-detail-body-html h1,
+.news-detail-body-html h2,
+.news-detail-body-html h3,
+.news-detail-body-html h4 {
+  color: #e5e7eb; margin: 16px 0 8px;
+  font-size: 15px; font-weight: 600; line-height: 1.3;
+}
+.news-detail-body-html h1 { font-size: 18px; }
+.news-detail-body-html h2 { font-size: 16px; }
+.news-detail-body-html ul,
+.news-detail-body-html ol { margin: 0 0 12px 22px; padding: 0; }
+.news-detail-body-html li { margin-bottom: 4px; }
+.news-detail-body-html blockquote {
+  margin: 12px 0; padding: 6px 12px;
+  border-left: 3px solid var(--surface-3);
+  color: var(--text-secondary);
+}
+.news-detail-body-html code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12.5px; padding: 1px 4px; border-radius: 3px;
+  background: var(--surface-1); color: #e5e7eb;
+}
+.news-detail-body-html pre {
+  background: var(--surface-1); padding: 10px 12px; border-radius: 4px;
+  overflow-x: auto; margin: 0 0 12px 0;
+}
+.news-detail-body-html pre code { background: transparent; padding: 0; }
+.news-detail-body-html img {
+  max-width: 100%; height: auto; border-radius: 4px;
+  margin: 8px 0; display: block;
+}
+.news-detail-body-html table {
+  border-collapse: collapse; margin: 12px 0;
+  font-size: 13px;
+}
+.news-detail-body-html th,
+.news-detail-body-html td {
+  border: 1px solid var(--surface-3); padding: 4px 8px; text-align: left;
+}
+.news-detail-body-html th { background: var(--surface-1); font-weight: 600; }
+.news-detail-body-html hr {
+  border: none; border-top: 1px solid var(--surface-3); margin: 14px 0;
+}
+.news-detail-body-html strong, .news-detail-body-html b { color: #e5e7eb; }
 .news-image-card { padding: 0; overflow: hidden; }
 .news-image { display: block; width: 100%; height: auto; }
 .mh-row:hover { background: var(--surface-1); }
