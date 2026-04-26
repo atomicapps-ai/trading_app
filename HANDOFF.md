@@ -131,6 +131,34 @@ M  CLAUDE.md / HANDOFF.md               (this update)
 
 ## Immediate next tasks for new session (pick one)
 
+### Option A0 — Multi-source news feed ✅ SHIPPED 2026-04-25 (evening)
+Pluggable source registry under `services/news_sources/` with
+`AlpacaNewsSource`, `EdgarNewsSource`, and a brand-new `WebullNewsSource`
+that hits `https://api.webull.com/quotes/ticker/news` with the
+2026 App-Key/Secret access-token in the request header. Adding a new
+provider is now a one-file change — drop a `NewsSource` subclass into
+the package and append it to `NEWS_SOURCES` in `__init__.py`. The
+`MarketHeadlinesWidget` settings schema is now a property that pulls
+multiselect choices from the live registry, so the new source surfaces
+as a chip in the ⚙ settings panel automatically. Companion changes:
+* `services.news_service.get_news_multi_source(symbol, source_ids=, lookback_hours=)`
+  fans out to enabled sources in parallel, dedupes by
+  `(source, article_id)`, returns newest-first.
+* `NewsItem` gained optional `summary` / `image_url` / `tags` /
+  `tickers_mentioned` / `extra` fields so per-source uniqueness
+  (Webull "hot" indicator, EDGAR `form_type`) survives into the UI.
+* New `/news/{source}/{article_id}?symbol=` detail route with a
+  full template — title, source badge, sentiment breakdown, VADER
+  scores, source-specific extras, "Open original ↗" button. Headlines
+  on `/trades/{id}` and the dashboard widget link to this instead of
+  popping the source URL directly.
+* Headlines widget got a credentials-warning banner: when a source is
+  enabled but its env vars are missing, the user sees "⚠ X enabled but
+  credentials not set" so silent zero-yield doesn't look like a bug.
+* `routers/trade_detail.py` reads the user's saved `enabled_sources`
+  from widget_settings so the trade detail news card and the dashboard
+  widget honor the same on/off state.
+
 ### Option A — Senate auto-diff job ✅ SHIPPED 2026-04-25
 `services.scheduler._senate_diff_job` runs 06:00 ET Mon-Sat. Fetches
 last-30-days PTRs, diffs against `senate_filings` cache, persists new

@@ -92,7 +92,8 @@
         {% for item in news_only %}
           {% set s = item.sentiment %}
           <div class="news-item news-item-{{ s.label }}">
-            <a class="news-headline" href="{{ item.url }}" target="_blank" rel="noopener">
+            <a class="news-headline"
+               href="{{ item.detail_url }}{% if trade.symbol %}?symbol={{ trade.symbol }}{% endif %}">
               {{ item.display_headline or item.headline }}
             </a>
             <div class="news-meta">
@@ -105,6 +106,8 @@
               <span class="text-tertiary">{{ item.source }}</span>
               <span class="text-tertiary">·</span>
               <span class="text-tertiary text-sm">{{ item.published_at[:16]|replace("T", " ") }}</span>
+              <a class="text-tertiary text-sm" href="{{ item.url }}" target="_blank"
+                 rel="noopener" title="Open original at source">↗</a>
             </div>
           </div>
         {% endfor %}
@@ -120,7 +123,8 @@
       <div class="news-list">
         {% for item in filings_only %}
           <div class="news-item news-item-filing">
-            <a class="news-headline" href="{{ item.url }}" target="_blank" rel="noopener">
+            <a class="news-headline"
+               href="{{ item.detail_url }}{% if trade.symbol %}?symbol={{ trade.symbol }}{% endif %}">
               {% if item.form_type %}
                 <span class="filing-badge filing-{{ item.form_type|lower|replace('-', '') }}">{{ item.form_type }}</span>
               {% endif %}
@@ -130,6 +134,8 @@
               <span class="text-tertiary">SEC EDGAR</span>
               <span class="text-tertiary">·</span>
               <span class="text-tertiary text-sm">{{ item.published_at[:16]|replace("T", " ") }}</span>
+              <a class="text-tertiary text-sm" href="{{ item.url }}" target="_blank"
+                 rel="noopener" title="Open filing on SEC EDGAR">↗</a>
             </div>
           </div>
         {% endfor %}

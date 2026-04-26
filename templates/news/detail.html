@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}{{ item.headline[:80] }} — News — TradeAgent{% endblock %}
+{% block content %}
+
+{% set form_type = (item.extra or {}).get('form_type') %}
+
+<div class="news-detail-page">
+
+  {# ===== Top bar — title, source badge, sentiment ===== #}
+  <div class="news-detail-head">
+    <a class="text-tertiary text-sm" href="javascript:history.back()">← Back</a>
+    <h1 class="news-detail-title">
+      {% if form_type %}
+        <span class="filing-badge filing-{{ form_type|lower|replace('-', '') }}">{{ form_type }}</span>
+      {% endif %}
+      {% if item.source == 'edgar' and ': ' in item.headline %}
+        {{ item.headline.split(': ', 1)[1] }}
+      {% else %}
+        {{ item.headline }}
+      {% endif %}
+    </h1>
+
+    <div class="news-detail-meta">
+      <span class="badge badge-gray mono">{{ item.source }}</span>
+      {% if item.symbol %}
+        <a class="badge badge-blue mono" href="/trades?symbol={{ item.symbol }}">{{ item.symbol }}</a>
+      {% endif %}
+      {% if item.author %}
+        <span class="text-tertiary text-sm">· {{ item.author }}</span>
+      {% endif %}
+      <span class="text-tertiary text-sm">·
+        {{ item.published_at.strftime('%Y-%m-%d %H:%M UTC') if item.published_at.strftime else item.published_at }}
+      </span>
+      {% if sentiment %}
+        <span class="badge sentiment-{{ sentiment.label }}">{{ sentiment.label|replace('_', ' ') }}</span>
+        <span class="mono text-tertiary text-sm">{{ '%+.3f'|format(sentiment.compound) }}</span>
+      {% endif %}
+      {% if not source_enabled %}
+        <span class="badge badge-amber" title="Source disabled in widget settings">source off</span>
+      {% endif %}
+    </div>
+
+    {% if item.tags %}
+    <div class="news-detail-tags">
+      {% for t in item.tags %}
+        <span class="news-tag">#{{ t }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  {# ===== Two-column body ===== #}
+  <div class="two-col mt-16">
+
+    {# LEFT — full body / summary / image #}
+    <div>
+      {% if item.image_url %}
+      <div class="card news-image-card">
+        <img class="news-image" src="{{ item.image_url }}" alt="" loading="lazy">
+      </div>
+      {% endif %}
+
+      {% if item.summary and (not item.body or item.summary != item.body) %}
+      <div class="card mt-16">
+        <div class="card-header"><span class="card-title">Summary</span></div>
+        <div class="news-detail-body">{{ item.summary }}</div>
+      </div>
+      {% endif %}
+
+      <div class="card mt-16">
+        <div class="card-header">
+          <span class="card-title">Article</span>
+          <a class="btn btn-sm btn-primary" href="{{ item.url }}" target="_blank" rel="noopener">
+            Open original ↗
+          </a>
+        </div>
+        {% if item.body %}
+          <div class="news-detail-body">{{ item.body }}</div>
+        {% else %}
+          <div class="text-tertiary text-sm" style="padding: 12px 0;">
+            This source doesn't return full article text — open the
+            original link above to read the full piece.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {# RIGHT — metadata / extras / sentiment breakdown #}
+    <div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Metadata</span></div>
+        <table class="data-table">
+          <tbody>
+            <tr><td class="text-tertiary">Source</td>
+                <td class="mono">{{ item.source }}</td></tr>
+            <tr><td class="text-tertiary">Article ID</td>
+                <td class="mono text-sm">{{ item.article_id }}</td></tr>
+            {% if item.symbol %}
+            <tr><td class="text-tertiary">Symbol</td>
+                <td class="mono">{{ item.symbol }}</td></tr>
+            {% endif %}
+            {% if item.tickers_mentioned %}
+            <tr><td class="text-tertiary">Tickers mentioned</td>
+                <td class="mono">{{ item.tickers_mentioned|join(', ') }}</td></tr>
+            {% endif %}
+            <tr><td class="text-tertiary">Published</td>
+                <td class="mono text-sm">{{ item.published_at }}</td></tr>
+            {% if item.author %}
+            <tr><td class="text-tertiary">Author</td>
+                <td>{{ item.author }}</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if sentiment %}
+      <div class="card mt-16">
+        <div class="card-header"><span class="card-title">VADER Sentiment</span></div>
+        <table class="data-table">
+          <tbody>
+            <tr><td class="text-tertiary">Compound</td>
+                <td class="num mono {% if sentiment.compound >= 0.05 %}text-accent-green
+                                    {% elif sentiment.compound <= -0.05 %}text-accent-red{% endif %}">
+                  {{ '%+.3f'|format(sentiment.compound) }}
+                </td></tr>
+            <tr><td class="text-tertiary">Positive</td>
+                <td class="num mono">{{ '%.3f'|format(sentiment.pos) }}</td></tr>
+            <tr><td class="text-tertiary">Neutral</td>
+                <td class="num mono">{{ '%.3f'|format(sentiment.neu) }}</td></tr>
+            <tr><td class="text-tertiary">Negative</td>
+                <td class="num mono">{{ '%.3f'|format(sentiment.neg) }}</td></tr>
+            <tr><td class="text-tertiary">Label</td>
+                <td><span class="badge sentiment-{{ sentiment.label }}">{{ sentiment.label|replace('_', ' ') }}</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+
+      {% if item.extra %}
+      <div class="card mt-16">
+        <div class="card-header">
+          <span class="card-title">Source Extras</span>
+          <span class="text-tertiary text-sm">passed through from {{ item.source }}</span>
+        </div>
+        <table class="data-table">
+          <tbody>
+            {% for k, v in item.extra.items() %}
+              <tr>
+                <td class="text-tertiary">{{ k }}</td>
+                <td class="mono text-sm">{{ v|string|truncate(100) }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

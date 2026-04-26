@@ -58,67 +58,52 @@ async def trade_detail(
             logger.warning("trade_detail: probability failed for %s: %s",
                            trade.strategy_name, e)
 
-    # ── News + sentiment (Alpaca news + EDGAR filings) ──────────────────
-    # Window: 72h news + 30d filings. The 72h lookback is enough to catch
-    # most catalysts on quiet tickers; 30d filings spans a typical
-    # quarterly cadence so the user sees the latest 8-K / 10-Q / 10-K.
-    # Both sources are best-effort — failures degrade to "no news" rather
-    # than crashing the page.
+    # ── News + sentiment (multi-source aggregator) ──────────────────────
+    # Routes through the news_sources registry so all enabled providers
+    # — Alpaca, EDGAR, Webull, plus any new ones — contribute to a single
+    # ranked stream. The user's saved source toggles on the dashboard's
+    # Market Headlines widget propagate here so a trade detail page
+    # respects the same on/off state.
     news_items: list[dict] = []
     news_summary: dict = {}
     news_error: str | None = None
     NEWS_LOOKBACK_HOURS = 72
-    FILING_LOOKBACK_DAYS = 30
     MAX_NEWS_RENDERED = 30
 
-    items = []
-    fetch_errors: list[str] = []
+    from services.news_sources import default_enabled_source_ids
+    from services import widget_settings as ws
+    saved_sources = await ws.get_with_default(
+        "default", "market_headlines", "enabled_sources",
+        default_enabled_source_ids(),
+    )
+
     try:
-        items = await news_service.get_news(
-            trade.symbol, lookback_hours=NEWS_LOOKBACK_HOURS,
+        items = await news_service.get_news_multi_source(
+            trade.symbol,
+            source_ids=list(saved_sources) if saved_sources else None,
+            lookback_hours=NEWS_LOOKBACK_HOURS,
         )
     except Exception as e:                                    # noqa: BLE001
-        fetch_errors.append(f"news: {e}")
+        items = []
+        news_error = f"News fetch failed: {e}"
         logger.warning("trade_detail: news fetch failed for %s: %s",
                        trade.symbol, e)
 
-    filings = []
-    try:
-        filings = await news_service.get_filings(
-            trade.symbol, lookback_days=FILING_LOOKBACK_DAYS,
-        )
-    except Exception as e:                                    # noqa: BLE001
-        fetch_errors.append(f"filings: {e}")
-        logger.warning("trade_detail: filings fetch failed for %s: %s",
-                       trade.symbol, e)
-
-    # Normalize EDGAR filings into the NewsItem shape so the partial
-    # renders one unified list with consistent metadata.
-    for f in filings:
-        try:
-            items.append(news_service.NewsItem(
-                source="edgar",
-                symbol=trade.symbol.upper(),
-                headline=f"{f.form_type}: {f.title}",
-                body=None,
-                published_at=f.filed_at,
-                url=f.url,
-                article_id=f.accession_no,
-                author="SEC EDGAR",
-            ))
-        except Exception as e:                                # noqa: BLE001
-            logger.warning("trade_detail: filing→news coerce failed: %s", e)
-
     if items:
-        # Newest-first display; cap so a busy ticker doesn't dominate
-        # the page. Aggregate stats run over the visible cap so the
-        # "n articles" badge matches what the user sees.
-        items.sort(key=lambda n: n.published_at, reverse=True)
+        # Cap so a busy ticker doesn't dominate the page. Aggregate
+        # stats run over the visible cap so the "n articles" badge
+        # matches what the user sees.
         items = items[:MAX_NEWS_RENDERED]
         scored = sentiment_service.score_items(items)
-        news_items = []
         for src_item, sc in zip(items, scored):
             d = sc.to_dict()
+            d["article_id"] = src_item.article_id
+            d["summary"] = src_item.summary
+            d["image_url"] = src_item.image_url
+            d["tags"] = src_item.tags or []
+            d["detail_url"] = (
+                f"/news/{src_item.source}/{src_item.article_id}"
+            )
             # Pull structured form_type out of the EDGAR headline so the
             # partial can render a colored badge (8-K / 10-Q / 10-K / S-1 etc.)
             # instead of the raw "FORM: title" prefix in the body text.
@@ -127,13 +112,13 @@ async def trade_detail(
                 d["form_type"] = form_type.strip()
                 d["display_headline"] = rest.strip() or src_item.headline
             else:
-                d["form_type"] = None
+                d["form_type"] = (
+                    src_item.extra.get("form_type")
+                    if src_item.extra else None
+                )
                 d["display_headline"] = src_item.headline
             news_items.append(d)
         news_summary = sentiment_service.summarize(items).to_dict()
-
-    if fetch_errors and not news_items:
-        news_error = " · ".join(fetch_errors)
 
     return templates.TemplateResponse(
         request=request,

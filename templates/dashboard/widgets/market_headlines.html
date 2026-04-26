@@ -1,17 +1,31 @@
-{# Market Headlines — combined Alpaca news + EDGAR filings stream across a
-   user-configurable watchlist. Each row: symbol badge · headline · source ·
-   sentiment compound · timestamp. Sorted newest-first.
-   Expects context: rows, summary, watchlist, include_filings. #}
+{# Market Headlines — multi-source news stream across a user-configurable
+   watchlist. Each row: symbol · headline · form-type badge (filings) ·
+   tag chips (Webull "hot" etc.) · source · sentiment · timestamp ·
+   open-original. Click anywhere on the row → in-app detail page; the ↗
+   button opens the original at the source.
+   Expects: rows, summary, watchlist, enabled_sources, source_states,
+            lookback_hours. #}
 <div class="mh-wrap">
+
+  {% if source_states %}
+    {% set creds_missing = source_states | selectattr('enabled') | rejectattr('creds_ok') | list %}
+    {% if creds_missing %}
+      <div class="mh-creds-warning">
+        ⚠
+        {% for s in creds_missing %}{{ s.label }}{% if not loop.last %}, {% endif %}{% endfor %}
+        enabled but credentials not set — that source contributes 0 items.
+        Edit <span class="mono">.env</span> or turn them off in ⚙ settings.
+      </div>
+    {% endif %}
+  {% endif %}
+
   {% if not rows %}
     <div class="text-secondary text-sm" style="padding: 12px 0;">
-      No news in the last 24h for
+      No news in the last {{ lookback_hours }}h for
       <span class="mono">{{ watchlist|join(', ') }}</span>.
-      {% if include_filings %}
-        <br><span class="text-tertiary">EDGAR filings (last 14d) included — none found either.</span>
-      {% else %}
-        <br><span class="text-tertiary">EDGAR filings disabled (toggle in settings).</span>
-      {% endif %}
+      <br><span class="text-tertiary">Enabled sources:
+        {% for sid in enabled_sources %}<span class="mono">{{ sid }}</span>{% if not loop.last %}, {% endif %}{% endfor %}
+      </span>
     </div>
   {% else %}
     {% if summary and summary.n %}
@@ -33,10 +47,20 @@
     <div class="mh-list">
       {% for r in rows %}
         {% set s = r.sentiment %}
-        <a class="mh-row {% if s.compound >= 0.05 %}mh-row-pos{% elif s.compound <= -0.05 %}mh-row-neg{% endif %}"
-           href="{{ r.url }}" target="_blank" rel="noopener">
+        <div class="mh-row {% if s.compound >= 0.05 %}mh-row-pos{% elif s.compound <= -0.05 %}mh-row-neg{% endif %}">
           <span class="mh-symbol mono">{{ r.symbol }}</span>
-          <span class="mh-headline">{{ r.headline }}</span>
+          <a class="mh-headline-link"
+             href="{{ r.detail_url }}?symbol={{ r.symbol }}">
+            {% if r.form_type %}
+              <span class="filing-badge filing-{{ r.form_type|lower|replace('-', '') }}">{{ r.form_type }}</span>
+            {% endif %}
+            <span class="mh-headline">{{ r.headline }}</span>
+            {% if r.tags %}
+              {% for t in r.tags[:2] %}
+                <span class="news-tag-inline">#{{ t }}</span>
+              {% endfor %}
+            {% endif %}
+          </a>
           <span class="mh-meta">
             <span class="mono {% if s.compound >= 0.05 %}text-accent-green
                               {% elif s.compound <= -0.05 %}text-accent-red
@@ -47,8 +71,10 @@
             <span class="text-tertiary text-sm">{{ r.source }}</span>
             <span class="text-tertiary">·</span>
             <span class="text-tertiary text-sm">{{ r.published_at[:16]|replace('T', ' ') }}</span>
+            <a class="text-tertiary" href="{{ r.url }}" target="_blank"
+               rel="noopener" title="Open original at {{ r.source }}">↗</a>
           </span>
-        </a>
+        </div>
       {% endfor %}
     </div>
   {% endif %}

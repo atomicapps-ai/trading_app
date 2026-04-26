@@ -93,18 +93,34 @@ DEFAULT_FILING_FORMS: tuple[str, ...] = ("8-K", "10-Q", "10-K")
 
 
 class NewsItem(BaseModel):
-    """One normalized news article, cache- and backtest-friendly."""
+    """One normalized news article, cache- and backtest-friendly.
+
+    The Literal source field was dropped 2026-04-25 when the source
+    registry landed — sources are now plug-in modules so we can add new
+    providers (Webull, Finnhub, Benzinga, etc.) without touching this
+    model. Existing JSONL caches stay readable; the field accepts any
+    short string.
+    """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    source: Literal["alpaca", "edgar"]
+    source: str               # registry id: "alpaca", "edgar", "webull", ...
     symbol: str
     headline: str
     body: str | None = None
-    published_at: datetime  # UTC-aware
+    published_at: datetime    # UTC-aware
     url: str
-    article_id: str  # source-specific unique id (Alpaca item id, EDGAR accession_no)
+    article_id: str           # source-specific unique id
     author: str | None = None
+
+    # ── Optional fields populated when the source provides them ──────────
+    # The detail view renders whichever are present; rendering code is
+    # tolerant of None across the board.
+    summary: str | None = None
+    image_url: str | None = None
+    tags: list[str] = []
+    tickers_mentioned: list[str] = []
+    extra: dict = {}          # source-specific signals (e.g. Webull "hot")
 
 
 class Filing(BaseModel):
@@ -531,6 +547,64 @@ async def get_news(
         out.append(it)
 
     out.sort(key=lambda n: n.published_at)
+    return out
+
+
+# Alias retained so the Alpaca source-class can call this function by a
+# name that makes its single-source semantics explicit. ``get_news`` keeps
+# its existing back-compat signature for callers that just want news.
+get_news_alpaca_only = get_news
+
+
+async def get_news_multi_source(
+    symbol: str,
+    *,
+    source_ids: list[str] | None = None,
+    lookback_hours: int = DEFAULT_NEWS_LOOKBACK_HOURS,
+) -> list["NewsItem"]:
+    """Aggregate news across multiple sources for a single symbol.
+
+    ``source_ids`` filters the registry — pass None to use every source's
+    ``enabled_by_default`` flag (the user's saved settings on the
+    dashboard widget supersede this default). Per-source errors are
+    swallowed so one flaky provider can't take down the whole feed.
+
+    Output is deduplicated by ``(source, article_id)`` and sorted
+    newest-first — matches what UI surfaces (trade detail, headlines
+    widget) want to render directly.
+    """
+    # Local import — the registry module imports back into news_service
+    # for NewsItem, so module-level import here would cycle.
+    from services.news_sources import NEWS_SOURCES, default_enabled_source_ids
+
+    if source_ids is None:
+        source_ids = default_enabled_source_ids()
+    enabled = set(source_ids)
+    sources = [s for s in NEWS_SOURCES if s.id in enabled]
+    if not sources:
+        return []
+
+    async def _one(src) -> list[NewsItem]:
+        try:
+            return await src.fetch(symbol, lookback_hours=lookback_hours)
+        except Exception as e:                                # noqa: BLE001
+            log.warning("news source %s failed for %s: %s", src.id, symbol, e)
+            return []
+
+    batches = await asyncio.gather(*(_one(s) for s in sources))
+
+    # Dedupe across sources — same article from two providers (rare
+    # but possible when sources cross-publish) collapses to the first hit.
+    seen: set[tuple[str, str]] = set()
+    out: list[NewsItem] = []
+    for batch in batches:
+        for it in batch:
+            key = (it.source, it.article_id)
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(it)
+    out.sort(key=lambda n: n.published_at, reverse=True)
     return out
 
 

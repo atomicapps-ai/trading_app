@@ -585,96 +585,118 @@ class MarketHeadlinesWidget(Widget):
     refresh_seconds = 600   # 10 min
 
     user_configurable = True
-    settings_schema = {
-        "watchlist": {
-            "type": "text",
-            "label": "Watchlist (comma-separated)",
-            "default": ",".join(_HEADLINES_DEFAULT_WATCHLIST),
-            "help": "Symbols to pull news for. Up to ~12 keeps latency reasonable.",
-        },
-        "include_filings": {
-            "type": "bool",
-            "label": "Include EDGAR filings",
-            "default": True,
-            "help": "Adds 8-K / 10-Q / 10-K filings from the last 14 days.",
-        },
-        "max_items": {
-            "type": "int",
-            "label": "Max items rendered",
-            "default": 25,
-            "min": 5, "max": 100, "step": 5,
-        },
-    }
+
+    # ``settings_schema`` is a property so the source-multiselect choices
+    # come from the live news_sources registry — adding a new provider
+    # adds a new chip here without touching this dict. (Pulling the
+    # registry at class-definition time would create an import cycle:
+    # news_sources/__init__ pulls NewsItem out of news_service, which
+    # in turn imports widgets at registry-load time.)
+    @property
+    def settings_schema(self) -> dict[str, dict[str, Any]]:    # type: ignore[override]
+        from services.news_sources import (
+            default_enabled_source_ids,
+            source_choices,
+        )
+        return {
+            "watchlist": {
+                "type": "text",
+                "label": "Watchlist (comma-separated)",
+                "default": ",".join(_HEADLINES_DEFAULT_WATCHLIST),
+                "help": "Symbols to pull news for. Up to ~12 keeps latency reasonable.",
+            },
+            "enabled_sources": {
+                "type": "multiselect",
+                "label": "News sources",
+                "default": default_enabled_source_ids(),
+                "choices": source_choices(),
+                "help": "Toggle providers on/off. Adding a new source "
+                        "in services/news_sources/ adds a new chip here.",
+            },
+            "lookback_hours": {
+                "type": "int",
+                "label": "Lookback (hours)",
+                "default": 24,
+                "min": 1, "max": 168, "step": 1,
+                "help": "Per-source window. EDGAR floors this at 14d "
+                        "internally so quarterly filings still surface.",
+            },
+            "max_items": {
+                "type": "int",
+                "label": "Max items rendered",
+                "default": 25,
+                "min": 5, "max": 100, "step": 5,
+            },
+        }
 
     async def get_data(self) -> dict[str, Any]:
-        from services import news_service, sentiment_service  # local import
+        from services import news_service, sentiment_service  # local imports
+        from services.news_sources import (
+            NEWS_SOURCES, default_enabled_source_ids,
+        )
 
         cfg = await self.resolve_settings()
         raw = str(cfg.get("watchlist", "") or "")
         symbols = [s.strip().upper() for s in raw.split(",") if s.strip()]
         if not symbols:
             symbols = _HEADLINES_DEFAULT_WATCHLIST
-        include_filings = bool(cfg.get("include_filings", True))
+        enabled_sources = (
+            list(cfg.get("enabled_sources") or default_enabled_source_ids())
+        )
+        lookback_hours = int(cfg.get("lookback_hours", 24))
         max_items = int(cfg.get("max_items", 25))
 
-        async def _news(sym: str) -> list:
+        async def _per_symbol(sym: str) -> list:
             try:
-                return await news_service.get_news(sym, lookback_hours=24)
+                return await news_service.get_news_multi_source(
+                    sym,
+                    source_ids=enabled_sources,
+                    lookback_hours=lookback_hours,
+                )
             except Exception as e:                            # noqa: BLE001
-                logger.warning("market_headlines news %s: %s", sym, e)
+                logger.warning("market_headlines %s: %s", sym, e)
                 return []
 
-        async def _filings(sym: str) -> list:
-            if not include_filings:
-                return []
-            try:
-                fs = await news_service.get_filings(sym, lookback_days=14)
-                # Coerce filings into NewsItem-shaped objects so the
-                # partial renders one unified stream.
-                return [
-                    news_service.NewsItem(
-                        source="edgar", symbol=sym,
-                        headline=f"{f.form_type}: {f.title}",
-                        body=None, published_at=f.filed_at, url=f.url,
-                        article_id=f.accession_no, author="SEC EDGAR",
-                    )
-                    for f in fs
-                ]
-            except Exception as e:                            # noqa: BLE001
-                logger.warning("market_headlines filings %s: %s", sym, e)
-                return []
-
-        # Run all fetches in parallel. asyncio.gather preserves order so
-        # we know which results came from which symbol if we ever want
-        # per-symbol grouping later.
-        news_lists, filing_lists = await asyncio.gather(
-            asyncio.gather(*(_news(s) for s in symbols)),
-            asyncio.gather(*(_filings(s) for s in symbols)),
-        )
+        per_symbol = await asyncio.gather(*(_per_symbol(s) for s in symbols))
         items: list = []
-        for lst in news_lists:
-            items.extend(lst)
-        for lst in filing_lists:
+        for lst in per_symbol:
             items.extend(lst)
 
+        # Already newest-first per get_news_multi_source, but a second
+        # sort across the merged set is cheap and removes any cross-symbol
+        # ordering surprises.
         items.sort(key=lambda n: n.published_at, reverse=True)
         items = items[:max_items]
         scored = sentiment_service.score_items(items)
 
-        # Decorate scored dicts with the symbol so the widget can show
-        # per-headline ticker badges.
         rows: list[dict[str, Any]] = []
         for item, sc in zip(items, scored):
             d = sc.to_dict()
-            d["symbol"] = item.symbol
+            d["symbol"]     = item.symbol
+            d["summary"]    = item.summary
+            d["image_url"]  = item.image_url
+            d["tags"]       = item.tags or []
+            d["detail_url"] = f"/news/{item.source}/{item.article_id}"
+            d["form_type"]  = (
+                item.extra.get("form_type") if item.extra else None
+            )
             rows.append(d)
 
         summary = sentiment_service.summarize(items).to_dict() if items else {}
+        # Source descriptors for the empty-state hint and credential warnings
+        source_states = [
+            {"id": s.id, "label": s.label,
+             "enabled": s.id in set(enabled_sources),
+             "creds_ok": s.credentials_present()}
+            for s in NEWS_SOURCES
+        ]
         return {
             "rows": rows,
             "summary": summary,
             "watchlist": symbols,
-            "include_filings": include_filings,
+            "enabled_sources": enabled_sources,
+            "source_states": source_states,
+            "lookback_hours": lookback_hours,
         }
 
 

@@ -24,6 +24,7 @@ from routers import (
     copy_trading,
     dashboard,
     indicators,
+    news_detail,
     pending,
     settings as settings_router,
     stock_lists,
@@ -125,6 +126,7 @@ app.include_router(pending.router)
 app.include_router(trades.router)
 app.include_router(analysis.router)
 app.include_router(trade_detail.router)
+app.include_router(news_detail.router)
 app.include_router(settings_router.router)
 app.include_router(broker.router)
 app.include_router(workflows.router)

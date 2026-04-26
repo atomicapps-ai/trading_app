@@ -14,14 +14,19 @@ persistent rankings cache, Universe → Stock Lists submenu (10 default
 lists), sidebar accordion. **Verified perf: Pelosi 61.1% win / +0.86%
 alpha; Boozman 64.1% win / +2.35% alpha** (yfinance-based, since the
 hosted /performance endpoint is broken upstream).
+**Multi-source news feed:** Pluggable provider registry at
+`services/news_sources/` with Alpaca + EDGAR + Webull. Settings panel
+exposes per-widget source toggles; `NewsItem` carries optional
+`summary` / `image_url` / `tags` / `extra` so per-source signals
+(Webull "hot" indicator, EDGAR `form_type`) reach the UI.
+`/news/{source}/{article_id}` detail route renders title, source
+badge, sentiment breakdown, source extras, with "Open original ↗".
 **Next chat options:** (a) **Phase 5 multi-year backtest engine** —
 multi-year Alpaca 30-min replay validating DL's 82.4% WR; (b)
 **persistent APScheduler job store** so `close_at_time` survives app
 restarts; (c) **dashboard widget for senate new-filings count** —
-surface the same `senate_new_filings_count` on the home dashboard so
-the user sees it without navigating to /copy-insiders/rankings.
-(Senate auto-diff job and news feed polish shipped 2026-04-25 — see
-HANDOFF.md for details.)
+surface `senate_new_filings_count` on the home dashboard so the user
+sees it without navigating to /copy-insiders/rankings.
 **Roadmap (current):**
 - Phase 4 ✅ all sub-items
 - DL-Filtered intraday strategy ✅ (detector + workflow + smoke + integration + 15:00 ET close)
