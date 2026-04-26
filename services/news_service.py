@@ -284,8 +284,14 @@ def _fetch_alpaca_sync(
 
     from alpaca.data.requests import NewsRequest  # type: ignore
 
+    # alpaca-py's NewsRequest.symbols changed contract — recent versions
+    # expect a comma-separated string (single symbol = bare string), older
+    # versions accepted a list. We pass a string which both modern versions
+    # validate and which matches the API's `?symbols=AAPL,TSLA` query param
+    # exactly. (Pre-fix this raised a Pydantic ValidationError silently
+    # caught by the broad except below — Alpaca news always returned [].)
     req = NewsRequest(
-        symbols=[symbol.upper()],
+        symbols=symbol.upper(),
         start=start,
         end=end,
         include_content=True,
@@ -298,16 +304,25 @@ def _fetch_alpaca_sync(
                     symbol, start, end, e)
         return []
 
-    # The SDK returns a NewsSet-like object with a `.news` list, OR a
-    # dict-shaped response keyed by symbol. Handle both defensively.
+    # alpaca-py response shapes seen in the wild:
+    #   * NewsSet wrapper with .data = {"news": [News, ...]}   (current 0.43+)
+    #   * NewsSet wrapper with .news attribute on the wrapper  (legacy)
+    #   * NewsSet wrapper with .data = {"AAPL": [News, ...]}   (very old)
+    #   * Bare dict / list                                     (test mocks)
+    # Cover all four — falling through silently was returning 0 items
+    # forever once the 0.43 SDK shipped the `{"news": [...]}` shape.
     raw_items: Iterable = ()
-    if hasattr(resp, "news"):
+    if hasattr(resp, "data") and isinstance(resp.data, dict):  # type: ignore[attr-defined]
+        d = resp.data                                          # type: ignore[attr-defined]
+        # Current SDK keys the list under "news" regardless of symbol —
+        # try that first, then fall back to symbol-keyed dicts.
+        raw_items = d.get("news", []) or d.get(symbol.upper(), [])
+    elif hasattr(resp, "news"):
         raw_items = resp.news  # type: ignore[attr-defined]
-    elif hasattr(resp, "data"):
-        d = resp.data  # type: ignore[attr-defined]
-        raw_items = d.get(symbol.upper(), []) if isinstance(d, dict) else d
+    elif hasattr(resp, "data") and isinstance(resp.data, list):  # type: ignore[attr-defined]
+        raw_items = resp.data                                    # type: ignore[attr-defined]
     elif isinstance(resp, dict):
-        raw_items = resp.get(symbol.upper(), [])
+        raw_items = resp.get("news", []) or resp.get(symbol.upper(), [])
 
     out: list[NewsItem] = []
     for raw in raw_items:
@@ -525,12 +540,20 @@ async def get_news(
             await asyncio.sleep(_ALPACA_NEWS_DELAY_SECONDS)
 
         # Bucket by date; persist every bucket *except* today (partial day).
+        # Skip empty buckets entirely — writing them creates poison cache
+        # files that get trusted on the next call as "this day has no
+        # news". A genuinely quiet day will simply re-fetch next run
+        # (one extra API call) which is far better than the alternative
+        # of silently returning [] forever after a transient SDK error.
         buckets = _bucket_by_date(fetched)
         for d in missing_dates:
             if d == today:
                 continue
+            day_items = buckets.get(d, [])
+            if not day_items:
+                continue
             await asyncio.to_thread(
-                _write_news_cache_sync, symbol, d, buckets.get(d, [])
+                _write_news_cache_sync, symbol, d, day_items
             )
 
     combined = cached + fetched

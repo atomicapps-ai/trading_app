@@ -306,6 +306,10 @@
     wsCurrentWidgetId = widgetId;
     wsCard.innerHTML = '<div class="empty">Loading…</div>';
     wsModal.hidden = false;
+    // Avoid stacking duplicate listeners across repeated openings —
+    // removeEventListener with the same fn reference is a no-op when
+    // none is bound.
+    wsCard.removeEventListener('click', wsHandleChipClick);
     try {
       const r = await fetch(`/api/dashboard/widgets/${widgetId}/settings`);
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -334,17 +338,27 @@
     form.querySelectorAll('.ws-field').forEach(field => {
       const key  = field.dataset.key;
       const kind = field.dataset.kind;
+      // Skip synthetic / read-only fields not part of the widget's
+      // settings_schema. Size cycle posts via /api/dashboard/layout in
+      // its own click handler; readonly meta is just display.
+      if (!key || key.startsWith('__')) return;
+      if (kind === 'size_cycle' || kind === 'readonly') return;
+
       if (kind === 'indicator_multiselect' || kind === 'multiselect') {
         out[key] = [...field.querySelectorAll('.ws-chip-on')]
                      .map(c => c.dataset.value);
-      } else if (kind === 'number' || kind === 'int') {
-        const v = field.querySelector('input').value;
-        out[key] = (kind === 'int') ? parseInt(v, 10) : parseFloat(v);
-      } else if (kind === 'bool') {
-        out[key] = field.querySelector('input[type=checkbox]').checked;
-      } else {
-        out[key] = field.querySelector('input').value;
+        return;
       }
+      // Defensive querySelector — if the partial drops an input for a
+      // future field type, skip it instead of crashing the whole save.
+      const inp = (kind === 'bool')
+        ? field.querySelector('input[type=checkbox]')
+        : field.querySelector('input');
+      if (!inp) return;
+      if (kind === 'number')   { out[key] = parseFloat(inp.value); return; }
+      if (kind === 'int')      { out[key] = parseInt(inp.value, 10); return; }
+      if (kind === 'bool')     { out[key] = inp.checked; return; }
+      out[key] = inp.value;
     });
     return out;
   }
@@ -353,7 +367,14 @@
     if (!wsCurrentWidgetId) return;
     const form = document.getElementById('widget-settings-form');
     if (!form) return;
-    const payload = wsSerialize(form);
+    let payload;
+    try {
+      payload = wsSerialize(form);
+    } catch (e) {
+      alert('Failed to serialize settings form: ' + e.message);
+      console.error(e);
+      return;
+    }
     try {
       const r = await fetch(
         `/api/dashboard/widgets/${wsCurrentWidgetId}/settings`,
