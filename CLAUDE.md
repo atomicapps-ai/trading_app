@@ -21,12 +21,17 @@ exposes per-widget source toggles; `NewsItem` carries optional
 (Webull "hot" indicator, EDGAR `form_type`) reach the UI.
 `/news/{source}/{article_id}` detail route renders title, source
 badge, sentiment breakdown, source extras, with "Open original ↗".
-**Next chat options:** (a) **Phase 5 multi-year backtest engine** —
-multi-year Alpaca 30-min replay validating DL's 82.4% WR; (b)
-**persistent APScheduler job store** so `close_at_time` survives app
-restarts; (c) **dashboard widget for senate new-filings count** —
-surface `senate_new_filings_count` on the home dashboard so the user
-sees it without navigating to /copy-insiders/rankings.
+**DL alerting service:** Lock 1 scout job at 10:00 ET + armed-alert
+hook on 10:30 fire writing to `dl_alerts` SQLite. Dashboard banner
+polls `/api/alerts/banner` every 30s. Run-now endpoints
+(`/api/alerts/run-{lock1,dl}-now`) and synthetic injector
+(`/api/alerts/test`) for verification without waiting for cron.
+Cron overridable via `DL_LOCK1_CRON` env var.
+**Next chat options:** (a) **Plan B — terminology research** (Investopedia/
+TradingView definitions of strategy/screener/signal/setup) and the
+sidebar restructure that follows; (b) **entry-fill alert** — broker
+order-poll loop to fire `filled` alerts when the DL limit hits;
+(c) **ntfy push** for phone alerts; (d) **Phase 5 backtest engine**.
 **Roadmap (current):**
 - Phase 4 ✅ all sub-items
 - DL-Filtered intraday strategy ✅ (detector + workflow + smoke + integration + 15:00 ET close)

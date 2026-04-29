@@ -164,6 +164,42 @@ async def run_workflow_by_id(
         )
         approved += 1
 
+        # ── ARMED alert ─────────────────────────────────────────────
+        # The plan cleared compliance + risk and is awaiting human ack.
+        # Fire a dashboard banner notification so the operator doesn't
+        # miss the 10:30 fire while looking at another tab.
+        try:
+            from services import alert_service
+            entry_dict = (plan_dict.get("setup") or {}).get("entry") or {}
+            entry_price = entry_dict.get("price")
+            await alert_service.record_alert(
+                kind="armed",
+                strategy=strategy,
+                symbol=symbol,
+                direction=plan.setup.direction,
+                plan_id=plan.plan_id,
+                title=(
+                    f"{symbol} {plan.setup.direction.upper()} — "
+                    f"{strategy} ARMED"
+                ),
+                body=(
+                    f"Entry @ {entry_price} · "
+                    f"conviction {plan.thesis.get('conviction', 0):.0%} · "
+                    f"awaiting approval"
+                ),
+                payload={
+                    "entry_price": entry_price,
+                    "valid_until": entry_dict.get("valid_until"),
+                    "risk_usd": (plan_dict.get("risk") or {}).get(
+                        "position_risk_usd"),
+                    "shares": (plan_dict.get("risk") or {}).get(
+                        "position_size_shares"),
+                    "ts_created": plan.ts_created,
+                },
+            )
+        except Exception as e:                                    # noqa: BLE001
+            logger.warning("armed-alert recording failed: %s", e)
+
     await db_service.record_pipeline_run(
         run_id=run_result.run_id,
         workflow_id=run_result.workflow_id,

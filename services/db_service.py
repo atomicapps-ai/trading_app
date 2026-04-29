@@ -274,12 +274,33 @@ _SCHEMA = [
         perf_computed_at TEXT
     )
     """,
+    # Strategy alerts — every detection event the strategy emits.
+    # Distinct from pending_approvals (which is the trade plan itself);
+    # this is the notification stream surfaced as banners on the
+    # dashboard. One row per event, never mutated post-write.
+    """
+    CREATE TABLE IF NOT EXISTS dl_alerts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ts TEXT NOT NULL,
+        kind TEXT NOT NULL,             -- lock1_scouted | armed | filled | closed | test
+        strategy TEXT NOT NULL,         -- "double_lock"
+        symbol TEXT,
+        direction TEXT,                 -- long | short | NULL
+        plan_id TEXT,                   -- pending_approvals.plan_id when applicable
+        title TEXT NOT NULL,            -- short headline shown in the banner
+        body TEXT,                      -- expanded detail (multi-line ok)
+        payload_json TEXT,              -- arbitrary structured detail
+        acknowledged_at TEXT
+    )
+    """,
     # Indexes for the queries we run often
     "CREATE INDEX IF NOT EXISTS idx_pending_status ON pending_approvals(status, ts_created DESC)",
     "CREATE INDEX IF NOT EXISTS idx_pending_symbol ON pending_approvals(symbol)",
     "CREATE INDEX IF NOT EXISTS idx_pipeline_ts ON pipeline_runs(ts_start DESC)",
     "CREATE INDEX IF NOT EXISTS idx_memory_symbol ON trade_memory(symbol, ts_entered DESC)",
     "CREATE INDEX IF NOT EXISTS idx_widget_settings_lookup ON user_widget_settings(user_id, widget_id)",
+    "CREATE INDEX IF NOT EXISTS idx_dl_alerts_ts ON dl_alerts(ts DESC)",
+    "CREATE INDEX IF NOT EXISTS idx_dl_alerts_unack ON dl_alerts(acknowledged_at, ts DESC)",
 ]
 
 

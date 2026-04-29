@@ -18,6 +18,7 @@ from fastapi import Depends, FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from routers import (
+    alerts,
     analysis,
     bars,
     broker,
@@ -122,6 +123,7 @@ ensure_directories()
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 app.include_router(dashboard.router)
+app.include_router(alerts.router)
 app.include_router(pending.router)
 app.include_router(trades.router)
 app.include_router(analysis.router)

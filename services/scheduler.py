@@ -55,6 +55,7 @@ def start_scheduler() -> None:
     _register_copy_trading_jobs(sched)
     _register_senate_diff_job(sched)
     _register_workflow_jobs(sched)
+    _register_dl_lock1_scout(sched)
 
     sched.start()
     logger.info("Scheduler started — %d jobs registered", len(sched.get_jobs()))
@@ -410,3 +411,156 @@ async def _run_workflow_job(workflow_id: str) -> None:
         logger.info("Workflow %s complete: %s", workflow_id, result.get("status"))
     except Exception as exc:
         logger.exception("Workflow %s failed: %s", workflow_id, exc)
+
+
+# --------------------------------------------------------------------------- #
+# Job: DL Lock 1 scout — 10:00 ET early-warning before the 10:30 fire
+# --------------------------------------------------------------------------- #
+
+
+# Cron expression is read from this constant so a small env-var override
+# can shift it for testing without a YAML edit. Default: 10:00 ET Mon-Fri.
+import os
+_DL_LOCK1_CRON = os.environ.get("DL_LOCK1_CRON", "0 10 * * 1-5")
+
+
+def _register_dl_lock1_scout(sched: AsyncIOScheduler) -> None:
+    sched.add_job(
+        _dl_lock1_scout_job,
+        CronTrigger.from_crontab(_DL_LOCK1_CRON, timezone="America/New_York"),
+        id="dl_lock1_scout",
+        name="DL Lock 1 Scout (10:00 ET)",
+        replace_existing=True,
+        misfire_grace_time=600,
+    )
+    logger.info("Registered DL Lock 1 Scout: %s", _DL_LOCK1_CRON)
+
+
+async def _dl_lock1_scout_job() -> None:
+    """Evaluate candle 1 + regime filter for every symbol the DL workflow
+    will scan at 10:30. Each pass writes one ``lock1_scouted`` alert.
+
+    Reads the same screener / strategy config the 10:30 workflow uses
+    so the scout never disagrees with the live fire — anything flagged
+    here is a candidate the full detector will accept iff candle 2
+    confirms direction.
+    """
+    import asyncio as _asyncio
+    import yaml as _yaml
+    import pandas as _pd
+
+    from services import alert_service, data_service
+    from services.settings_service import STRATEGY_CONFIG_DIR, PROJECT_ROOT
+    from services.universe_service import get_preset_db
+    from agents.lock1_scout import evaluate_lock1
+    from services.indicator_service import add_indicators
+
+    logger.info("DL Lock 1 Scout: starting")
+
+    # Load strategy config — same yaml the 10:30 workflow reads.
+    cfg_path = STRATEGY_CONFIG_DIR / "double_lock.yaml"
+    try:
+        cfg = _yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
+    except Exception as e:                                    # noqa: BLE001
+        logger.error("DL Lock 1 Scout: bad config %s: %s", cfg_path, e)
+        return
+
+    # Symbols come from the active universe preset configured in the
+    # workflow YAML — keep them in lockstep so the scout sees the same
+    # list the 10:30 workflow will scan.
+    workflow_path = PROJECT_ROOT / "workflows" / "double_lock_1030.yaml"
+    try:
+        wf = _yaml.safe_load(workflow_path.read_text(encoding="utf-8")) or {}
+        preset = None
+        for step in wf.get("steps", []):
+            if step.get("kind") == "filter_universe":
+                preset = (step.get("params") or {}).get("preset")
+                break
+        if not preset:
+            preset = "liquid_momentum_core"
+    except Exception:                                          # noqa: BLE001
+        preset = "liquid_momentum_core"
+
+    try:
+        preset_row = await get_preset_db(preset)
+        symbols = (preset_row or {}).get("tickers") or []
+    except Exception as e:                                    # noqa: BLE001
+        logger.warning("DL Lock 1 Scout: cant load preset %s: %s", preset, e)
+        symbols = []
+    if not symbols:
+        # Fallback: a small bellwether list so the scout still runs in
+        # smoke-testing setups without the full screener seeded.
+        symbols = [
+            "SPY", "QQQ", "AAPL", "NVDA", "MSFT",
+            "TSLA", "AMZN", "META", "GOOGL", "AVGO",
+        ]
+        logger.info(
+            "DL Lock 1 Scout: preset empty, using bellwether fallback (%d syms)",
+            len(symbols),
+        )
+
+    # VIX previous close — same indicator service the full detector uses.
+    try:
+        vix_daily = await data_service.get_bars(
+            "^VIX", "1d", min_bars=2, download_if_missing=False,
+        )
+        vix_prev_close = (
+            float(vix_daily["close"].iloc[-2])
+            if len(vix_daily) >= 2 else None
+        )
+    except Exception as e:                                    # noqa: BLE001
+        logger.warning("DL Lock 1 Scout: VIX prev close unavailable: %s", e)
+        vix_prev_close = None
+
+    now_et = _pd.Timestamp.now(tz="America/New_York")
+    candidates = 0
+
+    async def _scan_one(sym: str) -> None:
+        nonlocal candidates
+        try:
+            bars = await data_service.get_bars(sym, "30m", min_bars=2)
+            daily = await data_service.get_bars(
+                sym, "1d", min_bars=20, download_if_missing=False,
+            )
+            daily = add_indicators(daily)
+            cand = evaluate_lock1(
+                symbol=sym, bars_30m=bars, daily=daily,
+                vix_prev_close=vix_prev_close,
+                config=cfg, as_of_ts=now_et,
+            )
+        except Exception as e:                                # noqa: BLE001
+            logger.debug("scout: %s skipped: %s", sym, e)
+            return
+        if cand is None:
+            return
+        candidates += 1
+        await alert_service.record_alert(
+            kind="lock1_scouted",
+            strategy="double_lock",
+            symbol=sym,
+            direction=cand.direction,
+            title=f"{sym} {cand.direction.upper()} — Lock 1 set, watch 10:30",
+            body=(
+                f"c1 close ${cand.candle_close} · "
+                f"body {int(cand.candle_body_pct * 100)}% · "
+                f"vol {cand.volume_ratio:.1f}x · "
+                f"VIX {cand.vix_prev_close} · ADX {cand.adx_d} · "
+                f"RSI {cand.rsi_d}"
+            ),
+            payload={
+                "candle_close": cand.candle_close,
+                "body_pct": cand.candle_body_pct,
+                "close_pct": cand.candle_close_pct,
+                "volume_ratio": cand.volume_ratio,
+                "vix_prev_close": cand.vix_prev_close,
+                "adx_d": cand.adx_d,
+                "rsi_d": cand.rsi_d,
+            },
+        )
+
+    await _asyncio.gather(*(_scan_one(s) for s in symbols),
+                          return_exceptions=False)
+    logger.info(
+        "DL Lock 1 Scout: scanned %d symbols, %d candidates",
+        len(symbols), candidates,
+    )

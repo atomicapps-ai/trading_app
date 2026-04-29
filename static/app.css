@@ -1311,3 +1311,57 @@ input, select, textarea { font: inherit; color: inherit; }
 }
 .explosion-table tr:last-child td { border-bottom: none; }
 .explosion-empty { padding: 8px 6px; font-style: italic; }
+
+/* ==========================================================================
+ * Strategy alerts banner — DL fires + Lock 1 scout output
+ * Polled into #alerts-banner via HTMX every 30s.
+ * ========================================================================== */
+.alerts-banner {
+  background: linear-gradient(
+    180deg, rgba(74,139,244,0.08), rgba(74,139,244,0.03)
+  );
+  border: 1px solid rgba(74,139,244,0.30);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+.alerts-banner-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.alerts-banner-title { font-size: 13px; color: #e5e7eb; }
+.alerts-list { display: flex; flex-direction: column; gap: 6px; }
+.alerts-item {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  gap: 10px; align-items: start;
+  padding: 8px 10px;
+  background: var(--surface-2, rgba(15,23,42,0.6));
+  border: 1px solid var(--surface-3, rgba(75,85,99,0.30));
+  border-left: 3px solid rgba(74,139,244,0.6);
+  border-radius: 4px;
+}
+.alerts-item-armed         { border-left-color: #f59e0b; }
+.alerts-item-lock1_scouted { border-left-color: #60a5fa; }
+.alerts-item-filled        { border-left-color: #1db87a; }
+.alerts-item-closed        { border-left-color: var(--text-tertiary, #595d76); }
+.alerts-item-test          { border-left-color: #c084fc; }
+
+.alerts-kind {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 2px 6px; border-radius: 3px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  align-self: center; text-align: center;
+}
+.alerts-kind-armed         { background: rgba(245,158,11,0.18); color: #f59e0b; }
+.alerts-kind-lock1_scouted { background: rgba(96,165,250,0.18); color: #60a5fa; }
+.alerts-kind-filled        { background: rgba(29,184,122,0.18); color: #1db87a; }
+.alerts-kind-closed        { background: rgba(75,85,99,0.30);   color: var(--text-secondary); }
+.alerts-kind-test          { background: rgba(192,132,252,0.18); color: #c084fc; }
+
+.alerts-content { min-width: 0; }
+.alerts-headline { font-size: 13px; line-height: 1.3; color: #e5e7eb; }
+.alerts-headline a { color: inherit; text-decoration: none; }
+.alerts-headline a:hover { color: #60a5fa; text-decoration: underline; }
+.alerts-body { margin-top: 2px; font-family: var(--font-mono, monospace); }
+.alerts-time { white-space: nowrap; }

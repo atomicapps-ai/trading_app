@@ -1,0 +1,53 @@
+{# Strategy alerts banner — HTMX-polled partial.
+   Renders nothing when there are no unread alerts so the dashboard
+   layout doesn't shift on every poll.
+
+   Expects context:
+     alerts        : list[dict] — newest-first, only unread
+     unread_count  : int
+#}
+{% if alerts %}
+<div class="alerts-banner" id="alerts-banner">
+  <div class="alerts-banner-head">
+    <span class="alerts-banner-title">
+      🔔 <strong>{{ unread_count }}</strong>
+      strategy alert{{ '' if unread_count == 1 else 's' }}
+    </span>
+    <button class="btn btn-sm" type="button"
+            hx-post="/api/alerts/ack-all"
+            hx-target="#alerts-banner"
+            hx-swap="outerHTML"
+            hx-on::after-request="window.htmx?.trigger(document.querySelector('[data-alerts-poll]'), 'load')">
+      Dismiss all
+    </button>
+  </div>
+  <div class="alerts-list">
+    {% for a in alerts %}
+      <div class="alerts-item alerts-item-{{ a.kind }}">
+        <span class="alerts-kind alerts-kind-{{ a.kind }}">{{ a.kind|replace('_', ' ') }}</span>
+        <div class="alerts-content">
+          <div class="alerts-headline">
+            {% if a.plan_id %}
+              <a href="/pending/{{ a.plan_id }}">{{ a.title }}</a>
+            {% else %}
+              {{ a.title }}
+            {% endif %}
+            <span class="alerts-time text-tertiary text-sm">
+              · {{ a.ts[11:16] }} UTC
+            </span>
+          </div>
+          {% if a.body %}<div class="alerts-body text-tertiary text-sm">{{ a.body }}</div>{% endif %}
+        </div>
+        <button class="btn btn-sm" type="button"
+                hx-post="/api/alerts/{{ a.id }}/ack"
+                hx-target="#alerts-banner"
+                hx-swap="outerHTML"
+                hx-on::after-request="window.htmx?.trigger(document.querySelector('[data-alerts-poll]'), 'load')"
+                title="Dismiss">×</button>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% else %}
+<div id="alerts-banner" hidden></div>
+{% endif %}

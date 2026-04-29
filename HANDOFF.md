@@ -131,6 +131,62 @@ M  CLAUDE.md / HANDOFF.md               (this update)
 
 ## Immediate next tasks for new session (pick one)
 
+### Option A-1 — DL strategy alerts ✅ SHIPPED 2026-04-29
+First half of "Plan A → Plan B" sequence: get a working alerting service
+the operator can verify by tweaking time settings and watching the UI.
+
+What landed:
+* New `dl_alerts` SQLite table (kind / strategy / symbol / direction /
+  plan_id / title / body / payload_json / acknowledged_at). Idempotent
+  schema add — `ensure_tables()` creates it on next startup.
+* `services/alert_service.py` — `record_alert`, `acknowledge`,
+  `acknowledge_all_unread`, `list_alerts`, `unread_count`.
+* `agents/lock1_scout.py` — `evaluate_lock1()` runs the candle-1 +
+  regime-filter portion of `double_lock_filtered` only. Mirrors the
+  full detector's gates so the scout can never disagree with the live
+  10:30 fire on the same data.
+* `services/scheduler.py` — new `dl_lock1_scout` job at 10:00 ET
+  Mon-Fri (cron overridable via `DL_LOCK1_CRON` env var for testing).
+  Reads the same active screener the 10:30 workflow uses; falls back
+  to a 10-symbol bellwether list if the screener has no tickers.
+* `services/pipeline_service.py` — when a TradePlan clears compliance
+  + risk and lands in `pending_approvals`, an `armed` alert is
+  recorded with the plan_id linked. The dashboard banner row links
+  directly to `/pending/{plan_id}`.
+* `routers/alerts.py` — full HTTP surface:
+    GET  /api/alerts                  list (?unread_only=)
+    GET  /api/alerts/banner           HTML partial (HTMX-polled)
+    POST /api/alerts/{id}/ack         dismiss one
+    POST /api/alerts/ack-all          dismiss all
+    POST /api/alerts/test             inject a synthetic alert
+    POST /api/alerts/run-dl-now       fire wf_double_lock_1030 ad-hoc
+    POST /api/alerts/run-lock1-now    fire dl_lock1_scout ad-hoc
+* `templates/dashboard/_alerts_banner.html` — banner partial with
+  per-kind color-coded left border + dismiss button per row.
+* `templates/dashboard.html` — banner mount above the tab pane,
+  HTMX-polled every 30s.
+* CSS `.alerts-banner` block — appended to `static/app.css`.
+
+How to test (no waiting for 10:00/10:30 ET):
+1. Restart server → scheduler registers `dl_lock1_scout` at 10:00 ET.
+2. `POST /api/alerts/test?kind=armed&symbol=AAPL&direction=long` →
+   verify banner appears within 30s and links to /pending.
+3. `POST /api/alerts/run-lock1-now` → runs scout immediately against
+   today's 30m bars. Outside trading hours / cached data may produce
+   0 candidates — that's the correct outcome, not a bug.
+4. `POST /api/alerts/run-dl-now` → runs the full 10:30 workflow. The
+   detector enforces a 10:30 ET time gate so this only writes plans
+   when run during/after market hours that day; the run still
+   exercises the pipeline + alert hook.
+5. To test on a custom schedule, set `DL_LOCK1_CRON="*/2 * * * *"` in
+   .env and restart — scout fires every 2 minutes.
+
+Not yet done in this delivery:
+* Step 3 (entry-fill alert) — needs a broker order-poll loop to detect
+  when the limit fills. Deferred to a follow-up commit.
+* Step 4 (ntfy push) — alerts are dashboard-only; phone push lands when
+  `services/ntfy_service.py` is wired (Phase 6 placeholder).
+
 ### Option A0 — Multi-source news feed ✅ SHIPPED 2026-04-25 (evening)
 Pluggable source registry under `services/news_sources/` with
 `AlpacaNewsSource`, `EdgarNewsSource`, and a brand-new `WebullNewsSource`

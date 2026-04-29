@@ -23,6 +23,16 @@
   {% endfor %}
 </div>
 
+{# Strategy alerts banner — sits above all tabs so unread strategy
+   notifications stay visible regardless of which tab is active.
+   Polls /api/alerts/banner every 30s; renders nothing when no
+   unread alerts. #}
+<div data-alerts-poll
+     hx-get="/api/alerts/banner"
+     hx-trigger="load, every 30s"
+     hx-swap="innerHTML">
+</div>
+
 {# ============================================================ #}
 {# Tab pane: PORTFOLIO  — your account, positions, strategies   #}
 {# ============================================================ #}
