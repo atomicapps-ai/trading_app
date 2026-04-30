@@ -25,11 +25,16 @@ from routers import (
     copy_trading,
     dashboard,
     indicators,
+    jobs,
     news_detail,
     pending,
+    replay as replay_router,
     settings as settings_router,
     stock_lists,
+    strategies as strategies_router,
     stubs,
+    system_health as system_health_router,
+    today as today_router,
     trade_detail,
     trades,
     universe,
@@ -132,6 +137,11 @@ app.include_router(news_detail.router)
 app.include_router(settings_router.router)
 app.include_router(broker.router)
 app.include_router(workflows.router)
+app.include_router(jobs.router)
+app.include_router(strategies_router.router)
+app.include_router(replay_router.router)
+app.include_router(today_router.router)
+app.include_router(system_health_router.router)
 app.include_router(bars.router)
 app.include_router(indicators.router)
 # Register stock_lists BEFORE universe — universe has /universe/{preset_name}

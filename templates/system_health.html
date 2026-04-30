@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block title %}System Health — TradeAgent{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+  <div>
+    <h1 class="page-title">System Health</h1>
+    <p class="page-subtitle">
+      Roll-up of every subsystem the strategy depends on. Check before market open.
+    </p>
+  </div>
+  <div style="font-size:11px;color:var(--text-secondary);">
+    Rendered in {{ render_ms }} ms · {{ now_utc[:19] }} UTC
+    <button class="btn btn-sm btn-ghost" onclick="location.reload()" style="margin-left:8px;">↻</button>
+  </div>
+</div>
+
+{# OVERALL VERDICT #}
+<div class="health-banner {% if overall.all_ok %}ok{% else %}fail{% endif %}">
+  <span class="health-banner-verdict">{{ overall.verdict }}</span>
+  <span class="health-banner-subtitle">
+    {% if overall.all_ok %}All subsystems reporting healthy.{% else %}{{ overall.fail_count }} subsystem(s) failing — see panels below.{% endif %}
+  </span>
+</div>
+
+<div class="health-grid">
+
+  {# SCHEDULER #}
+  <div class="card health-card {% if not scheduler.ok %}health-card-fail{% endif %}">
+    <div class="card-header">
+      <span class="card-title">Scheduler</span>
+      <span class="badge badge-{% if scheduler.ok %}green{% else %}red{% endif %}">
+        {% if scheduler.ok %}running{% else %}down{% endif %}
+      </span>
+    </div>
+    <table class="hk-table">
+      {% if scheduler.error %}
+        <tr><th>Error</th><td class="gate-block">{{ scheduler.error }}</td></tr>
+      {% else %}
+        <tr><th>Jobs registered</th><td><strong>{{ scheduler.job_count or 0 }}</strong></td></tr>
+        <tr><th>Active</th><td>{{ scheduler.active_jobs or 0 }}</td></tr>
+        <tr><th>Paused</th><td>{{ scheduler.paused or 0 }}</td></tr>
+        <tr><th>Next fire</th><td style="font-size:11px;color:var(--text-secondary);">{{ (scheduler.next_fire or "—")[:19] }}</td></tr>
+      {% endif %}
+    </table>
+  </div>
+
+  {# BROKER #}
+  <div class="card health-card {% if not broker.ok %}health-card-fail{% endif %}">
+    <div class="card-header">
+      <span class="card-title">Broker · {{ broker.broker_name or "—" }}</span>
+      <span class="badge badge-{% if broker.connected %}green{% else %}red{% endif %}">
+        {% if broker.connected %}connected{% else %}disconnected{% endif %}
+      </span>
+    </div>
+    <table class="hk-table">
+      {% if broker.error %}
+        <tr><th>Error</th><td class="gate-block">{{ broker.error }}</td></tr>
+      {% else %}
+        <tr><th>Account</th><td style="font-family:var(--font-mono);font-size:11px;">{{ broker.account_id or "—" }}</td></tr>
+        <tr><th>Equity</th><td><strong>${{ "%.2f"|format(broker.equity) if broker.equity is not none else "—" }}</strong></td></tr>
+        <tr><th>Buying power</th><td>${{ "%.2f"|format(broker.buying_power) if broker.buying_power is not none else "—" }}</td></tr>
+        <tr><th>Open positions</th><td>{{ broker.open_positions or 0 }}</td></tr>
+        <tr><th>Trading halted</th>
+          <td>
+            {% if broker.halted %}<span class="badge badge-red">HALTED</span>{% else %}<span class="badge badge-green">no</span>{% endif %}
+          </td>
+        </tr>
+      {% endif %}
+    </table>
+  </div>
+
+  {# DATA FRESHNESS #}
+  <div class="card health-card {% if not data.ok %}health-card-fail{% endif %}">
+    <div class="card-header">
+      <span class="card-title">Data freshness</span>
+    </div>
+    {% if data.error %}
+      <div class="gate-block">{{ data.error }}</div>
+    {% else %}
+      <table class="hk-table">
+        <thead><tr><th>Symbol</th><th>Interval</th><th>Last bar age</th></tr></thead>
+        <tbody>
+          {% for r in data.rows %}
+          <tr>
+            <td><strong>{{ r.symbol }}</strong></td>
+            <td>{{ r.interval }}</td>
+            <td>
+              {% if r.ok %}
+                <span class="{% if r.stale %}gate-block{% else %}gate-pass{% endif %}">{{ r.age_hours }} h</span>
+                {% if r.stale %}<span class="badge badge-amber" style="margin-left:6px;">stale</span>{% endif %}
+              {% else %}
+                <span class="gate-block">{{ r.reason }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+
+  {# ALERT PIPELINE #}
+  <div class="card health-card">
+    <div class="card-header">
+      <span class="card-title">Alert pipeline</span>
+    </div>
+    <table class="hk-table">
+      {% if alerts.error %}
+        <tr><th>Error</th><td class="gate-block">{{ alerts.error }}</td></tr>
+      {% else %}
+        <tr><th>Last alert</th>
+          <td>
+            {% if alerts.last_alert_ts %}
+              <span class="badge badge-blue">{{ alerts.last_alert_kind }}</span>
+              {{ alerts.last_alert_symbol or "—" }}
+              <div style="font-size:11px;color:var(--text-secondary);">{{ alerts.last_alert_ts[:19] }}</div>
+            {% else %}
+              <span style="color:var(--text-secondary);">no alerts yet</span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr><th>ntfy topic</th>
+          <td style="font-family:var(--font-mono);font-size:11px;">{{ settings.ntfy.topic }}
+            <span class="badge badge-{% if settings.ntfy.enabled %}green{% else %}gray{% endif %}" style="margin-left:6px;">
+              {% if settings.ntfy.enabled %}enabled{% else %}disabled{% endif %}
+            </span>
+          </td>
+        </tr>
+      {% endif %}
+    </table>
+  </div>
+
+  {# DISK USAGE #}
+  <div class="card health-card">
+    <div class="card-header">
+      <span class="card-title">Disk usage</span>
+    </div>
+    <table class="hk-table">
+      <thead><tr><th>Path</th><th>Files</th><th>Size</th></tr></thead>
+      <tbody>
+        {% for r in disk.rows %}
+        <tr>
+          <td><span style="font-family:var(--font-mono);font-size:11px;">{{ r.label }}</span></td>
+          <td>{% if r.exists %}{{ r.files or 0 }}{% else %}<span style="color:var(--text-secondary);">—</span>{% endif %}</td>
+          <td>{% if r.exists %}{{ "%.2f"|format(r.size_mb) }} MB{% else %}<span style="color:var(--text-secondary);">missing</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {# ERRORS #}
+  <div class="card health-card {% if errors.errors %}health-card-fail{% endif %}">
+    <div class="card-header">
+      <span class="card-title">Errors (in-memory log buffer)</span>
+    </div>
+    <table class="hk-table">
+      {% if errors.error %}
+        <tr><th>Error</th><td class="gate-block">{{ errors.error }}</td></tr>
+      {% else %}
+        <tr><th>Lines buffered</th><td>{{ errors.lines_buffered }}</td></tr>
+        <tr><th>Errors</th>
+          <td>
+            <span class="{% if errors.errors %}gate-block{% else %}gate-pass{% endif %}">{{ errors.errors }}</span>
+          </td>
+        </tr>
+        <tr><th>Warnings</th><td>{{ errors.warnings }}</td></tr>
+        {% if errors.last_error_job %}
+          <tr><th>Last error job</th>
+            <td><a href="/jobs/{{ errors.last_error_job }}" style="color:var(--accent-blue);text-decoration:none;">{{ errors.last_error_job }} →</a></td>
+          </tr>
+        {% endif %}
+      {% endif %}
+    </table>
+    {% if errors.last_error_line %}
+      <pre style="background:#0c0e14;color:#ff8888;padding:10px;border-radius:6px;font-size:11px;margin-top:10px;overflow-x:auto;">{{ errors.last_error_line }}</pre>
+    {% endif %}
+  </div>
+
+</div>
+
+<style>
+  .health-banner {
+    padding: 16px 20px; border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .health-banner.ok   { background: var(--tint-green); border-color: var(--accent-green); }
+  .health-banner.fail { background: var(--tint-red);   border-color: var(--accent-red); }
+  .health-banner-verdict { font-size: 16px; font-weight: 600; }
+  .health-banner.ok   .health-banner-verdict { color: var(--accent-green); }
+  .health-banner.fail .health-banner-verdict { color: var(--accent-red); }
+  .health-banner-subtitle { font-size: 12px; color: var(--text-secondary); }
+
+  .health-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .health-card { margin-bottom: 0; }
+  .health-card-fail { border-left: 3px solid var(--accent-red); }
+
+  .hk-table { width: 100%; border-collapse: collapse; }
+  .hk-table th, .hk-table td {
+    padding: 8px 12px; font-size: 12px; vertical-align: top;
+    border-bottom: 1px solid var(--border); text-align: left;
+  }
+  .hk-table th {
+    width: 160px; color: var(--text-secondary); font-weight: 500;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .hk-table tr:last-child th, .hk-table tr:last-child td { border-bottom: none; }
+  .gate-pass  { color: var(--accent-green); }
+  .gate-block { color: var(--accent-red); }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+</style>
+{% endblock %}

@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block title %}Strategies — {{ bucket_label }} — TradeAgent{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+  <div>
+    <h1 class="page-title">Strategies</h1>
+    <p class="page-subtitle">
+      {% if bucket == 'validated' %}
+        Strategies that have cleared the backtest threshold (≥{{ 72 }}% point WR).
+        Auto-promoted; can be manually archived.
+      {% elif bucket == 'in-progress' %}
+        Strategies under research. Default bucket for everything that hasn't
+        cleared validation yet.
+      {% else %}
+        Retired strategies. Manual move only — kept for audit trail.
+      {% endif %}
+    </p>
+  </div>
+</div>
+
+{% include "_partials/_page_tabs.html" with context %}
+
+{% if not strategies %}
+  <div class="card">
+    <p style="color:var(--text-secondary);">
+      No strategies in <strong>{{ bucket_label }}</strong>.
+      {% if bucket == 'validated' %}
+        Add a <code>backtest_summary.point_wr_pct ≥ 72</code> block to a
+        strategy YAML to promote it here.
+      {% elif bucket == 'in-progress' %}
+        Drop a YAML in <code>strategy_configs/</code> to start one.
+      {% else %}
+        Archive a strategy from another tab to land it here.
+      {% endif %}
+    </p>
+  </div>
+{% else %}
+  {% for s in strategies %}
+  <div class="card strategy-card" data-strategy="{{ s.name }}">
+    <div class="card-header" style="align-items:flex-start;">
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span class="card-title" style="font-size:14px;">{{ s.title }}</span>
+          {% if s.active %}<span class="badge badge-green">active</span>{% else %}<span class="badge badge-gray">inactive</span>{% endif %}
+          <span class="badge badge-blue">{{ s.mode }}</span>
+          {% if s.holding_period %}<span class="badge badge-gray">{{ s.holding_period }}</span>{% endif %}
+          {% if s.version %}<span style="font-size:11px;color:var(--text-secondary);">v{{ s.version }}</span>{% endif %}
+        </div>
+        {% if s.description %}
+          <div style="margin-top:6px;font-size:12px;color:var(--text-secondary);max-width:780px;line-height:1.5;">
+            {{ s.description }}
+          </div>
+        {% endif %}
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;">
+        <button class="btn btn-sm" onclick="runStrategy('{{ s.name }}', this)">▶ Run</button>
+        <button class="btn btn-sm btn-ghost" onclick="toggleStrategy('{{ s.name }}', this)">
+          {% if s.active %}⏸ Disable{% else %}▶ Enable{% endif %}
+        </button>
+        {% if s.archived %}
+          <button class="btn btn-sm btn-ghost" onclick="unarchiveStrategy('{{ s.name }}')">↩ Unarchive</button>
+        {% else %}
+          <button class="btn btn-sm btn-ghost" onclick="archiveStrategy('{{ s.name }}')">📦 Archive</button>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if s.load_error %}
+      <div class="badge badge-red" style="margin-bottom:10px;">YAML load error: {{ s.load_error }}</div>
+    {% endif %}
+
+    <table class="strategy-detail-table">
+      <tr>
+        <th>Backtest WR</th>
+        <td>
+          {% if s.backtest_summary.get('point_wr_pct') is not none %}
+            <strong>{{ "%.1f"|format(s.backtest_summary.point_wr_pct) }}%</strong>
+            {% if s.backtest_summary.get('filtered_trades_n') %}
+              <span class="text-secondary text-sm">· n={{ s.backtest_summary.filtered_trades_n }}</span>
+            {% endif %}
+            {% if s.backtest_summary.get('bootstrap_95_ci_lo') is not none and s.backtest_summary.get('bootstrap_95_ci_hi') is not none %}
+              <span class="text-secondary text-sm">· CI [{{ "%.1f"|format(s.backtest_summary.bootstrap_95_ci_lo) }}%, {{ "%.1f"|format(s.backtest_summary.bootstrap_95_ci_hi) }}%]</span>
+            {% endif %}
+          {% else %}
+            <span class="text-secondary">no backtest_summary</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% if s.backtest_summary.get('profit_factor') %}
+      <tr>
+        <th>Profit factor</th>
+        <td><strong>{{ "%.2f"|format(s.backtest_summary.profit_factor) }}</strong></td>
+      </tr>
+      {% endif %}
+      {% if s.backtest_summary.get('avg_pnl_pct_per_trade') %}
+      <tr>
+        <th>Avg P&L / trade</th>
+        <td>{{ "%+.2f"|format(s.backtest_summary.avg_pnl_pct_per_trade) }}%</td>
+      </tr>
+      {% endif %}
+      <tr>
+        <th>Workflows using this</th>
+        <td>
+          {% if not s.workflows %}
+            <span class="text-secondary">none</span>
+          {% else %}
+            {% for wf in s.workflows %}
+              <a href="/jobs/wf_{{ wf.workflow_id }}" style="color:var(--accent-blue);text-decoration:none;">
+                {{ wf.workflow_id }}
+              </a>
+              {% if wf.schedule %}<span class="text-secondary text-sm">({{ wf.schedule }})</span>{% endif %}
+              {% if wf.job and wf.job.next_run_time %}
+                <span class="text-secondary text-sm">· next {{ wf.job.next_run_time[:16] }}</span>
+              {% endif %}
+              {% if not loop.last %}<br>{% endif %}
+            {% endfor %}
+          {% endif %}
+        </td>
+      </tr>
+      {% if s.min_signal_strength %}
+      <tr>
+        <th>Min signal strength</th>
+        <td>{{ s.min_signal_strength }}</td>
+      </tr>
+      {% endif %}
+      {% if s.risk %}
+      <tr>
+        <th>Risk caps</th>
+        <td class="text-sm">
+          {% for k, v in s.risk.items() %}
+            <span class="text-secondary">{{ k }}:</span> {{ v }}
+            {% if not loop.last %} · {% endif %}
+          {% endfor %}
+        </td>
+      </tr>
+      {% endif %}
+    </table>
+  </div>
+  {% endfor %}
+{% endif %}
+
+<style>
+  .strategy-card { margin-bottom: 16px; }
+  .strategy-detail-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .strategy-detail-table th, .strategy-detail-table td {
+    padding: 6px 12px; font-size: 12px; vertical-align: top;
+    border-bottom: 1px solid var(--border);
+  }
+  .strategy-detail-table th {
+    width: 200px; color: var(--text-secondary); text-align: left;
+    font-weight: 500; text-transform: uppercase; font-size: 10px; letter-spacing: 0.05em;
+  }
+  .strategy-detail-table tr:last-child th, .strategy-detail-table tr:last-child td { border-bottom: none; }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+</style>
+
+<script>
+async function runStrategy(name, btn) {
+  const orig = btn.textContent; btn.disabled = true; btn.textContent = '...';
+  try {
+    const r = await fetch('/api/strategies/' + encodeURIComponent(name) + '/run', { method: 'POST' });
+    const j = await r.json();
+    btn.textContent = r.ok ? '✓' : '✗';
+  } catch (e) { btn.textContent = '✗'; }
+  setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
+}
+async function toggleStrategy(name) {
+  await fetch('/api/strategies/' + encodeURIComponent(name) + '/toggle', { method: 'POST' });
+  location.reload();
+}
+async function archiveStrategy(name) {
+  if (!confirm('Archive strategy ' + name + '?')) return;
+  await fetch('/api/strategies/' + encodeURIComponent(name) + '/archive', { method: 'POST' });
+  location.reload();
+}
+async function unarchiveStrategy(name) {
+  await fetch('/api/strategies/' + encodeURIComponent(name) + '/unarchive', { method: 'POST' });
+  location.reload();
+}
+</script>
+{% endblock %}

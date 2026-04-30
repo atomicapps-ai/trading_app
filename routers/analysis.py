@@ -48,7 +48,12 @@ async def trades_analysis(
         context={
             "settings": s,
             "app_version": "0.1.0",
-            "active_page": "analysis",
+            "active_page": "trades",
+            "tabs": [
+                {"key": "recent",   "label": "Recent",   "href": "/trades",          "count": None},
+                {"key": "analysis", "label": "Analysis", "href": "/trades/analysis", "count": None},
+            ],
+            "active_tab": "analysis",
             "summary": summary,
             "direction": direction,
             "quartiles": quartiles,

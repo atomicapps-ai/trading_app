@@ -83,8 +83,18 @@ async def trades_page(request: Request, s: Settings = Depends(get_settings)):
             "app_version": "0.1.0",
             "active_page": "trades",
             "strategies": strategies,
+            "tabs": _trade_tabs(),
+            "active_tab": "recent",
         },
     )
+
+
+def _trade_tabs() -> list[dict]:
+    """Shared horizontal tabs for the Trade History group of pages."""
+    return [
+        {"key": "recent",   "label": "Recent",   "href": "/trades",          "count": None},
+        {"key": "analysis", "label": "Analysis", "href": "/trades/analysis", "count": None},
+    ]
 
 
 @router.get("/api/trades", response_class=HTMLResponse)

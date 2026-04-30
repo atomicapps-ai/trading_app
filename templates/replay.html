@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block title %}Replay — TradeAgent{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Strategy Replay</h1>
+  <p class="page-subtitle">
+    Sweep the production detector across a date range. Same code path the live
+    workflow runs at 10:30 ET; the only added piece is exit simulation
+    (15:00 ET close, or 3% catastrophic stop hit, whichever first).
+  </p>
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">Parameters</span></div>
+
+  <form id="replay-form" onsubmit="return runReplay(event)">
+    <div class="input-row">
+      <label for="since">Since</label>
+      <input class="input" type="date" id="since" name="since" value="{{ default_since }}" required>
+    </div>
+    <div class="input-row">
+      <label for="until">Until</label>
+      <input class="input" type="date" id="until" name="until" value="{{ default_until }}" required>
+    </div>
+    <div class="input-row">
+      <label for="strategy">Strategy</label>
+      <select class="select" id="strategy" name="strategy">
+        <option value="double_lock" selected>double_lock</option>
+      </select>
+    </div>
+    <div class="input-row" style="align-items:flex-start;">
+      <label for="symbols" style="padding-top:8px;">Symbols</label>
+      <textarea class="textarea" id="symbols" name="symbols" rows="3"
+                placeholder="Comma-separated tickers, blank for default 16">{{ default_symbols }}</textarea>
+    </div>
+    <div class="input-row">
+      <label for="refresh">Refresh cache</label>
+      <label class="text-sm" style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="refresh" name="refresh">
+        Re-fetch bars from yfinance (slower, use if cache is stale)
+      </label>
+    </div>
+    <div class="input-row">
+      <label></label>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button type="submit" class="btn btn-primary" id="run-btn">▶ Run replay</button>
+        <span id="status" class="text-sm text-secondary"></span>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div id="results" style="display:none;">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Summary</span></div>
+    <table class="kv-table" id="summary-table"></table>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Trades (<span id="trade-count">0</span>)</span>
+      <span class="card-subtitle">Click any column to sort</span>
+    </div>
+    <table class="trades-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Symbol</th>
+          <th>Direction</th>
+          <th>Entry</th>
+          <th>Stop</th>
+          <th>Exit</th>
+          <th>Why</th>
+          <th>P&L %</th>
+          <th>$/100sh</th>
+          <th>PQS</th>
+          <th>W/L</th>
+        </tr>
+      </thead>
+      <tbody id="trades-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  .kv-table { width: 100%; border-collapse: collapse; }
+  .kv-table th, .kv-table td { padding: 8px 12px; font-size: 13px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  .kv-table th { width: 200px; color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
+  .trades-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .trades-table th, .trades-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+  .trades-table th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); font-weight: 500; }
+  .trades-table tbody tr:hover { background: var(--hover-bg); }
+  .num-pos { color: var(--accent-green); }
+  .num-neg { color: var(--accent-red); }
+  .text-mono { font-family: var(--font-mono); }
+</style>
+
+<script>
+async function runReplay(ev) {
+  ev.preventDefault();
+  const btn = document.getElementById('run-btn');
+  const status = document.getElementById('status');
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Running...';
+  status.textContent = 'fetching bars and running detector...';
+
+  const form = document.getElementById('replay-form');
+  const fd = new FormData(form);
+  const params = new URLSearchParams();
+  for (const [k, v] of fd.entries()) {
+    if (k === 'refresh') { params.set('refresh', 'true'); continue; }
+    if (v) params.set(k, v);
+  }
+
+  try {
+    const r = await fetch('/api/replay/run?' + params.toString(), { method: 'POST' });
+    const j = await r.json();
+    if (!r.ok) {
+      status.textContent = '✗ ' + (j.error || 'failed');
+      return false;
+    }
+    renderResults(j);
+    status.textContent = `done · ${j.trades.length} trades · ${j.symbols.length} symbols`;
+  } catch (e) {
+    status.textContent = '✗ ' + e.message;
+  } finally {
+    btn.disabled = false; btn.textContent = orig;
+  }
+  return false;
+}
+
+function fmtNum(n, dec=2, signed=false) {
+  if (n === null || n === undefined) return '—';
+  const v = Number(n).toFixed(dec);
+  if (signed && Number(n) > 0) return '+' + v;
+  return v;
+}
+
+function renderResults(data) {
+  const results = document.getElementById('results');
+  results.style.display = '';
+
+  // Summary
+  const s = data.summary;
+  const summary = document.getElementById('summary-table');
+  summary.innerHTML = `
+    <tr><th>Date range</th><td>${data.since} → ${data.until}</td></tr>
+    <tr><th>Symbols scanned</th><td>${data.symbols.length}</td></tr>
+    <tr><th>Trades</th><td><strong>${s.n}</strong>  (wins ${s.wins} · losses ${s.losses})</td></tr>
+    <tr><th>Win rate</th><td><strong>${fmtNum(s.win_rate, 1)}%</strong></td></tr>
+    <tr><th>Avg P&L per trade</th><td class="${s.avg_pnl_pct >= 0 ? 'num-pos' : 'num-neg'}">${fmtNum(s.avg_pnl_pct, 2, true)}%</td></tr>
+    <tr><th>Total P&L</th><td class="${s.total_pnl_pct >= 0 ? 'num-pos' : 'num-neg'}"><strong>${fmtNum(s.total_pnl_pct, 2, true)}%</strong></td></tr>
+    <tr><th>Stop hits</th><td>${s.stop_hits}/${s.n}  (${s.n ? fmtNum(s.stop_hits/s.n*100, 0) : 0}%)</td></tr>
+    <tr><th>Longs / Shorts</th><td>${s.longs} / ${s.shorts}</td></tr>
+    <tr><th>Best</th><td class="num-pos">${fmtNum(s.best_pnl_pct, 2, true)}%</td></tr>
+    <tr><th>Worst</th><td class="num-neg">${fmtNum(s.worst_pnl_pct, 2, true)}%</td></tr>
+  `;
+
+  // Trades table
+  const tbody = document.getElementById('trades-tbody');
+  document.getElementById('trade-count').textContent = data.trades.length;
+  tbody.innerHTML = data.trades.map(t => `
+    <tr>
+      <td class="text-mono">${t.date_str}</td>
+      <td><strong>${t.symbol}</strong></td>
+      <td>${t.direction}</td>
+      <td class="text-mono">${fmtNum(t.entry)}</td>
+      <td class="text-mono">${fmtNum(t.stop)}</td>
+      <td class="text-mono">${fmtNum(t.exit_px)}</td>
+      <td>${t.exit_reason}</td>
+      <td class="${t.pnl_pct >= 0 ? 'num-pos' : 'num-neg'} text-mono">${fmtNum(t.pnl_pct, 2, true)}%</td>
+      <td class="${t.pnl_dollars_per_100shr >= 0 ? 'num-pos' : 'num-neg'} text-mono">${fmtNum(t.pnl_dollars_per_100shr, 2, true)}</td>
+      <td class="text-mono">${t.pqs}</td>
+      <td>${t.win ? '✓' : '✗'}</td>
+    </tr>
+  `).join('');
+
+  // Re-attach grid_sort to the new table
+  if (window.htmx && window.htmx.trigger) {
+    document.querySelector('.trades-table').dataset.sortAttached = '';
+  }
+  document.dispatchEvent(new Event('DOMContentLoaded'));
+}
+</script>
+{% endblock %}

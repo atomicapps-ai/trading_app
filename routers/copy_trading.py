@@ -87,14 +87,24 @@ async def politician_rankings_page(
         context={
             "settings": s,
             "app_version": "0.1.0",
-            "active_page": "politician_rankings",
+            "active_page": "copy_insiders",
             "active_section": "copy_insiders",
+            "tabs": _ci_tabs(),
+            "active_tab": "rankings",
             "config": _enrich_config(cfg),
             "followed": followed,
             "cached_rankings": cached_rankings,
             "cached_rankings_at": cached_rankings_at,
         },
     )
+
+
+def _ci_tabs() -> list[dict]:
+    """Shared horizontal tabs for the Copy Insiders group of pages."""
+    return [
+        {"key": "rankings",    "label": "Rankings",    "href": "/copy-insiders/rankings", "count": None},
+        {"key": "disclosures", "label": "Disclosures", "href": "/copy-insiders/trades",   "count": None},
+    ]
 
 
 @router.get("/copy-insiders/trades", response_class=HTMLResponse)
@@ -110,8 +120,10 @@ async def politician_trades_page(
         context={
             "settings": s,
             "app_version": "0.1.0",
-            "active_page": "politician_trades",
+            "active_page": "copy_insiders",
             "active_section": "copy_insiders",
+            "tabs": _ci_tabs(),
+            "active_tab": "disclosures",
             "followed": followed,
         },
     )

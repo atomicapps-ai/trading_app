@@ -1,0 +1,16 @@
+{# Reusable horizontal tab bar for grouping related pages under one sidebar entry.
+
+   Expects context:
+     tabs       : list[dict] — each dict has {label, href, key}
+     active_tab : str        — matched against each item's `key`
+#}
+<div class="page-tabs">
+  {% for t in tabs %}
+    <a href="{{ t.href }}"
+       class="page-tab {% if active_tab == t.key %}active{% endif %}"
+       {% if t.hx_get %}hx-get="{{ t.hx_get }}" hx-target="{{ t.hx_target or '#tab-content' }}" hx-push-url="{{ t.href }}"{% endif %}>
+      {{ t.label }}
+      {% if t.count is not none %}<span class="page-tab-count">{{ t.count }}</span>{% endif %}
+    </a>
+  {% endfor %}
+</div>

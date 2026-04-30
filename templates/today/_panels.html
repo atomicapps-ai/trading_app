@@ -1,0 +1,186 @@
+{# Today cockpit — composable panels.
+   Re-rendered server-side every 30s via HTMX swap into #today-panels. #}
+
+{# ──────────── REGIME GATE BANNER ──────────── #}
+{% if regime_gate.ok %}
+  <div class="gate-banner {% if regime_gate.passes %}pass{% else %}block{% endif %}">
+    <span class="gate-banner-verdict {% if regime_gate.passes %}gate-pass{% else %}gate-block{% endif %}">
+      DL gate: {{ regime_gate.verdict }}
+    </span>
+    <span class="gate-banner-reason">
+      {{ regime_gate.reason }}
+    </span>
+  </div>
+{% endif %}
+
+{# ──────────── TOP ROW: macro + broker ──────────── #}
+<div class="today-grid">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Market regime</span></div>
+    {% if macro.ok %}
+      <table class="today-table">
+        <tr><th>VIX (prev close)</th>
+          <td>
+            <strong>{{ "%.2f"|format(macro.vix_level) if macro.vix_level is not none else "—" }}</strong>
+            <span style="color:var(--text-secondary);font-size:11px;">· {{ macro.vix_regime or "—" }}</span>
+          </td>
+        </tr>
+        <tr><th>SPY 20d trend</th>
+          <td class="{% if macro.spy_trend_20d and macro.spy_trend_20d > 0 %}gate-pass{% elif macro.spy_trend_20d and macro.spy_trend_20d < 0 %}gate-block{% endif %}">
+            {{ "%+.2f%%"|format(macro.spy_trend_20d * 100) if macro.spy_trend_20d is not none else "—" }}
+          </td>
+        </tr>
+        <tr><th>SPY > SMA200</th>
+          <td>{{ "yes" if macro.spy_above_sma200 else "no" }}</td>
+        </tr>
+      </table>
+    {% else %}
+      <div class="today-empty">macro fetch failed: {{ macro.error or "unknown" }}</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Broker</span></div>
+    <table class="today-table">
+      <tr><th>Adapter</th><td><strong>{{ broker_status.broker_name }}</strong></td></tr>
+      <tr><th>Connected</th>
+        <td>
+          {% if broker_status.connected %}
+            <span class="badge badge-green">connected</span>
+          {% else %}
+            <span class="badge badge-red">disconnected</span>
+            {% if broker_status.error %}<span class="today-empty">{{ broker_status.error }}</span>{% endif %}
+          {% endif %}
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+{# ──────────── PENDING APPROVALS ──────────── #}
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Pending approvals ({{ pending|length }})</span>
+    <a href="/pending" class="text-secondary text-sm" style="text-decoration:none;">View queue →</a>
+  </div>
+  {% if not pending %}
+    <div class="today-empty">No pending approvals.</div>
+  {% else %}
+    <table class="today-table">
+      <thead><tr><th>Symbol</th><th>Dir</th><th>Strategy</th><th>Entry</th><th>Created</th><th></th></tr></thead>
+      <tbody>
+        {% for p in pending %}
+        <tr>
+          <td><strong>{{ p.symbol }}</strong></td>
+          <td>{{ (p.direction or "")|upper }}</td>
+          <td>{{ p.strategy or "—" }}</td>
+          <td class="text-mono">{{ p.entry_price or "—" }}</td>
+          <td style="color:var(--text-secondary);font-size:11px;">{{ (p.ts_created or "")[:19] }}</td>
+          <td><a href="/pending/{{ p.plan_id }}" style="color:var(--accent-blue);text-decoration:none;">Review →</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+</div>
+
+{# ──────────── POSITIONS + FILLS ──────────── #}
+<div class="today-grid">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Open positions ({{ positions|length }})</span>
+    </div>
+    {% if not positions %}
+      <div class="today-empty">No open positions.</div>
+    {% else %}
+      <table class="today-table">
+        <thead><tr><th>Symbol</th><th>Shares</th><th>Avg</th><th>Mkt</th><th>P&L</th></tr></thead>
+        <tbody>
+          {% for p in positions %}
+          <tr>
+            <td><strong>{{ p.symbol }}</strong></td>
+            <td>{{ p.shares }}</td>
+            <td class="text-mono">{{ "%.2f"|format(p.avg_entry_price) }}</td>
+            <td class="text-mono">{{ "%.2f"|format(p.market_price) }}</td>
+            <td class="text-mono {% if p.unrealized_pnl > 0 %}gate-pass{% elif p.unrealized_pnl < 0 %}gate-block{% endif %}">
+              {{ "%+.2f"|format(p.unrealized_pnl) }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Fills today ({{ fills_today|length }})</span>
+    </div>
+    {% if not fills_today %}
+      <div class="today-empty">No fills today.</div>
+    {% else %}
+      <table class="today-table">
+        <thead><tr><th>Time</th><th>Symbol</th><th>Side</th><th>Shares</th><th>Price</th></tr></thead>
+        <tbody>
+          {% for f in fills_today %}
+          <tr>
+            <td style="color:var(--text-secondary);font-size:11px;">{{ (f.ts_filled or "")[11:19] }}</td>
+            <td><strong>{{ f.symbol }}</strong></td>
+            <td>{{ (f.side or "")|upper }}</td>
+            <td>{{ f.shares }}</td>
+            <td class="text-mono">{{ "%.2f"|format(f.price) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+</div>
+
+{# ──────────── JOBS FIRING TODAY + RECENT ALERTS ──────────── #}
+<div class="today-grid">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Jobs firing today ({{ jobs_today|length }})</span>
+      <a href="/jobs" class="text-secondary text-sm" style="text-decoration:none;">All jobs →</a>
+    </div>
+    {% if not jobs_today %}
+      <div class="today-empty">No jobs scheduled to fire later today.</div>
+    {% else %}
+      <table class="today-table">
+        <thead><tr><th>Job</th><th>Next fire</th></tr></thead>
+        <tbody>
+          {% for j in jobs_today %}
+          <tr>
+            <td><a href="/jobs/{{ j.id }}" style="color:inherit;text-decoration:none;"><strong>{{ j.name }}</strong></a></td>
+            <td style="color:var(--text-secondary);font-size:11px;">{{ j.next_run[:19] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Recent alerts ({{ alerts|length }})</span>
+    </div>
+    {% if not alerts %}
+      <div class="today-empty">No alerts yet.</div>
+    {% else %}
+      <table class="today-table">
+        <thead><tr><th>Time</th><th>Kind</th><th>Symbol</th><th>Title</th></tr></thead>
+        <tbody>
+          {% for a in alerts %}
+          <tr>
+            <td style="color:var(--text-secondary);font-size:11px;">{{ (a.ts or "")[11:19] }}</td>
+            <td><span class="badge badge-{{ {'armed':'amber','lock1_scouted':'blue','filled':'green','closed':'gray','test':'gray'}.get(a.kind,'gray') }}">{{ a.kind }}</span></td>
+            <td>{{ a.symbol or "—" }}</td>
+            <td>{{ a.title or "" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+</div>

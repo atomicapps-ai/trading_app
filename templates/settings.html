@@ -3,16 +3,24 @@
 {% block content %}
 <div style="max-width: 760px; margin: 0 auto;">
   <h2 style="font-size: 18px; font-weight: 500; margin-bottom: 4px;">Settings</h2>
-  <p class="text-secondary text-sm" style="margin-bottom: 24px;">
+  <p class="text-secondary text-sm" style="margin-bottom: 16px;">
     Edit live. Saved values persist to <span class="mono">settings.yaml</span> in the project root.
   </p>
+
+  <div class="page-tabs" id="settings-tabs">
+    <a href="#" class="page-tab active" data-section="application" onclick="switchSettingsTab(event, 'application')">Application</a>
+    <a href="#" class="page-tab"        data-section="risk"        onclick="switchSettingsTab(event, 'risk')">Risk</a>
+    <a href="#" class="page-tab"        data-section="compliance"  onclick="switchSettingsTab(event, 'compliance')">Compliance</a>
+    <a href="#" class="page-tab"        data-section="notifications" onclick="switchSettingsTab(event, 'notifications')">Notifications</a>
+    <a href="#" class="page-tab"        data-section="data"        onclick="switchSettingsTab(event, 'data')">Data paths</a>
+  </div>
 
   <form hx-post="/settings"
         hx-target="#save-status"
         hx-swap="innerHTML">
 
     {# ---- Section 1: Application ---- #}
-    <div class="card">
+    <div class="card" data-settings-section="application">
       <div class="card-header"><span class="card-title">Application</span></div>
 
       <div class="input-row">
@@ -43,7 +51,7 @@
     </div>
 
     {# ---- Section 2: Risk defaults ---- #}
-    <div class="card">
+    <div class="card" data-settings-section="risk" style="display:none;">
       <div class="card-header"><span class="card-title">Risk defaults</span></div>
 
       {% set risk_fields = [
@@ -66,7 +74,7 @@
     </div>
 
     {# ---- Section 3: Compliance ---- #}
-    <div class="card">
+    <div class="card" data-settings-section="compliance" style="display:none;">
       <div class="card-header"><span class="card-title">Compliance</span></div>
 
       <div class="input-row">
@@ -96,7 +104,7 @@
     </div>
 
     {# ---- Section 4: Notifications (ntfy) ---- #}
-    <div class="card">
+    <div class="card" data-settings-section="notifications" style="display:none;">
       <div class="card-header"><span class="card-title">Notifications (ntfy)</span></div>
       <div class="input-row">
         <label>ntfy server URL</label>
@@ -119,7 +127,7 @@
     </div>
 
     {# ---- Section 5: Data paths (read-only) ---- #}
-    <div class="card">
+    <div class="card" data-settings-section="data" style="display:none;">
       <div class="card-header">
         <span class="card-title">Data paths</span>
         <span class="card-subtitle">Read-only — edit <span class="mono">settings.yaml</span> directly</span>
@@ -163,6 +171,25 @@
         warn.style.display = (e.target.value === 'live') ? 'block' : 'none';
       }
     });
+  })();
+
+  // Settings tab switcher — hide all section cards, show the active one.
+  // Single Save button at the bottom posts the entire form across tabs.
+  function switchSettingsTab(ev, name) {
+    if (ev) ev.preventDefault();
+    document.querySelectorAll('#settings-tabs .page-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.section === name);
+    });
+    document.querySelectorAll('[data-settings-section]').forEach(sec => {
+      sec.style.display = (sec.dataset.settingsSection === name) ? '' : 'none';
+    });
+    try { localStorage.setItem('settings.activeTab', name); } catch (e) {}
+  }
+  // Restore last-active tab on page load.
+  (function () {
+    let saved = null;
+    try { saved = localStorage.getItem('settings.activeTab'); } catch (e) {}
+    if (saved) switchSettingsTab(null, saved);
   })();
 </script>
 {% endblock %}

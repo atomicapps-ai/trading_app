@@ -45,6 +45,9 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 @router.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request, s: Settings = Depends(get_settings)):
+    account = await _real_account_or_stub()
+    pending = await _real_pending_or_stub()
+    positions = await _real_positions_or_stub()
     return templates.TemplateResponse(
         request=request,
         name="dashboard.html",
@@ -52,15 +55,109 @@ async def dashboard(request: Request, s: Settings = Depends(get_settings)):
             "settings": s,
             "app_version": "0.1.0",
             "active_page": "dashboard",
-            "account": STUB_ACCOUNT,
-            "pending": STUB_PENDING,
-            "open_positions": STUB_OPEN_POSITIONS,
+            "account": account,
+            "pending": pending,
+            "open_positions": positions,
             # Widgets organized by tab. Returned as descriptor dicts that
             # already carry user-applied size overrides + saved order.
             "tabs": TAB_ORDER,
             "widgets_by_tab": await widgets_by_tab_for_user(),
         },
     )
+
+
+async def _real_account_state():
+    """Helper — returns (AccountState, error_string_or_None). Errors are
+    captured so the caller can decide between real-with-positions, account-only,
+    or full stub fallback."""
+    try:
+        from services.broker_service import get_adapter
+        adapter = get_adapter()
+        if not adapter.connected:
+            await adapter.connect()
+        return await adapter.get_account_state(), None
+    except Exception as e:                                            # noqa: BLE001
+        return None, str(e)
+
+
+async def _real_account_or_stub() -> dict:
+    """Return the dict shape ``templates/dashboard/_stats.html`` expects,
+    populated from live broker state when available. Field names mirror
+    the legacy STUB_ACCOUNT so the template never has to know which path
+    produced the values."""
+    st, err = await _real_account_state()
+    if st is None:
+        logger.warning("dashboard: real account fetch failed (%s); using stub", err)
+        return {**STUB_ACCOUNT, "is_real": False}
+
+    # Pull the operator's max-position cap out of risk_defaults so the
+    # "open / max" widget shows a meaningful denominator.
+    try:
+        from services.settings_service import get_settings
+        max_positions = get_settings().risk_defaults.max_open_positions
+    except Exception:                                                 # noqa: BLE001
+        max_positions = 8
+
+    equity = st.equity or 0.0
+    unreal = st.unrealized_pnl_today or 0.0
+    return {
+        # Real fields (used directly by the template)
+        "account_id":     st.account_id,
+        "broker":         st.broker,
+        "type":           st.type,
+        "equity":         equity,
+        "cash":           st.cash,
+        "buying_power":   st.buying_power,
+        "open_positions": len(st.open_positions),
+        "max_positions":  max_positions,
+        "trades_today":   st.trades_today,
+        "unrealized_pnl": unreal,
+        # day_pnl_* — Alpaca doesn't separate intraday realized P&L from
+        # account totals (Phase 6 trade-log derive). For now surface the
+        # unrealized component so the widget has a meaningful number.
+        "day_pnl_usd":    unreal,
+        "day_pnl_pct":    (unreal / equity * 100.0) if equity else 0.0,
+        "mode":           st.mode if hasattr(st, "mode") else "paper",
+        "connected":      True,
+        "is_real":        True,
+    }
+
+
+async def _real_pending_or_stub() -> list[dict]:
+    """Live pending approvals from SQLite (pending_approvals table)."""
+    try:
+        from services import db_service
+        rows = await db_service.list_pending_approvals(status="pending", limit=20)
+        return [{
+            "plan_id":     r.get("plan_id"),
+            "symbol":      r.get("symbol"),
+            "direction":   r.get("direction"),
+            "strategy":    r.get("strategy_name") or r.get("strategy"),
+            "entry_price": r.get("entry_price"),
+            "ts_created":  r.get("ts_created"),
+        } for r in rows]
+    except Exception as e:                                            # noqa: BLE001
+        logger.warning("dashboard: real pending fetch failed (%s); using stub", e)
+        return STUB_PENDING
+
+
+async def _real_positions_or_stub() -> list[dict]:
+    """Live open positions — pulled out of AccountState which the broker
+    adapter populates with the live position list (not just a count)."""
+    st, err = await _real_account_state()
+    if st is None:
+        logger.warning("dashboard: real positions fetch failed (%s); using stub", err)
+        return STUB_OPEN_POSITIONS
+    if not st.open_positions:
+        return []                                                     # genuinely 0 positions
+    return [{
+        "symbol":          p.symbol,
+        "shares":          p.shares,
+        "avg_entry_price": p.avg_entry_price,
+        "market_price":    p.market_price,
+        "unrealized_pnl_usd": p.unrealized_pnl_usd,
+        "sector":          p.sector,
+    } for p in st.open_positions]
 
 
 @router.get("/api/dashboard/widgets/{widget_id}", response_class=HTMLResponse)
@@ -217,10 +314,11 @@ async def dashboard_layout_reset():
 
 @router.get("/api/dashboard/stats", response_class=HTMLResponse)
 async def dashboard_stats(request: Request):
+    """HTMX-polled stats card. Pulls live account state on every poll."""
     return templates.TemplateResponse(
         request=request,
         name="dashboard/_stats.html",
-        context={"account": STUB_ACCOUNT},
+        context={"account": await _real_account_or_stub()},
     )
 
 

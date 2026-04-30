@@ -32,19 +32,26 @@ def _placeholder(active: str, title: str, phase: str, description: str):
     return _route
 
 
+from fastapi.responses import RedirectResponse
+
+
+# /strategies is now a parent; redirect to the default child (Validated)
+async def _strategies_root(request: Request):
+    return RedirectResponse(url="/strategies/validated", status_code=307)
+
+
+router.add_api_route("/strategies", _strategies_root,
+                     methods=["GET"], response_class=RedirectResponse)
+# /strategies/validated, /strategies/in-progress, /strategies/archived
+# are owned by routers/strategies.py (real implementation in Ship 3).
+# /today is owned by routers/today.py (real implementation in Ship 5).
 router.add_api_route(
-    "/strategies", _placeholder(
-        "strategies", "Strategies",
-        "Phase 5",
-        "Strategy config CRUD with per-strategy mode toggles (research / paper / live) and active-strategy selection.",
+    "/favorites", _placeholder(
+        "favorites", "Favorites",
+        "Later",
+        "Independent watchlist. Any symbol from anywhere in the app can be starred; the source is recorded and shown on hover.",
     ),
     methods=["GET"], response_class=HTMLResponse,
 )
-router.add_api_route(
-    "/console", _placeholder(
-        "console", "Agent Console",
-        "Phase 6",
-        "Live SSE stream of agent decisions tailing data/logs/.",
-    ),
-    methods=["GET"], response_class=HTMLResponse,
-)
+# /replay is owned by routers/replay.py (real implementation in Ship 4).
+# /system-health is owned by routers/system_health.py (real implementation in Ship 6).
