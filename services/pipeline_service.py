@@ -200,6 +200,57 @@ async def run_workflow_by_id(
         except Exception as e:                                    # noqa: BLE001
             logger.warning("armed-alert recording failed: %s", e)
 
+        # ── AUTO-APPROVE (paper-only) ───────────────────────────────
+        # If the strategy has auto_approve enabled AND every safety
+        # guardrail passes (paper account, paper mode, not halted),
+        # immediately dispatch the executioner with a synthetic ack.
+        # Live accounts and live mode always require manual ack —
+        # enforced inside auto_approve_service.safe_to_auto_approve().
+        try:
+            from datetime import datetime, timezone
+            from agents.executioner import Executioner
+            from models.verdicts import HumanAckRecord
+            from services import auto_approve_service
+            from services.settings_service import get_settings
+
+            allowed, reason = await auto_approve_service.safe_to_auto_approve(strategy)
+            if allowed:
+                logger.warning(
+                    "AUTO-APPROVE firing for plan_id=%s symbol=%s strategy=%s",
+                    plan.plan_id, symbol, strategy,
+                )
+                ack = HumanAckRecord(
+                    plan_id=plan.plan_id,
+                    ts=datetime.now(timezone.utc).isoformat(),
+                    action="approve",
+                    ack_by="auto_approve",
+                )
+                await db_service.ack_plan(
+                    plan.plan_id, "approve", ack_record=ack.model_dump(),
+                )
+                exe = Executioner(get_settings())
+                exec_result = await exe.execute_plan(
+                    plan=plan,
+                    compliance_verdict=compliance_verdict,
+                    risk_verdict=risk_verdict,
+                    ack=ack,
+                )
+                await db_service.record_execution(
+                    plan.plan_id, exec_result.model_dump(),
+                )
+                logger.warning(
+                    "AUTO-APPROVE result: plan_id=%s placed=%s reason=%s",
+                    plan.plan_id, exec_result.placed,
+                    exec_result.reject_reason or "",
+                )
+            else:
+                logger.info(
+                    "auto_approve declined plan_id=%s reason=%s",
+                    plan.plan_id, reason,
+                )
+        except Exception as e:                                    # noqa: BLE001
+            logger.error("auto_approve hook raised: %s", e, exc_info=True)
+
     await db_service.record_pipeline_run(
         run_id=run_result.run_id,
         workflow_id=run_result.workflow_id,

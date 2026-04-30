@@ -214,6 +214,8 @@ async def _strategies_bucket_page(request: Request, s: Settings, bucket: str):
             name, bool(c.get("active", False)),
         )
         archived = bool(await ws.get("default", _STRATEGY_OVERRIDES_KEY, f"{name}.archived"))
+        from services import auto_approve_service as _aas
+        auto_approve = await _aas.is_enabled(name)
         bucket_for_row = _classify(c, archived)
         if bucket_for_row != bucket:
             continue
@@ -239,6 +241,7 @@ async def _strategies_bucket_page(request: Request, s: Settings, bucket: str):
             "workflows": wfs,
             "load_error": c.get("_load_error"),
             "archived": archived,
+            "auto_approve": auto_approve,
         })
 
     counts = await _bucket_counts()
@@ -334,6 +337,25 @@ async def unarchive_strategy(name: str) -> dict:
     based on its backtest_summary."""
     await ws.delete("default", _STRATEGY_OVERRIDES_KEY, f"{name}.archived")
     return {"name": name, "archived": False}
+
+
+@router.post("/api/strategies/{name}/auto-approve", response_class=JSONResponse)
+async def toggle_auto_approve(name: str) -> dict:
+    """Flip the per-strategy auto-approve flag.
+
+    When enabled (and the active broker account is paper), TradePlans
+    from this strategy auto-fire the executioner without waiting for
+    human approval. Live accounts and live mode always require manual
+    ack — that's a hard guardrail in auto_approve_service.
+    """
+    files = {p.stem: p for p in _strategy_files()}
+    if name not in files:
+        raise HTTPException(404, f"unknown strategy: {name}")
+    from services import auto_approve_service
+    current = await auto_approve_service.is_enabled(name)
+    new_value = not current
+    await auto_approve_service.set_enabled(name, new_value)
+    return {"name": name, "auto_approve": new_value}
 
 
 @router.post("/api/strategies/{name}/run", response_class=JSONResponse)

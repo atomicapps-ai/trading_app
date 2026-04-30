@@ -60,6 +60,16 @@ def start_scheduler() -> None:
     sched.start()
     logger.info("Scheduler started — %d jobs registered", len(sched.get_jobs()))
 
+    # Catch up missed runs from earlier today. APScheduler doesn't replay
+    # cron triggers across restarts — if the app was stopped at 10:30 ET
+    # while the wf_double_lock_1030 job was supposed to fire, that day is
+    # silently skipped on every subsequent restart. We don't want that.
+    import asyncio as _asyncio
+    try:
+        _asyncio.create_task(_catch_up_missed_runs(sched))
+    except Exception as exc:                                      # noqa: BLE001
+        logger.warning("catch-up scheduling failed: %s", exc)
+
 
 def stop_scheduler() -> None:
     global _scheduler
@@ -573,3 +583,102 @@ async def _dl_lock1_scout_job_impl() -> None:
         "DL Lock 1 Scout: scanned %d symbols, %d candidates",
         len(symbols), candidates,
     )
+
+
+# --------------------------------------------------------------------------- #
+# Catch-up on restart
+# --------------------------------------------------------------------------- #
+
+
+async def _catch_up_missed_runs(sched: AsyncIOScheduler) -> None:
+    """For each registered cron job, fire it once if its trigger time
+    earlier today has already passed AND no pipeline_run exists for
+    today. Avoids the silent-skip behavior where restarting the app
+    after the cron window kills that day's run.
+
+    Scope: only ``wf_*`` (workflow) jobs and ``dl_lock1_scout`` —
+    stuff with side effects we want to actually happen. Capitol Trades
+    polling and Senate diff are skipped because they're idempotent
+    pollers — missing one is fine.
+    """
+    import asyncio
+    from datetime import datetime, timedelta, timezone
+
+    import pandas as pd
+
+    from services import db_service
+
+    # Brief delay so app lifespan can finish bootstrapping (e.g. broker
+    # connect) before we fire workflows that depend on it.
+    await asyncio.sleep(5)
+
+    et_now = pd.Timestamp.now(tz="America/New_York")
+    if et_now.weekday() >= 5:                                    # Sat/Sun
+        logger.info("catch-up: weekend, skipping")
+        return
+
+    today_iso = et_now.strftime("%Y-%m-%d")
+
+    # Build a map of workflow_id -> latest run today (if any) so we
+    # don't re-fire a job that already ran. Scan recent runs only.
+    runs = await db_service.list_pipeline_runs(limit=50)
+    ran_today: set[str] = set()
+    for r in runs:
+        wf = r.get("workflow_id")
+        ts = (r.get("ts_start") or "")
+        if wf and ts.startswith(today_iso):
+            ran_today.add(wf)
+
+    fired = 0
+    for job in list(sched.get_jobs()):
+        jid = getattr(job, "id", "") or ""
+        # Only catch up the strategy-firing jobs.
+        if not (jid.startswith("wf_") or jid == "dl_lock1_scout"):
+            continue
+
+        next_run = job.next_run_time
+        # Compute today's scheduled fire time. APScheduler's CronTrigger
+        # exposes ``get_next_fire_time`` we can use to peek what *would*
+        # have fired today — by comparing against now.
+        try:
+            today_start = et_now.normalize().tz_convert("UTC")
+            tomorrow_start = (et_now.normalize() + pd.Timedelta(days=1)).tz_convert("UTC")
+            scheduled_today = job.trigger.get_next_fire_time(
+                None, today_start.to_pydatetime(),
+            )
+        except Exception as exc:                                  # noqa: BLE001
+            logger.debug("catch-up: %s next-fire lookup failed: %s", jid, exc)
+            continue
+        if scheduled_today is None:
+            continue
+        if scheduled_today >= tomorrow_start.to_pydatetime():
+            continue                                              # not due today
+        if scheduled_today > datetime.now(timezone.utc):
+            continue                                              # still upcoming
+
+        wf_id_for_run = jid[3:] if jid.startswith("wf_") else jid
+        if wf_id_for_run in ran_today:
+            logger.info(
+                "catch-up: %s already ran today, skipping", jid,
+            )
+            continue
+
+        logger.warning(
+            "catch-up: firing %s (cron at %s ET passed without execution)",
+            jid, scheduled_today.astimezone(
+                __import__("zoneinfo").ZoneInfo("America/New_York")
+            ).strftime("%H:%M"),
+        )
+        try:
+            if jid.startswith("wf_"):
+                await _run_workflow_job(wf_id_for_run)
+            elif jid == "dl_lock1_scout":
+                await _dl_lock1_scout_job()
+            fired += 1
+        except Exception as exc:                                  # noqa: BLE001
+            logger.error("catch-up: %s raised during catch-up: %s", jid, exc)
+
+    if fired:
+        logger.warning("catch-up: fired %d missed run(s) this morning", fired)
+    else:
+        logger.info("catch-up: nothing to fire (all on schedule or future)")

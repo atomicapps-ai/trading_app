@@ -45,6 +45,13 @@
           {% if s.active %}<span class="badge badge-green">active</span>{% else %}<span class="badge badge-gray">inactive</span>{% endif %}
           <span class="badge badge-blue">{{ s.mode }}</span>
           {% if s.holding_period %}<span class="badge badge-gray">{{ s.holding_period }}</span>{% endif %}
+          {% if s.auto_approve %}
+            <span class="badge"
+                  style="background: rgba(59,130,246,0.18); color: var(--accent-blue);"
+                  title="Auto-approve enabled — paper plans for this strategy fire without manual ack. Live always requires manual approval.">
+              ⚡ auto-approve
+            </span>
+          {% endif %}
           {% if s.version %}<span style="font-size:11px;color:var(--text-secondary);">v{{ s.version }}</span>{% endif %}
         </div>
         {% if s.description %}
@@ -53,10 +60,15 @@
           </div>
         {% endif %}
       </div>
-      <div style="display:flex;gap:6px;flex-shrink:0;">
+      <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;">
         <button class="btn btn-sm" onclick="runStrategy('{{ s.name }}', this)">▶ Run</button>
         <button class="btn btn-sm btn-ghost" onclick="toggleStrategy('{{ s.name }}', this)">
           {% if s.active %}⏸ Disable{% else %}▶ Enable{% endif %}
+        </button>
+        <button class="btn btn-sm btn-ghost"
+                onclick="toggleAutoApprove('{{ s.name }}', {{ 'true' if s.auto_approve else 'false' }}, this)"
+                title="Per-strategy: when ON, paper plans fire without manual ack. Live always requires approval.">
+          {% if s.auto_approve %}⚡ Auto-approve ON{% else %}○ Auto-approve OFF{% endif %}
         </button>
         {% if s.archived %}
           <button class="btn btn-sm btn-ghost" onclick="unarchiveStrategy('{{ s.name }}')">↩ Unarchive</button>
@@ -177,6 +189,39 @@ async function archiveStrategy(name) {
 async function unarchiveStrategy(name) {
   await fetch('/api/strategies/' + encodeURIComponent(name) + '/unarchive', { method: 'POST' });
   location.reload();
+}
+async function toggleAutoApprove(name, currentlyOn, btn) {
+  // Confirm before commit — auto-approve is consequential. Show different
+  // messages for enable vs disable so the user understands what flips.
+  let msg;
+  if (currentlyOn) {
+    msg = `Disable auto-approve for "${name}"?\n\n` +
+          `Future paper plans from this strategy will need manual approval ` +
+          `in /pending within 15 minutes of arming.`;
+  } else {
+    msg = `Enable auto-approve for "${name}"?\n\n` +
+          `Paper plans from this strategy will fire WITHOUT manual ack — ` +
+          `the executioner places the order the moment a plan arms.\n\n` +
+          `⚠ Hard guardrails (always enforced, regardless of this toggle):\n` +
+          `  • LIVE accounts always require manual approval\n` +
+          `  • LIVE mode always requires manual approval\n` +
+          `  • Trading-halted state blocks all auto-fires\n\n` +
+          `This toggle only affects PAPER mode + PAPER accounts.`;
+  }
+  if (!confirm(msg)) return;
+  btn.disabled = true;
+  try {
+    const r = await fetch('/api/strategies/' + encodeURIComponent(name) + '/auto-approve', { method: 'POST' });
+    if (!r.ok) {
+      alert('Toggle failed: HTTP ' + r.status);
+      btn.disabled = false;
+      return;
+    }
+    location.reload();
+  } catch (e) {
+    alert('Toggle failed: ' + e.message);
+    btn.disabled = false;
+  }
 }
 </script>
 {% endblock %}
