@@ -276,7 +276,18 @@
     }
   }
 
-  async function activateAccount(slug) {
+  async function activateAccount(slug, label, accountType) {
+    // Switching TO a live account is consequential — confirm regardless
+    // of the global enhanced_live_safeguards flag (this is the moment
+    // the operator chooses to turn that flag on/off in effect).
+    if (accountType === 'live') {
+      if (!confirm(
+        `⚠ Switch to LIVE account "${label || slug}"?\n\n` +
+        `Future trades will hit a real-money account. The mode badge ` +
+        `will turn red and auto-approve will be disabled until you ` +
+        `switch back to a paper account.`
+      )) return;
+    }
     const r = await fetch('/api/broker/accounts/' + slug + '/activate', { method: 'POST' });
     if (r.ok) {
       const body = await r.json();
@@ -317,8 +328,17 @@
     document.getElementById('account-form-block').style.display = 'block';
   }
 
-  async function deleteAccount(slug, label) {
+  async function deleteAccount(slug, label, accountType) {
     if (!confirm('Delete account "' + label + '"? This cannot be undone.')) return;
+    // Deleting a live account credentials row is consequential.
+    if (accountType === 'live') {
+      if (!confirm(
+        `⚠ "${label}" is a LIVE account.\n\n` +
+        `Deleting removes the credentials from this app — your Alpaca ` +
+        `live account itself is unaffected. You'll need to re-enter the ` +
+        `keys to use this account again. Continue?`
+      )) return;
+    }
     const r = await fetch('/api/broker/accounts/' + slug + '/delete', { method: 'POST' });
     if (r.ok) {
       setAccountsToast('Deleted ' + label, true);

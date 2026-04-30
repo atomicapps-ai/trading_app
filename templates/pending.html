@@ -650,6 +650,11 @@
     const verb = { approve: 'approve', reject: 'reject' }[action];
     if (!verb) return;
     if (!confirm(`Confirm ${verb} for plan ${planId}?`)) return;
+    // Live-mode safeguard — extra prompt before approving a real-money trade.
+    // Doesn't apply to reject (declining a trade is always safe).
+    if (action === 'approve' && typeof window.confirmLiveAction === 'function') {
+      if (!window.confirmLiveAction(`approve plan ${planId} (places real broker order)`)) return;
+    }
     const r = await fetch(`/pending/${planId}/ack`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

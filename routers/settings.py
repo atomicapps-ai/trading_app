@@ -64,6 +64,7 @@ async def settings_save(
     mode: str = Form(...),
     port: int = Form(...),
     tailscale_hostname: str = Form(...),
+    enhanced_live_safeguards: bool = Form(False),
     # Risk defaults
     max_risk_pct_per_trade: float = Form(...),
     max_position_pct_of_equity: float = Form(...),
@@ -88,6 +89,7 @@ async def settings_save(
     current.app.mode = mode  # type: ignore[assignment]
     current.app.port = port
     current.app.tailscale_hostname = tailscale_hostname
+    current.execution.enhanced_live_safeguards = enhanced_live_safeguards
 
     current.risk_defaults.max_risk_pct_per_trade = max_risk_pct_per_trade
     current.risk_defaults.max_position_pct_of_equity = max_position_pct_of_equity

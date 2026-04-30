@@ -40,6 +40,23 @@
         Real money — all trades require human approval.
       </div>
 
+      {# Enhanced Live Safeguards — extra "Are you sure?" prompt before
+         every trade-impacting action when in LIVE mode. Default ON. #}
+      <div class="input-row">
+        <label>Enhanced Live Safeguards</label>
+        <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="checkbox" name="enhanced_live_safeguards"
+                 {% if settings.execution.enhanced_live_safeguards %}checked{% endif %}>
+          <span class="text-secondary text-xs">
+            When in LIVE mode, prompt
+            <span class="mono">"We are in LIVE mode, are you sure..."</span>
+            before every action that touches real money (approve plan,
+            close position, switch to live account, HALT). No effect
+            in paper or research mode.
+          </span>
+        </label>
+      </div>
+
       <div class="input-row">
         <label>Port</label>
         <input class="input" type="number" name="port" value="{{ settings.app.port }}" min="1" max="65535">

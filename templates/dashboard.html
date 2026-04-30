@@ -557,6 +557,11 @@
       `This bypasses the agent pipeline (no compliance / risk gates) — ` +
       `intended for one-off cleanup of stale positions.`
     )) return;
+    // Live-mode safeguard — extra "Are you sure?" prompt when the
+    // active broker is a live account.
+    if (typeof window.confirmLiveAction === 'function') {
+      if (!window.confirmLiveAction(`close ${symbol} position (${direction} ${qty})`)) return;
+    }
 
     const row = document.querySelector(`tr[data-symbol="${symbol}"]`);
     if (row) row.style.opacity = '0.5';

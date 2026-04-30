@@ -114,6 +114,14 @@ class ExecutionSettings(BaseModel):
             TradeWindow(label="close_5min", start="15:55", end="16:00"),
         ]
     )
+    # Enhanced Live Safeguards — when True (default), every action
+    # that touches real money in live mode triggers an explicit
+    # "We are in LIVE mode, are you sure..." confirmation prompt.
+    # Applied client-side in the JS handlers (approve, close position,
+    # activate live account, halt). Setting to False trusts the
+    # operator and skips the extra prompt — recommended only after
+    # you've used the system in live for a while.
+    enhanced_live_safeguards: bool = True
 
 
 class UniverseUISettings(BaseModel):

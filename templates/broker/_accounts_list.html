@@ -47,18 +47,20 @@
               <div class="text-accent-red" style="font-size: 11px; margin-top: 2px;">err: {{ a.last_error[:60] }}</div>
             {% endif %}
           </td>
-          <td style="padding: 8px; text-align: right;">
-            {% if not a.is_active %}
+          <td style="padding: 8px; text-align: right; white-space: nowrap;">
+            <div style="display: inline-flex; gap: 6px; align-items: center; justify-content: flex-end;">
+              {% if not a.is_active %}
+                <button type="button" class="btn btn-sm"
+                        onclick="activateAccount('{{ a.slug }}', '{{ a.label|e }}', '{{ a.account_type }}')"
+                        title="Use this account">Activate</button>
+              {% endif %}
               <button type="button" class="btn btn-sm"
-                      onclick="activateAccount('{{ a.slug }}')"
-                      title="Use this account">Activate</button>
-            {% endif %}
-            <button type="button" class="btn btn-sm"
-                    onclick="editAccount('{{ a.slug }}', '{{ a.label|e }}')"
-                    title="Edit label / rotate keys">Edit</button>
-            <button type="button" class="btn btn-sm btn-danger"
-                    onclick="deleteAccount('{{ a.slug }}', '{{ a.label|e }}')"
-                    title="Delete">×</button>
+                      onclick="editAccount('{{ a.slug }}', '{{ a.label|e }}')"
+                      title="Edit label / rotate keys">Edit</button>
+              <button type="button" class="btn btn-sm btn-danger"
+                      onclick="deleteAccount('{{ a.slug }}', '{{ a.label|e }}', '{{ a.account_type }}')"
+                      title="Delete">×</button>
+            </div>
           </td>
         </tr>
       {% endfor %}

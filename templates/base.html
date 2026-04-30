@@ -216,13 +216,39 @@
       setInterval(tick, 60_000);
     })();
 
-    // HALT button — confirm, then attempt to fire. Broker route is Phase 3,
-    // so we surface any non-2xx as "noted but no broker yet".
+    // ---------------------------------------------------------------
+    // App-wide config flags exposed from server-side settings, so
+    // every page's JS can read them without a fetch.
+    // ---------------------------------------------------------------
+    window.APP_CONFIG = {
+      mode: {{ (settings.app.mode | tojson) | safe }},
+      enhancedLiveSafeguards: {{ (settings.execution.enhanced_live_safeguards | tojson) | safe }},
+    };
+
+    // confirmLiveAction(actionLabel) — call this BEFORE any action that
+    // touches real money. Returns true if the operator confirmed (or
+    // safeguards aren't applicable for the current mode), false to
+    // abort. Intentionally just `confirm()` so it's blocking and
+    // impossible to misuse.
+    window.confirmLiveAction = function(actionLabel) {
+      if (!window.APP_CONFIG) return true;
+      if (window.APP_CONFIG.mode !== 'live') return true;
+      if (!window.APP_CONFIG.enhancedLiveSafeguards) return true;
+      const msg =
+        '⚠ We are in LIVE mode.\n\n' +
+        'About to: ' + actionLabel + '\n\n' +
+        'This will affect a real-money account. Are you sure?';
+      return window.confirm(msg);
+    };
+
+    // HALT button — always confirm. In LIVE mode the safeguard prompt
+    // fires too (so it's a 2-tap action, intentional friction).
     (function () {
       const btn = document.getElementById('halt-btn');
       if (!btn) return;
       btn.addEventListener('click', async () => {
         if (!confirm('Emergency HALT: cancel all orders and stop trading?')) return;
+        if (!window.confirmLiveAction('HALT — cancel all open orders')) return;
         try {
           const r = await fetch('/broker/halt', { method: 'POST' });
           if (r.ok) alert('HALT acknowledged.');
