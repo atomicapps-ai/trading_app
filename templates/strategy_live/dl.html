@@ -17,6 +17,11 @@
     </div>
     <div class="flex items-center gap-12">
       <span class="text-tertiary text-xs" id="last-refresh">—</span>
+      <a id="replay-day-btn" class="btn btn-sm"
+         href="/replay?strategy=double_lock&symbols={{ symbols_param }}"
+         title="Open /replay pre-filled with today's date and these symbols.">
+        ▶ Replay this day
+      </a>
       <button type="button" class="btn btn-sm"
               onclick="if (window.htmx) htmx.trigger('#dl-cards', 'load');">
         Refresh now
@@ -140,6 +145,19 @@
   // Per-symbol chart instances live keyed by symbol so we can update
   // them in place rather than re-creating on every HTMX swap.
   window.dlCharts = window.dlCharts || {};
+
+  // Stamp today's ET date onto the "Replay this day" link so the
+  // /replay form pre-fills with the same trading session the operator
+  // is watching live. en-CA gives YYYY-MM-DD natively.
+  (function() {
+    const a = document.getElementById('replay-day-btn');
+    if (!a) return;
+    const d = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+    const u = new URL(a.href, window.location.origin);
+    u.searchParams.set('since', d);
+    u.searchParams.set('until', d);
+    a.href = u.pathname + '?' + u.searchParams.toString();
+  })();
 
   // ---- Density (grid | table) — persisted to localStorage --------------
   const DL_DENSITY_KEY = 'strategy_live.dl.density';

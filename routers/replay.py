@@ -40,8 +40,40 @@ def _default_range() -> tuple[date, date]:
 
 
 @router.get("/replay", response_class=HTMLResponse)
-async def replay_page(request: Request, s: Settings = Depends(get_settings)):
-    since, until = _default_range()
+async def replay_page(
+    request: Request,
+    since: str | None = None,
+    until: str | None = None,
+    symbols: str | None = None,
+    strategy: str | None = None,
+    s: Settings = Depends(get_settings),
+):
+    """Render the replay form. URL query params override the hardcoded
+    defaults so cross-links (e.g. "Replay this day" on /strategy-live/dl)
+    can pre-fill the form. Bad dates fall back silently to the default
+    range — the form still renders, just without the override.
+    """
+    default_since, default_until = _default_range()
+
+    def _parse(value: str | None) -> str | None:
+        if not value:
+            return None
+        try:
+            return datetime.strptime(value, "%Y-%m-%d").date().isoformat()
+        except ValueError:
+            return None
+
+    since_iso = _parse(since) or default_since.isoformat()
+    until_iso = _parse(until) or default_until.isoformat()
+
+    if symbols:
+        syms = [t.strip().upper() for t in symbols.split(",") if t.strip()]
+        symbols_str = ", ".join(syms) if syms else ", ".join(DEFAULT_UNIVERSE)
+    else:
+        symbols_str = ", ".join(DEFAULT_UNIVERSE)
+
+    strategy_str = strategy if strategy in {"double_lock"} else "double_lock"
+
     return templates.TemplateResponse(
         request=request,
         name="replay.html",
@@ -49,9 +81,10 @@ async def replay_page(request: Request, s: Settings = Depends(get_settings)):
             "settings": s,
             "app_version": "0.1.0",
             "active_page": "replay",
-            "default_since": since.isoformat(),
-            "default_until": until.isoformat(),
-            "default_symbols": ", ".join(DEFAULT_UNIVERSE),
+            "default_since": since_iso,
+            "default_until": until_iso,
+            "default_symbols": symbols_str,
+            "default_strategy": strategy_str,
         },
     )
 
