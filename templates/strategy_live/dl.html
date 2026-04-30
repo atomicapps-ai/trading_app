@@ -53,6 +53,22 @@
     </div>
   </div>
 
+  {# Empty-state banner — shown when the current filters hide all rows. #}
+  <div id="dl-empty-banner"
+       style="display: none; padding: 14px 16px; margin-bottom: 12px;
+              background: var(--bg-stat); border: 1px dashed var(--border);
+              border-radius: 6px; font-size: 13px;">
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+      <span class="text-secondary">
+        ⚠ <strong id="dl-empty-count">All</strong> evaluated symbols are hidden by your current filter.
+      </span>
+      <button type="button" class="btn btn-sm btn-primary" onclick="dlShowAll()">
+        Show all rows
+      </button>
+      <span class="text-tertiary text-xs" id="dl-empty-hint"></span>
+    </div>
+  </div>
+
   {# ===== Card/table region (HTMX-polled) ===== #}
   <div id="dl-cards"
        hx-get="/api/strategy-live/dl/cards?symbols={{ symbols_param }}&max_symbols={{ max_n }}"
@@ -173,13 +189,45 @@
     const allowed = new Set();
     document.querySelectorAll('.dl-chip[data-active="1"]').forEach(c =>
       allowed.add(c.dataset.status));
+    let total = 0, visible = 0;
+    const hiddenByStatus = {};
     document.querySelectorAll('[data-symbol][data-rolled]').forEach(el => {
       const sym = el.dataset.symbol;
       const rolled = el.dataset.rolled;
       const passSearch = !search || sym.includes(search);
       const passStatus = allowed.has(rolled);
-      el.style.display = (passSearch && passStatus) ? '' : 'none';
+      const show = (passSearch && passStatus);
+      el.style.display = show ? '' : 'none';
+      total++;
+      if (show) visible++;
+      else if (passSearch && !passStatus) {
+        hiddenByStatus[rolled] = (hiddenByStatus[rolled] || 0) + 1;
+      }
     });
+    // Empty-state: real rows exist but filters hid them all.
+    const banner = document.getElementById('dl-empty-banner');
+    if (banner && total > 0 && visible === 0) {
+      const countEl = document.getElementById('dl-empty-count');
+      const hintEl  = document.getElementById('dl-empty-hint');
+      if (countEl) countEl.textContent = `All ${total}`;
+      if (hintEl) {
+        const breakdown = Object.entries(hiddenByStatus)
+          .filter(([, n]) => n > 0)
+          .map(([k, n]) => `${n} ${k}`)
+          .join(' · ');
+        hintEl.textContent = breakdown ? `(${breakdown})` : '';
+      }
+      banner.style.display = '';
+    } else if (banner) {
+      banner.style.display = 'none';
+    }
+  }
+
+  // "Show all" button on the empty banner — turn every status chip on.
+  function dlShowAll() {
+    document.querySelectorAll('.dl-chip').forEach(c => c.dataset.active = '1');
+    saveDLFilters();
+    applyDLFilters();
   }
 
   // ---- Chart rendering -------------------------------------------------
