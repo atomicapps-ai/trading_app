@@ -47,7 +47,13 @@ _DEFAULT_UA = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"
 )
-_TICKER_HREF_RE = re.compile(r"quote\.ashx\?t=([A-Z][A-Z0-9\.\-]{0,9})")
+# Finviz quietly migrated their ticker links from `quote.ashx?t=SYMBOL`
+# to `quote?t=SYMBOL` (dropped the .ashx extension). The .ashx form
+# returned zero matches starting around 2026-04 and the screener page
+# now uses the bare path. We accept either so the parser stays robust
+# if Finviz ever rolls back. Anchored to a query-string boundary so
+# we don't match unrelated `quote` substrings.
+_TICKER_HREF_RE = re.compile(r"quote(?:\.ashx)?\?t=([A-Z][A-Z0-9\.\-]{0,9})")
 
 
 # ---------------------------------------------------------------------- #
