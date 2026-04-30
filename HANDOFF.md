@@ -1,11 +1,300 @@
-# Session Handoff — 2026-04-25 (afternoon: Copy Insiders + Senate + Stock Lists)
+# Session Handoff — 2026-04-29 (Plan B: vocabulary + IA restructure + 3 prod bug fixes)
 
 Short catch-up doc for resuming in a fresh Claude Code session.
-Read order: **CLAUDE.md** first (full spec + conventions), then this file.
+Read order: **CLAUDE.md** first (full spec + conventions), then this file,
+then **TOMORROW.md** if going into trading-prep mode.
 
 ---
 
-## What shipped this session (2026-04-25 PM)
+## What shipped this session (2026-04-29)
+
+### TL;DR
+Plan B (vocabulary cleanup + sidebar restructure) plus a long, valuable
+side-quest: building `scripts/replay_dl.py` exposed **three production bugs**
+that would have silently broken the live 10:30 ET DL fire — all fixed.
+Replay now validates DL: **80% WR / +5.52% total** across March-April when
+VIX cleared 20. This week (VIX 17-19) the regime gate correctly blocks all
+fires. Strategy is working as designed.
+
+Also shipped: ntfy phone push, universal grid sort, `/jobs` page, `/today`
+cockpit, `/system-health`, Replay UI, sidebar restructure, tab consolidations,
+Strategies parent + Validated/In Progress/Archived buckets, dashboard wired
+to live Alpaca paper data, `--host` flag on `run.py` for Tailscale access.
+
+### 🚨 Three production bugs found by replay_dl.py — fixed
+All three would have silently produced **0 signals** at the live 10:30 ET
+fire regardless of market conditions. Found while building the replay UI;
+fixed in the same session.
+
+1. **`services/indicator_service.py::add_indicators`** — was missing
+   `adx_14`. The DL detector reads `daily["adx_14"]` for the regime gate
+   (must be ≤ 35); column was NaN, so every signal failed silently.
+   Added `_adx()` (Wilder 14, agrees with TradingView) + appended in
+   `add_indicators`.
+
+2. **`agents/analyst.py::run_intraday`** — was passing UTC-indexed 30m
+   bars from `data_service` straight to the detector. The detector
+   compares `c1.name.time() != dtime(9, 30)` and fails when the bar's
+   time is `13:30 UTC` (= 9:30 ET). Added an explicit
+   `tz_convert("America/New_York")` before lens dispatch.
+
+3. **`agents/detectors/double_lock_filtered.py`** — compared a tz-naive
+   `Timestamp(today)` with `daily.index` which is now tz-aware UTC,
+   raising `Invalid comparison between dtype=datetime64[us, UTC] and
+   Timestamp`. Switched to `daily.index.date < today` (works for both
+   naive smoke fixtures and tz-aware production data).
+
+### `scripts/replay_dl.py` (NEW — replay engine + CLI)
+Walks a date range, sets `as_of_ts = <date> 10:30 ET`, calls the
+production detector, simulates exits (15:00 ET close OR 3% catastrophic
+stop hit, whichever first), reports a per-trade table + aggregate stats.
+
+```
+.venv\Scripts\python.exe -m scripts.replay_dl --week
+.venv\Scripts\python.exe -m scripts.replay_dl --since 2026-03-01 --until 2026-04-15 --refresh
+.venv\Scripts\python.exe -m scripts.replay_dl --since 2026-04-01 --symbols META,TSLA,NVDA
+```
+
+**March-April validation result:** 10 trades, 8 wins / 2 losses, 80%
+WR, +5.52% total P&L, 0 stop hits — consistent with the strategy YAML's
+documented 82.4% backtest WR (n=17, CI 65-100%).
+
+### `scripts/workflow_engine` intraday wiring (Slice 1)
+`workflow_engine.py::_run_analyze` now branches on the workflow YAML's
+`intraday_30m: true` flag and dispatches to `run_intraday_on_shortlist`
+(which already existed). Without this, the 10:30 ET cron was calling the
+SWING analyst with daily bars and producing 0 signals. Smoke verified
+end-to-end via `python -m scripts.smoke_intraday_pipeline`.
+
+### ntfy phone push (Slice A)
+- New `services/ntfy_service.py::push(title, body, *, priority, tags, click_url)`
+  — fire-and-forget, never raises, swallows all errors so flaky network
+  doesn't break alert recording.
+- Hooked into `services/alert_service.py::record_alert()` after the SQLite
+  insert. Every alert (lock1_scouted / armed / filled / closed / test) now
+  fires a phone push. Map: armed = high priority + 📈/📉 + deep-link to
+  `/pending/{plan_id}`. Lock1 = default priority + 👀 + dashboard link.
+- Settings: added `enabled: bool = True` to `NtfySettings`.
+- **Bug found + fixed during testing:** the initial implementation used
+  HTTP headers for title/body. httpx encodes headers as ASCII and rejected
+  the "·" character in test alerts ("`'ascii' codec can't encode character
+  '\xb7'`"). Switched to ntfy's JSON publish API (POST /, body
+  `{"topic":..., "title":..., "message":..., "priority": <int>}`). Note:
+  JSON API uses **integer** priority 1-5, not the strings the header API
+  uses (`min=1, low=2, default=3, high=4, urgent=5`).
+- Subscribe on phone: install ntfy app → topic `trading-agent-julius`
+  (or whatever's in `settings.yaml::ntfy.topic`).
+
+### `/jobs` page (Slice B)
+- Real router at `routers/jobs.py` (replaces a 221-line untracked stub
+  scaffold that turned out to be solid groundwork).
+- List view at `/jobs`: every registered scheduler job — name + id, category
+  badge (workflow/capitol_trades/senate/other), cron expression, next run,
+  last run status + summary, **▶ Run now** / **⏸ Pause** / **▶ Resume** buttons.
+- Detail view at `/jobs/{id}` with **3 tabs**: Status / Logs / Run history.
+- New `services/job_log_buffer.py` — in-memory ring buffer (500 lines max
+  per job, deque-based) capturing log output during scheduled runs. Wrapped
+  `_run_workflow_job` and `_dl_lock1_scout_job` in `with capture(job_id)`
+  context managers in `services/scheduler.py`.
+- Endpoints: `/api/jobs`, `/api/jobs/{id}/run`, `/pause`, `/resume`.
+
+### Universal grid sort (`static/grid_sort.js`)
+- Auto-attaches click-to-sort to every `<table>` with a `<thead>` inside
+  `<main>`. No opt-in required.
+- Auto-detects column type by sampling ≤20 non-empty cells: numeric (handles
+  $/,/%/whitespace), ISO date, or string.
+- Active column shows ▲/▼ in accent blue. Sort state persists per page
+  in localStorage keyed by `<pathname>::<table-index>`.
+- Re-attaches automatically after `htmx:afterSwap` so HTMX-loaded tables
+  also sort.
+- Per-column opt-out: `<th data-no-sort="true">`. Per-table:
+  `<table data-no-sort="true">`. Explicit value override:
+  `<td data-sort-value="2026-04-29">29 Apr</td>`.
+- Loaded once in `templates/base.html` after htmx.
+
+### Dashboard alerts banner — UX fix
+The `×` (dismiss) button on each alert and "Dismiss all" returned JSON
+(`{"acknowledged": 1}`) which HTMX swapped as outerHTML — replacing the
+entire banner with the literal JSON text for a flash, then a follow-up
+poll re-fetched the partial. Looked like delete-all-then-rehydrate to the
+operator. Fixed: `/api/alerts/{id}/ack` and `/api/alerts/ack-all` now
+return the rendered banner partial directly. Single round trip, no flash.
+
+### Sidebar restructure (Ship 1)
+Old tree had `Universe` parent over `Stock Screeners + Stock Lists`,
+`Trade History` + `Analysis` as separate items, `Copy Insiders` parent
+over Rankings + Trades, Strategies as a single leaf. New flat structure:
+
+```
+Dashboard
+Today                          NEW — live cockpit
+Pending Approvals  [N]
+─────────────────────────────────────
+Stock Lists                    top-level (per user direction)
+Screeners                      top-level (today's /universe page, relabeled)
+Favorites                      top-level (placeholder; future independent watchlist)
+─────────────────────────────────────
+Strategies ▾                   parent
+├── Validated
+├── In Progress
+└── Archived
+Replay                         NEW — UI for replay_dl.py
+─────────────────────────────────────
+Trade History                  consolidated (was Trade History + Analysis)
+Copy Insiders                  consolidated (was 2 child pages)
+─────────────────────────────────────
+Jobs
+Broker
+System Health                  NEW — "is everything wired?" rollup
+Settings
+Console                        REMOVED (shelved per user direction)
+```
+
+Dividers between sections in `templates/base.html` (`{"divider": True}`
+schema entries + `.nav-divider` CSS). New icons: `activity` (Today),
+`star` (Favorites), `pulse` (System Health).
+
+### Tab consolidations (Ship 2)
+- New shared partial `templates/_partials/_page_tabs.html` — reusable
+  horizontal tab bar component with optional count chips.
+- New CSS class block in `static/app.css`: `.page-tabs`, `.page-tab`,
+  `.page-tab-count`, `.page-tab.active`.
+- **Trade History** + **Analysis** → one sidebar entry, two tabs:
+  Recent · Analysis. Both routes set `active_page="trades"` so the
+  sidebar still highlights correctly.
+- **Copy Insiders Rankings** + **Trades** → one entry, two tabs:
+  Rankings · Disclosures.
+- **Settings** → 5 tabs (Application · Risk · Compliance · Notifications ·
+  Data paths) with single Save button. Tab switching is pure CSS/JS
+  (cards keyed by `data-settings-section`); single form posts the entire
+  settings payload across all tabs. Last-active tab persisted in
+  localStorage.
+
+### Strategies parent + Validated/In Progress/Archived (Ship 3)
+- Adapted the existing 270-line `routers/strategies.py` (was untracked) into
+  the new bucket-tab structure.
+- New routes: `/strategies/validated`, `/strategies/in-progress`,
+  `/strategies/archived`. `/strategies` redirects to `/strategies/validated`.
+- Bucket counts in tab labels.
+- Classification logic: a strategy goes to **Validated** when its YAML's
+  `backtest_summary.point_wr_pct >= 72`; **Archived** when manually
+  archived (override stored in `user_widget_settings.__strategies__`);
+  else **In Progress**.
+- New endpoints: `/api/strategies/{name}/archive` and `/unarchive`.
+- Single template `templates/strategies.html` renders any bucket via the
+  `bucket` context flag.
+- DL has `point_wr_pct: 82.4` → lands in Validated.
+  `swing_momentum.yaml` (no backtest_summary) → In Progress.
+- The 9 swing detectors + `swing_momentum.yaml` are still slated for
+  hard-delete per earlier user direction (Slice C — not yet executed).
+
+### Replay UI (Ship 4)
+- New `routers/replay.py` + `templates/replay.html`.
+- Form: date pickers (default Mon→today), strategy dropdown, symbols
+  textarea (default 16-symbol universe), refresh-cache checkbox, Run button.
+- POST `/api/replay/run?since=...&until=...&symbols=...&refresh=...`
+  reuses `scripts.replay_dl::replay()` directly (single source of truth
+  for replay logic).
+- Results render: summary card (WR / total P&L / best / worst / longs/shorts)
+  + sortable trades table (auto-uses grid_sort.js).
+- Validated end-to-end: matches the CLI's March-April output.
+
+### Today cockpit (Ship 5)
+- New `routers/today.py` + `templates/today.html` + `templates/today/_panels.html`.
+- Composes 7 live data sources, each wrapped in try/except so a single
+  broken service doesn't dark the whole page:
+  - **Regime gate banner** — green PASS / red BLOCKED with reason
+    ("VIX 18.81 below floor 20 — DL will not fire today")
+  - **Macro** — VIX prev close, SPY 20d trend, SPY > SMA200
+  - **Broker** — name + connected badge
+  - **Pending approvals** (from SQLite)
+  - **Open positions** (from broker adapter, real Alpaca paper)
+  - **Today's fills** (from `adapter.get_fills(since_ts=midnight_today)`)
+  - **Jobs firing today** (filtered from scheduler)
+  - **Recent alerts** (from `dl_alerts`)
+- Auto-refreshes every 30s via HTMX swap of `#today-panels` from
+  `GET /api/today/data`.
+
+### System Health rollup (Ship 6)
+- New `routers/system_health.py` + `templates/system_health.html`.
+- Top banner: green OK / red DEGRADED.
+- Six panels in a 2-col grid:
+  - Scheduler — running flag, job count, active/paused split, next fire
+  - Broker — name, connected, account_id, equity, buying_power, halt flag
+  - Data freshness — heartbeat for SPY + AAPL on 30m + 1d (age in hours,
+    flags stale if 30m > 50h or daily > 120h)
+  - Alert pipeline — last alert ts/kind/symbol + ntfy topic + enabled badge
+  - Disk usage — trade_logs/, data/historical/, news_cache/, edgar_cache/,
+    sqlite db (file count + size MB each)
+  - Errors — count + last error line from `job_log_buffer`
+
+### Dashboard wired to real Alpaca data
+- Was using `STUB_ACCOUNT` ($162,480 fake). New helpers
+  `_real_account_or_stub()` / `_real_pending_or_stub()` /
+  `_real_positions_or_stub()` in `routers/dashboard.py` pull live
+  state from `services.broker_service.get_adapter()`. Falls back to
+  STUB on any error so dashboard never 500s.
+- **Bug found + fixed during testing:** initial fix only updated the
+  initial render; the HTMX-polled `/api/dashboard/stats` endpoint was
+  still serving STUB_ACCOUNT, so within 30s of page load the stub
+  values reappeared. Wired that endpoint to the same helper.
+- Real fields surfaced: equity, cash, buying_power, open_positions
+  (count from list), trades_today, unrealized_pnl_today (mapped to
+  the template's `day_pnl_usd`/`day_pnl_pct` fields). max_positions
+  pulled from `settings.risk_defaults.max_open_positions`.
+
+### `run.py --host` flag for phone access
+- Was hardcoded to `127.0.0.1:5000`. Now accepts `--host` and `--port`
+  args via argparse. Defaults preserved for `dev` and `prod` subcommands.
+- Phone access via Tailscale: `python run.py prod --host 0.0.0.0` (with
+  Windows firewall rule) or bind to a specific Tailscale IP.
+- **Pending — internet access not just LAN.** Tailscale tailnet works
+  on cellular but the user wants public-internet exposure too. Options:
+  Tailscale Funnel (HTTPS, free tier), Cloudflare Tunnel, or ngrok.
+  Deferred to a future session.
+
+### `routers/replay.py`, `routers/today.py`, `routers/system_health.py`,
+### `routers/strategies.py`, `routers/jobs.py` — all wired in `app.py`
+The two untracked routers (`jobs.py`, `strategies.py`) that existed in
+`main` but no branch are now first-class committed code. `routers/stubs.py`
+trimmed to just the `/strategies` redirect + a few placeholders for
+`/favorites` and `/console`.
+
+### Glossary + IA design docs
+- `docs/glossary_and_audit.md` — canonical definitions for 9 trading
+  terms (strategy, screener, signal, setup, universe, watchlist, pattern,
+  indicator, detector). Sources: Investopedia (via search snippets — direct
+  fetch was blocked), TradingView Pine docs, Wikipedia, BabyPips,
+  StocksToTrade. Misuse audit of current codebase: 3 high-severity
+  issues (universe = output not eligibility set, strategy smeared across
+  4 layers, detector used as strategy synonym).
+- `docs/sidebar_restructure.md` — IA proposal that drove Ships 1-6.
+
+### Multiple Alpaca paper accounts — NOT supported
+Alpaca technically supports multiple paper accounts (each gets its own
+API key pair). The app reads ONE pair from `.env` (`ALPACA_API_KEY` +
+`ALPACA_API_SECRET`). Multi-account UI would need:
+- Multiple credential sets stored in DB (encrypted)
+- "Active account" selector in topbar
+- Per-account isolation of positions/orders/fills
+Estimated 1-2 days of work — flag for future slice when needed.
+
+### End-of-session smokes
+- ✅ `scripts/smoke_alpaca_paper.py` — auth + read path verified.
+  Account `2634a486-34e9-432c-b70b-ef3070a6f364`, equity $99,999.96,
+  cash $99,999.96, buying_power $122,437.42, 0 positions.
+- ⏳ `scripts/smoke_alpaca_order_roundtrip.py` — order PLACED OK
+  (`broker_order_id=c6fac80a...`) but didn't fill (market closed at
+  4pm ET). The placement path is verified end-to-end; fill verification
+  was deferred to tomorrow's first armed trade.
+- **Cleanup needed in main repo:** that BUY 1 SPY paper order is still
+  pending. Cancel via `/broker` page (HALT button cancels all open
+  orders) OR run `.venv\Scripts\python.exe -m scripts.smoke_alpaca_paper`
+  followed by a manual cancel — see TOMORROW.md.
+
+---
+
+## Previous session (2026-04-25 PM)
 
 ### TL;DR
 Copy Trading was rebuilt as **Copy Insiders** with both chambers, multi-follow,
