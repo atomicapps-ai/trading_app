@@ -100,6 +100,24 @@ def _atr(
     return _wilder_rma(_true_range(high, low, close), n)
 
 
+def _adx(
+    high: pd.Series,
+    low: pd.Series,
+    close: pd.Series,
+    n: int = 14,
+) -> pd.Series:
+    """Wilder's Average Directional Index — agrees with TradingView's ADX(14)."""
+    up = high.diff()
+    down = -low.diff()
+    plus_dm  = up.where((up > down) & (up > 0), 0.0).fillna(0.0)
+    minus_dm = down.where((down > up) & (down > 0), 0.0).fillna(0.0)
+    tr_n     = _wilder_rma(_true_range(high, low, close), n)
+    plus_di  = 100.0 * _wilder_rma(plus_dm, n)  / tr_n.replace(0.0, np.nan)
+    minus_di = 100.0 * _wilder_rma(minus_dm, n) / tr_n.replace(0.0, np.nan)
+    dx       = 100.0 * (plus_di - minus_di).abs() / (plus_di + minus_di).replace(0.0, np.nan)
+    return _wilder_rma(dx, n)
+
+
 def _bollinger(
     close: pd.Series, n: int = 20, mult: float = 2.0
 ) -> tuple[pd.Series, pd.Series, pd.Series]:
@@ -269,10 +287,11 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     out["sma_200"] = _sma(close, 200)
     out["ema_20"] = _ema(close, 20)
 
-    # RSI, ATR
+    # RSI, ATR, ADX
     out["rsi_14"] = _rsi(close, 14)
     out["atr_14"] = _atr(high, low, close, 14)
     out["atr_14_pct"] = 100.0 * out["atr_14"] / close
+    out["adx_14"] = _adx(high, low, close, 14)
 
     # Bollinger + Keltner → Squeeze
     bb_u, bb_m, bb_l = _bollinger(close, 20, 2.0)

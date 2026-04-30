@@ -257,6 +257,14 @@ class Analyst:
             logger.info("intraday analyst: skipping %s 30m — %s", symbol, e)
             return []
 
+        # The intraday detectors compare bar timestamps to America/New_York
+        # wall-clock times (9:30, 10:00, 10:30 ET). data_service returns
+        # UTC-indexed bars, so without this conversion every time-gate check
+        # silently fails and the detector returns None for every symbol.
+        if bars_30m.index.tz is None:
+            bars_30m.index = bars_30m.index.tz_localize("UTC")
+        bars_30m = bars_30m.tz_convert("America/New_York")
+
         daily_ind = add_indicators(daily)
         vix_prev_close = (macro_context or {}).get("vix_level")
 

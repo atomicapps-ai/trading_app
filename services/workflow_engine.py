@@ -37,7 +37,11 @@ import pandas as pd
 import yaml
 from pydantic import BaseModel, Field, field_validator
 
-from agents.analyst import load_strategy_config, run_analyst_on_shortlist
+from agents.analyst import (
+    load_strategy_config,
+    run_analyst_on_shortlist,
+    run_intraday_on_shortlist,
+)
 from agents.macro import compute_macro_context
 from agents.portfolio_manager import PortfolioManager
 from agents.universe_filter import UniverseFilter
@@ -346,7 +350,14 @@ class WorkflowEngine:
         macro_context = macro_out.get("macro_context", {})
 
         strategy = step.params.get("strategy", "swing_momentum")
-        signals_by_symbol = await run_analyst_on_shortlist(
+        intraday = bool(step.params.get("intraday_30m"))
+
+        runner = run_intraday_on_shortlist if intraday else run_analyst_on_shortlist
+        logger.info(
+            "analyze: dispatching to %s analyst (strategy=%s)",
+            "intraday" if intraday else "daily", strategy,
+        )
+        signals_by_symbol = await runner(
             shortlist,
             settings=self._settings,
             macro_context=macro_context,

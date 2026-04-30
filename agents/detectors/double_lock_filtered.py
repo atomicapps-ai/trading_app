@@ -188,9 +188,10 @@ def detect_double_lock_filtered(
     if vix_prev_close is None or vix_prev_close < vix_min:
         return None
 
-    # Yesterday's daily row (no look-ahead — drop today)
-    today_ts = pd.Timestamp(today)
-    prev_idx = daily.index[daily.index < today_ts]
+    # Yesterday's daily row (no look-ahead — drop today). Compare on date
+    # so this works regardless of whether the daily index is tz-naive
+    # (smoke fixture) or tz-aware UTC (production data_service path).
+    prev_idx = daily.index[daily.index.date < today]
     if len(prev_idx) == 0:
         return None
     prev_daily = daily.loc[prev_idx[-1]]
