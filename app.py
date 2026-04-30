@@ -80,6 +80,13 @@ async def lifespan(_: FastAPI):
     except Exception as exc:
         logger.error("SQLite ensure_tables failed: %s", exc)
     try:
+        # First boot only: populate broker_accounts from .env credentials.
+        # No-op on subsequent boots — registry is owned by the user via UI.
+        from services import account_service
+        await account_service.ensure_seeded_from_env()
+    except Exception as exc:
+        logger.error("Broker accounts seed failed: %s", exc)
+    try:
         ok = await connect_adapter()
         logger.info("Broker adapter: %s", "connected" if ok else "failed")
     except Exception as exc:

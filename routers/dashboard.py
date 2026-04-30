@@ -31,8 +31,6 @@ from services.indicator_registry import INDICATORS, indicators_by_category
 from services.settings_service import TEMPLATES_DIR, Settings, get_settings
 from services.stub_data import (
     STUB_ACCOUNT,
-    STUB_ACTIVITY,
-    STUB_AGENTS,
     STUB_OPEN_POSITIONS,
     STUB_PENDING,
 )
@@ -327,7 +325,7 @@ async def dashboard_agents(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="dashboard/_agents.html",
-        context={"agents": STUB_AGENTS},
+        context={"agents": await _real_agents()},
     )
 
 
@@ -336,5 +334,192 @@ async def dashboard_activity(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="dashboard/_activity.html",
-        context={"activity": STUB_ACTIVITY[:10]},
+        context={"activity": await _real_activity(limit=10)},
     )
+
+
+# --------------------------------------------------------------------------- #
+# Real-data helpers for the agents + activity cards
+# --------------------------------------------------------------------------- #
+
+
+async def _real_agents() -> list[dict]:
+    """Build the agents card from registered scheduler jobs + last
+    pipeline_runs status. Each scheduler workflow job appears as one row;
+    status is green / amber / red depending on whether its last run
+    succeeded, hasn't run yet, or errored.
+
+    Falls back to a static "agents not yet started" list on any error.
+    """
+    try:
+        from services import db_service
+        from services.scheduler import get_scheduler
+
+        sched = get_scheduler()
+        jobs = sched.get_jobs() if sched.running else []
+        runs = await db_service.list_pipeline_runs(limit=200)
+        runs_by_workflow: dict[str, dict] = {}
+        for r in runs:
+            wf = r.get("workflow_id")
+            if wf and wf not in runs_by_workflow:
+                runs_by_workflow[wf] = r
+
+        # Workflow scheduler jobs are id-prefixed `wf_` per scheduler.py
+        rows: list[dict] = []
+        for j in jobs:
+            jid = getattr(j, "id", "")
+            if not jid.startswith("wf_"):
+                continue
+            workflow_id = jid[len("wf_"):]
+            last = runs_by_workflow.get(workflow_id)
+            if last is None:
+                status = "amber"
+                detail = f"next: {_fmt_next_run(j.next_run_time)}"
+            elif (last.get("status") or "").lower() in ("error", "failed"):
+                status = "red"
+                detail = f"last err: {(last.get('error_message') or '').splitlines()[0][:60]}"
+            else:
+                ts = last.get("ts_end") or last.get("ts_start") or ""
+                status = "green"
+                from services.stub_data import time_ago
+                detail = (
+                    f"{last.get('signals_generated', 0)} sig · "
+                    f"{last.get('plans_proposed', 0)} plans · "
+                    f"{time_ago(ts) if ts else 'recent'}"
+                )
+            rows.append({
+                "name": workflow_id.replace("_", " "),
+                "status": status,
+                "detail": detail,
+            })
+
+        # If no workflow jobs are registered (research mode, fresh boot)
+        # show the broker connection as a single "agent" so the card
+        # isn't empty.
+        if not rows:
+            from services.broker_service import get_adapter
+            adapter = get_adapter()
+            rows.append({
+                "name": adapter.broker_name,
+                "status": "green" if adapter.connected else "amber",
+                "detail": "connected" if adapter.connected else "not connected",
+            })
+        return rows
+    except Exception as e:                                            # noqa: BLE001
+        logger.warning("dashboard: agents fetch failed (%s)", e)
+        return [{"name": "agents", "status": "amber",
+                 "detail": "no recent runs"}]
+
+
+def _fmt_next_run(dt) -> str:
+    if dt is None:
+        return "—"
+    try:
+        from datetime import datetime, timezone
+        delta = dt - datetime.now(dt.tzinfo or timezone.utc)
+        secs = int(delta.total_seconds())
+        if secs < 0:
+            return "due"
+        if secs < 60:
+            return f"in {secs}s"
+        if secs < 3600:
+            return f"in {secs // 60}m"
+        if secs < 86400:
+            return f"in {secs // 3600}h"
+        return f"in {secs // 86400}d"
+    except Exception:                                                 # noqa: BLE001
+        return "—"
+
+
+async def _real_activity(limit: int = 10) -> list[dict]:
+    """Build a unified activity feed from three real sources:
+
+      1. dl_alerts (armed / filled / closed / lock1_scouted)
+      2. pipeline_runs (workflow completes)
+      3. broker fills since midnight ET today
+
+    Sorts newest-first by ISO timestamp, returns top N as the dict shape
+    ``templates/dashboard/_activity.html`` expects: ``{ts, kind, text}``.
+    """
+    from datetime import datetime, time, timezone
+
+    items: list[dict] = []
+
+    # --- Alerts -----------------------------------------------------------
+    try:
+        from services import alert_service
+        alerts = await alert_service.list_alerts(limit=limit * 2)
+        for a in alerts:
+            kind_map = {
+                "armed":          "plan",
+                "lock1_scouted":  "signal",
+                "filled":         "fill",
+                "closed":         "fill",
+                "test":           "signal",
+            }
+            items.append({
+                "_ts_iso": a.get("ts", ""),
+                "ts":      _hhmm(a.get("ts", "")),
+                "kind":    kind_map.get(a.get("kind", ""), "signal"),
+                "text":    a.get("title") or f"{a.get('kind')} {a.get('symbol') or ''}",
+            })
+    except Exception as e:                                            # noqa: BLE001
+        logger.debug("activity: alerts source failed (%s)", e)
+
+    # --- Pipeline runs ----------------------------------------------------
+    try:
+        from services import db_service
+        runs = await db_service.list_pipeline_runs(limit=limit)
+        for r in runs:
+            ts_iso = r.get("ts_end") or r.get("ts_start") or ""
+            wf = r.get("workflow_id") or "workflow"
+            sig = r.get("signals_generated") or 0
+            plans = r.get("plans_proposed") or 0
+            text = f"{wf}: {sig} signals, {plans} plans"
+            items.append({
+                "_ts_iso": ts_iso,
+                "ts":      _hhmm(ts_iso),
+                "kind":    "universe" if r.get("status") == "complete" else "block",
+                "text":    text,
+            })
+    except Exception as e:                                            # noqa: BLE001
+        logger.debug("activity: pipeline_runs source failed (%s)", e)
+
+    # --- Broker fills (today) ---------------------------------------------
+    try:
+        from services.broker_service import get_adapter
+        adapter = get_adapter()
+        if adapter.connected:
+            midnight = datetime.combine(
+                datetime.now(timezone.utc).date(), time(0, 0),
+                tzinfo=timezone.utc,
+            ).isoformat()
+            fills = await adapter.get_fills(since_ts=midnight)
+            for f in fills[:limit]:
+                items.append({
+                    "_ts_iso": f.ts,
+                    "ts":      _hhmm(f.ts),
+                    "kind":    "fill",
+                    "text":    f"{f.symbol} {f.side} {f.shares} @ {f.price:.2f}",
+                })
+    except Exception as e:                                            # noqa: BLE001
+        logger.debug("activity: fills source failed (%s)", e)
+
+    # Sort newest-first, drop the _ts_iso scratch field.
+    items.sort(key=lambda x: x.get("_ts_iso", ""), reverse=True)
+    out: list[dict] = []
+    for it in items[:limit]:
+        out.append({"ts": it["ts"], "kind": it["kind"], "text": it["text"]})
+    return out
+
+
+def _hhmm(iso_ts: str) -> str:
+    """Render an ISO timestamp as HH:MM in local time (best-effort)."""
+    if not iso_ts:
+        return ""
+    try:
+        from datetime import datetime
+        dt = datetime.fromisoformat(iso_ts.replace("Z", "+00:00"))
+        return dt.astimezone().strftime("%H:%M")
+    except Exception:                                                 # noqa: BLE001
+        return ""

@@ -128,8 +128,26 @@ def _build_order_request(order: Order):
 class AlpacaAdapter(BrokerAdapter):
     """Alpaca paper (default) or live adapter."""
 
-    def __init__(self, paper: bool = True) -> None:
+    def __init__(
+        self,
+        paper: bool = True,
+        *,
+        key_id: str | None = None,
+        secret: str | None = None,
+        label: str | None = None,
+    ) -> None:
+        """Construct the adapter.
+
+        Credentials precedence:
+            1. ``key_id`` + ``secret`` kwargs (passed by ``broker_service``
+               from the active ``broker_accounts`` row)
+            2. ``ALPACA_TRADING_KEY_ID`` / ``ALPACA_TRADING_SECRET`` env
+            3. ``ALPACA_API_KEY`` / ``ALPACA_API_SECRET`` env
+        """
         self._paper = paper
+        self._explicit_key_id = key_id
+        self._explicit_secret = secret
+        self._label = label
         self._trading_client = None  # alpaca.trading.client.TradingClient
         self._data_client = None  # alpaca.data.historical.stock.StockHistoricalDataClient
         self._account_id: str | None = None
@@ -143,17 +161,25 @@ class AlpacaAdapter(BrokerAdapter):
 
     @property
     def broker_name(self) -> str:
+        if self._label:
+            return self._label
         return "alpaca_paper" if self._paper else "alpaca_live"
 
     async def connect(self) -> bool:
-        # Prefer the dedicated TRADING_* pair, fall back to the
-        # API_KEY / API_SECRET pair Alpaca issues on signup.
-        key_id = os.getenv("ALPACA_TRADING_KEY_ID") or os.getenv("ALPACA_API_KEY")
-        secret = os.getenv("ALPACA_TRADING_SECRET") or os.getenv("ALPACA_API_SECRET")
+        key_id = (
+            self._explicit_key_id
+            or os.getenv("ALPACA_TRADING_KEY_ID")
+            or os.getenv("ALPACA_API_KEY")
+        )
+        secret = (
+            self._explicit_secret
+            or os.getenv("ALPACA_TRADING_SECRET")
+            or os.getenv("ALPACA_API_SECRET")
+        )
         if not key_id or not secret:
             logger.error(
-                "Alpaca connect failed: set ALPACA_API_KEY + ALPACA_API_SECRET "
-                "(or ALPACA_TRADING_KEY_ID + ALPACA_TRADING_SECRET) in .env"
+                "Alpaca connect failed: no credentials. Add an account on "
+                "/broker or set ALPACA_API_KEY + ALPACA_API_SECRET in .env."
             )
             return False
 

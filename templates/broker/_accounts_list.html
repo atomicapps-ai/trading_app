@@ -1,0 +1,67 @@
+{# Accounts list — partial. Rendered inline on /broker and re-fetched
+   via HTMX after activate / create / edit / delete. #}
+{% if not accounts %}
+  <div class="text-tertiary text-sm" style="padding: 12px 0;">
+    No broker accounts configured yet. Use "Add account" below.
+  </div>
+{% else %}
+  <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+    <thead>
+      <tr style="border-bottom: 0.5px solid var(--row-border);">
+        <th class="text-secondary text-xs" style="text-align: left; padding: 6px 8px; font-weight: 500;">Active</th>
+        <th class="text-secondary text-xs" style="text-align: left; padding: 6px 8px; font-weight: 500;">Label</th>
+        <th class="text-secondary text-xs" style="text-align: left; padding: 6px 8px; font-weight: 500;">Provider</th>
+        <th class="text-secondary text-xs" style="text-align: left; padding: 6px 8px; font-weight: 500;">Type</th>
+        <th class="text-secondary text-xs" style="text-align: left; padding: 6px 8px; font-weight: 500;">Key ID</th>
+        <th class="text-secondary text-xs" style="text-align: left; padding: 6px 8px; font-weight: 500;">Last connected</th>
+        <th class="text-secondary text-xs" style="text-align: right; padding: 6px 8px; font-weight: 500;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in accounts %}
+        <tr style="border-bottom: 0.5px solid var(--row-border); {% if a.is_active %}background: var(--bg-stat);{% endif %}">
+          <td style="padding: 8px;">
+            {% if a.is_active %}
+              <span class="dot green" title="active"></span>
+            {% else %}
+              <span class="dot" style="background: var(--text-tertiary);"></span>
+            {% endif %}
+          </td>
+          <td class="mono" style="padding: 8px;">{{ a.label }}</td>
+          <td style="padding: 8px;"><span class="badge badge-gray">{{ a.provider }}</span></td>
+          <td style="padding: 8px;">
+            {% if a.account_type == 'live' %}
+              <span class="badge" style="background: rgba(239,68,68,.15); color: var(--accent-red);">LIVE</span>
+            {% else %}
+              <span class="badge badge-blue">paper</span>
+            {% endif %}
+          </td>
+          <td class="mono text-secondary text-xs" style="padding: 8px;">{{ a.key_id_masked or '—' }}</td>
+          <td class="text-tertiary text-xs" style="padding: 8px;">
+            {% if a.last_connected_at %}
+              {{ a.last_connected_at[:16].replace('T', ' ') }}
+            {% else %}
+              —
+            {% endif %}
+            {% if a.last_error %}
+              <div class="text-accent-red" style="font-size: 11px; margin-top: 2px;">err: {{ a.last_error[:60] }}</div>
+            {% endif %}
+          </td>
+          <td style="padding: 8px; text-align: right;">
+            {% if not a.is_active %}
+              <button type="button" class="btn btn-sm"
+                      onclick="activateAccount('{{ a.slug }}')"
+                      title="Use this account">Activate</button>
+            {% endif %}
+            <button type="button" class="btn btn-sm"
+                    onclick="editAccount('{{ a.slug }}', '{{ a.label|e }}')"
+                    title="Edit label / rotate keys">Edit</button>
+            <button type="button" class="btn btn-sm btn-danger"
+                    onclick="deleteAccount('{{ a.slug }}', '{{ a.label|e }}')"
+                    title="Delete">×</button>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}

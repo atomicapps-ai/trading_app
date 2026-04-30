@@ -1,0 +1,14 @@
+{# Topbar account-picker button content. Replaced via HTMX. #}
+{% if active %}
+  {% if active.account_type == 'live' %}
+    <span class="dot" style="background: var(--accent-red);" title="LIVE account"></span>
+  {% else %}
+    <span class="dot green" title="paper account"></span>
+  {% endif %}
+  <span class="mono">{{ active.label }}</span>
+  <span class="text-tertiary text-xs">▾</span>
+{% else %}
+  <span class="dot" style="background: var(--text-tertiary);"></span>
+  <span class="text-tertiary">No account</span>
+  <span class="text-tertiary text-xs">▾</span>
+{% endif %}
