@@ -69,16 +69,33 @@ async def alerts_banner(request: Request):
 # --------------------------------------------------------------------------- #
 
 
-@router.post("/api/alerts/{alert_id}/ack", response_class=JSONResponse)
-async def ack_alert(alert_id: int) -> dict:
-    n = await alert_service.acknowledge(alert_id)
-    return {"acknowledged": n}
+@router.post("/api/alerts/{alert_id}/ack", response_class=HTMLResponse)
+async def ack_alert(alert_id: int, request: Request):
+    """Acknowledge one alert, return the refreshed banner partial.
+
+    HTMX swaps the response straight into ``#alerts-banner`` so the
+    dismissed row disappears in-place and the unread count updates
+    in a single round trip — no JSON flash, no follow-up poll.
+    """
+    await alert_service.acknowledge(alert_id)
+    rows = await alert_service.list_alerts(only_unread=True, limit=10)
+    return templates.TemplateResponse(
+        request=request,
+        name="dashboard/_alerts_banner.html",
+        context={"alerts": rows, "unread_count": len(rows)},
+    )
 
 
-@router.post("/api/alerts/ack-all", response_class=JSONResponse)
-async def ack_all() -> dict:
-    n = await alert_service.acknowledge_all_unread()
-    return {"acknowledged": n}
+@router.post("/api/alerts/ack-all", response_class=HTMLResponse)
+async def ack_all(request: Request):
+    """Acknowledge every unread alert, return the (now empty) banner partial."""
+    await alert_service.acknowledge_all_unread()
+    rows = await alert_service.list_alerts(only_unread=True, limit=10)
+    return templates.TemplateResponse(
+        request=request,
+        name="dashboard/_alerts_banner.html",
+        context={"alerts": rows, "unread_count": len(rows)},
+    )
 
 
 # --------------------------------------------------------------------------- #

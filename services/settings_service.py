@@ -61,6 +61,7 @@ class NtfyPriorityMap(BaseModel):
 
 
 class NtfySettings(BaseModel):
+    enabled: bool = True
     server: str = "https://ntfy.sh"
     topic: str = "trading-agent-julius"
     priority_map: NtfyPriorityMap = Field(default_factory=NtfyPriorityMap)

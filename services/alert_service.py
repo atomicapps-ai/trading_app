@@ -74,6 +74,55 @@ async def record_alert(
         "alert recorded: id=%s kind=%s strategy=%s symbol=%s",
         new_id, kind, strategy, symbol,
     )
+
+    # Fire-and-forget phone push. Never raises — ntfy_service swallows
+    # all errors so a flaky push provider can't break alert recording.
+    try:
+        from services import ntfy_service
+        from services.settings_service import get_settings
+
+        s = get_settings()
+        # Map alert kind → ntfy priority. Lock1 is informational; armed +
+        # filled are actionable; closed/test are quiet.
+        priority_by_kind: dict[str, str] = {
+            "lock1_scouted": "default",
+            "armed":         s.ntfy.priority_map.pending_approval,  # "high"
+            "filled":        s.ntfy.priority_map.fill_received,     # "default"
+            "closed":        "low",
+            "test":          "low",
+        }
+        priority = priority_by_kind.get(kind, "default")
+
+        # Tag pulls a relevant emoji on the phone (chart_increasing for
+        # bullish armed, etc.). ntfy renders these as small icons.
+        tag_by_kind: dict[str, str] = {
+            "lock1_scouted": "eyes",
+            "armed":         "chart_increasing" if direction == "long" else "chart_decreasing",
+            "filled":        "white_check_mark",
+            "closed":        "checkered_flag",
+            "test":          "test_tube",
+        }
+        tags = [tag_by_kind.get(kind, "bell")]
+
+        # Click URL deep-links to the right page. Armed alerts go to the
+        # specific pending approval; everything else lands on the dashboard.
+        host = s.app.tailscale_hostname or "127.0.0.1"
+        port = s.app.port
+        if kind == "armed" and plan_id:
+            click_url = f"http://{host}:{port}/pending/{plan_id}"
+        else:
+            click_url = f"http://{host}:{port}/"
+
+        await ntfy_service.push(
+            title=title,
+            body=body or f"{kind} · {symbol or strategy}",
+            priority=priority,
+            tags=tags,
+            click_url=click_url,
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("ntfy hook failed (alert recorded successfully): %s", exc)
+
     return new_id
 
 

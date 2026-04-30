@@ -16,8 +16,7 @@
     <button class="btn btn-sm" type="button"
             hx-post="/api/alerts/ack-all"
             hx-target="#alerts-banner"
-            hx-swap="outerHTML"
-            hx-on::after-request="window.htmx?.trigger(document.querySelector('[data-alerts-poll]'), 'load')">
+            hx-swap="outerHTML">
       Dismiss all
     </button>
   </div>
@@ -42,7 +41,6 @@
                 hx-post="/api/alerts/{{ a.id }}/ack"
                 hx-target="#alerts-banner"
                 hx-swap="outerHTML"
-                hx-on::after-request="window.htmx?.trigger(document.querySelector('[data-alerts-poll]'), 'load')"
                 title="Dismiss">×</button>
       </div>
     {% endfor %}
