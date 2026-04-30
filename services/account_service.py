@@ -168,7 +168,15 @@ async def update_account(
     key_id: str | None = None,
     secret: str | None = None,
     extra: dict | None = None,
+    account_type: str | None = None,
+    provider: str | None = None,
 ) -> bool:
+    """Update one row. All fields are optional; only the ones provided
+    are written. ``account_type`` and ``provider`` ARE editable — needed
+    when the user mis-classified a row at create time (e.g. created a
+    "paper" account with live keys). The active adapter is NOT rebuilt
+    here; callers (the broker router) own that side-effect after a
+    successful update."""
     fields: list[tuple[str, object]] = []
     if label is not None:
         fields.append(("label", label))
@@ -178,6 +186,16 @@ async def update_account(
         fields.append(("secret", secret))
     if extra is not None:
         fields.append(("extra_json", json.dumps(extra)))
+    if account_type is not None:
+        if account_type not in ("paper", "live"):
+            raise ValueError(
+                f"account_type must be 'paper' or 'live', got {account_type!r}"
+            )
+        fields.append(("account_type", account_type))
+    if provider is not None:
+        if provider not in ("alpaca", "tradestation"):
+            raise ValueError(f"unknown provider: {provider!r}")
+        fields.append(("provider", provider))
     if not fields:
         return False
     fields.append(("updated_at", _now()))

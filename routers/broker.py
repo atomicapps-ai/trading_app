@@ -161,29 +161,52 @@ async def broker_accounts_activate(slug: str):
     })
 
 
+@router.get("/api/broker/accounts/{slug}/snapshot")
+async def broker_account_snapshot(slug: str):
+    """Read-only JSON view of one account — used by the edit form to
+    pre-fill provider + account_type. Secrets are masked."""
+    accts = await account_service.list_accounts_redacted()
+    for a in accts:
+        if a.get("slug") == slug:
+            return JSONResponse(a)
+    raise HTTPException(status_code=404, detail=f"unknown account: {slug}")
+
+
 @router.post("/api/broker/accounts/{slug}/edit")
 async def broker_accounts_edit(
     slug: str,
     label: str | None = Form(None),
     key_id: str | None = Form(None),
     secret: str | None = Form(None),
+    account_type: str | None = Form(None),
+    provider: str | None = Form(None),
 ):
-    ok = await account_service.update_account(
-        slug,
-        label=label.strip() if label else None,
-        # Empty strings on PATCH-style edits mean "leave unchanged" — UI
-        # form submits empty fields when the user only updated one of
-        # the three text inputs.
-        key_id=key_id.strip() if key_id else None,
-        secret=secret.strip() if secret else None,
-    )
+    try:
+        ok = await account_service.update_account(
+            slug,
+            label=label.strip() if label else None,
+            # Empty strings mean "leave unchanged" — the form sends empty
+            # values for fields the user didn't touch.
+            key_id=key_id.strip() if key_id else None,
+            secret=secret.strip() if secret else None,
+            account_type=account_type if account_type else None,
+            provider=provider if provider else None,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
     if not ok:
         raise HTTPException(status_code=404, detail=f"unknown account: {slug}")
-    # If the active account's creds changed we need to rebuild.
+    # If the active account changed in any way (creds, type, provider)
+    # we need to rebuild the adapter. Type changes also re-align mode.
     active = await account_service.get_active_account()
     if active and active["slug"] == slug:
-        await broker_service.reset_adapter()
-        await broker_service.connect_adapter()
+        if account_type and active["account_type"] != account_type:
+            # Re-running _apply_active_account aligns settings.app.mode
+            # with the new account_type AND rebuilds the adapter.
+            await _apply_active_account(slug)
+        else:
+            await broker_service.reset_adapter()
+            await broker_service.connect_adapter()
     return JSONResponse({"updated": slug})
 
 

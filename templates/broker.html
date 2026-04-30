@@ -257,8 +257,23 @@
   }
 
   function reloadAccountsList() {
-    if (window.htmx) htmx.trigger('#accounts-list', 'load');
-    if (window.htmx) htmx.trigger('#account-snapshot', 'load');
+    // hx-trigger="load" fires once on initial mount; htmx.trigger(elt,'load')
+    // does NOT re-fire it on a 2nd call (HTMX 2.x behavior). Use
+    // htmx.ajax() with explicit GET + target + swap so the partial
+    // reliably refetches after every CRUD action.
+    if (window.htmx) {
+      try {
+        htmx.ajax('GET', '/api/broker/accounts', {
+          target: '#accounts-list', swap: 'innerHTML',
+        });
+        htmx.ajax('GET', '/api/broker/account-card', {
+          target: '#account-snapshot', swap: 'innerHTML',
+        });
+        // Also refresh the topbar account picker so it reflects the
+        // possibly-new active row + any deletions.
+        document.body.dispatchEvent(new CustomEvent('refresh-account-picker'));
+      } catch (_) { /* defensive — fall through */ }
+    }
   }
 
   async function activateAccount(slug) {
@@ -272,17 +287,33 @@
     }
   }
 
-  function editAccount(slug, label) {
+  async function editAccount(slug, label) {
     document.getElementById('account-form-mode').value = 'edit';
     document.getElementById('account-form-slug').value = slug;
     document.getElementById('account-form-title').textContent = 'Edit ' + label;
     const f = document.getElementById('account-form');
     f.reset();
     f.elements['label'].value = label;
-    // Provider/account_type/activate aren't editable post-create — disable them
-    f.elements['provider'].disabled = true;
-    f.elements['account_type'].disabled = true;
-    f.elements['activate'].disabled = true;
+
+    // Pre-fill provider + account_type from the current row so the user
+    // can SEE what they're editing and change either if needed (e.g.
+    // "I created this as paper but the keys are actually live").
+    try {
+      const r = await fetch('/api/broker/accounts/' + slug + '/snapshot');
+      if (r.ok) {
+        const a = await r.json();
+        if (a.provider)     f.elements['provider'].value     = a.provider;
+        if (a.account_type) f.elements['account_type'].value = a.account_type;
+      }
+    } catch (_) { /* fields stay at form defaults */ }
+
+    // Editable on edit: label, provider, account_type, key_id, secret.
+    f.elements['provider'].disabled = false;
+    f.elements['account_type'].disabled = false;
+    // "Activate after save" doesn't apply to edits — it's a create-only
+    // affordance. Hide it instead of disabling so the layout stays clean.
+    if (f.elements['activate']) f.elements['activate'].disabled = true;
+
     document.getElementById('account-form-block').style.display = 'block';
   }
 
@@ -307,9 +338,10 @@
     // Drop the hidden fields and disabled fields the backend doesn't want.
     fd.delete('_mode'); fd.delete('_slug');
     if (mode === 'edit') {
-      // On edit, provider/account_type/activate aren't sent — only the
-      // mutable fields. Empty key_id/secret means "leave unchanged".
-      fd.delete('provider'); fd.delete('account_type'); fd.delete('activate');
+      // On edit, provider + account_type ARE sent (so the user can
+      // re-classify a mis-labelled row, e.g. paper→live). Empty
+      // key_id/secret still means "leave unchanged".
+      fd.delete('activate');
       const r = await fetch('/api/broker/accounts/' + slug + '/edit',
                             { method: 'POST', body: fd });
       if (r.ok) {
