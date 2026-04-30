@@ -36,9 +36,20 @@
            data-toggle-pnl
            data-pnl-usd="{{ "%.2f"|format(p.pnl_usd) }}"
            data-pnl-pct="{{ "%.2f"|format(p.pnl_pct) }}"
-           title="{{ p.direction|upper }} {{ p.shares }} @ ${{ "%.2f"|format(p.entry) }} → ${{ "%.2f"|format(p.current) }}">
-          <span class="mono">{{ p.symbol }}</span>
+           title="{{ p.direction|upper }} {{ p.shares }} @ ${{ "%.2f"|format(p.entry) }} → ${{ "%.2f"|format(p.current) }}{% if p.tp_price %} · TP ${{ "%.2f"|format(p.tp_price) }}{% endif %}{% if p.sl_price %} · SL ${{ "%.2f"|format(p.sl_price) }}{% endif %}">
+          {% if p.direction == 'long' %}
+            <span class="live-bar-dir-arrow live-bar-pos">▲</span>
+          {% else %}
+            <span class="live-bar-dir-arrow live-bar-neg">▼</span>
+          {% endif %}
+          <span class="mono live-bar-sym">{{ p.symbol }}</span>
           <span class="mono live-bar-pnl-value">{{ "%+.2f"|format(p.pnl_usd) }}</span>
+          {% if p.tp_price or p.sl_price %}
+            <span class="live-bar-bracket text-xs mono">
+              {% if p.tp_price %}<span class="live-bar-tp" title="Take profit">T:{{ "%.2f"|format(p.tp_price) }}</span>{% endif %}
+              {% if p.sl_price %}<span class="live-bar-sl" title="Stop loss">S:{{ "%.2f"|format(p.sl_price) }}</span>{% endif %}
+            </span>
+          {% endif %}
         </a>
       {% endfor %}
     {% else %}
