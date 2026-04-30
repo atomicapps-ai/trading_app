@@ -563,17 +563,21 @@
 
     try {
       const r = await fetch(`/api/positions/${symbol}/close`, { method: 'POST' });
-      const body = await r.json();
+      // Guard against non-JSON responses (502 from a network error, etc.)
+      let body = {};
+      try { body = await r.json(); } catch (_) { /* leave body empty */ }
       if (r.ok && body.ok) {
         alert(
-          `${symbol}: ${body.side.toUpperCase()} ${body.shares_closed} placed.\n` +
-          `Broker order id: ${body.broker_order_id}\n\n` +
+          `${symbol}: ${(body.side || '').toUpperCase()} ${body.shares_closed} placed.\n` +
+          `Broker order id: ${body.broker_order_id || 'n/a'}\n\n` +
           `The position will disappear from this list once the fill posts.`
         );
-        // Re-poll the positions card / stats card by reloading the page section.
-        if (window.htmx) {
-          htmx.trigger('#account-stats', 'load');
-        }
+        // Reload the whole page in 1.5s — fills usually post within ~500ms
+        // on Alpaca paper, so by the time we reload, the positions row is
+        // gone and the stats card reflects the new cash balance. Avoid
+        // calling htmx.trigger on specific elements: a missing selector
+        // throws "Cannot read properties of null (reading 'dispatchEvent')"
+        // which would otherwise tank the success path.
         setTimeout(() => location.reload(), 1500);
       } else {
         const msg = body.detail || body.reject_reason || ('HTTP ' + r.status);
@@ -581,7 +585,7 @@
         if (row) row.style.opacity = '1';
       }
     } catch (err) {
-      alert('Close failed: ' + err.message);
+      alert('Close failed: ' + (err && err.message ? err.message : err));
       if (row) row.style.opacity = '1';
     }
   }
