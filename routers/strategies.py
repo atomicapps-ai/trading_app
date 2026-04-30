@@ -416,6 +416,7 @@ async def strategy_history_data(
     until: str,
     symbols: str,
     refresh: bool = False,
+    ignore_regime: bool = False,
 ) -> dict:
     """JSON: merged history of actual + simulated trades for a strategy
     over the given date window. Called by the History page on Run."""
@@ -441,7 +442,7 @@ async def strategy_history_data(
         from scripts.replay_dl import replay
         sim_trades = await replay(
             symbols=sym_list, since=since_d, until=until_d,
-            strategy=name, refresh=refresh,
+            strategy=name, refresh=refresh, ignore_regime=ignore_regime,
         )
         for t in sim_trades:
             simulated.append({
@@ -538,6 +539,7 @@ async def strategy_history_data(
         "since": since_d.isoformat(),
         "until": until_d.isoformat(),
         "symbols_count": len(sym_list),
+        "ignore_regime": ignore_regime,
         "trades": merged,
         "summary": {
             "total":   len(merged),

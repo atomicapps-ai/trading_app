@@ -70,6 +70,7 @@ def detect_double_lock_filtered(
     vix_prev_close: float | None,
     config: dict[str, Any],
     as_of_ts: pd.Timestamp,
+    ignore_regime: bool = False,
 ) -> PatternResult | None:
     """Run the double-lock filter on today's opening bars.
 
@@ -185,8 +186,14 @@ def detect_double_lock_filtered(
         return None
 
     # ── Regime filter ────────────────────────────────────────────────────
-    if vix_prev_close is None or vix_prev_close < vix_min:
-        return None
+    # When ``ignore_regime`` is True (research / counterfactual replay),
+    # we skip the VIX / ADX / RSI gates entirely and only require the
+    # core c1+c2 conviction. Production callers ALWAYS pass False — this
+    # is a research-only escape hatch surfaced via the History page's
+    # "Ignore regime gate" checkbox.
+    if not ignore_regime:
+        if vix_prev_close is None or vix_prev_close < vix_min:
+            return None
 
     # Yesterday's daily row (no look-ahead — drop today). Compare on date
     # so this works regardless of whether the daily index is tz-naive
@@ -197,17 +204,18 @@ def detect_double_lock_filtered(
     prev_daily = daily.loc[prev_idx[-1]]
     rsi_d = float(prev_daily.get("rsi_14")) if pd.notna(prev_daily.get("rsi_14")) else None
     adx_d = float(prev_daily.get("adx_14")) if pd.notna(prev_daily.get("adx_14")) else None
-    if rsi_d is None or adx_d is None:
-        return None
 
-    if adx_d > adx_max:
-        return None
-    if direction == "long":
-        if not (rsi_long_lo <= rsi_d <= rsi_long_hi):
+    if not ignore_regime:
+        if rsi_d is None or adx_d is None:
             return None
-    else:
-        if not (rsi_short_lo <= rsi_d <= rsi_short_hi):
+        if adx_d > adx_max:
             return None
+        if direction == "long":
+            if not (rsi_long_lo <= rsi_d <= rsi_long_hi):
+                return None
+        else:
+            if not (rsi_short_lo <= rsi_d <= rsi_short_hi):
+                return None
 
     # ── Levels ───────────────────────────────────────────────────────────
     entry = cl2

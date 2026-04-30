@@ -38,9 +38,13 @@
         Comma-separated. Default: {{ default_symbols }}
       </div>
     </div>
-    <div class="flex items-center gap-12" style="margin-top: 12px;">
+    <div class="flex items-center gap-12" style="margin-top: 12px; flex-wrap: wrap;">
       <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px;">
         <input type="checkbox" id="hist-refresh"> Re-fetch bars from yfinance (slower; use if cache is stale)
+      </label>
+      <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px;"
+             title="Research only — strips VIX/ADX/RSI gates. c1+c2 conviction alone, no regime filter. Use to see how restrictive the regime layer actually is.">
+        <input type="checkbox" id="hist-ignore-regime"> Ignore regime gate (research)
       </label>
       <span style="flex: 1;"></span>
       <button type="button" class="btn btn-primary" id="hist-run" onclick="runHistory()">▶ Run history</button>
@@ -67,6 +71,7 @@ async function runHistory() {
   const until   = document.getElementById('hist-until').value;
   const symbols = document.getElementById('hist-symbols').value.replace(/\s+/g, '');
   const refresh = document.getElementById('hist-refresh').checked ? 'true' : 'false';
+  const ignoreRegime = document.getElementById('hist-ignore-regime').checked ? 'true' : 'false';
   const btn     = document.getElementById('hist-run');
   const status  = document.getElementById('hist-status');
   const summary = document.getElementById('hist-summary');
@@ -87,7 +92,8 @@ async function runHistory() {
 
   try {
     const url = `/api/strategies/{{ strategy_name }}/history?since=${since}&until=${until}` +
-                `&symbols=${encodeURIComponent(symbols)}&refresh=${refresh}`;
+                `&symbols=${encodeURIComponent(symbols)}&refresh=${refresh}` +
+                `&ignore_regime=${ignoreRegime}`;
     const r = await fetch(url);
     clearInterval(tick);
     const elapsed = ((performance.now() - t0) / 1000).toFixed(1);
@@ -99,7 +105,7 @@ async function runHistory() {
     }
 
     const j = await r.json();
-    renderSummary(j.summary, elapsed, j.sim_error);
+    renderSummary(j.summary, elapsed, j.sim_error, j.ignore_regime);
     renderTable(j.trades);
     status.textContent = `Done in ${elapsed}s`;
   } catch (e) {
@@ -111,11 +117,23 @@ async function runHistory() {
   }
 }
 
-function renderSummary(s, elapsed, simError) {
+function renderSummary(s, elapsed, simError, ignoreRegime) {
   const summary = document.getElementById('hist-summary');
+  let header = `${s.actual} actual + ${s.sim} simulated · run took ${elapsed}s`;
+  if (ignoreRegime) {
+    header += ' · ⚠ regime gate ignored (research)';
+  }
   let html =
-    '<div class="card"><div class="card-header"><span class="card-title">Summary</span>' +
-    `<span class="card-subtitle">${s.actual} actual + ${s.sim} simulated · run took ${elapsed}s</span></div>` +
+    '<div class="card"' +
+    (ignoreRegime ? ' style="border-color: var(--accent-amber);"' : '') +
+    '><div class="card-header"><span class="card-title">Summary</span>' +
+    `<span class="card-subtitle">${header}</span></div>` +
+    (ignoreRegime
+      ? '<div class="text-accent-amber text-xs" style="margin-bottom:10px;">' +
+        '⚠ This run skipped the VIX / ADX / RSI gates. The trade list reflects c1+c2 ' +
+        'conviction alone — what would have armed if regime were always permissive. ' +
+        'Compare against a default run (no toggle) to see what the regime layer is filtering out.</div>'
+      : '') +
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;">' +
     statTile('Total trades', s.total) +
     statTile('Win rate', s.win_rate.toFixed(1) + '%', winRateColor(s.win_rate)) +

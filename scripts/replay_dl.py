@@ -229,7 +229,7 @@ async def _vix_prev_close_map(force_refresh: bool = False) -> dict[date, float]:
 
 async def replay(
     symbols: list[str], since: date, until: date, strategy: str = "double_lock",
-    refresh: bool = False,
+    refresh: bool = False, ignore_regime: bool = False,
 ) -> list[ReplayTrade]:
     _ = get_settings()  # ensure settings load (also primes data dirs)
     cat_stop_pct = _load_cat_stop_pct(strategy)
@@ -256,7 +256,11 @@ async def replay(
     for d in days:
         as_of = _as_of_for(d)
         vix_prev = vix_by_date.get(d)
-        if vix_prev is None:
+        # Without VIX we can't run the regime check — but if the caller
+        # explicitly disabled regime checks, push through anyway. The
+        # detector treats vix_prev_close=None as a no-op when
+        # ignore_regime is True.
+        if vix_prev is None and not ignore_regime:
             print(f"  {d}  no prior-session VIX close (likely no trading data) -> skip")
             continue
 
@@ -266,6 +270,7 @@ async def replay(
                 pat = detect_double_lock_filtered(
                     bars_30m=bars30, daily=daily_ind, vix_prev_close=vix_prev,
                     config=config, as_of_ts=as_of,
+                    ignore_regime=ignore_regime,
                 )
             except Exception as e:                                    # noqa: BLE001
                 print(f"  ! {d} {sym}: detector raised: {e}")
@@ -300,7 +305,8 @@ async def replay(
             ))
             day_fires += 1
 
-        print(f"  {d}  VIX_prev={vix_prev:.2f}  -> {day_fires} signals")
+        vix_disp = f"{vix_prev:.2f}" if vix_prev is not None else "n/a"
+        print(f"  {d}  VIX_prev={vix_disp}  -> {day_fires} signals")
 
     return trades
 
