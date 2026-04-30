@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block title %}{{ job.name }} — Jobs — TradeAgent{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+  <div>
+    <a href="/jobs" style="font-size:11px;color:var(--text-secondary);text-decoration:none;">← All jobs</a>
+    <h1 class="page-title" style="margin-top:4px;">{{ job.name }}</h1>
+    <p class="page-subtitle">
+      <span style="font-family:var(--font-mono);">{{ job.id }}</span>
+      · category <span class="badge badge-{{ {'workflow':'blue','capitol_trades':'amber','senate':'amber','other':'gray'}[job.category] }}">{{ job.category }}</span>
+      {% if is_paused %}· <span class="badge badge-amber">paused</span>{% endif %}
+    </p>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-primary" onclick="runJob('{{ job.id }}', this)">▶ Run now</button>
+    {% if is_paused %}
+      <button class="btn btn-success" onclick="resumeJob('{{ job.id }}')">▶ Resume</button>
+    {% else %}
+      <button class="btn btn-ghost" onclick="pauseJob('{{ job.id }}')">⏸ Pause</button>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="job-tabs" role="tablist">
+    <button class="tab-btn active" data-tab="status"  onclick="switchTab(this)">Status</button>
+    <button class="tab-btn"        data-tab="logs"    onclick="switchTab(this)">Logs ({{ log_lines|length }})</button>
+    <button class="tab-btn"        data-tab="history" onclick="switchTab(this)">Run history ({{ history|length }})</button>
+  </div>
+
+  <!-- ── STATUS TAB ─────────────────────────────────────────────── -->
+  <div class="tab-pane active" data-pane="status">
+    <table class="kv-table">
+      <tr><th>Trigger</th><td style="font-family:var(--font-mono);">{{ job.trigger }}</td></tr>
+      <tr>
+        <th>Next run</th>
+        <td>
+          {% if job.next_run_time %}
+            {{ job.next_run_time }}
+          {% else %}
+            <span style="color:var(--text-secondary);">paused — no next run scheduled</span>
+          {% endif %}
+        </td>
+      </tr>
+      <tr><th>Misfire grace</th><td>{{ job.misfire_grace_time or '—' }}s</td></tr>
+      <tr><th>Coalesce</th><td>{{ job.coalesce if job.coalesce is not none else '—' }}</td></tr>
+      <tr><th>Args</th><td style="font-family:var(--font-mono);font-size:11px;">{{ job.args or '[]' }}</td></tr>
+      {% if job.last_run %}
+        <tr>
+          <th>Last run</th>
+          <td>
+            <span class="badge badge-{{ {'ok':'green','error':'red'}.get(job.last_run.status, 'gray') }}">
+              {{ job.last_run.status or '—' }}
+            </span>
+            at {{ job.last_run.ts or '—' }}
+            {% if job.last_run.duration_seconds is not none %} · {{ "%.2f"|format(job.last_run.duration_seconds) }}s{% endif %}
+          </td>
+        </tr>
+        {% if job.last_run.summary %}
+          <tr><th>Last summary</th><td>{{ job.last_run.summary }}</td></tr>
+        {% endif %}
+      {% endif %}
+      <tr><th>Scheduler</th>
+          <td>{% if scheduler_running %}<span class="badge badge-green">running</span>{% else %}<span class="badge badge-red">stopped</span>{% endif %}</td>
+      </tr>
+    </table>
+    <p style="font-size:11px;color:var(--text-secondary);margin-top:14px;">
+      Configuration is read from <code>workflows/*.yaml</code> at app startup. To change the cron expression,
+      edit the YAML and restart the server. (Inline editing lands in a later iteration.)
+    </p>
+  </div>
+
+  <!-- ── LOGS TAB ───────────────────────────────────────────────── -->
+  <div class="tab-pane" data-pane="logs">
+    {% if log_lines %}
+      <pre class="log-stream">{% for line in log_lines %}{{ line }}
+{% endfor %}</pre>
+    {% else %}
+      <p style="color:var(--text-secondary);font-size:13px;">
+        No log lines captured yet. Logs are recorded only for the
+        <code>wf_*</code> and <code>dl_lock1_scout</code> jobs in v1, and only after at
+        least one run. Other categories will populate when log capture is wired up.
+      </p>
+    {% endif %}
+    {% if log_lines %}
+      <div style="margin-top:12px;display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary);">
+        <span>Showing latest {{ log_lines|length }} lines (in-memory ring buffer; resets on app restart).</span>
+        <button class="btn btn-sm btn-ghost" onclick="location.reload()">↻ Refresh</button>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- ── RUN HISTORY TAB ────────────────────────────────────────── -->
+  <div class="tab-pane" data-pane="history">
+    {% if not history %}
+      <p style="color:var(--text-secondary);font-size:13px;">No completed runs recorded.</p>
+    {% else %}
+      <table class="jobs-table">
+        <thead>
+          <tr>
+            <th>Started</th>
+            <th>Duration</th>
+            <th>Status</th>
+            <th>Summary</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in history %}
+          <tr>
+            <td style="font-family:var(--font-mono);font-size:11px;">{{ (r.ts_start or r.ts or '')[:19] }}</td>
+            <td>{% if r.duration_seconds is not none %}{{ "%.2f"|format(r.duration_seconds) }}s{% endif %}</td>
+            <td>
+              <span class="badge badge-{{ {'ok':'green','error':'red'}.get(r.status, 'gray') }}">
+                {{ r.status or '—' }}
+              </span>
+            </td>
+            <td style="font-size:11px;color:var(--text-secondary);">
+              {% if r.signals_generated is not none %}{{ r.signals_generated }} signals · {% endif %}
+              {% if r.plans_proposed is not none %}{{ r.plans_proposed }} plans{% endif %}
+              {% if r.summary %}{{ r.summary }}{% endif %}
+              {% if r.error %}<span style="color:var(--accent-red);">err: {{ r.error[:120] }}</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+  .job-tabs { display: flex; gap: 16px; border-bottom: 1px solid var(--border); margin-bottom: 18px; padding-bottom: 0; }
+  .job-tabs .tab-btn {
+    background: none; border: none; padding: 8px 4px; cursor: pointer;
+    color: var(--text-secondary); font-size: 13px; font-weight: 500;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .job-tabs .tab-btn.active { color: var(--text-primary); border-bottom-color: var(--accent-blue); }
+  .job-tabs .tab-btn:hover { color: var(--text-primary); }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+  .kv-table { width: 100%; border-collapse: collapse; }
+  .kv-table th, .kv-table td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
+  .kv-table th { width: 180px; font-weight: 500; color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .log-stream {
+    background: #0c0e14; color: #d6deeb;
+    padding: 14px; border-radius: 6px;
+    font-family: var(--font-mono); font-size: 11px; line-height: 1.55;
+    overflow-x: auto; max-height: 480px; overflow-y: auto;
+    white-space: pre; margin: 0;
+  }
+  .jobs-table { width: 100%; border-collapse: collapse; }
+  .jobs-table th, .jobs-table td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .jobs-table th { color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+</style>
+
+<script>
+function switchTab(btn) {
+  const target = btn.dataset.tab;
+  document.querySelectorAll('.job-tabs .tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === target));
+}
+async function runJob(id, btn) {
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = '...running';
+  try {
+    const r = await fetch('/api/jobs/' + encodeURIComponent(id) + '/run', { method: 'POST' });
+    if (!r.ok) throw new Error(await r.text());
+    const j = await r.json();
+    btn.textContent = '✓ ' + j.duration_seconds + 's';
+    setTimeout(() => location.reload(), 1200);
+  } catch (e) {
+    btn.textContent = '✗ failed'; btn.classList.add('btn-danger'); console.error(e);
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('btn-danger'); btn.disabled = false; }, 3000);
+  }
+}
+async function pauseJob(id) {
+  await fetch('/api/jobs/' + encodeURIComponent(id) + '/pause', { method: 'POST' });
+  location.reload();
+}
+async function resumeJob(id) {
+  await fetch('/api/jobs/' + encodeURIComponent(id) + '/resume', { method: 'POST' });
+  location.reload();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Jobs — TradeAgent{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+  <div>
+    <h1 class="page-title">Jobs</h1>
+    <p class="page-subtitle">
+      Scheduled tasks running inside the app — workflow crons, data refresh, scout jobs.
+      Scheduler is
+      {% if scheduler_running %}<span class="badge badge-green">running</span>{% else %}<span class="badge badge-red">stopped</span>{% endif %}.
+    </p>
+  </div>
+  <div style="font-size:11px;color:var(--text-secondary);">UTC now: {{ now_utc[:19] }}</div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Registered jobs ({{ jobs|length }})</span>
+  </div>
+
+  {% if not jobs %}
+    <p style="color:var(--text-secondary);">No jobs registered. Check that the scheduler started cleanly at app boot.</p>
+  {% else %}
+  <table class="jobs-table">
+    <thead>
+      <tr>
+        <th>Job</th>
+        <th>Category</th>
+        <th>Trigger</th>
+        <th>Next run</th>
+        <th>Last run</th>
+        <th class="actions-col" data-no-sort="true">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for j in jobs %}
+      <tr>
+        <td>
+          <a href="/jobs/{{ j.id }}" class="job-name-link">
+            <strong>{{ j.name }}</strong>
+            <div style="font-size:11px;color:var(--text-secondary);font-family:var(--font-mono);">{{ j.id }}</div>
+          </a>
+        </td>
+        <td>
+          <span class="badge badge-{{ {'workflow':'blue','capitol_trades':'amber','senate':'amber','other':'gray'}[j.category] }}">
+            {{ j.category }}
+          </span>
+        </td>
+        <td style="font-family:var(--font-mono);font-size:11px;">{{ j.trigger }}</td>
+        <td>
+          {% if j.next_run_time %}
+            <span title="{{ j.next_run_time }}">{{ j.next_run_time[:19] }}</span>
+          {% else %}
+            <span class="badge badge-amber">paused</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if j.last_run %}
+            <span class="badge badge-{{ {'ok':'green','error':'red'}.get(j.last_run.status, 'gray') }}">
+              {{ j.last_run.status or '—' }}
+            </span>
+            <div style="font-size:11px;color:var(--text-secondary);">
+              {{ (j.last_run.ts or '')[:19] }}
+              {% if j.last_run.summary %} · {{ j.last_run.summary }}{% endif %}
+            </div>
+          {% else %}
+            <span style="color:var(--text-secondary);font-size:11px;">never run</span>
+          {% endif %}
+        </td>
+        <td class="actions-col">
+          <button class="btn btn-sm btn-primary" onclick="runJob('{{ j.id }}', this)">▶ Run now</button>
+          {% if j.next_run_time %}
+            <button class="btn btn-sm btn-ghost" onclick="pauseJob('{{ j.id }}', this)">⏸ Pause</button>
+          {% else %}
+            <button class="btn btn-sm btn-success" onclick="resumeJob('{{ j.id }}', this)">▶ Resume</button>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Recent workflow runs (last {{ recent_runs|length }})</span>
+  </div>
+  {% if not recent_runs %}
+    <p style="color:var(--text-secondary);font-size:13px;">No runs recorded yet.</p>
+  {% else %}
+  <table class="jobs-table">
+    <thead>
+      <tr>
+        <th>Workflow</th>
+        <th>Started</th>
+        <th>Duration</th>
+        <th>Status</th>
+        <th>Summary</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in recent_runs %}
+      <tr>
+        <td>
+          <a href="/jobs/wf_{{ r.workflow_id }}" class="job-name-link">{{ r.workflow_id }}</a>
+        </td>
+        <td style="font-size:11px;">{{ (r.ts_start or '')[:19] }}</td>
+        <td>{% if r.duration_seconds is not none %}{{ "%.2f"|format(r.duration_seconds) }}s{% endif %}</td>
+        <td>
+          <span class="badge badge-{{ {'ok':'green','error':'red'}.get(r.status, 'gray') }}">
+            {{ r.status or '—' }}
+          </span>
+        </td>
+        <td style="font-size:11px;color:var(--text-secondary);">
+          {% if r.signals_generated is not none %}{{ r.signals_generated }} signals · {% endif %}
+          {% if r.plans_proposed is not none %}{{ r.plans_proposed }} plans{% endif %}
+          {% if r.error %}<span style="color:var(--accent-red);">err: {{ r.error[:80] }}</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+
+<style>
+  .jobs-table { width: 100%; border-collapse: collapse; }
+  .jobs-table th, .jobs-table td {
+    text-align: left; padding: 10px 12px; vertical-align: top;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .jobs-table th { font-weight: 500; color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .jobs-table tbody tr:hover { background: var(--hover-bg); }
+  .actions-col { white-space: nowrap; text-align: right; }
+  .actions-col .btn { margin-left: 4px; }
+  .job-name-link { color: var(--text-primary); text-decoration: none; }
+  .job-name-link:hover strong { color: var(--accent-blue); }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+</style>
+
+<script>
+async function runJob(id, btn) {
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = '...running';
+  try {
+    const r = await fetch('/api/jobs/' + encodeURIComponent(id) + '/run', { method: 'POST' });
+    if (!r.ok) throw new Error(await r.text());
+    const j = await r.json();
+    btn.textContent = '✓ ' + j.duration_seconds + 's';
+    setTimeout(() => location.reload(), 800);
+  } catch (e) {
+    btn.textContent = '✗ failed';
+    btn.classList.add('btn-danger');
+    console.error(e);
+  } finally {
+    setTimeout(() => { btn.disabled = false; btn.textContent = orig; btn.classList.remove('btn-danger'); }, 2500);
+  }
+}
+async function pauseJob(id, btn) {
+  await fetch('/api/jobs/' + encodeURIComponent(id) + '/pause', { method: 'POST' });
+  location.reload();
+}
+async function resumeJob(id, btn) {
+  await fetch('/api/jobs/' + encodeURIComponent(id) + '/resume', { method: 'POST' });
+  location.reload();
+}
+</script>
+{% endblock %}

@@ -405,12 +405,15 @@ def _register_workflow_jobs(sched: AsyncIOScheduler) -> None:
 
 async def _run_workflow_job(workflow_id: str) -> None:
     from services.pipeline_service import run_workflow_by_id
-    logger.info("Scheduled workflow run: %s", workflow_id)
-    try:
-        result = await run_workflow_by_id(workflow_id)
-        logger.info("Workflow %s complete: %s", workflow_id, result.get("status"))
-    except Exception as exc:
-        logger.exception("Workflow %s failed: %s", workflow_id, exc)
+    from services.job_log_buffer import capture
+
+    with capture(f"wf_{workflow_id}"):
+        logger.info("Scheduled workflow run: %s", workflow_id)
+        try:
+            result = await run_workflow_by_id(workflow_id)
+            logger.info("Workflow %s complete: %s", workflow_id, result.get("status"))
+        except Exception as exc:
+            logger.exception("Workflow %s failed: %s", workflow_id, exc)
 
 
 # --------------------------------------------------------------------------- #
@@ -445,6 +448,12 @@ async def _dl_lock1_scout_job() -> None:
     here is a candidate the full detector will accept iff candle 2
     confirms direction.
     """
+    from services.job_log_buffer import capture
+    with capture("dl_lock1_scout"):
+        await _dl_lock1_scout_job_impl()
+
+
+async def _dl_lock1_scout_job_impl() -> None:
     import asyncio as _asyncio
     import yaml as _yaml
     import pandas as _pd
