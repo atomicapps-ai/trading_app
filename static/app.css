@@ -1516,3 +1516,53 @@ input, select, textarea { font: inherit; color: inherit; }
   color: var(--accent-blue);
   border-color: var(--accent-blue);
 }
+
+/* =========================================================================
+   Strategy "Run" button — spinner + result strip
+   ========================================================================= */
+.btn-running {
+  cursor: wait;
+  opacity: 0.85;
+}
+.run-spinner, .run-spinner-sm {
+  display: inline-block;
+  border: 2px solid rgba(255,255,255,0.18);
+  border-top-color: var(--accent-blue);
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  animation: spin 700ms linear infinite;
+  vertical-align: middle;
+}
+.run-spinner-sm { width: 10px; height: 10px; border-width: 1.5px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.run-result-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  margin: 8px 0 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  background: var(--surface-2);
+  border-left: 3px solid var(--border);
+}
+.run-result-strip .run-icon {
+  font-weight: 700;
+  width: 14px;
+  text-align: center;
+}
+.run-result-strip .run-status { font-weight: 500; }
+.run-result-strip .run-elapsed { color: var(--accent-blue); }
+.run-result-strip.running    { border-left-color: var(--accent-blue); }
+.run-result-strip.success    { border-left-color: var(--accent-green); }
+.run-result-strip.partial    { border-left-color: var(--accent-amber); }
+.run-result-strip.neutral    { border-left-color: var(--text-tertiary); }
+.run-result-strip.error      {
+  border-left-color: var(--accent-red);
+  background: var(--tint-red);
+}
+.run-result-strip.success .run-icon { color: var(--accent-green); }
+.run-result-strip.partial .run-icon { color: var(--accent-amber); }
+.run-result-strip.error   .run-icon { color: var(--accent-red); }

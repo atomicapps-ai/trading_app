@@ -169,13 +169,99 @@
 
 <script>
 async function runStrategy(name, btn) {
-  const orig = btn.textContent; btn.disabled = true; btn.textContent = '...';
+  // Manual run: typically 5-30s (universe filter, analyst, gates, persist).
+  // Show spinner + live elapsed-time counter while it's working, then a
+  // result strip with signals / plans / approved / blocked counts.
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.classList.add('btn-running');
+
+  const card = btn.closest('.strategy-card');
+  let strip = card?.querySelector('.run-result-strip');
+  if (!strip && card) {
+    strip = document.createElement('div');
+    strip.className = 'run-result-strip';
+    const hdr = card.querySelector('.card-header');
+    if (hdr) hdr.after(strip);
+  }
+  if (strip) {
+    strip.className = 'run-result-strip running';
+    strip.innerHTML =
+      '<span class="run-spinner"></span>' +
+      '<span class="run-status">Running… <span class="run-elapsed">0.0s</span></span>' +
+      '<span class="run-stages text-tertiary text-xs">' +
+      'universe → signals → gates → persist</span>';
+  }
+  btn.innerHTML = '<span class="run-spinner-sm"></span>&nbsp;Running…';
+
+  const t0 = performance.now();
+  const interval = setInterval(() => {
+    const elapsed = ((performance.now() - t0) / 1000).toFixed(1) + 's';
+    const el = strip?.querySelector('.run-elapsed');
+    if (el) el.textContent = elapsed;
+  }, 100);
+
   try {
     const r = await fetch('/api/strategies/' + encodeURIComponent(name) + '/run', { method: 'POST' });
+    clearInterval(interval);
+    const elapsed = ((performance.now() - t0) / 1000).toFixed(1);
+
+    if (!r.ok) {
+      const detail = (await r.json().catch(() => ({}))).detail || ('HTTP ' + r.status);
+      if (strip) {
+        strip.className = 'run-result-strip error';
+        strip.innerHTML = '<span class="run-icon">✗</span>' +
+          '<span class="run-status">Failed in ' + elapsed + 's</span>' +
+          '<span class="text-secondary text-xs">' + escapeHtml(detail) + '</span>';
+      }
+      return;
+    }
+
     const j = await r.json();
-    btn.textContent = r.ok ? '✓' : '✗';
-  } catch (e) { btn.textContent = '✗'; }
-  setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
+    let signals = 0, plans = 0, approved = 0, blocked = 0, errors = 0;
+    let firstErr = null;
+    (j.runs || []).forEach(run => {
+      if (run.error) { errors++; if (!firstErr) firstErr = run.error; }
+      const res = run.result || {};
+      signals  += res.signals_generated || 0;
+      plans    += res.plans_proposed    || 0;
+      approved += res.plans_approved    || 0;
+      blocked  += (res.plans_blocked || []).length;
+    });
+
+    if (strip) {
+      const cls = errors > 0 ? 'partial' : (plans > 0 ? 'success' : 'neutral');
+      let icon = errors > 0 ? '⚠' : (plans > 0 ? '✓' : '·');
+      strip.className = 'run-result-strip ' + cls;
+      strip.innerHTML = '<span class="run-icon">' + icon + '</span>' +
+        '<span class="run-status">Done in ' + elapsed + 's</span>' +
+        '<span class="run-counts text-secondary text-xs">' +
+          signals + ' signal' + (signals !== 1 ? 's' : '') + ' · ' +
+          plans + ' plan' + (plans !== 1 ? 's' : '') + ' proposed · ' +
+          approved + ' approved · ' +
+          blocked + ' blocked' +
+        '</span>' +
+        (firstErr ? ('<span class="text-accent-red text-xs">err: ' + escapeHtml(firstErr).substring(0, 80) + '</span>') : '');
+    }
+  } catch (e) {
+    clearInterval(interval);
+    if (strip) {
+      strip.className = 'run-result-strip error';
+      strip.innerHTML = '<span class="run-icon">✗</span>' +
+        '<span class="run-status">Network error</span>' +
+        '<span class="text-secondary text-xs">' + escapeHtml(e.message || String(e)) + '</span>';
+    }
+  } finally {
+    btn.innerHTML = orig;
+    btn.disabled = false;
+    btn.classList.remove('btn-running');
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
 }
 async function toggleStrategy(name) {
   await fetch('/api/strategies/' + encodeURIComponent(name) + '/toggle', { method: 'POST' });
