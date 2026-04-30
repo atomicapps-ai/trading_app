@@ -1,4 +1,8 @@
-{# Per-symbol DL state cards. Re-rendered every 30s via HTMX. #}
+{# Per-symbol DL state — both grid and table views in one render.
+   The toolbar JS hides whichever the user isn't viewing. Each visible
+   container has data-symbol + data-rolled so the search + status
+   filter chips can hide rows client-side without a server round-trip.
+#}
 {% macro status_dot(status) %}
   {% if status == 'passed' %}<span class="dot green" title="passed"></span>
   {% elif status == 'failed' %}<span class="dot" style="background: var(--accent-red);" title="failed"></span>
@@ -8,40 +12,50 @@
   {% endif %}
 {% endmacro %}
 
-{% macro status_pill(status, label) %}
-  {% set color = (
-    'badge-green'  if status == 'passed' else
-    'badge-red'    if status == 'failed' else
-    'badge-amber'  if status == 'forming' else
-    'badge-gray'
-  ) %}
-  <span class="badge {{ color }}">{{ label or status }}</span>
-{% endmacro %}
-
-<div class="text-tertiary text-xs" style="margin-bottom: 12px;">
-  As of {{ as_of }} · symbols evaluate independently
+<div class="text-tertiary text-xs" style="margin-bottom: 8px;">
+  As of {{ as_of }} ·
+  {{ counts.all }} symbols ·
+  <span class="text-accent-blue">{{ counts.armed }} armed</span> ·
+  <span class="text-accent-green">{{ counts.passed }} passing</span> ·
+  <span class="text-accent-amber">{{ counts.forming }} forming</span> ·
+  <span class="text-tertiary">{{ counts.pending }} pending · {{ counts.failed }} failed</span>
 </div>
 
-<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px;">
+{# ===== Update toolbar chip counts ===== #}
+<script>
+  (function() {
+    const counts = {
+      armed: {{ counts.armed }}, passed: {{ counts.passed }},
+      forming: {{ counts.forming }}, pending: {{ counts.pending }},
+      failed: {{ counts.failed }},
+    };
+    document.querySelectorAll('.dl-chip').forEach(c => {
+      const n = counts[c.dataset.status];
+      const el = c.querySelector('.dl-count');
+      if (el) el.textContent = n;
+    });
+  })();
+</script>
+
+{# ============================================================
+   GRID MODE
+   ============================================================ #}
+<div id="dl-grid-host" class="dl-grid">
   {% for s in states %}
-    {% set rolled =
-        'armed' if s.armed else
-        'failed' if (s.c1_status == 'failed' or s.c2_status == 'failed' or s.regime_status == 'failed') else
-        'passed' if (s.c1_status == 'passed' and s.c2_status == 'passed' and s.regime_status == 'passed') else
-        'forming' if (s.c1_status == 'forming' or s.c2_status == 'forming') else
-        'pending'
-    %}
+    {% set rolled = rolled.get(s.symbol, 'pending') %}
     <div class="card dl-card"
          data-symbol="{{ s.symbol }}"
+         data-rolled="{{ rolled }}"
          data-direction="{{ s.direction }}"
          data-armed="{{ '1' if s.armed else '0' }}"
          data-entry="{{ s.entry_price or '' }}"
          data-stop="{{ s.stop_price or '' }}"
+         data-c1-status="{{ s.c1_status }}"
+         data-c2-status="{{ s.c2_status }}"
          style="padding: 12px;
                 {% if rolled == 'armed' %}border-color: var(--accent-blue); border-width: 1px;{% endif %}
                 {% if rolled == 'failed' %}opacity: 0.6;{% endif %}">
 
-      {# ===== Header ===== #}
       <div class="flex items-center" style="justify-content: space-between; margin-bottom: 8px;">
         <div class="flex items-center gap-12">
           <span class="mono" style="font-weight: 600; font-size: 14px;">{{ s.symbol }}</span>
@@ -55,23 +69,23 @@
           {% if s.armed %}
             <a href="/pending/{{ s.plan_id }}" class="badge badge-blue" style="text-decoration: none;">⚡ ARMED</a>
           {% elif rolled == 'passed' %}
-            {{ status_pill('passed', 'all gates pass') }}
+            <span class="badge badge-green text-xs">all gates pass</span>
           {% elif rolled == 'failed' %}
-            {{ status_pill('failed', 'rejected') }}
+            <span class="badge badge-red text-xs">rejected</span>
           {% elif rolled == 'forming' %}
-            {{ status_pill('forming', 'evaluating') }}
+            <span class="badge badge-amber text-xs">evaluating</span>
           {% else %}
-            {{ status_pill('pending', 'waiting') }}
+            <span class="badge badge-gray text-xs">waiting</span>
           {% endif %}
         </div>
       </div>
 
-      {# ===== Chart ===== #}
-      <div class="dl-card-chart" style="height: 180px; background: var(--bg-base); border-radius: 4px; margin-bottom: 8px;"></div>
+      <div class="dl-card-chart-wrap">
+        <div class="dl-card-chart" style="height: 100%; background: var(--bg-base); border-radius: 4px;"></div>
+        {# SVG overlay for c1/c2 zones is appended by paintZoneOverlay() #}
+      </div>
 
-      {# ===== Gate rows ===== #}
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; font-size: 11px;">
-
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; font-size: 11px; margin-top: 8px;">
         <div style="padding: 6px 8px; background: var(--surface-2); border-radius: 4px;">
           <div class="text-tertiary text-xs" style="margin-bottom: 2px;">
             {{ status_dot(s.c1_status) }} c1 9:30-10:00
@@ -123,7 +137,6 @@
         </div>
       </div>
 
-      {# ===== Plan levels (when armed) ===== #}
       {% if s.armed %}
         <div style="margin-top: 8px; padding: 6px 8px; background: var(--bg-stat);
                     border-left: 2px solid var(--accent-blue); border-radius: 0 4px 4px 0;
@@ -141,7 +154,6 @@
         </div>
       {% endif %}
 
-      {# ===== Failure reasons (collapsed by default) ===== #}
       {% if s.failures %}
         <details style="margin-top: 8px; font-size: 11px;">
           <summary class="text-tertiary" style="cursor: pointer;">
@@ -156,6 +168,104 @@
       {% endif %}
     </div>
   {% endfor %}
+</div>
+
+{# ============================================================
+   TABLE MODE — dense view for high N
+   ============================================================ #}
+<div id="dl-table-host" style="display: none;">
+  <table class="dl-table">
+    <thead>
+      <tr>
+        <th style="width: 28px;"></th>
+        <th>Symbol</th>
+        <th>Status</th>
+        <th>Dir</th>
+        <th>c1</th>
+        <th class="num">c1 body</th>
+        <th class="num">c1 vol×</th>
+        <th>c2</th>
+        <th class="num">c2 body</th>
+        <th>regime</th>
+        <th class="num">VIX</th>
+        <th class="num">ADX</th>
+        <th>Reasons</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in states %}
+        {% set rolled = rolled.get(s.symbol, 'pending') %}
+        <tr data-symbol="{{ s.symbol }}" data-rolled="{{ rolled }}"
+            onclick="toggleDLRow(this)">
+          <td>
+            {% if rolled == 'armed' %}
+              <span style="color: var(--accent-blue); font-size: 14px;">⚡</span>
+            {% elif rolled == 'passed' %}
+              <span class="dot green"></span>
+            {% elif rolled == 'failed' %}
+              <span class="dot" style="background: var(--accent-red);"></span>
+            {% elif rolled == 'forming' %}
+              <span class="dot" style="background: var(--accent-amber);"></span>
+            {% else %}
+              <span class="dot" style="background: var(--text-tertiary);"></span>
+            {% endif %}
+          </td>
+          <td class="mono" style="font-weight: 600;">{{ s.symbol }}</td>
+          <td>
+            {% if s.armed %}
+              <a href="/pending/{{ s.plan_id }}" class="badge badge-blue text-xs" style="text-decoration: none;">ARMED</a>
+            {% else %}
+              <span class="text-secondary">{{ rolled }}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if s.direction == 'long' %}<span class="text-accent-green">↑</span>
+            {% elif s.direction == 'short' %}<span class="text-accent-red">↓</span>
+            {% else %}<span class="text-tertiary">—</span>{% endif %}
+          </td>
+          <td>{{ status_dot(s.c1_status) }}</td>
+          <td class="num mono">{{ "%.0f%%"|format((s.c1_body_pct or 0) * 100) if s.c1_body_pct is not none else '—' }}</td>
+          <td class="num mono">{{ "%.1fx"|format(s.c1_volume_ratio) if s.c1_volume_ratio is not none else '—' }}</td>
+          <td>{{ status_dot(s.c2_status) }}</td>
+          <td class="num mono">{{ "%.0f%%"|format((s.c2_body_pct or 0) * 100) if s.c2_body_pct is not none else '—' }}</td>
+          <td>{{ status_dot(s.regime_status) }}</td>
+          <td class="num mono {{ 'text-accent-green' if s.vix_prev_close and s.vix_prev_close >= (s.vix_min or 20) else 'text-accent-red' }}">
+            {{ "%.1f"|format(s.vix_prev_close) if s.vix_prev_close is not none else '—' }}
+          </td>
+          <td class="num mono {{ 'text-accent-red' if s.adx_d and s.adx_d > (s.adx_max or 35) else '' }}">
+            {{ "%.1f"|format(s.adx_d) if s.adx_d is not none else '—' }}
+          </td>
+          <td class="text-secondary text-xs" style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            {% if s.failures %}{{ s.failures[0] }}{% if s.failures|length > 1 %} <span class="text-tertiary">+{{ s.failures|length - 1 }}</span>{% endif %}{% endif %}
+          </td>
+        </tr>
+        <tr class="dl-row-expansion" style="display: none;">
+          <td colspan="13">
+            <div class="card dl-card"
+                 data-symbol="{{ s.symbol }}"
+                 data-direction="{{ s.direction }}"
+                 data-armed="{{ '1' if s.armed else '0' }}"
+                 data-entry="{{ s.entry_price or '' }}"
+                 data-stop="{{ s.stop_price or '' }}"
+                 data-c1-status="{{ s.c1_status }}"
+                 data-c2-status="{{ s.c2_status }}"
+                 style="padding: 8px; background: transparent; border: none;">
+              <div class="dl-card-chart-wrap">
+                <div class="dl-card-chart" style="height: 100%; background: var(--bg-base); border-radius: 4px;"></div>
+              </div>
+              {% if s.failures %}
+                <ul style="list-style: none; margin: 8px 0 0; padding: 0; font-size: 11px;">
+                  {% for f in s.failures %}
+                    <li class="text-secondary" style="padding: 1px 0;">· {{ f }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 
 {% if not states %}
