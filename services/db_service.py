@@ -274,6 +274,33 @@ _SCHEMA = [
         perf_computed_at TEXT
     )
     """,
+    # Broker accounts — multi-account credential registry. Replaces the
+    # single ALPACA_API_KEY/SECRET pair from .env. Each row is one
+    # provider + account_type pair (alpaca paper #1, alpaca paper #2,
+    # alpaca live, tradestation sim, tradestation live, …). Exactly one
+    # row has is_active=1 at any time; that's the adapter the app uses.
+    #
+    # Security: credentials are stored plaintext. This matches the
+    # existing .env model — single-user local tool, DB file is
+    # gitignored, app is bound to localhost/Tailscale.
+    """
+    CREATE TABLE IF NOT EXISTS broker_accounts (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        slug            TEXT UNIQUE NOT NULL,
+        label           TEXT NOT NULL,
+        provider        TEXT NOT NULL,        -- 'alpaca' | 'tradestation'
+        account_type    TEXT NOT NULL,        -- 'paper' | 'live'
+        key_id          TEXT NOT NULL,
+        secret          TEXT NOT NULL,
+        extra_json      TEXT,                  -- provider-specific bag (TS_REFRESH_TOKEN, TS_ACCOUNT_ID, …)
+        is_active       INTEGER NOT NULL DEFAULT 0,
+        created_at      TEXT NOT NULL,
+        updated_at      TEXT NOT NULL,
+        last_connected_at TEXT,
+        last_error      TEXT
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_broker_accounts_active ON broker_accounts(is_active DESC, id ASC)",
     # Strategy alerts — every detection event the strategy emits.
     # Distinct from pending_approvals (which is the trade plan itself);
     # this is the notification stream surfaced as banners on the

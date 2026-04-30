@@ -1,0 +1,50 @@
+{# Dropdown body — every account; click row to activate. #}
+{% if not accounts %}
+  <div class="text-tertiary text-sm" style="padding: 12px;">
+    No accounts. <a href="/broker" class="text-accent-blue">Add one →</a>
+  </div>
+{% else %}
+  <ul style="list-style: none; padding: 4px 0; margin: 0;">
+    {% for a in accounts %}
+      <li>
+        <button type="button"
+                onclick="topbarActivate('{{ a.slug }}')"
+                style="display: flex; align-items: center; gap: 10px; width: 100%;
+                       padding: 8px 12px; background: {% if a.is_active %}var(--bg-stat){% else %}none{% endif %};
+                       border: none; color: inherit; text-align: left; cursor: pointer;
+                       font: inherit;">
+          {% if a.account_type == 'live' %}
+            <span class="dot" style="background: var(--accent-red);"></span>
+          {% else %}
+            <span class="dot green"></span>
+          {% endif %}
+          <span class="mono" style="flex: 1;">{{ a.label }}</span>
+          <span class="badge {% if a.account_type == 'live' %}badge-red{% else %}badge-blue{% endif %} text-xs">
+            {{ a.account_type }}
+          </span>
+          {% if a.is_active %}<span class="text-accent-green text-xs">●</span>{% endif %}
+        </button>
+      </li>
+    {% endfor %}
+  </ul>
+  <div style="border-top: 0.5px solid var(--row-border); padding: 8px 12px;">
+    <a href="/broker" class="text-accent-blue text-xs">Manage accounts →</a>
+  </div>
+{% endif %}
+<script>
+  // Defined inline so the menu can re-bind every time the partial is swapped in.
+  if (typeof window.topbarActivate !== 'function') {
+    window.topbarActivate = async function(slug) {
+      const r = await fetch('/api/broker/accounts/' + slug + '/activate', { method: 'POST' });
+      if (r.ok) {
+        document.getElementById('account-picker-menu').style.display = 'none';
+        // Refresh both the picker button + dropdown body. Other pages
+        // (dashboard) auto-refresh their own widgets so the user
+        // doesn't need to reload.
+        if (window.htmx) htmx.trigger(document.body, 'refresh-account-picker');
+      } else {
+        alert('Switch failed: HTTP ' + r.status);
+      }
+    };
+  }
+</script>

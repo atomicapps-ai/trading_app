@@ -39,6 +39,96 @@
     </div>
   </div>
 
+  {# ===== 2.5 Broker accounts (multi-account registry) ===== #}
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Broker accounts</span>
+      <span class="card-subtitle">Multiple paper + live accounts. Switch the active one to point the app at different credentials.</span>
+    </div>
+    <div id="accounts-list"
+         hx-get="/api/broker/accounts"
+         hx-trigger="load"
+         hx-swap="innerHTML">
+      <div class="text-secondary text-sm">Loading…</div>
+    </div>
+
+    <div style="margin-top: 16px; padding-top: 12px; border-top: 0.5px solid var(--row-border);">
+      <button type="button" class="btn btn-primary"
+              onclick="document.getElementById('account-form-block').style.display='block';
+                       document.getElementById('account-form-mode').value='create';
+                       document.getElementById('account-form-slug').value='';
+                       document.getElementById('account-form-title').textContent='Add account';
+                       document.getElementById('account-form').reset();">
+        + Add account
+      </button>
+      <span id="accounts-toast" class="text-sm" style="margin-left: 12px;"></span>
+    </div>
+
+    {# Add/edit form (flow-positioned, NOT position:fixed per project rule) #}
+    <div id="account-form-block"
+         style="display: none; margin-top: 16px; padding: 16px;
+                background: var(--bg-stat); border: 0.5px solid var(--row-border);
+                border-radius: 8px;">
+      <div class="flex items-center" style="justify-content: space-between; margin-bottom: 12px;">
+        <span id="account-form-title" style="font-weight: 500; font-size: 14px;">Add account</span>
+        <button type="button" class="btn btn-sm"
+                onclick="document.getElementById('account-form-block').style.display='none';">×</button>
+      </div>
+      <form id="account-form" onsubmit="saveAccount(event)">
+        <input type="hidden" name="_mode" id="account-form-mode" value="create">
+        <input type="hidden" name="_slug" id="account-form-slug" value="">
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <label style="display: flex; flex-direction: column; gap: 4px;">
+            <span class="text-secondary text-xs">Label</span>
+            <input type="text" name="label" required class="form-input"
+                   placeholder="e.g. Alpaca paper #2">
+          </label>
+          <label style="display: flex; flex-direction: column; gap: 4px;">
+            <span class="text-secondary text-xs">Provider</span>
+            <select name="provider" required class="form-input">
+              <option value="alpaca">alpaca</option>
+              <option value="tradestation">tradestation</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <label style="display: flex; flex-direction: column; gap: 4px;">
+            <span class="text-secondary text-xs">Account type</span>
+            <select name="account_type" required class="form-input">
+              <option value="paper">paper</option>
+              <option value="live">LIVE</option>
+            </select>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; padding-top: 18px;">
+            <input type="checkbox" name="activate" value="true">
+            <span class="text-secondary text-sm">Activate after save</span>
+          </label>
+        </div>
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <label style="display: flex; flex-direction: column; gap: 4px;">
+            <span class="text-secondary text-xs">API key ID</span>
+            <input type="text" name="key_id" autocomplete="off" class="form-input mono"
+                   placeholder="(leave blank on edit to keep current)">
+          </label>
+          <label style="display: flex; flex-direction: column; gap: 4px;">
+            <span class="text-secondary text-xs">API secret</span>
+            <input type="password" name="secret" autocomplete="off" class="form-input mono"
+                   placeholder="(leave blank on edit to keep current)">
+          </label>
+        </div>
+        <div class="text-tertiary text-xs" style="margin-bottom: 12px;">
+          Stored in the local SQLite DB (gitignored). For Alpaca, get keys at
+          <span class="mono">app.alpaca.markets</span> → API Keys. Live mode requires a funded account.
+        </div>
+        <div class="flex items-center gap-12">
+          <button type="submit" class="btn btn-primary">Save account</button>
+          <button type="button" class="btn"
+                  onclick="document.getElementById('account-form-block').style.display='none';">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   {# ===== 3. TradeStation configuration (display only) ===== #}
   {% if 'tradestation' in broker_name %}
     <div class="card">
@@ -156,6 +246,96 @@
     }
     // Reload status panels
     if (window.htmx) htmx.trigger('#account-snapshot', 'load');
+  }
+
+  function setAccountsToast(text, ok) {
+    const el = document.getElementById('accounts-toast');
+    if (!el) return;
+    el.innerHTML = '<span class="toast ' + (ok ? 'toast-ok' : 'toast-fail')
+                 + '">' + text + '</span>';
+    setTimeout(() => { el.innerHTML = ''; }, 4000);
+  }
+
+  function reloadAccountsList() {
+    if (window.htmx) htmx.trigger('#accounts-list', 'load');
+    if (window.htmx) htmx.trigger('#account-snapshot', 'load');
+  }
+
+  async function activateAccount(slug) {
+    const r = await fetch('/api/broker/accounts/' + slug + '/activate', { method: 'POST' });
+    if (r.ok) {
+      const body = await r.json();
+      setAccountsToast('Switched to ' + body.broker_name, body.connected);
+      reloadAccountsList();
+    } else {
+      setAccountsToast('Activate failed: HTTP ' + r.status, false);
+    }
+  }
+
+  function editAccount(slug, label) {
+    document.getElementById('account-form-mode').value = 'edit';
+    document.getElementById('account-form-slug').value = slug;
+    document.getElementById('account-form-title').textContent = 'Edit ' + label;
+    const f = document.getElementById('account-form');
+    f.reset();
+    f.elements['label'].value = label;
+    // Provider/account_type/activate aren't editable post-create — disable them
+    f.elements['provider'].disabled = true;
+    f.elements['account_type'].disabled = true;
+    f.elements['activate'].disabled = true;
+    document.getElementById('account-form-block').style.display = 'block';
+  }
+
+  async function deleteAccount(slug, label) {
+    if (!confirm('Delete account "' + label + '"? This cannot be undone.')) return;
+    const r = await fetch('/api/broker/accounts/' + slug + '/delete', { method: 'POST' });
+    if (r.ok) {
+      setAccountsToast('Deleted ' + label, true);
+      reloadAccountsList();
+    } else {
+      const detail = (await r.json().catch(() => ({}))).detail || ('HTTP ' + r.status);
+      setAccountsToast('Delete failed: ' + detail, false);
+    }
+  }
+
+  async function saveAccount(ev) {
+    ev.preventDefault();
+    const f = ev.target;
+    const mode = f.elements['_mode'].value;
+    const slug = f.elements['_slug'].value;
+    const fd = new FormData(f);
+    // Drop the hidden fields and disabled fields the backend doesn't want.
+    fd.delete('_mode'); fd.delete('_slug');
+    if (mode === 'edit') {
+      // On edit, provider/account_type/activate aren't sent — only the
+      // mutable fields. Empty key_id/secret means "leave unchanged".
+      fd.delete('provider'); fd.delete('account_type'); fd.delete('activate');
+      const r = await fetch('/api/broker/accounts/' + slug + '/edit',
+                            { method: 'POST', body: fd });
+      if (r.ok) {
+        setAccountsToast('Saved.', true);
+        document.getElementById('account-form-block').style.display = 'none';
+        reloadAccountsList();
+      } else {
+        const detail = (await r.json().catch(() => ({}))).detail || ('HTTP ' + r.status);
+        setAccountsToast('Save failed: ' + detail, false);
+      }
+    } else {
+      const r = await fetch('/api/broker/accounts',
+                            { method: 'POST', body: fd });
+      if (r.ok) {
+        setAccountsToast('Account created.', true);
+        document.getElementById('account-form-block').style.display = 'none';
+        // Re-enable controls for next open
+        f.elements['provider'].disabled = false;
+        f.elements['account_type'].disabled = false;
+        f.elements['activate'].disabled = false;
+        reloadAccountsList();
+      } else {
+        const detail = (await r.json().catch(() => ({}))).detail || ('HTTP ' + r.status);
+        setAccountsToast('Create failed: ' + detail, false);
+      }
+    }
   }
 
   async function confirmHalt() {

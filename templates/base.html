@@ -126,6 +126,31 @@
         <span class="mode-badge {{ settings.app.mode }}">{{ settings.app.mode }}</span>
       </div>
       <div class="topbar-right">
+        {# Account picker — click to switch active broker_account.
+           Lazy-rendered partial: lists slugs + active state and lets the
+           user activate by click. Closed-by-default. #}
+        <div class="topbar-account" style="position: relative;">
+          <button type="button" class="topbar-status" id="account-picker-btn"
+                  hx-get="/api/broker/account-picker"
+                  hx-trigger="load, every 60s, refresh-account-picker from:body"
+                  hx-target="this"
+                  hx-swap="innerHTML"
+                  onclick="document.getElementById('account-picker-menu').style.display = (document.getElementById('account-picker-menu').style.display === 'block') ? 'none' : 'block';"
+                  style="cursor: pointer; background: none; border: none; color: inherit; font: inherit; display: flex; align-items: center; gap: 6px;"
+                  title="Active broker account — click to switch">
+            <span class="dot gray"></span><span>Account…</span>
+          </button>
+          <div id="account-picker-menu"
+               style="display: none; position: absolute; top: 100%; right: 0; margin-top: 6px;
+                      background: var(--surface-2); border: 0.5px solid var(--border);
+                      border-radius: 6px; min-width: 240px; z-index: 50;
+                      box-shadow: 0 4px 12px rgba(0,0,0,0.4);"
+               hx-get="/api/broker/account-picker-menu"
+               hx-trigger="load, refresh-account-picker from:body"
+               hx-swap="innerHTML">
+            <div class="text-secondary text-xs" style="padding: 8px;">Loading…</div>
+          </div>
+        </div>
         <div class="topbar-status"
              hx-get="/api/broker/status"
              hx-trigger="load, every 30s"

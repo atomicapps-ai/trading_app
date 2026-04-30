@@ -1,11 +1,25 @@
 """broker_service.py — adapter factory and singleton access.
 
-The active adapter is selected at startup based on `settings.app.mode`
-and the `TS_SIM` environment variable. All other code that needs broker
-access calls `get_adapter()` — never instantiates adapters directly.
+The active adapter is selected at startup based on the active row in the
+``broker_accounts`` table (see ``services.account_service``). All other
+code that needs broker access calls ``get_adapter()`` — never instantiates
+adapters directly.
 
-Also owns the module-level `TRADING_HALTED` flag set by `/broker/halt`
-and read by the executioner in Phase 5.
+Switching accounts at runtime
+-----------------------------
+    await account_service.set_active(slug)
+    await reset_adapter()       # tears down the old adapter
+    await connect_adapter()     # rebuilds + connects with the new creds
+
+Mode interaction
+----------------
+``settings.app.mode`` and the active account's ``account_type`` are kept
+in sync by the broker page when the user picks an account: activating a
+live row flips ``settings.app.mode`` to live (and vice versa for paper).
+Research mode ignores the registry entirely and uses HistoricalAdapter.
+
+Also owns the module-level ``TRADING_HALTED`` flag set by ``/broker/halt``
+and read by the executioner.
 """
 from __future__ import annotations
 
@@ -16,76 +30,154 @@ from brokers.alpaca import AlpacaAdapter
 from brokers.base import BrokerAdapter
 from brokers.historical import HistoricalAdapter
 from brokers.tradestation import TradeStationAdapter
+from services import account_service
 from services.settings_service import get_settings
 
 logger = logging.getLogger(__name__)
 
 _adapter: BrokerAdapter | None = None
+_active_slug: str | None = None  # remembered so reset_adapter() can rebuild
 
 # HALT flag — set True by POST /broker/halt; checked by executioner.
 TRADING_HALTED: bool = False
 
 
-def build_adapter() -> BrokerAdapter:
-    """Select the right BrokerAdapter for the current mode.
+# --------------------------------------------------------------------------- #
+# Adapter construction
+# --------------------------------------------------------------------------- #
+
+
+async def build_adapter() -> BrokerAdapter:
+    """Build the right BrokerAdapter for the current mode + active account.
 
     Mode-to-adapter routing:
-      * research → HistoricalAdapter (no broker; cached bars only)
-      * paper / live → whichever broker env vars are populated. The
-        selection is driven by ``BROKER_PROVIDER`` (``alpaca`` default,
-        ``tradestation`` alternative). Alpaca is the paper default
-        because it has zero minimum-balance requirements; TradeStation
-        needs $10k funded before it will even provision API access.
-
-    Live mode maps the same provider flag to its live endpoint.
+      * research → HistoricalAdapter (no broker, cached bars only)
+      * paper / live → adapter for the row currently flagged is_active
     """
+    global _active_slug
     s = get_settings()
     mode = s.app.mode
     if mode == "research":
+        _active_slug = None
         logger.info("Broker: using HistoricalAdapter (research mode)")
         return HistoricalAdapter()
 
-    provider = os.getenv("BROKER_PROVIDER", "alpaca").lower()
+    active = await account_service.get_active_account()
+    if active is None:
+        # No accounts in the registry yet — fall back to the legacy env-only
+        # path so a fresh-checkout user without a populated DB still gets a
+        # working adapter when they have .env creds.
+        logger.warning(
+            "No active broker account in registry — using legacy env-only path. "
+            "Visit /broker to add an account."
+        )
+        return _legacy_env_adapter(mode)
+
+    _active_slug = active["slug"]
+    provider = active["provider"]
+    paper = active["account_type"] == "paper"
+    label = f"{provider}_{active['account_type']} ({active['label']})"
+
     if provider == "alpaca":
-        paper = mode == "paper" or os.getenv("ALPACA_PAPER", "true").lower() == "true"
-        label = "paper" if paper else "LIVE"
-        logger.info("Broker: using AlpacaAdapter (%s)", label)
-        return AlpacaAdapter(paper=paper)
+        logger.info("Broker: AlpacaAdapter (%s) account=%s",
+                    "paper" if paper else "LIVE", active["slug"])
+        return AlpacaAdapter(
+            paper=paper,
+            key_id=active["key_id"],
+            secret=active["secret"],
+            label=label,
+        )
 
     if provider == "tradestation":
-        ts_sim = os.getenv("TS_SIM", "true").lower() == "true"
-        label = "sim" if ts_sim else "live"
-        logger.info("Broker: using TradeStationAdapter (%s)", label)
-        return TradeStationAdapter(sim=ts_sim)
+        # TradeStation is still env-driven for the OAuth refresh-token
+        # rotation. Multi-account support for TS is a follow-up — for
+        # now, the active row's existence selects sim vs live tier and we
+        # log a warning if it disagrees with TS_SIM in the env.
+        env_sim = os.getenv("TS_SIM", "true").lower() != "false"
+        if env_sim != paper:
+            logger.warning(
+                "TradeStation account row says %s but TS_SIM env says %s; "
+                "edit .env to match.",
+                "paper" if paper else "live",
+                "sim" if env_sim else "live",
+            )
+        logger.info("Broker: TradeStationAdapter (%s)",
+                    "sim" if paper else "live")
+        return TradeStationAdapter(sim=paper)
 
     logger.warning(
-        "Unknown BROKER_PROVIDER=%r — falling back to AlpacaAdapter paper",
+        "Unknown provider %r in active account row — falling back to Alpaca paper",
         provider,
     )
     return AlpacaAdapter(paper=True)
 
 
-def get_adapter() -> BrokerAdapter:
+def _legacy_env_adapter(mode: str) -> BrokerAdapter:
+    """Original env-driven path — used only when the registry is empty."""
+    provider = os.getenv("BROKER_PROVIDER", "alpaca").lower()
+    if provider == "tradestation":
+        ts_sim = os.getenv("TS_SIM", "true").lower() == "true"
+        return TradeStationAdapter(sim=ts_sim)
+    paper = mode == "paper" or os.getenv("ALPACA_PAPER", "true").lower() == "true"
+    return AlpacaAdapter(paper=paper)
+
+
+# --------------------------------------------------------------------------- #
+# Singleton accessors
+# --------------------------------------------------------------------------- #
+
+
+async def get_adapter_async() -> BrokerAdapter:
     global _adapter
     if _adapter is None:
-        _adapter = build_adapter()
+        _adapter = await build_adapter()
+    return _adapter
+
+
+def get_adapter() -> BrokerAdapter:
+    """Synchronous accessor for callers that don't await.
+
+    The first call **must** happen on the lifespan path where an
+    awaitable initialization runs (``connect_adapter()``). After that the
+    sync accessor is safe — there's only ever one adapter instance.
+    """
+    if _adapter is None:
+        # Synchronous fallback — research mode is sync-safe, and the
+        # legacy env-only path is sync-safe too. We never call this
+        # before the lifespan hook initializes the registry, so the
+        # async account_service path is unreachable from here in normal
+        # operation; this branch exists for tooling/scripts that import
+        # the service before the app starts.
+        s = get_settings()
+        if s.app.mode == "research":
+            return HistoricalAdapter()
+        return _legacy_env_adapter(s.app.mode)
     return _adapter
 
 
 async def connect_adapter() -> bool:
-    adapter = get_adapter()
+    adapter = await get_adapter_async()
     if adapter.connected:
         return True
-    return await adapter.connect()
+    ok = await adapter.connect()
+    # Stamp last_connected / last_error on the active row.
+    if _active_slug:
+        try:
+            err = None if ok else "connect() returned False"
+            await account_service.record_connect(_active_slug, error=err)
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("record_connect failed: %s", exc)
+    return ok
 
 
 async def reset_adapter() -> None:
-    """Force re-creation of the adapter (e.g. after mode change)."""
+    """Force re-creation of the adapter (e.g. after activating a different
+    account or changing mode)."""
     global _adapter
     if _adapter is not None:
         try:
             await _adapter.disconnect()
-        except Exception as e:
+        except Exception as e:                                    # noqa: BLE001
             logger.warning("disconnect raised during reset: %s", e)
     _adapter = None
 
