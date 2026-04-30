@@ -115,17 +115,34 @@ async def evaluate_symbol(
         state.failures.append(f"no 30m bars: {exc}")
         return state
 
-    # If today's bars aren't in the cache yet AND we're past 9:30 ET,
-    # the cache is stale — yfinance updates with a slight lag. Force a
-    # refresh so the live view actually shows live state.
+    # Smart refresh: viewer-driven, throttled. The strategy-live page
+    # polls every 30s; without throttling we'd hit yfinance every 30s
+    # per symbol per viewer. Refresh at most every 3 minutes during
+    # market hours — fresh enough that 30m bars print within one
+    # refresh window of finalizing, cheap enough that we don't spam.
     today_et = now.tz_convert("America/New_York").date()
+    et_time = now.tz_convert("America/New_York").time()
+    in_market_hours = dtime(9, 30) <= et_time <= dtime(16, 0)
+
     has_today_bar = False
     if len(bars_30m) > 0:
         idx_et = bars_30m.index.tz_convert("America/New_York")
         has_today_bar = bool((idx_et.date == today_et).any())
-    if not has_today_bar and now.tz_convert("America/New_York").time() >= dtime(9, 30):
+
+    # First-touch refresh: today's bar absent + we're past 9:30 ET.
+    # Subsequent polls: every 3 minutes while market is open.
+    if in_market_hours and (not has_today_bar or _DEFAULT_REFRESH_THROTTLE_OK):
+        max_age = 180.0 if in_market_hours else 1800.0
         try:
-            bars_30m = await data_service.refresh_bars(symbol, "30m")
+            refreshed = await data_service.refresh_if_stale(
+                symbol, "30m", max_age_seconds=max_age,
+            )
+            if refreshed:
+                # Re-read the freshly written cache.
+                bars_30m = await data_service.get_bars(
+                    symbol, "30m", as_of_ts=now,
+                    min_bars=1, download_if_missing=False,
+                )
         except Exception as exc:                                      # noqa: BLE001
             state.failures.append(f"30m refresh failed: {exc}")
 
@@ -423,6 +440,12 @@ def _maybe_float(v: Any) -> float | None:
 # --------------------------------------------------------------------------- #
 # Default config — keeps in sync with strategy_configs/*.yaml
 # --------------------------------------------------------------------------- #
+
+
+# When True, every poll triggers a refresh-if-stale check (which is
+# itself throttled to 3 min during market hours). Flip to False for
+# tests that don't want network I/O.
+_DEFAULT_REFRESH_THROTTLE_OK = True
 
 
 _DEFAULT_CONFIG: dict[str, Any] = {

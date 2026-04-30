@@ -239,7 +239,66 @@ async def refresh_bars(symbol: str, interval: Interval) -> pd.DataFrame:
     stale (e.g. the pre-market refresh job before morning_run).
     """
     symbol = symbol.upper()
-    return await asyncio.to_thread(_download_sync, symbol, interval)
+    df = await asyncio.to_thread(_download_sync, symbol, interval)
+    _mark_refreshed(symbol, interval)
+    return df
+
+
+# --------------------------------------------------------------------------- #
+# Smart refresh — demand-driven cache freshness without a cron job
+# --------------------------------------------------------------------------- #
+# When the strategy-live page is open, every 30s poll calls evaluate_symbol(),
+# which previously force-refreshed if today's bars were missing — meaning
+# every 30s we re-downloaded from yfinance. That's both wasteful and a
+# rate-limit risk. Instead, track the last successful refresh per
+# (symbol, interval) and skip re-downloads inside the freshness window.
+# When no viewer is on the page, no calls happen → no refreshes → no waste.
+# --------------------------------------------------------------------------- #
+
+
+import time as _time  # noqa: E402
+
+# {(symbol_upper, interval): unix_timestamp_of_last_refresh}
+_LAST_REFRESH: dict[tuple[str, str], float] = {}
+
+
+def _mark_refreshed(symbol: str, interval: str) -> None:
+    _LAST_REFRESH[(symbol.upper(), interval)] = _time.time()
+
+
+def time_since_refresh(symbol: str, interval: str) -> float | None:
+    """Seconds since the last successful refresh for this (symbol, interval),
+    or None if we've never refreshed it during this process lifetime."""
+    last = _LAST_REFRESH.get((symbol.upper(), interval))
+    return (_time.time() - last) if last else None
+
+
+async def refresh_if_stale(
+    symbol: str,
+    interval: Interval,
+    *,
+    max_age_seconds: float,
+) -> bool:
+    """Refresh from yfinance only if the in-process refresh tracker says
+    the last refresh was older than `max_age_seconds`.
+
+    Returns True if a refresh ran, False if cache was deemed fresh.
+
+    Why an in-process tracker (not file mtime): file mtime changes on
+    every yfinance write, but multiple processes / tests would clobber
+    each other. The viewer is one process, so an in-memory clock is the
+    right scope. On app restart, the next viewer poll triggers a fresh
+    refresh — which is exactly what we want.
+    """
+    age = time_since_refresh(symbol, interval)
+    if age is not None and age < max_age_seconds:
+        return False
+    try:
+        await refresh_bars(symbol, interval)
+        return True
+    except Exception as exc:                                          # noqa: BLE001
+        log.warning("refresh_if_stale: %s/%s failed: %s", symbol, interval, exc)
+        return False
 
 
 async def get_bars_multi(

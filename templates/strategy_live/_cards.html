@@ -19,6 +19,16 @@
   <span class="text-accent-green">{{ counts.passed }} passing</span> ·
   <span class="text-accent-amber">{{ counts.forming }} forming</span> ·
   <span class="text-tertiary">{{ counts.pending }} pending · {{ counts.failed }} failed</span>
+  {% if cache_age_seconds is not none %}
+    {% set m = (cache_age_seconds // 60)|int %}
+    {% set s = (cache_age_seconds % 60)|int %}
+    · <span title="Throttled to ~3 min during market hours; 30 min off-hours. Refreshes only when this page is open.">
+      bars refreshed
+      {% if m == 0 %}{{ s }}s{% else %}{{ m }}m{% if s %} {{ s }}s{% endif %}{% endif %} ago
+    </span>
+  {% else %}
+    · <span class="text-tertiary" title="No refresh yet this session — first poll will warm the cache.">cache pristine</span>
+  {% endif %}
 </div>
 
 {# ===== Update toolbar chip counts ===== #}

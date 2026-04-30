@@ -113,10 +113,10 @@ async def strategy_live_root():
 async def strategy_live_dl(
     request: Request,
     symbols: str | None = None,
-    max: int = _DEFAULT_MAX_SYMBOLS,
+    max_symbols: int = _DEFAULT_MAX_SYMBOLS,
 ):
     s = get_settings()
-    max_n = min(max, _HARD_MAX_SYMBOLS)
+    max_n = min(max_symbols, _HARD_MAX_SYMBOLS)
     syms = await _resolve_symbols(symbols, max_n)
     return templates.TemplateResponse(
         request=request,
@@ -137,9 +137,9 @@ async def strategy_live_dl(
 
 @router.get("/api/strategy-live/dl/state", response_class=JSONResponse)
 async def strategy_live_state(
-    symbols: str | None = None, max: int = _DEFAULT_MAX_SYMBOLS,
+    symbols: str | None = None, max_symbols: int = _DEFAULT_MAX_SYMBOLS,
 ):
-    max_n = min(max, _HARD_MAX_SYMBOLS)
+    max_n = min(max_symbols, _HARD_MAX_SYMBOLS)
     syms = await _resolve_symbols(symbols, max_n)
     states = _sort_states(await _evaluate_all(syms))
     return {
@@ -151,14 +151,22 @@ async def strategy_live_state(
 @router.get("/api/strategy-live/dl/cards", response_class=HTMLResponse)
 async def strategy_live_cards(
     request: Request, symbols: str | None = None,
-    max: int = _DEFAULT_MAX_SYMBOLS,
+    max_symbols: int = _DEFAULT_MAX_SYMBOLS,
 ):
     """HTML partial — used by HTMX every 30s. Renders the full grid so the
     chart layer can repaint in place."""
-    max_n = min(max, _HARD_MAX_SYMBOLS)
+    max_n = min(max_symbols, _HARD_MAX_SYMBOLS)
     syms = await _resolve_symbols(symbols, max_n)
     states = _sort_states(await _evaluate_all(syms))
     counts = _status_counts(states)
+    # Surface refresh tracker — how recent are the bars we evaluated?
+    from services import data_service as _ds
+    ages = [
+        _ds.time_since_refresh(s.symbol, "30m")
+        for s in states
+        if _ds.time_since_refresh(s.symbol, "30m") is not None
+    ]
+    cache_age_s = max(ages) if ages else None
     return templates.TemplateResponse(
         request=request,
         name="strategy_live/_cards.html",
@@ -167,6 +175,7 @@ async def strategy_live_cards(
             "rolled": {s.symbol: _rolled_status(s) for s in states},
             "counts": counts,
             "as_of": pd.Timestamp.now(tz="America/New_York").strftime("%H:%M:%S ET"),
+            "cache_age_seconds": cache_age_s,
         },
     )
 

@@ -55,7 +55,7 @@
 
   {# ===== Card/table region (HTMX-polled) ===== #}
   <div id="dl-cards"
-       hx-get="/api/strategy-live/dl/cards?symbols={{ symbols_param }}&max={{ max_n }}"
+       hx-get="/api/strategy-live/dl/cards?symbols={{ symbols_param }}&max_symbols={{ max_n }}"
        hx-trigger="load, every 30s"
        hx-swap="innerHTML">
     <div class="text-secondary text-sm" style="padding: 24px;">Loading…</div>
