@@ -339,6 +339,219 @@ async def unarchive_strategy(name: str) -> dict:
     return {"name": name, "archived": False}
 
 
+@router.get("/strategies/{name}/history", response_class=HTMLResponse)
+async def strategy_history(
+    request: Request,
+    name: str,
+    since: str | None = None,
+    until: str | None = None,
+    symbols: str | None = None,
+    s: Settings = Depends(get_settings),
+):
+    """Per-strategy History tab — merges actual closed trades from JSONL
+    with simulated trades from the replay engine over the same window.
+
+    Lets the operator answer: "If I'd taken every signal this strategy
+    proposed since date X, what would the trades have looked like?"
+    Each row is tagged actual/simulated so the operator can see at a
+    glance whether a date range had real fills or only counterfactuals.
+
+    Query params:
+        since/until: YYYY-MM-DD. Default since = 14 days ago, until = today.
+        symbols:     CSV. Default = the 16-symbol DL bellwether universe.
+    """
+    files = {p.stem: p for p in _strategy_files()}
+    if name not in files:
+        raise HTTPException(404, f"unknown strategy: {name}")
+
+    from datetime import date, timedelta
+    today = date.today()
+    if since:
+        try:
+            since_d = date.fromisoformat(since)
+        except ValueError:
+            since_d = today - timedelta(days=14)
+    else:
+        since_d = today - timedelta(days=14)
+    if until:
+        try:
+            until_d = date.fromisoformat(until)
+        except ValueError:
+            until_d = today
+    else:
+        until_d = today
+
+    # Default symbol set — match replay_dl's default for consistency
+    default_syms = [
+        "AMD", "AMZN", "BA", "COST", "GS", "HD", "INTC", "IWM",
+        "META", "ORCL", "SPY", "TSLA", "XLF", "AAPL", "MSFT", "NVDA",
+    ]
+    if symbols:
+        sym_list = [x.strip().upper() for x in symbols.split(",") if x.strip()]
+    else:
+        sym_list = default_syms
+
+    cfg = _load_strategy(files[name])
+    return templates.TemplateResponse(
+        request=request,
+        name="strategies/history.html",
+        context={
+            "settings": s,
+            "app_version": "0.1.0",
+            "active_page": "strategies",
+            "strategy_name": name,
+            "strategy_title": cfg.get("strategy_name", name),
+            "since": since_d.isoformat(),
+            "until": until_d.isoformat(),
+            "symbols_param": ",".join(sym_list),
+            "default_symbols": ", ".join(default_syms),
+        },
+    )
+
+
+@router.get("/api/strategies/{name}/history", response_class=JSONResponse)
+async def strategy_history_data(
+    name: str,
+    since: str,
+    until: str,
+    symbols: str,
+    refresh: bool = False,
+) -> dict:
+    """JSON: merged history of actual + simulated trades for a strategy
+    over the given date window. Called by the History page on Run."""
+    from datetime import date, datetime, timezone
+    files = {p.stem: p for p in _strategy_files()}
+    if name not in files:
+        raise HTTPException(404, f"unknown strategy: {name}")
+
+    try:
+        since_d = date.fromisoformat(since)
+        until_d = date.fromisoformat(until)
+    except ValueError as e:
+        raise HTTPException(400, f"bad date format: {e}")
+
+    sym_list = [x.strip().upper() for x in symbols.split(",") if x.strip()]
+    if not sym_list:
+        raise HTTPException(400, "no symbols supplied")
+
+    # ---- Simulated trades via the replay engine ----
+    simulated: list[dict] = []
+    sim_error: str | None = None
+    try:
+        from scripts.replay_dl import replay
+        sim_trades = await replay(
+            symbols=sym_list, since=since_d, until=until_d,
+            strategy=name, refresh=refresh,
+        )
+        for t in sim_trades:
+            simulated.append({
+                "source":      "simulated",
+                "date":        t.date_str,
+                "trigger_et":  "10:30",   # DL fires at 10:30 ET; future strategies override
+                "symbol":      t.symbol,
+                "direction":   t.direction.lower(),
+                "entry":       t.entry,
+                "stop":        t.stop,
+                "exit":        t.exit_px,
+                "tp":          None,           # DL replay simulates EOD/stop only, no TP target
+                "exit_reason": t.exit_reason,
+                "pnl_pct":     t.pnl_pct,
+                "pnl_per_100": t.pnl_dollars_per_100shr,
+                "win":         t.win,
+                "pqs":         t.pqs,
+                "notes":       t.notes,
+            })
+    except Exception as e:                                            # noqa: BLE001
+        logger.exception("strategy_history: replay failed")
+        sim_error = f"{type(e).__name__}: {e}"
+
+    # ---- Actual closed trades from the JSONL pool, filtered by strategy + window ----
+    actual: list[dict] = []
+    try:
+        from services import log_service
+        records = await log_service.read_records()
+        for r in records:
+            setup = r.setup_snapshot or {}
+            instr = r.instrument or {}
+            lc = r.lifecycle or {}
+            execn = r.execution or {}
+            outc = r.outcome or {}
+
+            if (setup.get("strategy_name") or "") != name:
+                continue
+            ts_entered = lc.get("ts_entered") or lc.get("ts_planned") or ""
+            try:
+                d = datetime.fromisoformat(ts_entered.replace("Z", "+00:00")).date()
+            except (ValueError, TypeError):
+                continue
+            if not (since_d <= d <= until_d):
+                continue
+
+            # Render trigger time in ET
+            try:
+                dt_et = (
+                    datetime.fromisoformat(ts_entered.replace("Z", "+00:00"))
+                    .astimezone(__import__("zoneinfo").ZoneInfo("America/New_York"))
+                )
+                trigger_et = dt_et.strftime("%H:%M")
+            except Exception:                                         # noqa: BLE001
+                trigger_et = "—"
+
+            actual.append({
+                "source":      "actual",
+                "trade_id":    r.trade_id,
+                "plan_id":     r.plan_id,
+                "date":        d.isoformat(),
+                "trigger_et":  trigger_et,
+                "symbol":      instr.get("symbol", ""),
+                "direction":   setup.get("direction", "long"),
+                "entry":       execn.get("avg_entry_price") or execn.get("planned_entry"),
+                "stop":        setup.get("stop_loss_price"),
+                "exit":        execn.get("avg_exit_price"),
+                "tp":          setup.get("take_profit_price"),
+                "exit_reason": outc.get("exit_reason", ""),
+                "pnl_pct":     outc.get("pnl_pct"),
+                "pnl_usd":     outc.get("pnl_usd"),
+                "win":         (outc.get("pnl_usd") or 0) > 0,
+                "notes":       "",
+            })
+    except Exception as e:                                            # noqa: BLE001
+        logger.warning("strategy_history: actual-read failed: %s", e)
+
+    # Merge + sort by date desc, then trigger time desc
+    merged = sorted(
+        simulated + actual,
+        key=lambda x: (x.get("date", ""), x.get("trigger_et", "")),
+        reverse=True,
+    )
+
+    # Aggregate stats
+    n_actual = sum(1 for r in merged if r["source"] == "actual")
+    n_sim = sum(1 for r in merged if r["source"] == "simulated")
+    wins = sum(1 for r in merged if r.get("win"))
+    losses = len(merged) - wins
+    wr = (wins / len(merged) * 100.0) if merged else 0.0
+    total_pct = sum((r.get("pnl_pct") or 0.0) for r in merged)
+
+    return {
+        "strategy": name,
+        "since": since_d.isoformat(),
+        "until": until_d.isoformat(),
+        "symbols_count": len(sym_list),
+        "trades": merged,
+        "summary": {
+            "total":   len(merged),
+            "actual":  n_actual,
+            "sim":     n_sim,
+            "wins":    wins,
+            "losses":  losses,
+            "win_rate": round(wr, 1),
+            "total_pnl_pct": round(total_pct, 2),
+        },
+        "sim_error": sim_error,
+    }
+
+
 @router.post("/api/strategies/{name}/auto-approve", response_class=JSONResponse)
 async def toggle_auto_approve(name: str) -> dict:
     """Flip the per-strategy auto-approve flag.

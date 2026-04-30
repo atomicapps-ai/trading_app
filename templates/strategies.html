@@ -62,6 +62,11 @@
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;">
         <button class="btn btn-sm" onclick="runStrategy('{{ s.name }}', this)">▶ Run</button>
+        <a class="btn btn-sm btn-ghost"
+           href="/strategies/{{ s.name }}/history"
+           title="Per-strategy history: actual + simulated trades over a date range">
+          📊 History
+        </a>
         <button class="btn btn-sm btn-ghost" onclick="toggleStrategy('{{ s.name }}', this)">
           {% if s.active %}⏸ Disable{% else %}▶ Enable{% endif %}
         </button>

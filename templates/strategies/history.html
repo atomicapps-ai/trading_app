@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block title %}History · {{ strategy_title }} — TradeAgent{% endblock %}
+
+{% block content %}
+<div class="strategies-history-page">
+
+  <div class="flex items-center" style="justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+    <div>
+      <div class="flex items-center gap-12" style="flex-wrap: wrap;">
+        <a href="/strategies/validated" class="text-tertiary text-xs"
+           style="text-decoration: none;">← Strategies</a>
+        <h2 style="font-size: 18px; font-weight: 500; margin: 0;">
+          {{ strategy_title }} · History
+        </h2>
+        <span class="badge badge-gray">{{ strategy_name }}</span>
+      </div>
+      <div class="text-tertiary text-xs" style="margin-top: 4px;">
+        Merged actual trades (from JSONL journal) + simulated trades
+        (replay over historical bars). Each row tagged so you can see
+        which days had real fills vs counterfactuals.
+      </div>
+    </div>
+  </div>
+
+  {# ===== Form ===== #}
+  <div class="card" style="margin-bottom: 16px;">
+    <div class="form-grid" style="display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 12px; align-items: center;">
+      <label style="font-size: 12px; color: var(--text-secondary);">Since</label>
+      <input type="date" id="hist-since" class="form-input" value="{{ since }}">
+      <label style="font-size: 12px; color: var(--text-secondary);">Until</label>
+      <input type="date" id="hist-until" class="form-input" value="{{ until }}">
+    </div>
+    <div style="margin-top: 12px;">
+      <label style="font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px;">Symbols</label>
+      <textarea id="hist-symbols" class="form-input mono" rows="2"
+                style="font-size: 12px;">{{ symbols_param }}</textarea>
+      <div class="text-tertiary text-xs" style="margin-top: 4px;">
+        Comma-separated. Default: {{ default_symbols }}
+      </div>
+    </div>
+    <div class="flex items-center gap-12" style="margin-top: 12px;">
+      <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px;">
+        <input type="checkbox" id="hist-refresh"> Re-fetch bars from yfinance (slower; use if cache is stale)
+      </label>
+      <span style="flex: 1;"></span>
+      <button type="button" class="btn btn-primary" id="hist-run" onclick="runHistory()">▶ Run history</button>
+      <span id="hist-status" class="text-tertiary text-xs"></span>
+    </div>
+  </div>
+
+  {# ===== Summary ===== #}
+  <div id="hist-summary" style="display: none; margin-bottom: 16px;"></div>
+
+  {# ===== Trade table ===== #}
+  <div id="hist-results">
+    <div class="text-tertiary text-sm" style="padding: 16px;">
+      Click <strong>▶ Run history</strong> to populate. Replay can take 5–30s
+      depending on date range and symbol count.
+    </div>
+  </div>
+
+</div>
+
+<script>
+async function runHistory() {
+  const since   = document.getElementById('hist-since').value;
+  const until   = document.getElementById('hist-until').value;
+  const symbols = document.getElementById('hist-symbols').value.replace(/\s+/g, '');
+  const refresh = document.getElementById('hist-refresh').checked ? 'true' : 'false';
+  const btn     = document.getElementById('hist-run');
+  const status  = document.getElementById('hist-status');
+  const summary = document.getElementById('hist-summary');
+  const results = document.getElementById('hist-results');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="run-spinner-sm"></span> Running…';
+  status.textContent = '';
+  summary.style.display = 'none';
+  results.innerHTML = '<div class="text-tertiary text-sm" style="padding:16px;">Replaying… ' +
+                      '<span id="hist-elapsed">0.0s</span></div>';
+
+  const t0 = performance.now();
+  const tick = setInterval(() => {
+    const el = document.getElementById('hist-elapsed');
+    if (el) el.textContent = ((performance.now() - t0) / 1000).toFixed(1) + 's';
+  }, 100);
+
+  try {
+    const url = `/api/strategies/{{ strategy_name }}/history?since=${since}&until=${until}` +
+                `&symbols=${encodeURIComponent(symbols)}&refresh=${refresh}`;
+    const r = await fetch(url);
+    clearInterval(tick);
+    const elapsed = ((performance.now() - t0) / 1000).toFixed(1);
+
+    if (!r.ok) {
+      const detail = (await r.json().catch(() => ({}))).detail || `HTTP ${r.status}`;
+      results.innerHTML = `<div class="empty text-accent-red">Failed in ${elapsed}s: ${escapeHtml(detail)}</div>`;
+      return;
+    }
+
+    const j = await r.json();
+    renderSummary(j.summary, elapsed, j.sim_error);
+    renderTable(j.trades);
+    status.textContent = `Done in ${elapsed}s`;
+  } catch (e) {
+    clearInterval(tick);
+    results.innerHTML = `<div class="empty text-accent-red">Network error: ${escapeHtml(e.message || String(e))}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '▶ Run history';
+  }
+}
+
+function renderSummary(s, elapsed, simError) {
+  const summary = document.getElementById('hist-summary');
+  let html =
+    '<div class="card"><div class="card-header"><span class="card-title">Summary</span>' +
+    `<span class="card-subtitle">${s.actual} actual + ${s.sim} simulated · run took ${elapsed}s</span></div>` +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;">' +
+    statTile('Total trades', s.total) +
+    statTile('Win rate', s.win_rate.toFixed(1) + '%', winRateColor(s.win_rate)) +
+    statTile('Wins / Losses', s.wins + ' / ' + s.losses) +
+    statTile('Total P&L %', formatPct(s.total_pnl_pct), pctColor(s.total_pnl_pct)) +
+    '</div>';
+  if (simError) {
+    html += `<div class="text-accent-red text-xs" style="margin-top:8px;">⚠ Replay error: ${escapeHtml(simError)}</div>`;
+  }
+  html += '</div>';
+  summary.innerHTML = html;
+  summary.style.display = '';
+}
+
+function renderTable(trades) {
+  const results = document.getElementById('hist-results');
+  if (!trades || trades.length === 0) {
+    results.innerHTML = '<div class="empty">No trades in the selected window. ' +
+      'For DL: when VIX < 20 the regime gate blocks every signal — try an earlier window.</div>';
+    return;
+  }
+  let rows = '';
+  trades.forEach(t => {
+    const pnlClass = (t.win ? 'text-accent-green' : 'text-accent-red');
+    const pnl = (t.pnl_pct ?? 0).toFixed(2);
+    const sourceBadge = t.source === 'actual'
+      ? '<span class="badge badge-green text-xs" title="Real broker fill from trade journal">ACTUAL</span>'
+      : '<span class="badge badge-blue text-xs" title="Counterfactual replay — what would have happened">SIM</span>';
+    const dirBadge = t.direction === 'long'
+      ? '<span class="text-accent-green">▲</span>'
+      : '<span class="text-accent-red">▼</span>';
+    const tradeLink = t.trade_id
+      ? `<a href="/trades/${t.trade_id}" class="text-accent-blue mono" style="text-decoration:none;">${t.symbol}</a>`
+      : `<span class="mono">${t.symbol}</span>`;
+    rows +=
+      `<tr>` +
+      `<td>${sourceBadge}</td>` +
+      `<td class="mono text-secondary">${t.date}</td>` +
+      `<td class="mono text-secondary">${t.trigger_et || '—'}</td>` +
+      `<td>${dirBadge} ${tradeLink}</td>` +
+      `<td class="num mono">${fmtPrice(t.entry)}</td>` +
+      `<td class="num mono">${fmtPrice(t.tp)}</td>` +
+      `<td class="num mono">${fmtPrice(t.stop)}</td>` +
+      `<td class="num mono">${fmtPrice(t.exit)}</td>` +
+      `<td><span class="badge badge-gray text-xs">${t.exit_reason || '—'}</span></td>` +
+      `<td class="num mono ${pnlClass}">${pnl >= 0 ? '+' : ''}${pnl}%</td>` +
+      `<td>${t.win ? '<span class="badge badge-green text-xs">W</span>' : '<span class="badge badge-red text-xs">L</span>'}</td>` +
+      `</tr>`;
+  });
+  results.innerHTML =
+    '<table class="data-table"><thead><tr>' +
+    '<th>Source</th><th>Date</th><th>Trigger ET</th><th>Symbol</th>' +
+    '<th class="num">Entry</th><th class="num">TP</th><th class="num">Stop</th><th class="num">Exit</th>' +
+    '<th>Exit reason</th><th class="num">P&L %</th><th>W/L</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>';
+}
+
+function statTile(label, value, valueColorClass) {
+  return '<div style="padding:10px 12px;background:var(--surface-2);border-radius:6px;">' +
+    `<div class="text-tertiary text-xs" style="text-transform:uppercase;letter-spacing:.04em;">${label}</div>` +
+    `<div class="mono" style="font-size:18px;font-weight:600;${valueColorClass ? 'color:'+valueColorClass : ''}">${value}</div>` +
+    '</div>';
+}
+
+function fmtPrice(p) {
+  if (p === null || p === undefined) return '—';
+  return '$' + Number(p).toFixed(2);
+}
+function formatPct(p) { return (p >= 0 ? '+' : '') + p.toFixed(2) + '%'; }
+function pctColor(p) { return p >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'; }
+function winRateColor(p) {
+  if (p >= 70) return 'var(--accent-green)';
+  if (p >= 50) return 'var(--accent-amber)';
+  return 'var(--accent-red)';
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[c]));
+}
+
+// Auto-run on initial load if URL has explicit dates (deep-link from a card).
+if (window.location.search.includes('since=') &&
+    window.location.search.includes('until=')) {
+  // wait for layout
+  setTimeout(() => runHistory(), 100);
+}
+</script>
+{% endblock %}
