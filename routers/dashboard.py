@@ -141,21 +141,43 @@ async def _real_pending_or_stub() -> list[dict]:
 
 async def _real_positions_or_stub() -> list[dict]:
     """Live open positions — pulled out of AccountState which the broker
-    adapter populates with the live position list (not just a count)."""
+    adapter populates with the live position list (not just a count).
+
+    Shape mirrors STUB_OPEN_POSITIONS so ``dashboard.html`` doesn't have
+    to know whether the source was live or stub. Fields the broker
+    doesn't carry (stop, strategy, pnl_r) get sensible defaults —
+    enrichment from pending_approvals + plan_json is a follow-up.
+    """
     st, err = await _real_account_state()
     if st is None:
         logger.warning("dashboard: real positions fetch failed (%s); using stub", err)
         return STUB_OPEN_POSITIONS
     if not st.open_positions:
         return []                                                     # genuinely 0 positions
-    return [{
-        "symbol":          p.symbol,
-        "shares":          p.shares,
-        "avg_entry_price": p.avg_entry_price,
-        "market_price":    p.market_price,
-        "unrealized_pnl_usd": p.unrealized_pnl_usd,
-        "sector":          p.sector,
-    } for p in st.open_positions]
+
+    rows: list[dict] = []
+    for p in st.open_positions:
+        entry = float(p.avg_entry_price or 0.0)
+        current = float(p.market_price or 0.0)
+        shares = int(p.shares or 0)
+        direction = "long" if shares >= 0 else "short"
+        pnl_pct = ((current - entry) / entry * 100.0) if entry else 0.0
+        if direction == "short":
+            pnl_pct = -pnl_pct
+        rows.append({
+            "symbol":     p.symbol,
+            "direction":  direction,
+            "shares":     abs(shares),
+            "entry":      entry,
+            "current":    current,
+            "pnl_usd":    float(p.unrealized_pnl_usd or 0.0),
+            "pnl_pct":    pnl_pct,
+            "pnl_r":      0.0,    # needs plan reference (stop) to compute
+            "stop":       0.0,    # not on broker; populate from plan_json later
+            "strategy":   "",
+            "sector":     p.sector or "",
+        })
+    return rows
 
 
 @router.get("/api/dashboard/widgets/{widget_id}", response_class=HTMLResponse)
