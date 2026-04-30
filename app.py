@@ -32,6 +32,7 @@ from routers import (
     settings as settings_router,
     stock_lists,
     strategies as strategies_router,
+    strategy_live as strategy_live_router,
     stubs,
     system_health as system_health_router,
     today as today_router,
@@ -146,6 +147,7 @@ app.include_router(broker.router)
 app.include_router(workflows.router)
 app.include_router(jobs.router)
 app.include_router(strategies_router.router)
+app.include_router(strategy_live_router.router)
 app.include_router(replay_router.router)
 app.include_router(today_router.router)
 app.include_router(system_health_router.router)

@@ -35,8 +35,8 @@ from services.data_service import DataNotAvailableError, get_bars
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-SupportedInterval = Literal["1h", "2h", "4h", "1d"]
-_RESAMPLE_RULE = {"1h": "1h", "2h": "2h", "4h": "4h", "1d": "1D"}
+SupportedInterval = Literal["30m", "1h", "2h", "4h", "1d"]
+_RESAMPLE_RULE = {"30m": "30min", "1h": "1h", "2h": "2h", "4h": "4h", "1d": "1D"}
 
 
 @router.get("/api/bars/{symbol}")
@@ -57,11 +57,16 @@ async def get_bars_json(
                    f"{list(_RESAMPLE_RULE.keys())}",
         )
 
-    # Pick source cache: native for 1h/1d; for 2h/4h we pull 1h and resample.
-    source_interval = "1d" if interval == "1d" else "1h"
+    # Pick source cache: native for 30m/1h/1d; for 2h/4h we pull 1h and resample.
+    if interval == "1d":
+        source_interval = "1d"
+    elif interval == "30m":
+        source_interval = "30m"
+    else:
+        source_interval = "1h"
 
     try:
-        df = await get_bars(symbol.upper(), source_interval, min_bars=50)
+        df = await get_bars(symbol.upper(), source_interval, min_bars=20)
     except DataNotAvailableError as e:
         raise HTTPException(status_code=404, detail=str(e))
 

@@ -1,0 +1,163 @@
+{# Per-symbol DL state cards. Re-rendered every 30s via HTMX. #}
+{% macro status_dot(status) %}
+  {% if status == 'passed' %}<span class="dot green" title="passed"></span>
+  {% elif status == 'failed' %}<span class="dot" style="background: var(--accent-red);" title="failed"></span>
+  {% elif status == 'forming' %}<span class="dot" style="background: var(--accent-amber);" title="forming"></span>
+  {% elif status == 'pending' %}<span class="dot" style="background: var(--text-tertiary);" title="pending"></span>
+  {% else %}<span class="dot gray" title="n/a"></span>
+  {% endif %}
+{% endmacro %}
+
+{% macro status_pill(status, label) %}
+  {% set color = (
+    'badge-green'  if status == 'passed' else
+    'badge-red'    if status == 'failed' else
+    'badge-amber'  if status == 'forming' else
+    'badge-gray'
+  ) %}
+  <span class="badge {{ color }}">{{ label or status }}</span>
+{% endmacro %}
+
+<div class="text-tertiary text-xs" style="margin-bottom: 12px;">
+  As of {{ as_of }} · symbols evaluate independently
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px;">
+  {% for s in states %}
+    {% set rolled =
+        'armed' if s.armed else
+        'failed' if (s.c1_status == 'failed' or s.c2_status == 'failed' or s.regime_status == 'failed') else
+        'passed' if (s.c1_status == 'passed' and s.c2_status == 'passed' and s.regime_status == 'passed') else
+        'forming' if (s.c1_status == 'forming' or s.c2_status == 'forming') else
+        'pending'
+    %}
+    <div class="card dl-card"
+         data-symbol="{{ s.symbol }}"
+         data-direction="{{ s.direction }}"
+         data-armed="{{ '1' if s.armed else '0' }}"
+         data-entry="{{ s.entry_price or '' }}"
+         data-stop="{{ s.stop_price or '' }}"
+         style="padding: 12px;
+                {% if rolled == 'armed' %}border-color: var(--accent-blue); border-width: 1px;{% endif %}
+                {% if rolled == 'failed' %}opacity: 0.6;{% endif %}">
+
+      {# ===== Header ===== #}
+      <div class="flex items-center" style="justify-content: space-between; margin-bottom: 8px;">
+        <div class="flex items-center gap-12">
+          <span class="mono" style="font-weight: 600; font-size: 14px;">{{ s.symbol }}</span>
+          {% if s.direction == 'long' %}
+            <span class="badge badge-green text-xs">↑ LONG</span>
+          {% elif s.direction == 'short' %}
+            <span class="badge badge-red text-xs">↓ SHORT</span>
+          {% endif %}
+        </div>
+        <div>
+          {% if s.armed %}
+            <a href="/pending/{{ s.plan_id }}" class="badge badge-blue" style="text-decoration: none;">⚡ ARMED</a>
+          {% elif rolled == 'passed' %}
+            {{ status_pill('passed', 'all gates pass') }}
+          {% elif rolled == 'failed' %}
+            {{ status_pill('failed', 'rejected') }}
+          {% elif rolled == 'forming' %}
+            {{ status_pill('forming', 'evaluating') }}
+          {% else %}
+            {{ status_pill('pending', 'waiting') }}
+          {% endif %}
+        </div>
+      </div>
+
+      {# ===== Chart ===== #}
+      <div class="dl-card-chart" style="height: 180px; background: var(--bg-base); border-radius: 4px; margin-bottom: 8px;"></div>
+
+      {# ===== Gate rows ===== #}
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; font-size: 11px;">
+
+        <div style="padding: 6px 8px; background: var(--surface-2); border-radius: 4px;">
+          <div class="text-tertiary text-xs" style="margin-bottom: 2px;">
+            {{ status_dot(s.c1_status) }} c1 9:30-10:00
+          </div>
+          {% if s.c1_open is not none %}
+            <div class="mono">${{ "%.2f"|format(s.c1_open) }} → ${{ "%.2f"|format(s.c1_close) }}</div>
+            <div class="text-tertiary text-xs">
+              body {{ "%.0f"|format((s.c1_body_pct or 0) * 100) }}% ·
+              vol {{ "%.1f"|format(s.c1_volume_ratio or 0) }}x
+            </div>
+          {% else %}
+            <div class="text-tertiary">—</div>
+          {% endif %}
+        </div>
+
+        <div style="padding: 6px 8px; background: var(--surface-2); border-radius: 4px;">
+          <div class="text-tertiary text-xs" style="margin-bottom: 2px;">
+            {{ status_dot(s.c2_status) }} c2 10:00-10:30
+          </div>
+          {% if s.c2_open is not none %}
+            <div class="mono">${{ "%.2f"|format(s.c2_open) }} → ${{ "%.2f"|format(s.c2_close) }}</div>
+            <div class="text-tertiary text-xs">
+              body {{ "%.0f"|format((s.c2_body_pct or 0) * 100) }}%
+            </div>
+          {% else %}
+            <div class="text-tertiary">—</div>
+          {% endif %}
+        </div>
+
+        <div style="padding: 6px 8px; background: var(--surface-2); border-radius: 4px;">
+          <div class="text-tertiary text-xs" style="margin-bottom: 2px;">
+            {{ status_dot(s.regime_status) }} regime
+          </div>
+          {% if s.vix_prev_close is not none %}
+            <div class="mono text-xs">
+              VIX <span class="{{ 'text-accent-green' if s.vix_prev_close >= (s.vix_min or 20) else 'text-accent-red' }}">{{ "%.1f"|format(s.vix_prev_close) }}</span>
+              {% if s.vix_min %}<span class="text-tertiary">≥{{ "%.0f"|format(s.vix_min) }}</span>{% endif %}
+            </div>
+          {% endif %}
+          {% if s.adx_d is not none %}
+            <div class="mono text-xs">
+              ADX <span class="{{ 'text-accent-green' if s.adx_d <= (s.adx_max or 35) else 'text-accent-red' }}">{{ "%.1f"|format(s.adx_d) }}</span>
+              {% if s.adx_max %}<span class="text-tertiary">≤{{ "%.0f"|format(s.adx_max) }}</span>{% endif %}
+            </div>
+          {% endif %}
+          {% if s.vix_prev_close is none and s.adx_d is none %}
+            <div class="text-tertiary">—</div>
+          {% endif %}
+        </div>
+      </div>
+
+      {# ===== Plan levels (when armed) ===== #}
+      {% if s.armed %}
+        <div style="margin-top: 8px; padding: 6px 8px; background: var(--bg-stat);
+                    border-left: 2px solid var(--accent-blue); border-radius: 0 4px 4px 0;
+                    font-size: 11px;">
+          <div class="flex items-center gap-12">
+            <span class="text-tertiary">entry</span>
+            <span class="mono">${{ "%.2f"|format(s.entry_price or 0) }}</span>
+            <span class="text-tertiary">stop</span>
+            <span class="mono text-accent-red">${{ "%.2f"|format(s.stop_price or 0) }}</span>
+            {% if s.eod_close_iso %}
+              <span class="text-tertiary">close</span>
+              <span class="mono">{{ s.eod_close_iso[11:16] }}</span>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      {# ===== Failure reasons (collapsed by default) ===== #}
+      {% if s.failures %}
+        <details style="margin-top: 8px; font-size: 11px;">
+          <summary class="text-tertiary" style="cursor: pointer;">
+            {{ s.failures|length }} reason{{ '' if s.failures|length == 1 else 's' }} not firing
+          </summary>
+          <ul style="list-style: none; margin: 4px 0 0; padding: 0;">
+            {% for f in s.failures %}
+              <li class="text-secondary" style="padding: 2px 0;">· {{ f }}</li>
+            {% endfor %}
+          </ul>
+        </details>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+
+{% if not states %}
+  <div class="empty">No symbols to evaluate.</div>
+{% endif %}
