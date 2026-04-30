@@ -26,6 +26,7 @@ from routers import (
     dashboard,
     indicators,
     jobs,
+    live_status as live_status_router,
     news_detail,
     pending,
     positions as positions_router,
@@ -146,6 +147,7 @@ app.include_router(news_detail.router)
 app.include_router(settings_router.router)
 app.include_router(broker.router)
 app.include_router(positions_router.router)
+app.include_router(live_status_router.router)
 app.include_router(workflows.router)
 app.include_router(jobs.router)
 app.include_router(strategies_router.router)

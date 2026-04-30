@@ -1430,3 +1430,89 @@ input, select, textarea { font: inherit; color: inherit; }
   background: var(--tint-blue);
   color: var(--accent-blue);
 }
+
+/* =========================================================================
+   Live status bar — persistent strip above the topbar
+   ========================================================================= */
+.live-bar {
+  background: var(--bg-stat);
+  border-bottom: 0.5px solid var(--border);
+  padding: 6px 16px;
+  font-size: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+.live-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.live-bar-error {
+  color: var(--accent-red);
+}
+.live-bar-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  background: var(--surface-2);
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  white-space: nowrap;
+}
+.live-bar-equity {
+  background: var(--bg-base);
+}
+.live-bar-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+}
+.live-bar-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+  margin: 0 4px;
+}
+.live-bar-pos {
+  color: var(--accent-green);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.live-bar-neg {
+  color: var(--accent-red);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+.live-bar-pos-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  background: var(--surface-2);
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: filter 100ms;
+}
+.live-bar-pos-chip:hover {
+  filter: brightness(1.15);
+}
+.live-bar-toggle {
+  background: var(--surface-2);
+  border: 0.5px solid var(--border);
+  color: var(--text-secondary);
+  width: 28px;
+  height: 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+}
+.live-bar-toggle:hover {
+  color: var(--accent-blue);
+  border-color: var(--accent-blue);
+}

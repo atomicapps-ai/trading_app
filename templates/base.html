@@ -120,6 +120,18 @@
       </div>
     </aside>
 
+    {# ===== Live status bar (topmost row, always visible) =====
+       Persistent equity / day P&L / per-position chips. Polls every 5s.
+       Designed as a slim strip ABOVE the existing topbar so it never
+       gets covered by anything and stays in peripheral view. #}
+    <div class="live-bar"
+         id="live-status-bar"
+         hx-get="/api/live-status"
+         hx-trigger="load, every 5s"
+         hx-swap="innerHTML">
+      <div class="live-bar-row text-tertiary text-xs">Loading live status…</div>
+    </div>
+
     {# ===== Topbar ===== #}
     <header class="topbar">
       <div class="topbar-left">
@@ -239,6 +251,36 @@
         'About to: ' + actionLabel + '\n\n' +
         'This will affect a real-money account. Are you sure?';
       return window.confirm(msg);
+    };
+
+    // ---------------------------------------------------------------
+    // Live-bar P&L toggle: each refresh (every 5s) re-applies whatever
+    // mode is in localStorage, so the user's $-vs-% preference survives
+    // server-side repaints. Each chip carries data-pnl-usd + data-pnl-pct
+    // so the swap is purely client-side.
+    // ---------------------------------------------------------------
+    window.applyLivePnlMode = function(mode) {
+      const isPct = (mode === 'pct');
+      document.querySelectorAll('[data-toggle-pnl]').forEach(el => {
+        const usd = parseFloat(el.dataset.pnlUsd || '0');
+        const pct = parseFloat(el.dataset.pnlPct || '0');
+        const v = el.querySelector('.live-bar-pnl-value');
+        if (!v) return;
+        if (isPct) {
+          v.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+        } else {
+          v.textContent = (usd >= 0 ? '+' : '') + usd.toFixed(2);
+        }
+      });
+      const lbl = document.getElementById('live-bar-toggle-label');
+      if (lbl) lbl.textContent = isPct ? '%' : '$';
+    };
+
+    window.toggleLivePnlMode = function() {
+      const cur = localStorage.getItem('live_bar.mode') || 'usd';
+      const next = (cur === 'usd') ? 'pct' : 'usd';
+      localStorage.setItem('live_bar.mode', next);
+      window.applyLivePnlMode(next);
     };
 
     // HALT button — always confirm. In LIVE mode the safeguard prompt

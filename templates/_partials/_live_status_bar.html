@@ -1,0 +1,69 @@
+{# Persistent top-of-app live-totals strip. Reloaded every 5s via HTMX.
+   Each chip carries both data-pnl-usd and data-pnl-pct so the toggle
+   JS can swap display without a server round-trip. #}
+{% if error %}
+  <div class="live-bar-row live-bar-error">
+    <span class="live-bar-pill">⚠ Live status unavailable</span>
+    <span class="text-tertiary text-xs">{{ error }}</span>
+  </div>
+{% else %}
+  <div class="live-bar-row">
+    {# ===== Account totals (always %/$ ) ===== #}
+    <span class="live-bar-pill live-bar-equity">
+      <span class="live-bar-label">EQUITY</span>
+      <span class="mono">${{ "{:,.2f}".format(equity) }}</span>
+    </span>
+    <span class="live-bar-pill">
+      <span class="live-bar-label">CASH</span>
+      <span class="mono">${{ "{:,.2f}".format(cash) }}</span>
+    </span>
+    <span class="live-bar-pill {{ 'live-bar-pos' if day_pnl_usd >= 0 else 'live-bar-neg' }}"
+          data-toggle-pnl
+          data-pnl-usd="{{ "%.2f"|format(day_pnl_usd) }}"
+          data-pnl-pct="{{ "%.2f"|format(day_pnl_pct) }}">
+      <span class="live-bar-label">DAY P&amp;L</span>
+      <span class="mono live-bar-pnl-value">{{ "%+.2f"|format(day_pnl_usd) }}</span>
+    </span>
+
+    {# Divider between account totals and per-position chips. #}
+    <span class="live-bar-divider"></span>
+
+    {# ===== Per-position chips (only symbols with open positions) ===== #}
+    {% if positions %}
+      {% for p in positions %}
+        <a href="/strategy-live/dl?symbols={{ p.symbol }}"
+           class="live-bar-pos-chip {{ 'live-bar-pos' if p.pnl_usd >= 0 else 'live-bar-neg' }}"
+           data-toggle-pnl
+           data-pnl-usd="{{ "%.2f"|format(p.pnl_usd) }}"
+           data-pnl-pct="{{ "%.2f"|format(p.pnl_pct) }}"
+           title="{{ p.direction|upper }} {{ p.shares }} @ ${{ "%.2f"|format(p.entry) }} → ${{ "%.2f"|format(p.current) }}">
+          <span class="mono">{{ p.symbol }}</span>
+          <span class="mono live-bar-pnl-value">{{ "%+.2f"|format(p.pnl_usd) }}</span>
+        </a>
+      {% endfor %}
+    {% else %}
+      <span class="text-tertiary text-xs">No open positions</span>
+    {% endif %}
+
+    {# ===== Toggle %/$ ===== #}
+    <span style="flex: 1;"></span>
+    <button type="button" class="live-bar-toggle"
+            id="live-bar-toggle"
+            onclick="toggleLivePnlMode()"
+            title="Toggle P&L between $ and %">
+      <span id="live-bar-toggle-label">$</span>
+    </button>
+  </div>
+{% endif %}
+
+<script>
+  // After every HTMX swap, re-apply the persisted toggle so the user's
+  // preference survives the 5s repaint. localStorage key shared across
+  // every page (single user, single trading account context).
+  (function() {
+    const mode = localStorage.getItem('live_bar.mode') || 'usd';
+    if (typeof window.applyLivePnlMode === 'function') {
+      window.applyLivePnlMode(mode);
+    }
+  })();
+</script>

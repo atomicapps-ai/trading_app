@@ -385,7 +385,25 @@
   }
 
   function paintAllDLCards() {
-    document.querySelectorAll('.dl-card[data-symbol]').forEach(paintDLCard);
+    // CRITICAL: each symbol exists as TWO .dl-card elements in the
+    // DOM — one in the grid host, one inside the table-row-expansion
+    // (initially hidden). Painting both clobbers the visible one's
+    // chart instance because window.dlCharts is keyed by symbol. Only
+    // paint cards inside the currently-visible density host. Table-mode
+    // expansion cards are painted on-demand by toggleDLRow().
+    const density = getDLDensity();
+    const hostId = (density === 'grid') ? 'dl-grid-host' : 'dl-table-host';
+    const host = document.getElementById(hostId);
+    if (host) {
+      // In table mode the row-expansion .dl-card elements are still
+      // hidden until clicked — skip those by selecting the host only,
+      // which has no .dl-card direct children in table mode (charts
+      // live inside .dl-row-expansion which starts display:none).
+      if (density === 'grid') {
+        host.querySelectorAll('.dl-card[data-symbol]').forEach(paintDLCard);
+      }
+      // Table mode: nothing to paint until rows expand.
+    }
     const stamp = document.getElementById('last-refresh');
     if (stamp) {
       const now = new Date();
@@ -407,20 +425,27 @@
   window.toggleDLRow = toggleDLRow;
   window.paintDLCard = paintDLCard;
 
-  // Initial bind + rebind after every HTMX swap
+  // Re-paint when user toggles density (so previously-hidden charts
+  // can be drawn now that their parent is visible).
+  const _origSetDensity = window.setDLDensity;
+  window.setDLDensity = function(d) {
+    _origSetDensity(d);
+    paintAllDLCards();
+  };
+
+  // Initial bind + rebind after every HTMX swap of the dl-cards
+  // partial. Filtered to only the dl-cards swap so unrelated swaps
+  // (e.g. the live-status bar polling every 5s) don't trigger a
+  // chart-destroy + recreate cycle that interrupts in-flight bar
+  // fetches.
   document.body.addEventListener('htmx:afterSwap', (ev) => {
     if (ev.target && ev.target.id === 'dl-cards') {
       loadDLFilters();
-      // Restore active density button state
       const d = getDLDensity();
       document.querySelectorAll('.dl-density-btn').forEach(b =>
         b.dataset.active = (b.dataset.density === d) ? '1' : '0');
       paintAllDLCards();
     }
-  });
-  document.body.addEventListener('htmx:load', () => {
-    loadDLFilters();
-    paintAllDLCards();
   });
 </script>
 {% endblock %}
