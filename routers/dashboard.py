@@ -122,21 +122,41 @@ async def _real_account_or_stub() -> dict:
 
 
 async def _real_pending_or_stub() -> list[dict]:
-    """Live pending approvals from SQLite (pending_approvals table)."""
+    """Live pending approvals from SQLite (pending_approvals table).
+
+    Returns an empty list when there are no real pending plans — never
+    falls back to STUB_PENDING. The previous fallback was a bug: it
+    silently displayed fake NVDA + SPY rows whenever the DB read raised
+    AttributeError on a misspelled function name.
+
+    Shape mirrors the keys ``templates/dashboard/_pending.html`` reads.
+    """
     try:
         from services import db_service
-        rows = await db_service.list_pending_approvals(status="pending", limit=20)
-        return [{
-            "plan_id":     r.get("plan_id"),
-            "symbol":      r.get("symbol"),
-            "direction":   r.get("direction"),
-            "strategy":    r.get("strategy_name") or r.get("strategy"),
-            "entry_price": r.get("entry_price"),
-            "ts_created":  r.get("ts_created"),
-        } for r in rows]
+        rows = await db_service.get_pending_plans(status_filter="pending", limit=20)
     except Exception as e:                                            # noqa: BLE001
-        logger.warning("dashboard: real pending fetch failed (%s); using stub", e)
-        return STUB_PENDING
+        logger.warning("dashboard: real pending fetch failed (%s)", e)
+        return []
+    out: list[dict] = []
+    for r in rows:
+        out.append({
+            "plan_id":      r.get("plan_id"),
+            "symbol":       r.get("symbol"),
+            "direction":    r.get("direction"),
+            "strategy":     r.get("strategy"),
+            "conviction":   r.get("conviction") or 0.0,
+            "entry":        r.get("entry"),
+            "stop":         r.get("stop"),
+            "tp1":          r.get("tp1"),
+            "tp2":          r.get("tp2"),
+            "risk_usd":     r.get("risk_usd") or 0.0,
+            "rr_tp1":       r.get("rr_tp1") or 0.0,
+            "position_size": r.get("position_size") or 0,
+            "ts_created":   r.get("ts_created"),
+            "compliance":   r.get("compliance"),
+            "risk_result":  r.get("risk_result"),
+        })
+    return out
 
 
 async def _real_positions_or_stub() -> list[dict]:
