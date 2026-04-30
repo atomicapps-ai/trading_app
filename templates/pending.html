@@ -200,11 +200,48 @@
     {% else %}
       {% set p = selected %}
 
-      <div class="flex items-center gap-12 mb-16">
+      <div class="flex items-center gap-12 mb-8" style="flex-wrap: wrap;">
         <span style="font-size: 24px; font-weight: 500;">{{ p.symbol }}</span>
         <span class="badge {% if p.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ p.direction|upper }}</span>
         <span class="badge badge-gray">{{ p.strategy }}</span>
         <span class="text-secondary text-sm">conviction {{ (p.conviction * 100)|round|int }}%</span>
+        <span class="badge gate-badge
+              {% if p.status == 'pending' %}badge-amber
+              {% elif p.status == 'executed' %}badge-green
+              {% elif p.status in ('rejected', 'order_rejected') %}badge-red
+              {% elif p.status == 'approved' %}badge-blue
+              {% else %}badge-gray{% endif %}">
+          {{ p.status|replace('_',' ')|upper }}
+        </span>
+      </div>
+
+      {# Provenance + cross-links — date the strategy decided, who produced
+         it, and quick jumps to the live evaluation view + the scheduled
+         job that fired the workflow run. #}
+      <div class="flex items-center gap-12 mb-16" style="flex-wrap: wrap; font-size: 12px;">
+        <span class="text-tertiary">Decided</span>
+        <span class="mono">{{ p.ts_created[:19].replace('T', ' ') }} UTC</span>
+        {% if p.ts_ago %}<span class="text-tertiary">({{ p.ts_ago }})</span>{% endif %}
+        <span class="text-tertiary">·</span>
+
+        <a href="/strategy-live/dl?symbols={{ p.symbol }}"
+           class="text-accent-blue" style="text-decoration: none;"
+           title="Live DL gate evaluation for this symbol">
+          ▣ Strategy Live
+        </a>
+        <span class="text-tertiary">·</span>
+
+        <a href="/jobs"
+           class="text-accent-blue" style="text-decoration: none;"
+           title="Scheduler jobs — see which workflow produced this plan">
+          ⏱ Jobs
+        </a>
+        <span class="text-tertiary">·</span>
+
+        {% if p.broker_order_id %}
+          <span class="text-tertiary">broker_order:</span>
+          <span class="mono text-xs">{{ p.broker_order_id[:8] }}…</span>
+        {% endif %}
       </div>
 
       {# Dual linked chart — 1h top, 4h bottom by default. Each pane is
