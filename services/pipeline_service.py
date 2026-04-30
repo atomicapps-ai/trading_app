@@ -211,7 +211,6 @@ async def run_workflow_by_id(
             from agents.executioner import Executioner
             from models.verdicts import HumanAckRecord
             from services import auto_approve_service
-            from services.settings_service import get_settings
 
             allowed, reason = await auto_approve_service.safe_to_auto_approve(strategy)
             if allowed:
@@ -228,7 +227,11 @@ async def run_workflow_by_id(
                 await db_service.ack_plan(
                     plan.plan_id, "approve", ack_record=ack.model_dump(),
                 )
-                exe = Executioner(get_settings())
+                # Reuse the function-scope `s` (Settings) — don't re-import
+                # get_settings here, that creates a function-local binding
+                # that shadows the module-level import at line 56 and
+                # raises UnboundLocalError on the first reference.
+                exe = Executioner(s)
                 exec_result = await exe.execute_plan(
                     plan=plan,
                     compliance_verdict=compliance_verdict,
