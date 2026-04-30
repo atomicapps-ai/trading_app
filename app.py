@@ -28,6 +28,7 @@ from routers import (
     jobs,
     news_detail,
     pending,
+    positions as positions_router,
     replay as replay_router,
     settings as settings_router,
     stock_lists,
@@ -144,6 +145,7 @@ app.include_router(trade_detail.router)
 app.include_router(news_detail.router)
 app.include_router(settings_router.router)
 app.include_router(broker.router)
+app.include_router(positions_router.router)
 app.include_router(workflows.router)
 app.include_router(jobs.router)
 app.include_router(strategies_router.router)

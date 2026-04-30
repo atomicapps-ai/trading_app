@@ -133,17 +133,26 @@
             </thead>
             <tbody>
               {% for pos in open_positions %}
-                <tr>
-                  <td><span class="mono">{{ pos.symbol }}</span></td>
+                <tr data-symbol="{{ pos.symbol }}">
+                  <td>
+                    <a href="/strategy-live/dl?symbols={{ pos.symbol }}"
+                       class="mono text-accent-blue"
+                       style="text-decoration: none;"
+                       title="Open live chart for {{ pos.symbol }}">{{ pos.symbol }}</a>
+                  </td>
                   <td><span class="badge {% if pos.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ pos.direction|upper }}</span></td>
                   <td class="num mono">${{ "%.2f"|format(pos.entry) }}</td>
                   <td class="num mono">${{ "%.2f"|format(pos.current) }}</td>
                   <td class="num mono {% if pos.pnl_usd >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(pos.pnl_usd) }}</td>
                   <td class="num mono {% if pos.pnl_pct >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(pos.pnl_pct) }}%</td>
                   <td class="num mono {% if pos.pnl_r >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(pos.pnl_r) }}R</td>
-                  <td class="num mono text-secondary">${{ "%.2f"|format(pos.stop) }}</td>
-                  <td class="text-secondary text-sm">{{ pos.strategy }}</td>
-                  <td><button class="btn" disabled title="Manual close: use broker platform">Close</button></td>
+                  <td class="num mono text-secondary">{% if pos.stop %}${{ "%.2f"|format(pos.stop) }}{% else %}—{% endif %}</td>
+                  <td class="text-secondary text-sm">{{ pos.strategy or '—' }}</td>
+                  <td>
+                    <button type="button" class="btn btn-sm btn-danger"
+                            onclick="closePosition('{{ pos.symbol }}', {{ pos.shares }})"
+                            title="Flatten via market order">Close</button>
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>
@@ -537,6 +546,45 @@
       }
     });
   })();
+
+  // ----- Position close (dashboard "Close" button) ------------------
+  async function closePosition(symbol, shares) {
+    const direction = shares > 0 ? 'SELL' : 'BUY';
+    const qty = Math.abs(shares);
+    if (!confirm(
+      `Close ${symbol} position?\n\n` +
+      `${direction} ${qty} shares as MARKET order, immediate fill.\n` +
+      `This bypasses the agent pipeline (no compliance / risk gates) — ` +
+      `intended for one-off cleanup of stale positions.`
+    )) return;
+
+    const row = document.querySelector(`tr[data-symbol="${symbol}"]`);
+    if (row) row.style.opacity = '0.5';
+
+    try {
+      const r = await fetch(`/api/positions/${symbol}/close`, { method: 'POST' });
+      const body = await r.json();
+      if (r.ok && body.ok) {
+        alert(
+          `${symbol}: ${body.side.toUpperCase()} ${body.shares_closed} placed.\n` +
+          `Broker order id: ${body.broker_order_id}\n\n` +
+          `The position will disappear from this list once the fill posts.`
+        );
+        // Re-poll the positions card / stats card by reloading the page section.
+        if (window.htmx) {
+          htmx.trigger('#account-stats', 'load');
+        }
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        const msg = body.detail || body.reject_reason || ('HTTP ' + r.status);
+        alert('Close failed: ' + msg);
+        if (row) row.style.opacity = '1';
+      }
+    } catch (err) {
+      alert('Close failed: ' + err.message);
+      if (row) row.style.opacity = '1';
+    }
+  }
 </script>
 
 {% endblock %}
