@@ -3,10 +3,18 @@ run.py - start the TradeAgent server.
 
 Usage:
     python run.py dev                          (hot reload, info logging, 127.0.0.1)
-    python run.py prod                         (no reload, 2 workers, 127.0.0.1)
+    python run.py prod                         (no reload, single worker, 127.0.0.1)
     python run.py dev  --host 0.0.0.0          (LAN/Tailscale access; needs firewall rule)
     python run.py prod --host 100.x.y.z        (bind to a specific Tailscale IP)
     python run.py dev  --port 8080             (override port)
+
+Why single-worker prod:
+    The broker adapter is a singleton living in this process's memory.
+    With multiple workers, each worker has its own adapter — when you
+    activate a different broker_account, only the worker handling that
+    request rebuilds. The next request might hit a different worker and
+    see the stale adapter. For a single-user local trading app, one
+    worker is correct (no concurrency benefit to 2 workers anyway).
 
 Phone access via Tailscale:
     1. Install Tailscale on this Windows box and on your phone, log in to the
@@ -41,8 +49,11 @@ if args.mode == "dev":
     cmd = base + ["--reload", "--log-level", "info"]
     label = "DEV (hot reload)"
 else:
-    cmd = base + ["--workers", "2", "--log-level", "warning"]
-    label = "PROD"
+    # Single-worker on purpose — see module docstring. The trading app
+    # holds the broker adapter as a per-process singleton; multiple
+    # workers diverge after any account-activation request.
+    cmd = base + ["--workers", "1", "--log-level", "warning"]
+    label = "PROD (single worker)"
 
 display_host = "localhost" if args.host == "127.0.0.1" else args.host
 print(f"TradeAgent {label} -> http://{display_host}:{args.port}")

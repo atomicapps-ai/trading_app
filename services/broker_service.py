@@ -128,8 +128,36 @@ def _legacy_env_adapter(mode: str) -> BrokerAdapter:
 
 
 async def get_adapter_async() -> BrokerAdapter:
+    """Async accessor — self-heals from a stale adapter when the DB's
+    active broker_account row diverges from this worker's singleton.
+
+    Why: in multi-worker prod each worker has its own ``_adapter``.
+    Activating an account only updates the worker that serves that
+    request; other workers would silently keep an old adapter without
+    this check. We default to 1 worker (run.py) precisely to avoid
+    that, but this guard makes the system correct even if someone
+    runs --workers 2.
+    """
     global _adapter
     if _adapter is None:
+        _adapter = await build_adapter()
+        return _adapter
+
+    try:
+        active = await account_service.get_active_account()
+        active_slug_db = active["slug"] if active else None
+    except Exception:                                                  # noqa: BLE001
+        active_slug_db = None
+
+    if active_slug_db is not None and active_slug_db != _active_slug:
+        logger.info(
+            "broker_service: active slug changed (%s -> %s); rebuilding adapter",
+            _active_slug, active_slug_db,
+        )
+        try:
+            await _adapter.disconnect()
+        except Exception as exc:                                       # noqa: BLE001
+            logger.debug("disconnect during self-heal: %s", exc)
         _adapter = await build_adapter()
     return _adapter
 
