@@ -40,6 +40,21 @@
         URL param &rarr; active screener tickers &rarr; bellwether 16.
       </div>
     </div>
+    <div style="margin-top: 12px;">
+      <label style="font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px;">
+        Capital deployed per trade ($)
+      </label>
+      <div class="flex items-center gap-12" style="flex-wrap: wrap;">
+        <input type="number" id="hist-capital" class="form-input mono"
+               value="10000" min="100" step="100"
+               style="width: 140px; font-size: 12px;"
+               oninput="recomputeFromCache()">
+        <span class="text-tertiary text-xs">
+          Used to convert each trade's % return into dollar P&amp;L. Persists in this browser.
+          Sets the dollar risk per trade (3% catastrophic stop = max $<span id="hist-cap-risk">300.00</span> per loss).
+        </span>
+      </div>
+    </div>
     <div class="flex items-center gap-12" style="margin-top: 12px; flex-wrap: wrap;">
       <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px;">
         <input type="checkbox" id="hist-refresh"> Re-fetch bars from yfinance (slower; use if cache is stale)
@@ -68,6 +83,50 @@
 </div>
 
 <script>
+// Persisted capital-per-trade across runs/sessions.
+const HIST_CAPITAL_KEY = 'history.capital_per_trade';
+const CATASTROPHIC_STOP_PCT = 3.0;  // DL strategy spec — fixed
+
+// Cache the last-fetched payload so changing the capital input
+// recomputes dollar metrics without re-hitting the replay engine.
+window._histCache = null;
+
+(function initCapitalInput() {
+  const saved = localStorage.getItem(HIST_CAPITAL_KEY);
+  if (saved) {
+    const el = document.getElementById('hist-capital');
+    if (el) el.value = saved;
+  }
+  // Initial cap-risk badge (3% of capital)
+  refreshCapRiskHint();
+})();
+
+function getCapital() {
+  const el = document.getElementById('hist-capital');
+  const v = parseFloat(el?.value || '10000');
+  return (isFinite(v) && v > 0) ? v : 10000;
+}
+
+function refreshCapRiskHint() {
+  const cap = getCapital();
+  const risk = cap * CATASTROPHIC_STOP_PCT / 100;
+  const el = document.getElementById('hist-cap-risk');
+  if (el) el.textContent = risk.toFixed(2);
+}
+
+function recomputeFromCache() {
+  const cap = getCapital();
+  localStorage.setItem(HIST_CAPITAL_KEY, String(cap));
+  refreshCapRiskHint();
+  // If we have a cached payload, just re-render summary + table
+  // with the new capital — no network call.
+  if (window._histCache) {
+    renderSummary(window._histCache.summary, window._histCache.elapsed,
+                  window._histCache.sim_error, window._histCache.ignore_regime);
+    renderTable(window._histCache.trades);
+  }
+}
+
 async function runHistory() {
   const since   = document.getElementById('hist-since').value;
   const until   = document.getElementById('hist-until').value;
@@ -107,6 +166,11 @@ async function runHistory() {
     }
 
     const j = await r.json();
+    // Cache so capital-input changes recompute without a network roundtrip.
+    window._histCache = {
+      summary: j.summary, trades: j.trades, sim_error: j.sim_error,
+      ignore_regime: j.ignore_regime, elapsed,
+    };
     renderSummary(j.summary, elapsed, j.sim_error, j.ignore_regime);
     renderTable(j.trades);
     status.textContent = `Done in ${elapsed}s`;
@@ -119,12 +183,84 @@ async function runHistory() {
   }
 }
 
+// Compute dollar P&L metrics from the per-trade pnl_pct. Each trade
+// assumes ``capital`` deployed; dollar P&L = capital × pct/100.
+// Capital deployed is the SUM across all trades (sequential, no
+// reuse) — operator-relevant "max capital at risk over time".
+function computeDollarMetrics(trades, capital) {
+  let grossProfit = 0, grossLoss = 0;
+  let bestUsd = 0, worstUsd = 0;
+  trades.forEach(t => {
+    const pct = t.pnl_pct ?? 0;
+    const usd = capital * pct / 100;
+    if (usd >= 0) grossProfit += usd; else grossLoss += -usd;
+    if (usd > bestUsd) bestUsd = usd;
+    if (usd < worstUsd) worstUsd = usd;
+  });
+  const netUsd = grossProfit - grossLoss;
+  const totalDeployed = trades.length * capital;
+  // Risk per loss = capital × 3% (strategy's catastrophic stop)
+  const maxRiskPerTrade = capital * CATASTROPHIC_STOP_PCT / 100;
+  // Total dollars at risk = sum of stop-loss exposure across all trades
+  // (sequential, no compounding)
+  const totalRisk = trades.length * maxRiskPerTrade;
+  const profitFactor = grossLoss > 0 ? (grossProfit / grossLoss) : Infinity;
+  const returnOnDeployed = totalDeployed > 0 ? (netUsd / totalDeployed * 100) : 0;
+  const returnOnRisk     = totalRisk     > 0 ? (netUsd / totalRisk     * 100) : 0;
+  return {
+    grossProfit, grossLoss, netUsd, bestUsd, worstUsd,
+    totalDeployed, totalRisk, maxRiskPerTrade,
+    profitFactor, returnOnDeployed, returnOnRisk,
+  };
+}
+
+function fmtUsd(n, signed) {
+  const sign = signed && n >= 0 ? '+' : (n < 0 ? '−' : '');
+  const abs = Math.abs(n);
+  return sign + '$' + abs.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+}
+
 function renderSummary(s, elapsed, simError, ignoreRegime) {
   const summary = document.getElementById('hist-summary');
+  const cap = getCapital();
+  const trades = (window._histCache && window._histCache.trades) || [];
+  const $ = computeDollarMetrics(trades, cap);
+
   let header = `${s.actual} actual + ${s.sim} simulated · run took ${elapsed}s`;
-  if (ignoreRegime) {
-    header += ' · ⚠ regime gate ignored (research)';
-  }
+  if (ignoreRegime) header += ' · ⚠ regime gate ignored (research)';
+
+  // ===== Top: dollar emphasis =====
+  let dollarBlock =
+    '<div class="card-header" style="margin-bottom: 8px;">' +
+    `<span class="card-title">Dollar P&L  <span class="text-tertiary text-xs">(at $${cap.toLocaleString()} per trade)</span></span></div>` +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:14px;">' +
+    statTile('Net P&L $', fmtUsd($.netUsd, true), pctColor($.netUsd)) +
+    statTile('Gross profit', fmtUsd($.grossProfit, false), 'var(--accent-green)') +
+    statTile('Gross loss',   fmtUsd(-$.grossLoss, false),  'var(--accent-red)') +
+    statTile('Profit factor', isFinite($.profitFactor) ? $.profitFactor.toFixed(2) : '∞', pfColor($.profitFactor)) +
+    statTile('Best win',  fmtUsd($.bestUsd, true), 'var(--accent-green)') +
+    statTile('Worst loss', fmtUsd($.worstUsd, true), 'var(--accent-red)') +
+    statTile('Capital deployed', fmtUsd($.totalDeployed, false),
+             'var(--text-secondary)', `${trades.length} × $${cap.toLocaleString()} per trade`) +
+    statTile('Total $ at risk', fmtUsd($.totalRisk, false),
+             'var(--accent-amber)', `${trades.length} × $${$.maxRiskPerTrade.toFixed(0)} stop`) +
+    '</div>';
+
+  // ===== Bottom: percent / trade-count metrics (the existing block) =====
+  let pctBlock =
+    '<div class="card-header" style="margin: 8px 0;">' +
+    `<span class="card-title">Trade stats</span></div>` +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;">' +
+    statTile('Total trades', s.total) +
+    statTile('Win rate', s.win_rate.toFixed(1) + '%', winRateColor(s.win_rate)) +
+    statTile('Wins / Losses', s.wins + ' / ' + s.losses) +
+    statTile('Total P&L %', formatPct(s.total_pnl_pct), pctColor(s.total_pnl_pct)) +
+    statTile('Return on deployed', formatPct($.returnOnDeployed), pctColor($.returnOnDeployed),
+             'net $ ÷ total deployed') +
+    statTile('Return on risk',     formatPct($.returnOnRisk),     pctColor($.returnOnRisk),
+             'net $ ÷ stops summed') +
+    '</div>';
+
   let html =
     '<div class="card"' +
     (ignoreRegime ? ' style="border-color: var(--accent-amber);"' : '') +
@@ -136,18 +272,20 @@ function renderSummary(s, elapsed, simError, ignoreRegime) {
         'conviction alone — what would have armed if regime were always permissive. ' +
         'Compare against a default run (no toggle) to see what the regime layer is filtering out.</div>'
       : '') +
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;">' +
-    statTile('Total trades', s.total) +
-    statTile('Win rate', s.win_rate.toFixed(1) + '%', winRateColor(s.win_rate)) +
-    statTile('Wins / Losses', s.wins + ' / ' + s.losses) +
-    statTile('Total P&L %', formatPct(s.total_pnl_pct), pctColor(s.total_pnl_pct)) +
-    '</div>';
+    dollarBlock + pctBlock;
   if (simError) {
     html += `<div class="text-accent-red text-xs" style="margin-top:8px;">⚠ Replay error: ${escapeHtml(simError)}</div>`;
   }
   html += '</div>';
   summary.innerHTML = html;
   summary.style.display = '';
+}
+
+function pfColor(pf) {
+  if (!isFinite(pf)) return 'var(--accent-green)';
+  if (pf >= 2.0) return 'var(--accent-green)';
+  if (pf >= 1.0) return 'var(--accent-amber)';
+  return 'var(--accent-red)';
 }
 
 function renderTable(trades) {
@@ -157,10 +295,12 @@ function renderTable(trades) {
       'For DL: when VIX < 20 the regime gate blocks every signal — try an earlier window.</div>';
     return;
   }
+  const cap = getCapital();
   let rows = '';
   trades.forEach(t => {
+    const pnl = (t.pnl_pct ?? 0);
+    const usd = cap * pnl / 100;
     const pnlClass = (t.win ? 'text-accent-green' : 'text-accent-red');
-    const pnl = (t.pnl_pct ?? 0).toFixed(2);
     const sourceBadge = t.source === 'actual'
       ? '<span class="badge badge-green text-xs" title="Real broker fill from trade journal">ACTUAL</span>'
       : '<span class="badge badge-blue text-xs" title="Counterfactual replay — what would have happened">SIM</span>';
@@ -181,7 +321,8 @@ function renderTable(trades) {
       `<td class="num mono">${fmtPrice(t.stop)}</td>` +
       `<td class="num mono">${fmtPrice(t.exit)}</td>` +
       `<td><span class="badge badge-gray text-xs">${t.exit_reason || '—'}</span></td>` +
-      `<td class="num mono ${pnlClass}">${pnl >= 0 ? '+' : ''}${pnl}%</td>` +
+      `<td class="num mono ${pnlClass}">${(pnl >= 0 ? '+' : '') + pnl.toFixed(2)}%</td>` +
+      `<td class="num mono ${pnlClass}" style="font-weight:600;">${fmtUsd(usd, true)}</td>` +
       `<td>${t.win ? '<span class="badge badge-green text-xs">W</span>' : '<span class="badge badge-red text-xs">L</span>'}</td>` +
       `</tr>`;
   });
@@ -189,14 +330,15 @@ function renderTable(trades) {
     '<table class="data-table"><thead><tr>' +
     '<th>Source</th><th>Date</th><th>Trigger ET</th><th>Symbol</th>' +
     '<th class="num">Entry</th><th class="num">TP</th><th class="num">Stop</th><th class="num">Exit</th>' +
-    '<th>Exit reason</th><th class="num">P&L %</th><th>W/L</th>' +
+    '<th>Exit reason</th><th class="num">P&L %</th><th class="num">P&L $</th><th>W/L</th>' +
     '</tr></thead><tbody>' + rows + '</tbody></table>';
 }
 
-function statTile(label, value, valueColorClass) {
+function statTile(label, value, valueColorClass, subLabel) {
   return '<div style="padding:10px 12px;background:var(--surface-2);border-radius:6px;">' +
     `<div class="text-tertiary text-xs" style="text-transform:uppercase;letter-spacing:.04em;">${label}</div>` +
     `<div class="mono" style="font-size:18px;font-weight:600;${valueColorClass ? 'color:'+valueColorClass : ''}">${value}</div>` +
+    (subLabel ? `<div class="text-tertiary text-xs" style="margin-top:2px;">${escapeHtml(subLabel)}</div>` : '') +
     '</div>';
 }
 
