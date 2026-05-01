@@ -35,6 +35,10 @@ logger = logging.getLogger(__name__)
 
 CRITERIA_FILE: Path = PROJECT_ROOT / "universe_filter_presets.yaml"
 TICKERS_FILE: Path = PROJECT_ROOT / "universe_filter_presets_tickers.yaml"
+# Authoritative backup of every screener row in SQLite. This is the
+# git-tracked source of truth — mutations re-write this file so a fresh
+# checkout (or DB loss) can replay the entire screener registry.
+SCREENERS_FILE: Path = PROJECT_ROOT / "universe_screeners.yaml"
 LATEST_RESULT_FILE: Path = DATA_DIR / "universe_latest.json"
 HISTORY_DIR: Path = DATA_DIR / "universe_history"
 CATALOG_FILE: Path = Path(__file__).parent / "finviz_catalog.json"
@@ -134,6 +138,127 @@ async def seed_from_yaml_if_empty() -> None:
         logger.info("universe_service: seeded %d presets from YAML", inserted)
 
 
+# --------------------------------------------------------------------------- #
+# Screener backup — git-tracked YAML reflects DB state
+# --------------------------------------------------------------------------- #
+# The DB row is the source of truth at runtime, but the DB file is
+# gitignored — losing it loses every screener. The functions below mirror
+# the DB to ``universe_screeners.yaml`` after every mutation, so the
+# committed YAML is always current. On a fresh checkout (or after a DB
+# loss), ``import_screeners_from_yaml()`` recreates rows that are present
+# in the YAML but absent from the DB. It NEVER overwrites existing DB
+# rows — auto-import is purely additive.
+
+
+async def export_screeners_to_yaml() -> int:
+    """Write every DB screener row to SCREENERS_FILE. Returns count.
+
+    Best-effort: any error is logged and swallowed so the mutation that
+    triggered the export never fails because of a write hiccup.
+    """
+    from services import db_service
+    try:
+        rows = await db_service.list_universe_presets()
+    except Exception as exc:                                          # noqa: BLE001
+        logger.warning("export_screeners_to_yaml: list failed: %s", exc)
+        return 0
+
+    payload = {
+        "version": 1,
+        "exported_at": datetime.now(timezone.utc).isoformat(),
+        "screeners": [
+            {
+                "name":         r.get("name"),
+                "title":        r.get("title") or "",
+                "description":  r.get("description") or "",
+                "notes":        r.get("notes") or "",
+                "is_active":    bool(r.get("is_active")),
+                "filters":      r.get("filters") or {},
+                "output_tags":  r.get("output_tags") or [],
+                "tickers":      r.get("tickers") or [],
+                "tickers_refreshed_at": r.get("tickers_refreshed_at"),
+                "updated_at":   r.get("updated_at"),
+            }
+            for r in rows
+        ],
+    }
+    try:
+        SCREENERS_FILE.write_text(
+            yaml.safe_dump(payload, sort_keys=False, default_flow_style=False),
+            encoding="utf-8",
+        )
+    except Exception as exc:                                          # noqa: BLE001
+        logger.warning("export_screeners_to_yaml: write failed: %s", exc)
+        return 0
+    logger.info("export_screeners_to_yaml: wrote %d screener(s) to %s",
+                len(rows), SCREENERS_FILE.name)
+    return len(rows)
+
+
+async def import_screeners_from_yaml() -> int:
+    """Read SCREENERS_FILE and create any rows missing from the DB.
+
+    Additive only — never overwrites an existing row. Returns the count
+    of rows newly created. Run from app lifespan so a fresh checkout
+    (or rebuilt DB) restores the screener registry automatically.
+    """
+    if not SCREENERS_FILE.exists():
+        return 0
+    from services import db_service
+    try:
+        payload = yaml.safe_load(SCREENERS_FILE.read_text(encoding="utf-8")) or {}
+    except Exception as exc:                                          # noqa: BLE001
+        logger.warning("import_screeners_from_yaml: parse failed: %s", exc)
+        return 0
+
+    existing = {r.get("name") for r in await db_service.list_universe_presets()}
+    created = 0
+    active_to_set: str | None = None
+    for s in payload.get("screeners") or []:
+        name = (s or {}).get("name")
+        if not name or name in existing:
+            continue
+        try:
+            await db_service.create_universe_preset(
+                name=name,
+                title=s.get("title") or "",
+                description=s.get("description") or "",
+                notes=s.get("notes") or "",
+                filters=s.get("filters") or {},
+                output_tags=s.get("output_tags") or [],
+            )
+            tickers = s.get("tickers") or []
+            if tickers:
+                await db_service.save_universe_preset_tickers(
+                    name=name, tickers=tickers,
+                    source="restore:universe_screeners.yaml",
+                )
+            if s.get("is_active") and active_to_set is None:
+                active_to_set = name
+            created += 1
+            logger.info(
+                "import_screeners_from_yaml: restored %s with %d tickers",
+                name, len(tickers),
+            )
+        except Exception as exc:                                      # noqa: BLE001
+            logger.warning("import: %s failed: %s", name, exc)
+
+    # Restore "active" flag last, since each create() doesn't set it.
+    if active_to_set:
+        try:
+            await db_service.set_active_universe_preset(active_to_set)
+        except Exception as exc:                                      # noqa: BLE001
+            logger.warning("import: set_active(%s) failed: %s",
+                           active_to_set, exc)
+
+    if created:
+        logger.warning(
+            "Restored %d screener(s) from %s on boot",
+            created, SCREENERS_FILE.name,
+        )
+    return created
+
+
 async def list_presets_db() -> list[dict]:
     from services import db_service
     return await db_service.list_universe_presets()
@@ -154,10 +279,12 @@ async def create_preset_db(
     notes: str = "",
 ) -> int:
     from services import db_service
-    return await db_service.create_universe_preset(
+    rid = await db_service.create_universe_preset(
         name=name, title=title, description=description,
         filters=filters, output_tags=output_tags, notes=notes,
     )
+    await export_screeners_to_yaml()
+    return rid
 
 
 async def update_preset_db(
@@ -170,30 +297,41 @@ async def update_preset_db(
     notes: str | None = None,
 ) -> bool:
     from services import db_service
-    return await db_service.update_universe_preset(
+    ok = await db_service.update_universe_preset(
         name, title=title, description=description, filters=filters,
         output_tags=output_tags, notes=notes,
     )
+    if ok:
+        await export_screeners_to_yaml()
+    return ok
 
 
 async def delete_preset_db(name: str) -> bool:
     from services import db_service
-    return await db_service.delete_universe_preset(name)
+    ok = await db_service.delete_universe_preset(name)
+    if ok:
+        await export_screeners_to_yaml()
+    return ok
 
 
 async def set_active_preset_db(name: str) -> bool:
     from services import db_service
-    return await db_service.set_active_universe_preset(name)
+    ok = await db_service.set_active_universe_preset(name)
+    if ok:
+        await export_screeners_to_yaml()
+    return ok
 
 
 async def save_preset_tickers_db(
     name: str, tickers: list[str], source: str,
 ) -> bool:
-    """Persist tickers to SQLite and write back to the YAML tickers file."""
+    """Persist tickers to SQLite, write back to the legacy YAML tickers
+    file, and refresh the authoritative screeners YAML backup."""
     from services import db_service
     ok = await db_service.save_universe_preset_tickers(name, tickers, source)
     if ok:
         _sync_tickers_to_yaml(name, tickers, source)
+        await export_screeners_to_yaml()
     return ok
 
 

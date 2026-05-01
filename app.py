@@ -80,6 +80,10 @@ async def lifespan(_: FastAPI):
     try:
         await db_service.ensure_tables()
         await universe_service.seed_from_yaml_if_empty()
+        # Restore any screeners present in the committed YAML backup but
+        # missing from the DB (handles fresh checkout, DB rebuild, etc).
+        # Additive only — never overwrites an existing row.
+        await universe_service.import_screeners_from_yaml()
     except Exception as exc:
         logger.error("SQLite ensure_tables failed: %s", exc)
     try:

@@ -1,0 +1,839 @@
+version: 1
+exported_at: '2026-05-01T00:32:47.988344+00:00'
+screeners:
+- name: liquid_momentum_core
+  title: liquid_momentum_core
+  description: 'Highly liquid, established companies showing strong price momentum.
+    The core preset for breakout and flag strategies. High volume requirement ensures
+    tight spreads and institutional participation. Profitability filters remove speculative
+    names.
+
+    '
+  notes: "This is the workhorse preset. It will produce 80-300 symbols on most days\
+    \ depending on market conditions. In a strong bull market the list expands; in\
+    \ a risk-off environment it contracts naturally as names fall below their SMAs.\
+    \ That contraction is a feature \u2014 fewer opportunities in bad markets is correct\
+    \ behavior.\n"
+  is_active: true
+  filters: {}
+  output_tags:
+  - momentum
+  - breakout_ready
+  - institutional_liquidity
+  tickers: []
+  tickers_refreshed_at: null
+  updated_at: '2026-04-22T20:50:54.294937+00:00'
+- name: etf_sector_rotation
+  title: etf_sector_rotation
+  description: 'US-listed sector and broad-market ETFs for the dual-momentum rotation
+    strategy. No profitability filters (ETFs are funds, not companies). Filters focus
+    on liquidity, tracking quality, and exclusion of leveraged/inverse products unless
+    explicitly configured. Rebalance check runs weekly on Monday pre-market.
+
+    '
+  notes: "This preset runs WEEKLY on Monday at 08:00 ET (not daily). The rotation\
+    \ logic in the analyst macro lens ranks all ETFs in the universe by: (1) 3-month\
+    \ absolute return vs cash, (2) 1-month relative return vs SPY. Top 3 ETFs by combined\
+    \ score are held. Bottom performers are sold. Transaction costs matter for rotation\
+    \ \u2014 do not rotate unless the new ETF score exceeds the current holding by\
+    \ at least 5 points on the ranking scale (prevents excessive churn).\n"
+  is_active: false
+  filters: {}
+  output_tags:
+  - etf
+  - sector_rotation
+  - dual_momentum
+  tickers: []
+  tickers_refreshed_at: null
+  updated_at: '2026-04-22T20:50:54.294937+00:00'
+- name: high_volume_largecap_highatr
+  title: high_volume_largecap_highATR
+  description: This one will return the big guns with lots of activity.
+  notes: ''
+  is_active: false
+  filters:
+    sh_avgvol: o400
+    ta_sma50: pa
+    ta_sma200: pa
+    ta_highlow50d: nh
+    fa_debteq: u1
+  output_tags: []
+  tickers: []
+  tickers_refreshed_at: null
+  updated_at: '2026-05-01T00:12:21.514367+00:00'
+- name: liquid_profitable_lowvol
+  title: Liquid Profitable Low-Vol
+  description: 'Mid+ cap, profitable companies with strong daily liquidity and manageable
+    volatility. Designed for intraday strategies (DL) where you need to enter and
+    exit positions cleanly without slippage. Filters: cap >B, price >0, avg vol >1M
+    shares/day, beta <2, ATR <, P/E >0, gross margin >0, short float <20%.'
+  notes: Built 2026-04-30. Tuned to land between 300-800 names. Started at 745 with
+    the baseline; added gross margin >0 to drop ~89 negative-margin names, landing
+    at 656.
+  is_active: false
+  filters:
+    cap: midover
+    sh_price: o10
+    sh_avgvol: o1000
+    sh_short: u20
+    ta_beta: u2
+    ta_averagetruerange: u5
+    fa_pe: profitable
+    fa_grossmargin: pos
+  output_tags:
+  - liquid
+  - profitable
+  - low_vol
+  - mid_plus
+  tickers:
+  - A
+  - AA
+  - AAL
+  - AAP
+  - ABNB
+  - ABT
+  - ACAD
+  - ACI
+  - ACM
+  - ACMR
+  - ADC
+  - ADM
+  - ADMA
+  - AEE
+  - AEO
+  - AEP
+  - AER
+  - AES
+  - AG
+  - AGI
+  - AGNC
+  - AHR
+  - AKAM
+  - AKR
+  - ALC
+  - ALK
+  - ALKS
+  - AM
+  - AMCR
+  - AMH
+  - AMRX
+  - AMT
+  - AMTM
+  - AMX
+  - ANF
+  - AOS
+  - APA
+  - APLE
+  - APLS
+  - APO
+  - APTV
+  - AR
+  - ARCC
+  - ARIS
+  - ARMK
+  - AROC
+  - ARR
+  - ARWR
+  - ASO
+  - ASX
+  - ATAT
+  - ATMU
+  - ATO
+  - AU
+  - AUPH
+  - AVB
+  - AVT
+  - AWK
+  - AXTA
+  - AZN
+  - B
+  - BABA
+  - BAH
+  - BALL
+  - BAM
+  - BBWI
+  - BBY
+  - BCE
+  - BDX
+  - BEKE
+  - BEN
+  - BF-B
+  - BG
+  - BGC
+  - BHP
+  - BIDU
+  - BILI
+  - BIRK
+  - BJ
+  - BKH
+  - BKR
+  - BLDR
+  - BMRN
+  - BMY
+  - BN
+  - BNL
+  - BOX
+  - BP
+  - BRBR
+  - BRO
+  - BRSL
+  - BRX
+  - BSX
+  - BSY
+  - BTI
+  - BTSG
+  - BUD
+  - BVN
+  - BWA
+  - BX
+  - BXMT
+  - BXP
+  - BXSL
+  - BZ
+  - CAKE
+  - CALX
+  - CARG
+  - CARR
+  - CART
+  - CAVA
+  - CBRE
+  - CCEP
+  - CCI
+  - CCK
+  - CDE
+  - CDP
+  - CDW
+  - CELH
+  - CENX
+  - CG
+  - CGAU
+  - CGNX
+  - CHD
+  - CHDN
+  - CHWY
+  - CL
+  - CLBT
+  - CLX
+  - CMBT
+  - CMC
+  - CMCSA
+  - CMG
+  - CMS
+  - CNH
+  - CNI
+  - CNK
+  - CNM
+  - CNP
+  - CNQ
+  - CNX
+  - COCO
+  - COO
+  - COP
+  - CORT
+  - CP
+  - CPB
+  - CPNG
+  - CPRT
+  - CPRX
+  - CPT
+  - CRGY
+  - CRH
+  - CSCO
+  - CSGP
+  - CSTM
+  - CSX
+  - CTAS
+  - CTRA
+  - CTRE
+  - CTRI
+  - CTSH
+  - CTVA
+  - CUBE
+  - CVE
+  - CVS
+  - CWK
+  - CX
+  - CXW
+  - D
+  - DAL
+  - DAN
+  - DAR
+  - DBRG
+  - DBX
+  - DECK
+  - DEO
+  - DG
+  - DHT
+  - DINO
+  - DIS
+  - DLO
+  - DLR
+  - DLTR
+  - DOC
+  - DOCS
+  - DOCU
+  - DOX
+  - DRH
+  - DRS
+  - DT
+  - DTE
+  - DUK
+  - DVA
+  - DVN
+  - DX
+  - DXCM
+  - EA
+  - EBAY
+  - EC
+  - ED
+  - EGO
+  - EHC
+  - EIX
+  - ELF
+  - ELS
+  - EMBJ
+  - EMN
+  - EMR
+  - ENB
+  - EOG
+  - EPD
+  - EPRT
+  - EQNR
+  - EQR
+  - EQT
+  - EQX
+  - ERIC
+  - ERO
+  - ES
+  - ESI
+  - ET
+  - ETR
+  - ETSY
+  - EVRG
+  - EW
+  - EXC
+  - EXE
+  - EXEL
+  - EXLS
+  - EXPD
+  - EXR
+  - EXTR
+  - FAST
+  - FBIN
+  - FCX
+  - FE
+  - FER
+  - FIGS
+  - FIS
+  - FISV
+  - FLEX
+  - FLS
+  - FND
+  - FOX
+  - FOXA
+  - FR
+  - FRO
+  - FRPT
+  - FSK
+  - FTI
+  - FTNT
+  - FTV
+  - FWONK
+  - G
+  - GBDC
+  - GDDY
+  - GDS
+  - GEHC
+  - GEN
+  - GEO
+  - GFI
+  - GFL
+  - GFS
+  - GGG
+  - GIL
+  - GILD
+  - GIS
+  - GLBE
+  - GLNG
+  - GLPI
+  - GM
+  - GMAB
+  - GME
+  - GMED
+  - GNTX
+  - GPC
+  - GPN
+  - GRND
+  - GSK
+  - GTES
+  - GTLS
+  - GTX
+  - GXO
+  - HAL
+  - HALO
+  - HAYW
+  - HBM
+  - HE
+  - HESM
+  - HIW
+  - HL
+  - HMC
+  - HMY
+  - HOG
+  - HPQ
+  - HRB
+  - HRL
+  - HSAI
+  - HSIC
+  - HST
+  - HSY
+  - HTGC
+  - HTHT
+  - HXL
+  - IAG
+  - IBKR
+  - ICE
+  - IMAX
+  - INCY
+  - INDV
+  - INFY
+  - INGM
+  - INVH
+  - IR
+  - IRDM
+  - IRM
+  - IRT
+  - ITRI
+  - JBS
+  - JCI
+  - JD
+  - JEF
+  - JHG
+  - JHX
+  - JKHY
+  - JNJ
+  - KBH
+  - KBR
+  - KD
+  - KDP
+  - KGC
+  - KGS
+  - KIM
+  - KKR
+  - KMB
+  - KMI
+  - KMT
+  - KMX
+  - KNTK
+  - KNX
+  - KO
+  - KR
+  - KRC
+  - KRG
+  - KT
+  - KTOS
+  - KVUE
+  - LAUR
+  - LAZ
+  - LBRT
+  - LDOS
+  - LEN
+  - LEVI
+  - LI
+  - LKQ
+  - LNT
+  - LOAR
+  - LOGI
+  - LPX
+  - LTH
+  - LUV
+  - LVS
+  - LW
+  - LYFT
+  - M
+  - MAS
+  - MAT
+  - MCD
+  - MDLZ
+  - MDT
+  - MDU
+  - MGA
+  - MGM
+  - MGY
+  - MIR
+  - MKC
+  - MMM
+  - MMYT
+  - MNDY
+  - MNST
+  - MO
+  - MOS
+  - MPLX
+  - MRK
+  - MRX
+  - MT
+  - MTCH
+  - MTDR
+  - MTH
+  - MUR
+  - MWA
+  - NATL
+  - NBIX
+  - NCLH
+  - NCNO
+  - NDAQ
+  - NE
+  - NEE
+  - NEM
+  - NESR
+  - NFLX
+  - NGG
+  - NI
+  - NKE
+  - NLY
+  - NNN
+  - NOK
+  - NOV
+  - NSA
+  - NTAP
+  - NTNX
+  - NTR
+  - NVO
+  - NVS
+  - NVST
+  - NWS
+  - NWSA
+  - NYT
+  - O
+  - OBDC
+  - OGE
+  - OGN
+  - OHI
+  - OII
+  - OKE
+  - OKTA
+  - OLLI
+  - OMC
+  - OMF
+  - 'ON'
+  - OPCH
+  - OR
+  - ORLA
+  - ORLY
+  - OSW
+  - OTEX
+  - OTIS
+  - OUT
+  - OVV
+  - OXY
+  - P
+  - PAA
+  - PAAS
+  - PAGP
+  - PAGS
+  - PARR
+  - PAX
+  - PAYX
+  - PBA
+  - PBI
+  - PBR
+  - PBR-A
+  - PCAR
+  - PCG
+  - PDD
+  - PEG
+  - PEGA
+  - PEP
+  - PFE
+  - PFGC
+  - PG
+  - PHG
+  - PHM
+  - PINS
+  - PLAB
+  - PLD
+  - PLNT
+  - PM
+  - PNR
+  - PNW
+  - POR
+  - PPC
+  - PPG
+  - PPL
+  - PR
+  - PRMB
+  - PSN
+  - PSO
+  - PTC
+  - PTCT
+  - PUMP
+  - PVH
+  - PYPL
+  - QGEN
+  - QRVO
+  - QSR
+  - QTWO
+  - RBA
+  - RCI
+  - RDY
+  - REG
+  - RELX
+  - RELY
+  - REXR
+  - REYN
+  - RIO
+  - RJF
+  - RNG
+  - ROL
+  - ROST
+  - RPM
+  - RRC
+  - RSG
+  - RSI
+  - RTO
+  - RVTY
+  - RYAAY
+  - RYN
+  - SARO
+  - SBLK
+  - SBRA
+  - SBS
+  - SBUX
+  - SCHW
+  - SCI
+  - SE
+  - SEM
+  - SF
+  - SFD
+  - SFM
+  - SGHC
+  - SGI
+  - SHAK
+  - SHC
+  - SHEL
+  - SHOO
+  - SIRI
+  - SKM
+  - SLB
+  - SLM
+  - SLNO
+  - SM
+  - SMCI
+  - SN
+  - SNDR
+  - SNY
+  - SO
+  - SOLV
+  - SON
+  - SPG
+  - SQM
+  - SRAD
+  - SRE
+  - SSL
+  - SSNC
+  - SSRM
+  - ST
+  - STAG
+  - STM
+  - STNG
+  - STWD
+  - STZ
+  - SU
+  - SW
+  - SWK
+  - SWKS
+  - SYF
+  - SYY
+  - TAK
+  - TAL
+  - TCOM
+  - TDC
+  - TECH
+  - TECK
+  - TEVA
+  - TEX
+  - TGT
+  - TGTX
+  - TIGO
+  - TJX
+  - TMHC
+  - TOL
+  - TOST
+  - TPG
+  - TPH
+  - TPR
+  - TREX
+  - TRI
+  - TRMB
+  - TROW
+  - TRP
+  - TRU
+  - TS
+  - TSCO
+  - TSN
+  - TTD
+  - TTE
+  - TTEK
+  - TU
+  - TW
+  - TXNM
+  - TXRH
+  - TXT
+  - UAL
+  - UBER
+  - UDR
+  - UGI
+  - UMC
+  - UNIT
+  - UPS
+  - URBN
+  - USFD
+  - VAL
+  - VALE
+  - VECO
+  - VFC
+  - VG
+  - VICI
+  - VIK
+  - VIPS
+  - VIRT
+  - VIST
+  - VLTO
+  - VNO
+  - VNT
+  - VRRM
+  - VTR
+  - VVV
+  - VZ
+  - WAY
+  - WBD
+  - WCN
+  - WDS
+  - WEC
+  - WES
+  - WFRD
+  - WH
+  - WHD
+  - WHR
+  - WIX
+  - WM
+  - WMB
+  - WMG
+  - WMT
+  - WPC
+  - WRBY
+  - WT
+  - WTRG
+  - WTTR
+  - WY
+  - WYNN
+  - XEL
+  - XOM
+  - XP
+  - XPRO
+  - XYL
+  - YETI
+  - YOU
+  - YUM
+  - YUMC
+  - ZBH
+  - ZIM
+  - ZM
+  - ZTO
+  - ZTS
+  - ZWS
+  tickers_refreshed_at: '2026-05-01T00:24:20.939720+00:00'
+  updated_at: '2026-05-01T00:24:20.939720+00:00'
+- name: mean_reversion_oversold
+  title: mean_reversion_oversold
+  description: "Established, profitable companies that have pulled back sharply from\
+    \ a healthy base. These are NOT broken stocks \u2014 they are temporarily oversold\
+    \ names with strong fundamentals that are likely to revert. The quality filters\
+    \ are intentionally strict because mean reversion only works on high-quality names.\
+    \ Beaten-down speculative stocks do not revert \u2014 they continue lower.\n"
+  notes: "Expect 20-80 symbols on most days. The list will be largest after a market\
+    \ correction or sector rotation event. The 200 SMA requirement above is the most\
+    \ important filter in this preset \u2014 it separates temporary pullbacks in healthy\
+    \ companies from genuine downtrends. When the overall market is in a downtrend\
+    \ (SPY below 200 SMA), reduce position sizes on all signals from this preset by\
+    \ 50%.\n"
+  is_active: false
+  filters: {}
+  output_tags:
+  - oversold
+  - mean_reversion_candidate
+  - quality_pullback
+  tickers: []
+  tickers_refreshed_at: null
+  updated_at: '2026-04-22T20:50:54.294937+00:00'
+- name: sentiment_catalyst
+  title: sentiment_catalyst
+  description: "Highly liquid names where a fresh catalyst has been detected by the\
+    \ news_sentinel. Unlike the other presets which run pre-market, this preset is\
+    \ designed to be triggered ON DEMAND by the analyst agent when a high-novelty,\
+    \ high-relevance event is detected. The filters are looser on technical state\
+    \ because the catalyst overrides normal setup requirements \u2014 we need to be\
+    \ able to get in and out cleanly, which demands extreme liquidity.\n"
+  notes: "This preset is NOT run on a schedule. It is invoked by the analyst agent\
+    \ when the news_sentinel emits an event_signal with urgency >= \"medium\". The\
+    \ relative_volume_min: 2.0 filter is the most important \u2014 if the market is\
+    \ not already reacting to the catalyst with volume, the information is likely\
+    \ already priced in or the novelty score is overstated. Do not enter catalyst\
+    \ trades in the first 5 minutes of the session or the last 30 minutes. Time stop\
+    \ is mandatory: exit by session close on day 2 at latest.\n"
+  is_active: false
+  filters: {}
+  output_tags:
+  - catalyst
+  - event_driven
+  - high_liquidity_required
+  tickers: []
+  tickers_refreshed_at: null
+  updated_at: '2026-04-22T20:50:54.294937+00:00'
+- name: volatility_compression
+  title: volatility_compression
+  description: "Stocks in a state of volatility compression \u2014 low ATR relative\
+    \ to their historical range, consolidating after a trend move. These are the hunting\
+    \ grounds for squeeze setups, inside bars, triangles, and cup formations. The\
+    \ key insight: we want names that are quiet NOW but were active recently. Permanently\
+    \ quiet stocks are not compressing \u2014 they are just illiquid.\n"
+  notes: "This preset produces 50-150 symbols. The analyst agent must then apply the\
+    \ squeeze detector and inside bar detector to narrow this list \u2014 the preset\
+    \ gets you in the right neighborhood, the pattern detector confirms the specific\
+    \ setup. Expect more signals from this preset after strong trending periods (stocks\
+    \ digest gains quietly before the next leg). Fewer signals in choppy, mean-reverting\
+    \ markets.\n"
+  is_active: false
+  filters: {}
+  output_tags:
+  - compression
+  - squeeze_candidate
+  - low_volatility_setup
+  tickers: []
+  tickers_refreshed_at: null
+  updated_at: '2026-04-22T20:50:54.294937+00:00'
+- name: wyckoff_accumulation_watch
+  title: wyckoff_accumulation_watch
+  description: "Identifies stocks potentially in a Wyckoff accumulation phase \u2014\
+    \ high-quality names that have undergone a significant decline from a prior peak\
+    \ and are now range-bound with high volume on the initial lows and declining volume\
+    \ during the consolidation. This preset feeds the longest-duration trades (15-60\
+    \ day holds). Quality filters are the strictest of all presets because Wyckoff\
+    \ only works reliably in fundamentally excellent companies.\n"
+  notes: "This is the slowest-moving preset. Run it weekly on Sunday evening to build\
+    \ the Wyckoff watchlist for the coming week. Expect 15-60 symbols. The analyst\
+    \ agent applies the full Wyckoff phase identification algorithm to each symbol\
+    \ \u2014 this is compute-intensive and should not run during market hours. The\
+    \ spring and LPS signals from the Wyckoff detector update in real-time during\
+    \ the session. Biotech is hard-excluded here (not just flagged) because FDA binary\
+    \ events destroy Wyckoff setups unpredictably.\n"
+  is_active: false
+  filters: {}
+  output_tags:
+  - wyckoff_candidate
+  - base_building
+  - position_trade
+  - high_quality_fundamental
+  tickers: []
+  tickers_refreshed_at: null
+  updated_at: '2026-04-22T20:50:54.294937+00:00'
