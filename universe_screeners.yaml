@@ -1,28 +1,128 @@
 version: 1
-exported_at: '2026-05-01T00:32:47.988344+00:00'
+exported_at: '2026-05-01T02:14:13.494692+00:00'
 screeners:
-- name: liquid_momentum_core
-  title: liquid_momentum_core
-  description: 'Highly liquid, established companies showing strong price momentum.
-    The core preset for breakout and flag strategies. High volume requirement ensures
-    tight spreads and institutional participation. Profitability filters remove speculative
-    names.
-
-    '
-  notes: "This is the workhorse preset. It will produce 80-300 symbols on most days\
-    \ depending on market conditions. In a strong bull market the list expands; in\
-    \ a risk-off environment it contracts naturally as names fall below their SMAs.\
-    \ That contraction is a feature \u2014 fewer opportunities in bad markets is correct\
-    \ behavior.\n"
+- name: bellwether_16
+  title: Bellwether 16 (DL Validated)
+  description: "The 16 mega-cap stocks + 3 ETFs that produced the original DL 82.4%\
+    \ backtest WR. Validated 2026-04-30 by replaying Mar 1 - Apr 15: 8-9 trades, 87.5%\
+    \ WR, +5.18% total P&L. Broadening this set (to 62 mega-caps or 656 mid+ caps)\
+    \ collapsed WR to 50% / 43% respectively \u2014 the strategy edge is on this specific\
+    \ narrow set."
+  notes: "Static ticker list \u2014 no Finviz filter. To preserve the validated set\
+    \ exactly. Future research: see if a tighter filter can replicate the WR while\
+    \ broadening the search space."
   is_active: true
   filters: {}
   output_tags:
-  - momentum
-  - breakout_ready
-  - institutional_liquidity
-  tickers: []
-  tickers_refreshed_at: null
-  updated_at: '2026-04-22T20:50:54.294937+00:00'
+  - bellwether
+  - dl_validated
+  - narrow_universe
+  tickers:
+  - AMD
+  - AMZN
+  - BA
+  - COST
+  - GS
+  - HD
+  - INTC
+  - IWM
+  - META
+  - ORCL
+  - SPY
+  - TSLA
+  - XLF
+  - AAPL
+  - MSFT
+  - NVDA
+  tickers_refreshed_at: '2026-05-01T02:13:55.264952+00:00'
+  updated_at: '2026-05-01T02:13:55.264952+00:00'
+- name: bellwether_class
+  title: Bellwether-Class Mega Caps
+  description: Mega-cap (>00B) profitable names with strong daily liquidity. Built
+    by analyzing the 13-stock bellwether universe that produced the original 82% WR
+    backtest, identifying their common attributes (mega cap, profitable, >2M shares/day,
+    >0), and finding the broader set that shares those attributes. Plus 3 manual additions
+    (BA, COST, INTC) that were in the original bellwether but fall outside one of
+    the Finviz filter values.
+  notes: 'Built 2026-04-30. Filter: cap=mega, sh_avgvol=o2000, sh_price=o50, fa_pe=profitable
+    returns 59 names. Hand-added BA, COST, INTC (original bellwether members that
+    the Finviz filter excludes). Total ticker count: 62.'
+  is_active: false
+  filters:
+    cap: mega
+    sh_avgvol: o2000
+    sh_price: o50
+    fa_pe: profitable
+  output_tags:
+  - bellwether
+  - mega_cap
+  - liquid
+  - profitable
+  tickers:
+  - AAPL
+  - ABBV
+  - AMAT
+  - AMD
+  - AMZN
+  - ANET
+  - ARM
+  - AVGO
+  - AXP
+  - AZN
+  - BA
+  - BABA
+  - BAC
+  - BHP
+  - BRK-B
+  - C
+  - CAT
+  - COST
+  - CSCO
+  - CVX
+  - GE
+  - GEV
+  - GOOG
+  - GOOGL
+  - GS
+  - HD
+  - HSBC
+  - IBM
+  - INTC
+  - JNJ
+  - JPM
+  - KO
+  - LIN
+  - LLY
+  - LRCX
+  - MA
+  - MCD
+  - META
+  - MRK
+  - MS
+  - MSFT
+  - MU
+  - NEE
+  - NFLX
+  - NVDA
+  - NVS
+  - ORCL
+  - PEP
+  - PG
+  - PLTR
+  - PM
+  - RTX
+  - SHEL
+  - TMUS
+  - TSLA
+  - TSM
+  - TXN
+  - UNH
+  - V
+  - WFC
+  - WMT
+  - XOM
+  tickers_refreshed_at: '2026-05-01T02:09:51.810557+00:00'
+  updated_at: '2026-05-01T02:09:51.810557+00:00'
 - name: etf_sector_rotation
   title: etf_sector_rotation
   description: 'US-listed sector and broad-market ETFs for the dual-momentum rotation
@@ -61,6 +161,28 @@ screeners:
   tickers: []
   tickers_refreshed_at: null
   updated_at: '2026-05-01T00:12:21.514367+00:00'
+- name: liquid_momentum_core
+  title: liquid_momentum_core
+  description: 'Highly liquid, established companies showing strong price momentum.
+    The core preset for breakout and flag strategies. High volume requirement ensures
+    tight spreads and institutional participation. Profitability filters remove speculative
+    names.
+
+    '
+  notes: "This is the workhorse preset. It will produce 80-300 symbols on most days\
+    \ depending on market conditions. In a strong bull market the list expands; in\
+    \ a risk-off environment it contracts naturally as names fall below their SMAs.\
+    \ That contraction is a feature \u2014 fewer opportunities in bad markets is correct\
+    \ behavior.\n"
+  is_active: false
+  filters: {}
+  output_tags:
+  - momentum
+  - breakout_ready
+  - institutional_liquidity
+  tickers: []
+  tickers_refreshed_at: null
+  updated_at: '2026-04-22T20:50:54.294937+00:00'
 - name: liquid_profitable_lowvol
   title: Liquid Profitable Low-Vol
   description: 'Mid+ cap, profitable companies with strong daily liquidity and manageable
@@ -742,8 +864,8 @@ screeners:
   - ZTO
   - ZTS
   - ZWS
-  tickers_refreshed_at: '2026-05-01T00:24:20.939720+00:00'
-  updated_at: '2026-05-01T00:24:20.939720+00:00'
+  tickers_refreshed_at: '2026-05-01T00:33:14.978888+00:00'
+  updated_at: '2026-05-01T00:33:14.978888+00:00'
 - name: mean_reversion_oversold
   title: mean_reversion_oversold
   description: "Established, profitable companies that have pulled back sharply from\
