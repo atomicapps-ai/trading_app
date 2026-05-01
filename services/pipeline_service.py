@@ -103,7 +103,7 @@ async def run_workflow_by_id(
     for plan_dict in plans_proposed:
         plan = TradePlan.model_validate(plan_dict)
         symbol = plan.instrument.get("symbol", "")
-        market_state = _market_state_for_plan(plan, adapter)
+        market_state = await _market_state_for_plan(plan, adapter)
 
         # ---- Compliance -----------------------------------------------
         compliance_verdict = compliance.check(plan, account, market_state)
@@ -337,7 +337,7 @@ async def _safe_get_account(adapter) -> AccountState:
         )
 
 
-def _market_state_for_plan(plan: TradePlan, adapter) -> MarketState:
+async def _market_state_for_plan(plan: TradePlan, adapter) -> MarketState:
     """Best-effort snapshot for the plan's symbol.
 
     In research/paper we only have yfinance + Alpaca; we don't have
@@ -345,17 +345,29 @@ def _market_state_for_plan(plan: TradePlan, adapter) -> MarketState:
     mode anyway. For spread we use the adapter's last quote if we can
     get it without blocking too long — but we don't fail the plan over
     a missing quote.
+
+    earnings_within_hours: looked up via earnings_service (yfinance
+    Ticker.calendar, 4-hour TTL cache). Compliance gate C7 reads this
+    to enforce the configured earnings blackout window. Best-effort:
+    if the lookup fails the value stays None and C7 skips the check.
     """
     symbol = plan.instrument.get("symbol", "")
-    # Default: synthetic state with 0 spread (R9 skips in research mode;
-    # the gate tolerates "unknown" by not triggering).
+
+    earnings_hours: float | None = None
+    if symbol:
+        try:
+            from services import earnings_service
+            earnings_hours = await earnings_service.get_hours_to_next_earnings(symbol)
+        except Exception as exc:                                      # noqa: BLE001
+            logger.debug("earnings lookup for %s failed: %s", symbol, exc)
+
     return MarketState(
         symbol=symbol,
         ts=datetime.now(timezone.utc).isoformat(),
         halt_status=False,
         ssr_active=False,
         luld_band=None,
-        earnings_within_hours=None,
+        earnings_within_hours=earnings_hours,
         adv=50_000_000,  # Conservative default — 50M shares ADV. R8
                          # computes participation cap from this. For
                          # the liquid names we trade this is close to
