@@ -381,15 +381,30 @@ async def strategy_history(
     else:
         until_d = today
 
-    # Default symbol set — match replay_dl's default for consistency
-    default_syms = [
+    # Default symbol set:
+    #   - explicit ?symbols= param takes precedence
+    #   - else use the active screener's saved tickers (matches what
+    #     the live cron + strategy-live use day-to-day)
+    #   - else fall back to the 16-symbol bellwether seed
+    BELLWETHER = [
         "AMD", "AMZN", "BA", "COST", "GS", "HD", "INTC", "IWM",
         "META", "ORCL", "SPY", "TSLA", "XLF", "AAPL", "MSFT", "NVDA",
     ]
     if symbols:
         sym_list = [x.strip().upper() for x in symbols.split(",") if x.strip()]
+        sym_source = "url"
     else:
-        sym_list = default_syms
+        sym_list = []
+        try:
+            active = await db_service.get_active_universe_preset()
+            if active and active.get("tickers"):
+                sym_list = list(active["tickers"])
+                sym_source = f"active screener ({active.get('name')})"
+        except Exception:                                             # noqa: BLE001
+            pass
+        if not sym_list:
+            sym_list = BELLWETHER
+            sym_source = "bellwether fallback (no active screener)"
 
     cfg = _load_strategy(files[name])
     return templates.TemplateResponse(
@@ -404,7 +419,9 @@ async def strategy_history(
             "since": since_d.isoformat(),
             "until": until_d.isoformat(),
             "symbols_param": ",".join(sym_list),
-            "default_symbols": ", ".join(default_syms),
+            "default_symbols": ", ".join(BELLWETHER),
+            "symbols_source": sym_source,
+            "symbols_count": len(sym_list),
         },
     )
 

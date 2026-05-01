@@ -35,7 +35,9 @@
       <textarea id="hist-symbols" class="form-input mono" rows="2"
                 style="font-size: 12px;">{{ symbols_param }}</textarea>
       <div class="text-tertiary text-xs" style="margin-top: 4px;">
-        Comma-separated. Default: {{ default_symbols }}
+        {{ symbols_count }} symbol{{ '' if symbols_count == 1 else 's' }} from <strong>{{ symbols_source }}</strong>.
+        Edit above to override; clear and reload to fall back through:
+        URL param &rarr; active screener tickers &rarr; bellwether 16.
       </div>
     </div>
     <div class="flex items-center gap-12" style="margin-top: 12px; flex-wrap: wrap;">
