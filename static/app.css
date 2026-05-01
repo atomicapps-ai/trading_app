@@ -75,11 +75,17 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 input, select, textarea { font: inherit; color: inherit; }
 
 /* App grid ------------------------------------------------------------ */
+/* 3-row right column: livebar (account totals strip) + topbar + main.
+   Sidebar spans all 3 rows. The live-bar grid-area is required —
+   without it CSS grid auto-flows .live-bar into an undefined cell
+   and visually it ends up dumped at the bottom of the sidebar (a
+   leftover gap nobody wants). */
 .app-shell {
   display: grid;
   grid-template-columns: var(--sidebar-w) 1fr;
-  grid-template-rows: var(--topbar-h) 1fr;
+  grid-template-rows: auto var(--topbar-h) 1fr;
   grid-template-areas:
+    "sidebar livebar"
     "sidebar topbar"
     "sidebar main";
   height: 100vh;
@@ -1435,12 +1441,11 @@ input, select, textarea { font: inherit; color: inherit; }
    Live status bar — persistent strip above the topbar
    ========================================================================= */
 .live-bar {
+  grid-area: livebar;
   background: var(--bg-stat);
   border-bottom: 0.5px solid var(--border);
   padding: 6px 16px;
   font-size: 12px;
-  position: sticky;
-  top: 0;
   z-index: 30;
 }
 .live-bar-row {
