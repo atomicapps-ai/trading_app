@@ -299,7 +299,42 @@ class WorkflowEngine:
     async def _run_filter_universe(
         self, step: WorkflowStep, ctx: "WorkflowContext",
     ) -> dict[str, Any]:
-        preset_name = step.params.get("preset", "liquid_momentum_core")
+        # Universe-resolution chain (in priority order):
+        #   1. Explicit ``preset: __active__`` (or no preset)  ->  active screener
+        #   2. Explicit named preset that exists AND has saved tickers
+        #   3. The active screener (when the named preset has 0 tickers)
+        #   4. Final fallback to liquid_momentum_core (legacy default)
+        # This makes "Set active" on /universe actually drive the workflow,
+        # which is what every operator expects. Was a real bug: the YAML
+        # hardcoded liquid_momentum_core, so activating bellwether_16
+        # had no effect on the workflow's universe.
+        explicit_preset = step.params.get("preset")
+        preset_name = explicit_preset
+
+        # Resolve "__active__" or empty -> active screener slug
+        if not preset_name or preset_name == "__active__":
+            from services import db_service
+            active = await db_service.get_active_universe_preset()
+            preset_name = (active or {}).get("name") or "liquid_momentum_core"
+
+        # If the named preset has 0 saved tickers, fall back to the
+        # active screener (which often DOES have tickers via the UI's
+        # save-tickers flow).
+        else:
+            from services import db_service
+            named = await db_service.get_universe_preset(preset_name)
+            named_tickers = (named or {}).get("tickers") or []
+            if not named_tickers:
+                active = await db_service.get_active_universe_preset()
+                active_tickers = (active or {}).get("tickers") or []
+                if active_tickers:
+                    logger.info(
+                        "filter_universe: %r has 0 tickers, falling back "
+                        "to active screener %r (%d tickers)",
+                        preset_name, active["name"], len(active_tickers),
+                    )
+                    preset_name = active["name"]
+
         shortlist_size = int(step.params.get("shortlist_size", 50))
         result = await self._universe_filter.run(
             preset_name,

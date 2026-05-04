@@ -506,9 +506,28 @@ async def _dl_lock1_scout_job_impl() -> None:
     except Exception as e:                                    # noqa: BLE001
         logger.warning("DL Lock 1 Scout: cant load preset %s: %s", preset, e)
         symbols = []
+
+    # If the workflow's named preset has no tickers, fall back to the
+    # currently-active screener. This is what the workflow_engine does
+    # too — keeps scout + 10:30 fire scanning the same universe.
     if not symbols:
-        # Fallback: a small bellwether list so the scout still runs in
-        # smoke-testing setups without the full screener seeded.
+        try:
+            from services import db_service
+            active = await db_service.get_active_universe_preset()
+            active_tickers = (active or {}).get("tickers") or []
+            if active_tickers:
+                symbols = list(active_tickers)
+                logger.info(
+                    "DL Lock 1 Scout: preset %r empty, using active "
+                    "screener %r (%d tickers)",
+                    preset, active["name"], len(symbols),
+                )
+        except Exception as e:                                # noqa: BLE001
+            logger.warning("DL Lock 1 Scout: active lookup failed: %s", e)
+
+    if not symbols:
+        # Final fallback: a small bellwether list so the scout still
+        # runs in smoke-testing setups without any screener seeded.
         symbols = [
             "SPY", "QQQ", "AAPL", "NVDA", "MSFT",
             "TSLA", "AMZN", "META", "GOOGL", "AVGO",

@@ -132,11 +132,23 @@ async def _load_sqlite_preset(
 
     Returns None if the preset doesn't exist in SQLite or has no saved tickers.
     """
+    from datetime import datetime, timezone
     from services import universe_service  # local import avoids circular at module load
     preset = await universe_service.get_preset_db(preset_name)
     if preset is None or not preset.get("tickers"):
         return None
-    tickers_obj = PresetTickers(tickers=preset["tickers"])
+    # PresetTickers requires refreshed_at; fall back to the row's
+    # tickers_refreshed_at, then the row's updated_at, then now.
+    refreshed_at = (
+        preset.get("tickers_refreshed_at")
+        or preset.get("updated_at")
+        or datetime.now(timezone.utc).isoformat()
+    )
+    tickers_obj = PresetTickers(
+        tickers=preset["tickers"],
+        refreshed_at=refreshed_at,
+        source=f"sqlite:{preset_name}",
+    )
     criteria = _finviz_to_criteria(preset.get("filters") or {})
     return tickers_obj, criteria, [], []
 
