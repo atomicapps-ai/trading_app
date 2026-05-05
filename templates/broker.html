@@ -116,6 +116,23 @@
                    placeholder="(leave blank on edit to keep current)">
           </label>
         </div>
+        <div class="form-row" style="margin-bottom: 12px;">
+          <label style="display: flex; flex-direction: column; gap: 4px;">
+            <span class="text-secondary text-xs">
+              Fixed position size (USD) — optional override
+            </span>
+            <input type="number" name="position_size_usd" min="0" step="100"
+                   class="form-input mono"
+                   placeholder="leave blank to use %-of-equity sizing">
+            <span class="text-tertiary text-xs">
+              When set, every trade on THIS account is sized to (USD ÷ entry price)
+              shares, ignoring the strategy's %-of-equity calculation. Use to
+              cap exact dollar exposure per trade — common on live accounts.
+              Set to 0 to clear and revert to %-calc.
+              Hard caps: never exceeds 5× the %-calc shares OR 95% of cash.
+            </span>
+          </label>
+        </div>
         <div class="text-tertiary text-xs" style="margin-bottom: 12px;">
           Stored in the local SQLite DB (gitignored). For Alpaca, get keys at
           <span class="mono">app.alpaca.markets</span> → API Keys. Live mode requires a funded account.
@@ -315,6 +332,11 @@
         const a = await r.json();
         if (a.provider)     f.elements['provider'].value     = a.provider;
         if (a.account_type) f.elements['account_type'].value = a.account_type;
+        // Pre-fill position_size_usd from extra
+        const extra = a.extra || {};
+        if (f.elements['position_size_usd']) {
+          f.elements['position_size_usd'].value = extra.position_size_usd || '';
+        }
       }
     } catch (_) { /* fields stay at form defaults */ }
 

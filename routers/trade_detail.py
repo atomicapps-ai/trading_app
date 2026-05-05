@@ -329,6 +329,33 @@ async def trade_edit(
                            trade_id, e)
             broker_msg += f" · close-reschedule failed: {e}"
 
+    # Record alert + ntfy push so the operator (and audit trail) sees
+    # exactly what changed. Best-effort — never fails the edit.
+    try:
+        from services import alert_service
+        instr = (plan_row.get("plan_json") or {}).get("instrument") or {}
+        sym = instr.get("symbol") or "?"
+        # Build a one-line "what changed" string
+        diffs = []
+        if new_entry is not None: diffs.append(f"entry=${new_entry:.2f}")
+        if new_stop  is not None: diffs.append(f"stop=${new_stop:.2f}")
+        if new_tp1   is not None: diffs.append(f"tp1=${new_tp1:.2f}")
+        if new_tp2   is not None: diffs.append(f"tp2=${new_tp2:.2f}")
+        if new_dl    is not None: diffs.append(f"close@{new_dl[11:16]}")
+        diff_line = " · ".join(diffs) if diffs else "no changes"
+        await alert_service.record_alert(
+            kind="manual_edit",
+            strategy=plan_row.get("strategy") or "manual",
+            symbol=sym,
+            direction=(plan_row.get("plan_json") or {}).get("setup", {}).get("direction"),
+            plan_id=trade_id,
+            title=f"{sym} plan edited — {diff_line}",
+            body=f"Manual edit on /trades/{trade_id}{broker_msg}",
+            payload={"changes": diffs, "broker_msg": broker_msg.strip(" · ")},
+        )
+    except Exception as exc:                                          # noqa: BLE001
+        logger.warning("alert recording for manual_edit failed: %s", exc)
+
     return HTMLResponse(
         f'<span class="toast toast-ok">Plan updated{broker_msg}.</span>'
     )

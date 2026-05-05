@@ -148,10 +148,16 @@
                   <td class="num mono {% if pos.pnl_r >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(pos.pnl_r) }}R</td>
                   <td class="num mono text-secondary">{% if pos.stop %}${{ "%.2f"|format(pos.stop) }}{% else %}—{% endif %}</td>
                   <td class="text-secondary text-sm">{{ pos.strategy or '—' }}</td>
-                  <td>
-                    <button type="button" class="btn btn-sm btn-danger"
-                            onclick="closePosition('{{ pos.symbol }}', {{ pos.shares }})"
-                            title="Flatten via market order">Close</button>
+                  <td style="white-space: nowrap;">
+                    <div style="display: inline-flex; gap: 4px;">
+                      <button type="button" class="btn btn-sm"
+                              onclick="takeProfit('{{ pos.symbol }}', {{ pos.shares }})"
+                              title="Close at market — tagged as deliberate profit-take"
+                              style="color: var(--accent-green); border-color: rgba(16,185,129,0.4);">TP</button>
+                      <button type="button" class="btn btn-sm btn-danger"
+                              onclick="closePosition('{{ pos.symbol }}', {{ pos.shares }})"
+                              title="Flatten via market order">Close</button>
+                    </div>
                   </td>
                 </tr>
               {% endfor %}
@@ -546,6 +552,38 @@
       }
     });
   })();
+
+  // ----- Take profit now (close at market, tagged as TP) -----------
+  async function takeProfit(symbol, shares) {
+    const direction = shares > 0 ? 'SELL' : 'BUY';
+    const qty = Math.abs(shares);
+    if (!confirm(
+      `TAKE PROFIT on ${symbol}?\n\n` +
+      `${direction} ${qty} shares as MARKET order, immediate fill.\n` +
+      `Recorded as a deliberate profit-take (different from generic close).\n` +
+      `Phone push fires + dashboard alert + audit trail.`
+    )) return;
+    if (typeof window.confirmLiveAction === 'function') {
+      if (!window.confirmLiveAction(`TAKE PROFIT on ${symbol} (${direction} ${qty})`)) return;
+    }
+    const row = document.querySelector(`tr[data-symbol="${symbol}"]`);
+    if (row) row.style.opacity = '0.5';
+    try {
+      const r = await fetch(`/api/positions/${symbol}/take-profit`, { method: 'POST' });
+      let body = {}; try { body = await r.json(); } catch (_) {}
+      if (r.ok && body.ok) {
+        alert(`TP ${symbol}: ${(body.side || '').toUpperCase()} ${body.shares_closed} placed.\nBroker order: ${body.broker_order_id || 'n/a'}`);
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        const msg = body.detail || body.reject_reason || ('HTTP ' + r.status);
+        alert('TP failed: ' + msg);
+        if (row) row.style.opacity = '1';
+      }
+    } catch (err) {
+      alert('TP failed: ' + (err && err.message ? err.message : err));
+      if (row) row.style.opacity = '1';
+    }
+  }
 
   // ----- Position close (dashboard "Close" button) ------------------
   async function closePosition(symbol, shares) {

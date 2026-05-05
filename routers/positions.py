@@ -1,20 +1,27 @@
 """positions.py — operator actions on broker positions.
 
-Currently exposes one action: flatten a position via a market order.
-This is the dashboard's "Close" button path. Bypasses the full agent
-pipeline (no compliance / risk gates) because the user has explicitly
-asked to close an existing position — not open a new one. We DO refuse
-in research mode and when TRADING_HALTED is set.
+Two actions exposed here:
+
+    POST /api/positions/{symbol}/close          → flatten via market order
+    POST /api/positions/{symbol}/take-profit    → flatten via market order
+                                                  but recorded as a deliberate
+                                                  profit-taking action (different
+                                                  alert kind, separate audit)
+
+Both bypass the full agent pipeline (no compliance / risk gates) because
+the user has explicitly asked to act on an existing position — not open
+a new one. Both refuse in research mode and when TRADING_HALTED is set.
+
+Each action records an alert (``manual_close`` or ``manual_take_profit``)
+which fires an ntfy phone push automatically via alert_service. Live
+mode requires the enhanced-live-safeguards confirmation client-side
+before the request even reaches here.
 
 Why direct broker access (not via the executioner): the executioner
 expects a TradePlan, which only exists for positions that came through
 the agent pipeline. Manual / smoke-script positions (like the leftover
 SPY 1-share from the order roundtrip smoke) have no plan. The close
 path needs to work for those too.
-
-Routes
-------
-    POST /api/positions/{symbol}/close   → flatten via market order
 """
 from __future__ import annotations
 
@@ -33,8 +40,9 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.post("/api/positions/{symbol}/close", response_class=JSONResponse)
-async def close_position(symbol: str):
+async def _flatten_position(symbol: str, *, intent: str) -> dict:
+    """Shared close logic. ``intent`` is "close" or "take_profit"; it
+    drives the alert kind and the log line — broker order is identical."""
     symbol = symbol.upper().strip()
 
     # Refuse in research mode — no real broker means no real close.
@@ -91,15 +99,68 @@ async def close_position(symbol: str):
         )
 
     logger.warning(
-        "Position close requested | symbol=%s shares=%d side=%s "
+        "Position %s requested | symbol=%s shares=%d side=%s "
         "broker_order_id=%s ts=%s",
-        symbol, qty, close_side, ack.broker_order_id,
+        intent, symbol, qty, close_side, ack.broker_order_id,
         datetime.now(timezone.utc).isoformat(),
     )
+
+    # Record alert + fire ntfy push. alert_service.record_alert handles
+    # both. We use distinct alert kinds so the dashboard banner can
+    # color-code intent and the audit trail is clean.
+    try:
+        from services import alert_service
+        # Compute current P&L for richer alert body (best-effort)
+        entry = float(getattr(pos, "avg_entry_price", 0) or 0)
+        market = float(getattr(pos, "market_price", 0) or 0)
+        pnl_per_share = (market - entry) * (1 if pos.shares > 0 else -1)
+        pnl_total = pnl_per_share * qty
+        kind = "closed" if intent == "close" else "manual_take_profit"
+        title = (
+            f"{symbol} {('LONG' if pos.shares > 0 else 'SHORT')} "
+            f"{('CLOSED' if intent == 'close' else 'TP')} — "
+            f"{qty} sh @ market"
+        )
+        body = (
+            f"Manual {intent.replace('_', ' ')} via dashboard. "
+            f"Entry ${entry:.2f} -> Mkt ${market:.2f} "
+            f"(unrealized {('+' if pnl_total >= 0 else '')}{pnl_total:.2f}). "
+            f"Order id: {ack.broker_order_id or 'pending'}."
+        )
+        await alert_service.record_alert(
+            kind=kind, strategy="manual", symbol=symbol,
+            direction="long" if pos.shares > 0 else "short",
+            plan_id=None, title=title, body=body,
+            payload={
+                "intent": intent,
+                "shares": qty,
+                "entry_price": entry,
+                "market_price": market,
+                "broker_order_id": ack.broker_order_id,
+                "estimated_pnl_usd": round(pnl_total, 2),
+            },
+        )
+    except Exception as exc:                                          # noqa: BLE001
+        logger.warning("alert recording for %s failed: %s", intent, exc)
+
     return {
         "ok": True,
         "symbol": symbol,
         "shares_closed": qty,
         "side": close_side,
         "broker_order_id": ack.broker_order_id,
+        "intent": intent,
     }
+
+
+@router.post("/api/positions/{symbol}/close", response_class=JSONResponse)
+async def close_position(symbol: str):
+    return await _flatten_position(symbol, intent="close")
+
+
+@router.post("/api/positions/{symbol}/take-profit", response_class=JSONResponse)
+async def take_profit(symbol: str):
+    """Same broker action as close, but explicitly tagged as a
+    deliberate profit-taking decision so the audit trail can
+    distinguish operator intent."""
+    return await _flatten_position(symbol, intent="take_profit")

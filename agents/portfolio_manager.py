@@ -238,6 +238,19 @@ class PortfolioManager:
             r_per_share=r_per_share,
             risk_pct_per_trade=self._settings.risk_defaults.max_risk_pct_per_trade,
         )
+
+        # Per-account fixed-dollar override: when the active broker_account
+        # has ``extra.position_size_usd`` set, ignore the % calc and size
+        # the position to (position_size_usd / entry_price) shares. This
+        # is the operator-friendly "I want exactly $X per trade" mode,
+        # used most often on live accounts to keep trade size predictable
+        # regardless of equity drift.
+        try:
+            shares = _apply_per_account_size_override(
+                shares, entry_price=entry_price, account=account, logger=self._log,
+            )
+        except Exception as exc:                                      # noqa: BLE001
+            self._log.warning("size override raised: %s; using %% calc", exc)
         notional = shares * entry_price
         position_risk_usd = shares * r_per_share
         if direction == "long":
@@ -438,3 +451,71 @@ def _compute_position_size(
         return 0
     cap_usd = equity * risk_pct_per_trade / 100.0
     return max(0, math.floor(cap_usd / r_per_share))
+
+
+def _apply_per_account_size_override(
+    shares_from_pct: int, *, entry_price: float, account, logger,
+) -> int:
+    """If the active broker_account has ``extra.position_size_usd``,
+    override the %-of-equity sizing with a fixed-dollar position.
+
+    Caps at the smaller of override-shares vs %-shares × 5 (sanity
+    guard so a misconfigured override can't 5×-overshoot the original
+    risk budget). Account.cash is checked too — refuses if the
+    notional exceeds 95% of cash.
+    """
+    import asyncio as _asyncio
+    try:
+        # Run the async account_service lookup synchronously since
+        # portfolio_manager is sync. We're inside an event loop, so
+        # use the running loop's run_coroutine_threadsafe pattern OR
+        # fetch synchronously via a fresh task.
+        from services import account_service
+        try:
+            loop = _asyncio.get_running_loop()
+            future = _asyncio.run_coroutine_threadsafe(
+                account_service.get_active_account(), loop,
+            )
+            active = future.result(timeout=2.0)
+        except RuntimeError:
+            # No running loop — call directly in a fresh one
+            active = _asyncio.run(account_service.get_active_account())
+    except Exception:                                                 # noqa: BLE001
+        return shares_from_pct
+
+    if not active:
+        return shares_from_pct
+    extra = active.get("extra") or {}
+    position_size_usd = extra.get("position_size_usd")
+    if not position_size_usd or float(position_size_usd) <= 0:
+        return shares_from_pct
+
+    pos_usd = float(position_size_usd)
+    override_shares = max(0, math.floor(pos_usd / entry_price))
+
+    # Guard: never let the override exceed 5× the %-calc shares
+    if shares_from_pct > 0 and override_shares > shares_from_pct * 5:
+        logger.warning(
+            "position_size_usd override %.2f produces %d shares vs %d "
+            "from %%-calc; capping at 5× = %d for safety",
+            pos_usd, override_shares, shares_from_pct, shares_from_pct * 5,
+        )
+        override_shares = shares_from_pct * 5
+
+    # Guard: refuse if notional exceeds 95% of cash
+    notional = override_shares * entry_price
+    cash = float(getattr(account, "cash", 0) or 0)
+    if cash > 0 and notional > cash * 0.95:
+        logger.warning(
+            "position_size_usd override notional $%.2f exceeds 95%% of "
+            "cash $%.2f; falling back to %%-calc (%d shares)",
+            notional, cash, shares_from_pct,
+        )
+        return shares_from_pct
+
+    logger.info(
+        "position_size_usd override active: $%.2f / $%.2f entry = %d shares "
+        "(%%-calc was %d)",
+        pos_usd, entry_price, override_shares, shares_from_pct,
+    )
+    return override_shares

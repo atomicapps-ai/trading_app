@@ -180,7 +180,28 @@ async def broker_accounts_edit(
     secret: str | None = Form(None),
     account_type: str | None = Form(None),
     provider: str | None = Form(None),
+    position_size_usd: str | None = Form(None),  # blank string = leave unchanged
 ):
+    # Build the extra-json patch for the position-size override.
+    # "" / "0" / negative -> clear the override (revert to %-calc)
+    # > 0 -> set the fixed-dollar size
+    extra_patch: dict | None = None
+    if position_size_usd is not None and position_size_usd.strip() != "":
+        try:
+            v = float(position_size_usd.strip())
+        except ValueError:
+            raise HTTPException(status_code=422, detail="position_size_usd must be a number")
+        # Merge with existing extra so we don't clobber other fields.
+        existing = await account_service.get_account(slug)
+        if existing is None:
+            raise HTTPException(status_code=404, detail=f"unknown account: {slug}")
+        existing_extra = existing.get("extra") or {}
+        if v <= 0:
+            existing_extra.pop("position_size_usd", None)
+        else:
+            existing_extra["position_size_usd"] = v
+        extra_patch = existing_extra
+
     try:
         ok = await account_service.update_account(
             slug,
@@ -191,6 +212,7 @@ async def broker_accounts_edit(
             secret=secret.strip() if secret else None,
             account_type=account_type if account_type else None,
             provider=provider if provider else None,
+            extra=extra_patch,
         )
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))

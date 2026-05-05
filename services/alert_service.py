@@ -32,7 +32,15 @@ from services.db_service import DB_PATH
 
 logger = logging.getLogger(__name__)
 
-AlertKind = Literal["lock1_scouted", "armed", "filled", "closed", "test"]
+AlertKind = Literal[
+    "lock1_scouted",        # 10:00 ET DL early-warning
+    "armed",                 # plan passed gates, awaiting ack
+    "filled",                # entry order filled
+    "closed",                # position closed (manual or auto close-at-time)
+    "manual_take_profit",    # operator-tagged profit take
+    "manual_edit",           # operator updated plan levels
+    "test",                  # synthetic injector
+]
 
 
 def _now() -> str:
@@ -85,22 +93,26 @@ async def record_alert(
         # Map alert kind → ntfy priority. Lock1 is informational; armed +
         # filled are actionable; closed/test are quiet.
         priority_by_kind: dict[str, str] = {
-            "lock1_scouted": "default",
-            "armed":         s.ntfy.priority_map.pending_approval,  # "high"
-            "filled":        s.ntfy.priority_map.fill_received,     # "default"
-            "closed":        "low",
-            "test":          "low",
+            "lock1_scouted":      "default",
+            "armed":              s.ntfy.priority_map.pending_approval,  # "high"
+            "filled":             s.ntfy.priority_map.fill_received,     # "default"
+            "closed":             "low",
+            "manual_take_profit": "default",
+            "manual_edit":        "low",
+            "test":               "low",
         }
         priority = priority_by_kind.get(kind, "default")
 
         # Tag pulls a relevant emoji on the phone (chart_increasing for
         # bullish armed, etc.). ntfy renders these as small icons.
         tag_by_kind: dict[str, str] = {
-            "lock1_scouted": "eyes",
-            "armed":         "chart_increasing" if direction == "long" else "chart_decreasing",
-            "filled":        "white_check_mark",
-            "closed":        "checkered_flag",
-            "test":          "test_tube",
+            "lock1_scouted":      "eyes",
+            "armed":              "chart_increasing" if direction == "long" else "chart_decreasing",
+            "filled":             "white_check_mark",
+            "closed":             "checkered_flag",
+            "manual_take_profit": "moneybag",
+            "manual_edit":        "pencil",
+            "test":               "test_tube",
         }
         tags = [tag_by_kind.get(kind, "bell")]
 
