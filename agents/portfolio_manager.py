@@ -247,10 +247,10 @@ class PortfolioManager:
         # regardless of equity drift.
         try:
             shares = _apply_per_account_size_override(
-                shares, entry_price=entry_price, account=account, logger=self._log,
+                shares, entry_price=entry_price, account=account, logger=logger,
             )
         except Exception as exc:                                      # noqa: BLE001
-            self._log.warning("size override raised: %s; using %% calc", exc)
+            logger.warning("size override raised: %s; using %% calc", exc)
         notional = shares * entry_price
         position_risk_usd = shares * r_per_share
         if direction == "long":
