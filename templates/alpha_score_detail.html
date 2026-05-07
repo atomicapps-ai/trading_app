@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Alpha Score — {{ score.symbol }}{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+  <div>
+    <h1 class="page-title">{{ score.symbol }} &middot; Alpha Score</h1>
+    <p class="page-subtitle">
+      Four-pillar breakdown for the latest decision tick.
+      <a href="/alpha-score" style="color:var(--accent-blue);">&larr; back to ranking</a>
+    </p>
+  </div>
+  <div style="font-size:11px;color:var(--text-secondary);text-align:right;">
+    As of {{ score.as_of_ts.isoformat()[:19] }}<br>
+    Rendered in {{ render_ms }} ms
+  </div>
+</div>
+
+{# Headline composite #}
+<div class="card" style="padding:20px;margin-bottom:14px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;">
+  <div>
+    <div style="color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;">Composite</div>
+    <div style="font-size:36px;font-weight:700;font-family:var(--font-mono);">{{ '%.1f'|format(score.composite) }}</div>
+  </div>
+  <div>
+    <div style="color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;">&times; Sentiment mult</div>
+    <div style="font-size:36px;font-weight:700;font-family:var(--font-mono);">{{ '%.2f'|format(score.sentiment_multiplier) }}</div>
+  </div>
+  <div>
+    <div style="color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;">Adjusted</div>
+    <div style="font-size:36px;font-weight:700;font-family:var(--font-mono);
+                {% if score.adjusted_composite >= high_threshold %}color:var(--accent-green);
+                {% elif score.adjusted_composite < medium_threshold %}color:var(--accent-red);{% endif %}">
+      {{ '%.1f'|format(score.adjusted_composite) }}
+    </div>
+  </div>
+  <div>
+    <div style="color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;">Bucket</div>
+    <div style="font-size:24px;font-weight:700;margin-top:6px;">
+      {% if score.bucket == 'high' %}
+        <span class="badge badge-green" style="font-size:14px;padding:6px 14px;">HIGH</span>
+      {% elif score.bucket == 'medium' %}
+        <span class="badge" style="font-size:14px;padding:6px 14px;">MEDIUM</span>
+      {% else %}
+        <span class="badge badge-red" style="font-size:14px;padding:6px 14px;">LOW</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% if score.blocked %}
+<div class="card" style="padding:14px;margin-bottom:14px;border-left:3px solid var(--accent-red);">
+  <strong style="color:var(--accent-red);">BLOCKED.</strong>
+  <span style="color:var(--text-secondary);">{{ score.block_reasons|join(' &middot; ') }}</span>
+</div>
+{% endif %}
+
+{# Pillar grid #}
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;">
+  {% for name, sub in score.sub_scores.items() %}
+  <div class="card" style="padding:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
+      <div>
+        <div style="font-size:12px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em;">
+          {{ name|replace('_', ' ') }}
+        </div>
+        <div style="font-size:28px;font-weight:700;font-family:var(--font-mono);">{{ '%.1f'|format(sub.score) }}</div>
+      </div>
+      <div style="font-size:11px;color:var(--text-tertiary);">
+        weight {{ '%.0f'|format(score.weights[name] * 100) }}%
+      </div>
+    </div>
+    <div style="background:var(--surface-2);height:6px;border-radius:3px;overflow:hidden;margin-bottom:10px;">
+      <div style="height:100%;background:{% if sub.score >= high_threshold %}var(--accent-green){% elif sub.score < medium_threshold %}var(--accent-red){% else %}var(--accent-blue){% endif %};width:{{ sub.score }}%;"></div>
+    </div>
+    <div style="font-size:11px;color:var(--text-secondary);font-family:var(--font-mono);word-break:break-word;">
+      {{ sub.rationale or '—' }}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% if score.tags %}
+<div class="card" style="padding:14px;margin-top:14px;">
+  <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">
+    News tags ({{ score.tags|length }})
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;">
+    {% for tag in score.tags %}
+      <span class="badge">{{ tag }}</span>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{# Raw payload (collapsed) #}
+<details style="margin-top:14px;">
+  <summary style="cursor:pointer;color:var(--text-secondary);font-size:12px;">Raw payload</summary>
+  <pre style="background:var(--surface-2);padding:14px;font-size:11px;overflow:auto;border-radius:4px;margin-top:8px;">{{ score.model_dump_json(indent=2) }}</pre>
+</details>
+{% endblock %}

@@ -19,6 +19,7 @@ from fastapi.staticfiles import StaticFiles
 
 from routers import (
     alerts,
+    alpha_score as alpha_score_router,
     analysis,
     bars,
     broker,
@@ -161,6 +162,7 @@ app.include_router(today_router.router)
 app.include_router(system_health_router.router)
 app.include_router(bars.router)
 app.include_router(indicators.router)
+app.include_router(alpha_score_router.router)
 # Register stock_lists BEFORE universe — universe has /universe/{preset_name}
 # which would shadow /universe/stock-lists if mounted in the wrong order.
 app.include_router(stock_lists.router)

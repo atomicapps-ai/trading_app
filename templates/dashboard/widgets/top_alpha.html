@@ -1,0 +1,44 @@
+{# Top Alpha widget — compact ranking of bellwether-16 by adjusted_composite.
+   Click any row to drill into /alpha-score/{symbol}. #}
+{% if error %}
+  <div class="empty">{{ error }}</div>
+{% elif not rows %}
+  <div class="empty">Alpha scores not available yet.</div>
+{% else %}
+<div style="display:flex;flex-direction:column;gap:6px;">
+  {% for r in rows %}
+    <a href="/alpha-score/{{ r.symbol }}"
+       style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;
+              background:var(--surface-2);text-decoration:none;color:inherit;
+              {% if r.blocked %}opacity:0.55;{% endif %}">
+      <span style="flex:0 0 56px;font-weight:600;font-family:var(--font-mono);">{{ r.symbol }}</span>
+      <span style="flex:1;height:6px;background:var(--surface-3, #1c2030);border-radius:3px;overflow:hidden;">
+        <span style="display:block;height:100%;width:{{ r.adjusted }}%;
+                     background:{% if r.bucket == 'high' %}var(--accent-green){% elif r.bucket == 'low' %}var(--accent-red){% else %}var(--accent-blue){% endif %};"></span>
+      </span>
+      <span class="mono" style="flex:0 0 44px;text-align:right;font-weight:600;
+                                {% if r.bucket == 'high' %}color:var(--accent-green);
+                                {% elif r.bucket == 'low' %}color:var(--accent-red);{% endif %}">
+        {{ r.adjusted }}
+      </span>
+      <span style="flex:0 0 50px;text-align:center;">
+        {% if r.bucket == 'high' %}
+          <span class="badge badge-green" style="font-size:9px;padding:1px 6px;">HIGH</span>
+        {% elif r.bucket == 'medium' %}
+          <span class="badge" style="font-size:9px;padding:1px 6px;">MED</span>
+        {% else %}
+          <span class="badge badge-red" style="font-size:9px;padding:1px 6px;">LOW</span>
+        {% endif %}
+      </span>
+    </a>
+  {% endfor %}
+</div>
+<div class="widget-footer" style="margin-top:8px;">
+  <a href="/alpha-score" style="font-size:11px;color:var(--accent-blue);text-decoration:none;">
+    View full ranking &rarr;
+  </a>
+  <span class="text-tertiary text-sm" style="margin-left:8px;">
+    {{ universe_size }} symbols &middot; threshold &ge; {{ '%.0f'|format(high_threshold) }}
+  </span>
+</div>
+{% endif %}

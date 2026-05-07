@@ -701,6 +701,58 @@ class MarketHeadlinesWidget(Widget):
 
 
 # --------------------------------------------------------------------------- #
+# Widget: Top Alpha Score names
+# --------------------------------------------------------------------------- #
+
+
+class TopAlphaWidget(Widget):
+    """Top names ranked by adjusted Alpha Score.
+
+    Calls ``agents.alpha_score_agent.score_universe`` over the bellwether
+    16 list (cheap macro pulse + cached bars + news) and surfaces the
+    top-N. Highlights HIGH-bucket rows in green so the operator can see
+    at a glance whether anything currently meets the >=80 threshold.
+    """
+
+    id = "top_alpha"
+    title = "Top Alpha"
+    size = "md"
+    tab = "market"
+    refresh_seconds = 600  # 10 min — daily-bar + news-cache driven
+
+    async def get_data(self) -> dict[str, Any]:
+        # Lazy import keeps the widget registry importable even if the
+        # quant-sentiment stack hasn't been touched yet.
+        from agents.alpha_score_agent import HIGH_THRESHOLD, score_universe
+
+        symbols = ["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "TSLA",
+                   "AVGO", "JPM", "V", "UNH", "XOM", "WMT", "COST", "HD", "LLY"]
+        try:
+            scores = await score_universe(symbols, concurrency=6)
+        except Exception as e:                                # noqa: BLE001
+            logger.warning("top_alpha widget: %s", e)
+            return {"rows": [], "high_threshold": HIGH_THRESHOLD, "error": str(e)}
+
+        rows: list[dict[str, Any]] = []
+        for s in sorted(
+            scores.values(), key=lambda r: r.adjusted_composite, reverse=True,
+        )[:6]:
+            rows.append({
+                "symbol": s.symbol,
+                "adjusted": round(s.adjusted_composite, 1),
+                "bucket": s.bucket,
+                "blocked": s.blocked,
+                "tags": s.tags[:3],
+            })
+        return {
+            "rows": rows,
+            "high_threshold": HIGH_THRESHOLD,
+            "universe_size": len(symbols),
+            "error": None,
+        }
+
+
+# --------------------------------------------------------------------------- #
 # Registry
 # --------------------------------------------------------------------------- #
 
@@ -712,6 +764,7 @@ WIDGETS: list[Widget] = [
     StrategyHealthWidget(),
     ExplodedStocksWidget(),
     MarketHeadlinesWidget(),
+    TopAlphaWidget(),
 ]
 
 
