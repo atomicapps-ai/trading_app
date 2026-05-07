@@ -125,6 +125,19 @@ async def run_workflow_by_id(
                 "pipeline: %s blocked by compliance (%s)",
                 symbol, compliance_verdict.block_reason,
             )
+            # Dashboard-only alert (no phone push) — gives the operator
+            # visibility into rejected plans without spamming notifications.
+            try:
+                from services import alert_service
+                await alert_service.record_alert(
+                    kind="rejected", strategy=strategy, symbol=symbol,
+                    direction=plan.setup.direction, plan_id=plan.plan_id,
+                    title=f"{symbol} {plan.setup.direction.upper()} rejected by compliance",
+                    body=f"Reason: {compliance_verdict.block_reason or '(no reason)'}",
+                    payload={"gate": "compliance", "reason": compliance_verdict.block_reason},
+                )
+            except Exception as e:                                # noqa: BLE001
+                logger.debug("rejected-alert (compliance) failed: %s", e)
             continue
 
         # ---- Risk -----------------------------------------------------
@@ -147,6 +160,21 @@ async def run_workflow_by_id(
                 "pipeline: %s rejected by risk (%s)",
                 symbol, risk_verdict.reject_reason,
             )
+            # Dashboard-only alert (no phone push) — same rationale as
+            # the compliance hook above. Use plain "rejected" kind so
+            # both gate types share one alert stream.
+            try:
+                from services import alert_service
+                await alert_service.record_alert(
+                    kind="rejected", strategy=strategy, symbol=symbol,
+                    direction=plan.setup.direction, plan_id=plan.plan_id,
+                    title=f"{symbol} {plan.setup.direction.upper()} rejected by risk",
+                    body=f"Reason: {risk_verdict.reject_reason or '(no reason)'}",
+                    payload={"gate": "risk", "reason": risk_verdict.reject_reason,
+                             "blocked_gate": getattr(risk_verdict, "blocked_gate", None)},
+                )
+            except Exception as e:                                # noqa: BLE001
+                logger.debug("rejected-alert (risk) failed: %s", e)
             continue
 
         # Pass / resize → queue for human approval. resized verdicts

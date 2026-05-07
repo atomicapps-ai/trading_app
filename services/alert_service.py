@@ -37,10 +37,18 @@ AlertKind = Literal[
     "armed",                 # plan passed gates, awaiting ack
     "filled",                # entry order filled
     "closed",                # position closed (manual or auto close-at-time)
+    "rejected",              # plan blocked by compliance / risk gate (no phone push)
     "manual_take_profit",    # operator-tagged profit take
     "manual_edit",           # operator updated plan levels
+    "digest",                # end-of-day summary, single push per day
     "test",                  # synthetic injector
 ]
+
+# Alert kinds that should NEVER fire a phone push — they only land on the
+# dashboard banner. Used to give the operator visibility ("system saw N
+# plans today, rejected M of them") without ringing the phone for every
+# discarded signal.
+_NO_PUSH_KINDS = {"rejected"}
 
 
 def _now() -> str:
@@ -83,6 +91,12 @@ async def record_alert(
         new_id, kind, strategy, symbol,
     )
 
+    # Skip phone push for kinds in _NO_PUSH_KINDS — they only land on
+    # the dashboard banner so the operator can see "system rejected
+    # these plans" without ringing the phone for every discarded signal.
+    if kind in _NO_PUSH_KINDS:
+        return new_id
+
     # Fire-and-forget phone push. Never raises — ntfy_service swallows
     # all errors so a flaky push provider can't break alert recording.
     try:
@@ -99,6 +113,7 @@ async def record_alert(
             "closed":             "low",
             "manual_take_profit": "default",
             "manual_edit":        "low",
+            "digest":             "default",
             "test":               "low",
         }
         priority = priority_by_kind.get(kind, "default")
@@ -112,6 +127,7 @@ async def record_alert(
             "closed":             "checkered_flag",
             "manual_take_profit": "moneybag",
             "manual_edit":        "pencil",
+            "digest":             "newspaper",
             "test":               "test_tube",
         }
         tags = [tag_by_kind.get(kind, "bell")]

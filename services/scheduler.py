@@ -56,6 +56,7 @@ def start_scheduler() -> None:
     _register_senate_diff_job(sched)
     _register_workflow_jobs(sched)
     _register_dl_lock1_scout(sched)
+    _register_daily_digest_job(sched)
 
     sched.start()
     logger.info("Scheduler started — %d jobs registered", len(sched.get_jobs()))
@@ -701,3 +702,123 @@ async def _catch_up_missed_runs(sched: AsyncIOScheduler) -> None:
         logger.warning("catch-up: fired %d missed run(s) this morning", fired)
     else:
         logger.info("catch-up: nothing to fire (all on schedule or future)")
+
+
+# --------------------------------------------------------------------------- #
+# Daily digest — single ntfy push at 16:30 ET summarizing the day
+# --------------------------------------------------------------------------- #
+
+
+def _register_daily_digest_job(sched: AsyncIOScheduler) -> None:
+    """Register the 16:30 ET Mon-Fri digest job.
+
+    Fires after the session close so it can include EOD broker state
+    (positions flat, day P&L) plus today's pipeline activity. One
+    push per weekday — keeps the operator aware on quiet days too.
+    """
+    sched.add_job(
+        _daily_digest_job,
+        CronTrigger(day_of_week="mon-fri", hour=16, minute=30,
+                    timezone="America/New_York"),
+        id="daily_digest",
+        name="Daily digest (16:30 ET)",
+        replace_existing=True,
+        misfire_grace_time=1800,  # 30-min grace — late summary is still useful
+    )
+    logger.info("Scheduled daily_digest at 16:30 ET Mon-Fri")
+
+
+async def _daily_digest_job() -> None:
+    """Build today's digest from DB + broker, fire one ntfy push."""
+    from datetime import datetime as _dt, timezone as _tz
+    import zoneinfo as _zi
+    from services import alert_service, db_service
+
+    et_now = _dt.now(_zi.ZoneInfo("America/New_York"))
+    today_iso = et_now.strftime("%Y-%m-%d")
+
+    # Pipeline runs today
+    runs = await db_service.list_pipeline_runs(limit=20)
+    today_runs = [r for r in runs if (r.get("ts_start") or "").startswith(today_iso)]
+    sigs = sum(r.get("signals_generated", 0) or 0 for r in today_runs)
+    plans = sum(r.get("plans_proposed", 0) or 0 for r in today_runs)
+    approved = sum(r.get("plans_approved", 0) or 0 for r in today_runs)
+    error_runs = [r for r in today_runs if r.get("status") == "error"]
+
+    # Today's alerts breakdown
+    since = et_now.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+    alerts = await alert_service.list_alerts(since_ts=since, limit=200)
+    armed_count    = sum(1 for a in alerts if a["kind"] == "armed")
+    rejected_count = sum(1 for a in alerts if a["kind"] == "rejected")
+    filled_count   = sum(1 for a in alerts if a["kind"] == "filled")
+    closed_count   = sum(1 for a in alerts if a["kind"] == "closed")
+
+    # Broker state (best effort)
+    equity = cash = None
+    positions_n = 0
+    fills_today_n = 0
+    try:
+        from services import broker_service
+        adapter = await broker_service.get_adapter_async()
+        if not adapter.connected:
+            await adapter.connect()
+        if adapter.connected:
+            state = await adapter.get_account_state()
+            equity = float(state.equity or 0)
+            cash = float(state.cash or 0)
+            positions_n = len(state.open_positions or [])
+            fills = await adapter.get_fills(since_ts=since)
+            fills_today_n = len(fills)
+    except Exception as exc:                                          # noqa: BLE001
+        logger.warning("digest: broker fetch failed: %s", exc)
+
+    # Headline
+    headline_bits = []
+    if approved > 0:
+        headline_bits.append(f"{approved} fired")
+    if rejected_count > 0:
+        headline_bits.append(f"{rejected_count} rejected")
+    if filled_count > 0:
+        headline_bits.append(f"{filled_count} filled")
+    if not headline_bits:
+        headline_bits.append("quiet day, 0 fires")
+    title = f"Daily digest {today_iso} — " + " · ".join(headline_bits)
+
+    # Body — readable on phone notification
+    lines = []
+    if today_runs:
+        for r in today_runs:
+            wf = r.get("workflow_id", "?")
+            s = r.get("signals_generated", 0) or 0
+            p = r.get("plans_proposed", 0) or 0
+            st = r.get("status", "?")
+            lines.append(f"• {wf}: {s} sig, {p} plans, {st}")
+    else:
+        lines.append("• No pipeline runs today")
+    lines.append(
+        f"• Plans: {armed_count} armed, {rejected_count} rejected, "
+        f"{filled_count} filled, {closed_count} closed"
+    )
+    if equity is not None:
+        lines.append(f"• Account: ${equity:,.2f} equity, ${cash:,.2f} cash, "
+                     f"{positions_n} positions, {fills_today_n} fills today")
+    if error_runs:
+        lines.append(f"• ⚠ {len(error_runs)} run(s) errored — check /jobs")
+    body = "\n".join(lines)
+
+    try:
+        await alert_service.record_alert(
+            kind="digest", strategy="meta", symbol=None, direction=None,
+            plan_id=None, title=title, body=body,
+            payload={
+                "date": today_iso,
+                "signals": sigs, "plans": plans, "approved": approved,
+                "armed": armed_count, "rejected": rejected_count,
+                "filled": filled_count, "closed": closed_count,
+                "errors": len(error_runs), "fills_today": fills_today_n,
+                "equity": equity, "cash": cash, "positions": positions_n,
+            },
+        )
+        logger.info("daily_digest: %s", title)
+    except Exception as exc:                                          # noqa: BLE001
+        logger.warning("daily_digest record_alert failed: %s", exc)
