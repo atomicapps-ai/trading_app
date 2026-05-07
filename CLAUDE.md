@@ -1,49 +1,107 @@
 # TradeAgent — Project Context for Claude Code
-**Last synced:** 2026-04-25 (merged: dashboard polish + Copy Insiders rebuild)
-**Status:** Phase 4 + 4.5 + 6 edit-mode shipped; DL agent loop closed
-(`executioner.close_at_time()` auto-schedules a 15:00 ET market-close on
-successful entry placement); news feed live on /trades/{id} (Alpaca
-news + EDGAR filings); dashboard widgets gained universal ⚙ gear,
-drag-to-reorder, and size-cycle (sm/md/lg/wide); News tab populated
-with `MarketHeadlinesWidget`; Fear & Greed gauge rebuilt with
-proportional bands. **Copy Insiders rebuild** also shipped this session:
-dead Capitol Trades API replaced with ivanma9 hosted API for House,
-Senate eFD HTML PTR scraper added (covers both chambers — 92 House
-+ 14 Senate members), composite 1–10 rank, multi-politician follow,
-persistent rankings cache, Universe → Stock Lists submenu (10 default
-lists), sidebar accordion. **Verified perf: Pelosi 61.1% win / +0.86%
-alpha; Boozman 64.1% win / +2.35% alpha** (yfinance-based, since the
-hosted /performance endpoint is broken upstream).
-**Multi-source news feed:** Pluggable provider registry at
-`services/news_sources/` with Alpaca + EDGAR + Webull. Settings panel
-exposes per-widget source toggles; `NewsItem` carries optional
-`summary` / `image_url` / `tags` / `extra` so per-source signals
-(Webull "hot" indicator, EDGAR `form_type`) reach the UI.
-`/news/{source}/{article_id}` detail route renders title, source
-badge, sentiment breakdown, source extras, with "Open original ↗".
-**DL alerting service:** Lock 1 scout job at 10:00 ET + armed-alert
-hook on 10:30 fire writing to `dl_alerts` SQLite. Dashboard banner
-polls `/api/alerts/banner` every 30s. Run-now endpoints
-(`/api/alerts/run-{lock1,dl}-now`) and synthetic injector
-(`/api/alerts/test`) for verification without waiting for cron.
-Cron overridable via `DL_LOCK1_CRON` env var.
-**Next chat options:** (a) **Plan B — terminology research** (Investopedia/
-TradingView definitions of strategy/screener/signal/setup) and the
-sidebar restructure that follows; (b) **entry-fill alert** — broker
-order-poll loop to fire `filled` alerts when the DL limit hits;
-(c) **ntfy push** for phone alerts; (d) **Phase 5 backtest engine**.
+**Last synced:** 2026-05-07 (merged: multi-account broker registry, fixed-USD sizing,
+manual position controls, daily digest, rejected alerts, screener YAML backup)
+**Status:** Phase 4 + 4.5 + 6 + DL autonomous loop are production-ready. The system
+fires `wf_double_lock_1030` on schedule each weekday, auto-approves on paper, and
+auto-closes positions at 15:00 ET. First end-to-end autonomous fill is pending the
+next VIX>=20 day (currently ~17). Today's quiet days produce a 16:30 ET digest push
++ dashboard-only `rejected` alerts so the operator has visibility on no-fire days.
+
+**Trading-app summary (live state as of 2026-05-07):**
+* **Strategy:** `double_lock` (intraday opening pattern; c1+c2 conviction at
+  10:30 ET + regime gate VIX>=20, ADX<=35, RSI window). Backtest 87.5% WR /
+  +5.18% on 16-name bellwether (Mar-Apr); 50% WR on 62 mega-caps;
+  43.6% WR on 656 mid+caps — strategy edge does NOT generalize beyond the
+  validated narrow universe. Active screener locked to `bellwether_16`.
+* **Active broker:** Alpaca paper (100K Paper Acct). Live Trades account
+  configured but inactive. Multi-account registry at
+  `data/claude_trading_app.db::broker_accounts` + git-tracked YAML backup
+  at `universe_screeners.yaml` and the broker analog (auto-export on every
+  CRUD).
+* **Auto-approve:** ON for `double_lock` on paper; HARD-BLOCKED for live
+  (architectural — `auto_approve_service.safe_to_auto_approve` refuses
+  live mode, regardless of strategy flag).
+* **Guardrails:** `enhanced_live_safeguards: True` (extra "Are you sure?"
+  prompts client-side in live mode); `earnings_blackout: 24h` actually
+  wired via `services/earnings_service.py` (yfinance Ticker.calendar,
+  4-hour TTL cache); `min_rr_ratio: 2.0` rejects swing plans with weak
+  R:R; `human_ack_required: True` always on for live.
+* **Position sizing:** `agents/portfolio_manager._compute_position_size`
+  uses %-of-equity by default. Per-account override via
+  `broker_accounts.extra_json.position_size_usd` (fixed $ per trade,
+  ignores % calc). UI on `/broker` edit form. Hard caps: never > 5x %-calc
+  shares, never > 95% of cash.
+* **Manual controls:** Dashboard Close + TP buttons for any position
+  (POST `/api/positions/{symbol}/{close,take-profit}`); trade-level edit
+  (entry/stop/TP/deadline) at `/trades/{id}`. Each fires a tagged alert
+  + ntfy push. Live mode adds confirmation prompt before the call.
+* **Alerts:** 8 kinds — `lock1_scouted`, `armed`, `filled`, `closed`,
+  `manual_take_profit`, `manual_edit`, `digest`, `rejected`, `test`.
+  `rejected` is dashboard-only (no phone push) per `_NO_PUSH_KINDS`.
+* **Daily digest:** new scheduler job at 16:30 ET Mon-Fri pushes ONE
+  ntfy summary per weekday — even quiet days. Title format:
+  *"Daily digest YYYY-MM-DD — N fired · M rejected · K filled"* or
+  *"quiet day, 0 fires"*. Body lists per-workflow signal/plan counts,
+  account state, and any errored runs.
+* **Live status bar:** persistent strip atop every page (5s HTMX poll)
+  showing equity / cash / day P&L + per-position chips with direction
+  arrow, P&L $/% toggle, and TP/SL pills. Click any chip → live chart
+  for that symbol.
+* **History tab per strategy:** `/strategies/{name}/history` merges
+  actual closed trades (JSONL) + simulated trades (replay engine) with
+  dollar-emphasis summary (capital deployed, gross profit, gross loss,
+  net P&L $, profit factor, return on risk). Capital input persists per
+  browser; toggling instantly recomputes from cache without re-replay.
+  "Ignore regime gate" research toggle for counterfactual analysis.
+* **Multi-strategy comparison:** `scripts/replay_strategies.py` runs DL
+  vs ORB vs VWAP-Reclaim side-by-side on the same universe + window.
+  All share the 15:00 ET / 3% catastrophic-stop exit for parity.
+
+**Known reliability properties:**
+* **Single uvicorn worker** (`run.py prod` -> `--workers 1`) because
+  the broker adapter is a per-process singleton; 2-worker setups
+  diverge after any account-activation request.
+* **Catch-up-on-restart:** scheduler.py `_catch_up_missed_runs` fires
+  any missed `wf_*` or `dl_lock1_scout` job at startup if today's cron
+  window has passed without a run — but only via a check-on-boot,
+  NOT continuous. An app restart between 10:25-11:00 ET on weekdays
+  may still catch up but at the wrong wall-clock entry price.
+* **Adapter self-heal:** `broker_service.get_adapter_async()` checks
+  the active slug in DB on every async accessor; if it diverges from
+  the singleton's bound slug, rebuilds. Defends against multi-worker
+  drift even though we default to 1 worker.
+* **Smart bar refresh:** `services/data_service.refresh_if_stale`
+  + per-(symbol, interval) tracker; the strategy-live page polls
+  every 30s but the cache only refetches every 3 min during market
+  hours, 30 min off-hours.
+
+**Next chat options:** (a) ship the `manual buy` form (operator-driven
+non-strategy entries with the same gate flow); (b) wire entry-fill
+alerts (broker order-poll loop -> `filled` ntfy push currently
+skipped); (c) add a continuous regime monitor + "regime change"
+alert (currently regime is only checked at 10:00/10:30 ET); (d)
+Phase 5 backtest engine UI + walk-forward optimization; (e) port
+ORB-30m as a second autonomous strategy (data already shows it's
+profitable on bellwether 16 at 47.7% WR / PF 1.11).
+
 **Roadmap (current):**
 - Phase 4 ✅ all sub-items
-- DL-Filtered intraday strategy ✅ (detector + workflow + smoke + integration + 15:00 ET close)
+- DL-Filtered intraday strategy ✅ (detector + workflow + 15:00 ET close + auto-approve)
+- Multi-account broker registry ✅ (paper + live, fixed-$ sizing per account)
+- Manual position controls ✅ (close, TP, edit) + alerts
+- Daily digest + rejected alerts ✅
 - Modular dashboard ✅ (Portfolio/Market/News tabs, 5 widgets, ⚙ settings infra)
-- Trade detail page ✅ (`/trades/{id}` unified, partials, indicator picker, VADER news)
-- Copy Insiders ✅ (House via ivanma9 API + Senate via eFD HTML parser; multi-follow,
-  composite rank, performance via yfinance, sidebar accordion, persistent cache)
-- Stock Lists ✅ (Universe submenu; 10 defaults — S&P 500/400/600, NASDAQ-100, Dow 30,
-  Magnificent 7, FAANG, SPDR sectors, AI Leaders, Crypto-Adjacent)
-- Phase 5 — Backtest Engine + Strategy Review UI
+- Live status bar ✅ (top of every page, $/% toggle, TP/SL pills)
+- Strategy History tab ✅ (per-strategy, dollar-emphasis, regime-ignore toggle)
+- Multi-strategy comparison engine ✅ (DL vs ORB vs VWAP)
+- Trade detail page ✅ (`/trades/{id}` unified, indicator picker, VADER news)
+- Copy Insiders ✅ (House via ivanma9 API + Senate via eFD HTML parser)
+- Stock Lists ✅ (10 defaults — S&P 500/400/600, NASDAQ-100, Dow 30, etc.)
+- Earnings gate C7 ✅ (yfinance Ticker.calendar, 4h TTL cache)
+- Screener registry persisted to git ✅ (auto-export on every CRUD; restore on boot)
+- Phase 5 — Backtest Engine UI + walk-forward optimization (deferred)
 - Phase 4.5 — Chart viewer sources + indicators (deferred)
-- Phase 6 — ntfy push notifications + mobile CSS pass + risk_manager postmortem
+- Phase 6 — entry-fill alert + mobile CSS pass + risk_manager postmortem
 - Phase 7 — Memory, learning loop, polish
 **Companion docs:**
   - `SKILL.md` (project root) — domain logic
