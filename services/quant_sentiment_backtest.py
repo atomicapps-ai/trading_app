@@ -145,7 +145,14 @@ async def backtest_symbol(
         return [], []
 
     bars_full = add_indicators(bars_full)
-    in_window = (bars_full.index >= pd.Timestamp(start, tz="UTC")) & (bars_full.index <= pd.Timestamp(end, tz="UTC"))
+    # start/end may already be tz-aware (CLI parser adds UTC). Don't pass tz=
+    # if they are — pandas raises. Normalize via Timestamp() then tz_convert.
+    def _to_utc(t: datetime) -> pd.Timestamp:
+        ts = pd.Timestamp(t)
+        if ts.tz is None:
+            return ts.tz_localize("UTC")
+        return ts.tz_convert("UTC")
+    in_window = (bars_full.index >= _to_utc(start)) & (bars_full.index <= _to_utc(end))
     decision_bars = bars_full[in_window]
     if decision_bars.empty:
         return [], []

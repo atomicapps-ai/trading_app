@@ -24,6 +24,15 @@ from pathlib import Path
 # Allow running as `python scripts/run_quant_sentiment_backtest.py` from repo root.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+# Load .env so ALPACA_API_KEY / FRED_API_KEY are visible to news_service
+# and economic_calendar_service. The FastAPI app loads these via lifespan;
+# CLI scripts have to do it themselves.
+try:
+    from dotenv import load_dotenv  # type: ignore
+    load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+except Exception:                                   # noqa: BLE001
+    pass
+
 from services.quant_sentiment_backtest import (   # noqa: E402
     backtest_universe,
     build_report,

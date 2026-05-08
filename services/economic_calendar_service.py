@@ -79,6 +79,22 @@ def _write_cache_sync(series_id: str, df: pd.DataFrame) -> None:
     df.to_csv(_cache_path(series_id), index=False)
 
 
+# In-memory dedup so a backtest hitting score_symbol thousands of times
+# doesn't make 40,000 FRED calls — once we have the full series for a
+# given series_id this process, every subsequent call returns the same
+# DataFrame. Process-level (lost on restart); the disk cache survives.
+_FRED_MEMORY_CACHE: dict[str, pd.DataFrame] = {}
+_FRED_MEMORY_LOCK: asyncio.Lock | None = None
+
+
+def _get_fred_lock() -> asyncio.Lock:
+    """Lazy-init the lock so tests / sync imports don't need a loop."""
+    global _FRED_MEMORY_LOCK
+    if _FRED_MEMORY_LOCK is None:
+        _FRED_MEMORY_LOCK = asyncio.Lock()
+    return _FRED_MEMORY_LOCK
+
+
 async def fetch_fred_series(
     series_id: str,
     *,
@@ -89,58 +105,96 @@ async def fetch_fred_series(
     """Fetch a FRED series, falling back to disk cache when offline.
 
     Returns a DataFrame with columns ``[date, value]``. ``value`` is
-    float; FRED's "." (no observation) is dropped.
+    float; FRED's "." (no observation) is dropped. Caches in memory
+    so a single FRED call serves the whole process lifetime.
     """
+    # Memory-cache fast path — only honored when caller didn't pin a
+    # specific date window (start/end is unused inside the function
+    # anyway since FRED returns the full series and we slice later).
+    if start is None and end is None and series_id in _FRED_MEMORY_CACHE:
+        return _FRED_MEMORY_CACHE[series_id]
+
     api_key = api_key or os.environ.get("FRED_API_KEY")
     cached = await asyncio.to_thread(_read_cache_sync, series_id)
 
-    if not api_key:
-        if cached is None or cached.empty:
-            log.warning(
-                "fetch_fred_series: no FRED_API_KEY and no cache for %s; "
-                "returning empty frame", series_id,
-            )
-            return pd.DataFrame(columns=["date", "value"])
-        return cached
+    # Hold the lock through the HTTP call so 8 concurrent backtest workers
+    # don't all stampede FRED for the same series_id. The first coroutine
+    # makes the network call; the rest wait, recheck the memory cache,
+    # and return the populated entry without ever hitting the wire.
+    async with _get_fred_lock():
+        # Recheck under lock — another coroutine may have populated the
+        # cache while we were waiting for it.
+        if start is None and end is None and series_id in _FRED_MEMORY_CACHE:
+            return _FRED_MEMORY_CACHE[series_id]
 
-    params = {
-        "series_id": series_id,
-        "api_key": api_key,
-        "file_type": "json",
-    }
-    if start:
-        params["observation_start"] = start.isoformat()
-    if end:
-        params["observation_end"] = end.isoformat()
+        if not api_key:
+            if cached is None or cached.empty:
+                log.warning(
+                    "fetch_fred_series: no FRED_API_KEY and no cache for %s; "
+                    "returning empty frame", series_id,
+                )
+                empty = pd.DataFrame(columns=["date", "value"])
+                _FRED_MEMORY_CACHE[series_id] = empty
+                return empty
+            _FRED_MEMORY_CACHE[series_id] = cached
+            return cached
 
-    try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            r = await client.get(FRED_BASE_URL, params=params)
-            r.raise_for_status()
-            payload = r.json()
-    except Exception as e:                         # noqa: BLE001
-        log.warning("FRED fetch failed for %s: %s — using cache", series_id, e)
-        return cached if cached is not None else pd.DataFrame(columns=["date", "value"])
+        params = {
+            "series_id": series_id,
+            "api_key": api_key,
+            "file_type": "json",
+        }
+        if start:
+            params["observation_start"] = start.isoformat()
+        if end:
+            params["observation_end"] = end.isoformat()
 
-    rows: list[dict] = []
-    for obs in payload.get("observations", []):
-        if obs.get("value") in (None, ".", ""):
-            continue
         try:
-            rows.append({
-                "date": pd.Timestamp(obs["date"]).normalize(),
-                "value": float(obs["value"]),
-            })
-        except (TypeError, ValueError):
-            continue
-    df = pd.DataFrame(rows)
-    if df.empty:
-        return cached if cached is not None else df
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                r = await client.get(FRED_BASE_URL, params=params)
+                r.raise_for_status()
+                payload = r.json()
+        except Exception as e:                     # noqa: BLE001
+            # Redact api_key from exception messages — httpx includes the
+            # full URL on raise_for_status, leaking the FRED key into logs.
+            import re as _re
+            msg = str(e)
+            if api_key and api_key in msg:
+                msg = msg.replace(api_key, "***REDACTED***")
+            msg = _re.sub(r"api_key=[A-Za-z0-9]+", "api_key=***REDACTED***", msg)
+            log.warning("FRED fetch failed for %s: %s — using cache", series_id, msg)
+            # Memo the failure-fallback so a flaky FRED endpoint doesn't
+            # cause a 40,000-call retry storm during a backtest.
+            fallback = cached if cached is not None else pd.DataFrame(columns=["date", "value"])
+            if start is None and end is None:
+                _FRED_MEMORY_CACHE[series_id] = fallback
+            return fallback
 
-    if cached is not None and not cached.empty:
-        df = pd.concat([cached, df], ignore_index=True)
-    await asyncio.to_thread(_write_cache_sync, series_id, df)
-    return df.sort_values("date").reset_index(drop=True)
+        rows: list[dict] = []
+        for obs in payload.get("observations", []):
+            if obs.get("value") in (None, ".", ""):
+                continue
+            try:
+                rows.append({
+                    "date": pd.Timestamp(obs["date"]).normalize(),
+                    "value": float(obs["value"]),
+                })
+            except (TypeError, ValueError):
+                continue
+        df = pd.DataFrame(rows)
+        if df.empty:
+            result = cached if cached is not None else df
+            if start is None and end is None:
+                _FRED_MEMORY_CACHE[series_id] = result
+            return result
+
+        if cached is not None and not cached.empty:
+            df = pd.concat([cached, df], ignore_index=True)
+        await asyncio.to_thread(_write_cache_sync, series_id, df)
+        df = df.sort_values("date").reset_index(drop=True)
+        if start is None and end is None:
+            _FRED_MEMORY_CACHE[series_id] = df
+        return df
 
 
 async def latest_value(series_id: str, *, as_of: datetime | None = None) -> float | None:
