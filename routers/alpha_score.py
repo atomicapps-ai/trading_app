@@ -1,6 +1,6 @@
 """alpha_score router — UI + JSON for the quant + sentiment Alpha Score.
 
-Three surfaces:
+Surfaces:
 
 * ``GET /alpha-score`` — page that runs the AlphaScore agent across the
   current active screener (or a fallback bellwether list) and renders
@@ -8,19 +8,21 @@ Three surfaces:
 * ``GET /alpha-score/{symbol}`` — single-symbol detail page with the
   pillar breakdown, sub-score rationale, sentiment tags, and event
   blackout state.
+* ``GET /alpha-score/backtest`` — index of saved expectancy reports
+  produced by the CLI harness (``scripts/run_quant_sentiment_backtest``).
+  Click any report to view the per-bucket win rate / expectancy table
+  and the per-trade list. Read-only — running backtests is still CLI
+  for now.
+* ``GET /alpha-score/backtest/{filename}`` — render one saved report.
 * ``GET /api/alpha-score/{symbol}`` — JSON (model_dump) for programmatic
   consumers (dashboard widget, future automation hooks).
-
-The page does NOT call agents during template render at module import
-time — every request triggers a fresh ``score_universe`` so the user
-sees the live macro pulse + sentiment. For 50+ symbol universes this
-is a 5-15s call; the template shows a "computing…" overlay and HTMX
-swaps in the result.
 """
 from __future__ import annotations
 
+import json
 import logging
 from datetime import datetime, timezone
+from pathlib import Path
 from time import monotonic
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -33,7 +35,12 @@ from agents.alpha_score_agent import (
     score_symbol,
     score_universe,
 )
-from services.settings_service import Settings, TEMPLATES_DIR, get_settings
+from services.settings_service import (
+    DATA_DIR,
+    Settings,
+    TEMPLATES_DIR,
+    get_settings,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -115,6 +122,110 @@ async def alpha_score_page(
             "medium_threshold": MEDIUM_THRESHOLD,
         },
     )
+
+
+# --------------------------------------------------------------------------- #
+# Backtest report viewer
+# --------------------------------------------------------------------------- #
+#
+# These two routes MUST sit above /alpha-score/{symbol} — FastAPI matches by
+# path order, and "backtest" would otherwise be captured as a symbol name.
+
+_BACKTEST_DIR = DATA_DIR
+
+
+def _list_backtest_files() -> list[dict]:
+    """Return saved backtest reports sorted newest-first."""
+    out: list[dict] = []
+    if not _BACKTEST_DIR.exists():
+        return out
+    for p in _BACKTEST_DIR.glob("alpha_score_backtest*.json"):
+        try:
+            stat = p.stat()
+        except OSError:
+            continue
+        out.append({
+            "filename": p.name,
+            "size_kb": round(stat.st_size / 1024, 1),
+            "modified": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc),
+        })
+    out.sort(key=lambda d: d["modified"], reverse=True)
+    return out
+
+
+def _load_backtest(filename: str) -> dict:
+    """Read and parse one saved report. 404 if missing, 422 if malformed."""
+    # Defense-in-depth path traversal block — only allow plain filenames
+    # within DATA_DIR, no slashes, no parent refs.
+    if "/" in filename or "\\" in filename or ".." in filename:
+        raise HTTPException(status_code=400, detail="invalid filename")
+    p = _BACKTEST_DIR / filename
+    if not p.exists() or not p.is_file():
+        raise HTTPException(status_code=404, detail=f"no such report: {filename}")
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=422, detail=f"malformed JSON: {e}")
+
+
+@router.get("/alpha-score/backtest", response_class=HTMLResponse)
+async def alpha_score_backtest_index(
+    request: Request,
+    s: Settings = Depends(get_settings),
+):
+    """List saved backtest reports."""
+    files = _list_backtest_files()
+    return templates.TemplateResponse(
+        request=request,
+        name="alpha_score_backtest_index.html",
+        context={
+            "settings": s,
+            "active_page": "alpha_score",
+            "files": files,
+            "high_threshold": HIGH_THRESHOLD,
+            "medium_threshold": MEDIUM_THRESHOLD,
+        },
+    )
+
+
+@router.get("/alpha-score/backtest/{filename}", response_class=HTMLResponse)
+async def alpha_score_backtest_view(
+    request: Request,
+    filename: str,
+    s: Settings = Depends(get_settings),
+):
+    """Render one saved backtest report — expectancy by bucket + trade list."""
+    payload = _load_backtest(filename)
+    report = payload.get("report") or {}
+    trades = payload.get("trades") or []
+    by_bucket = report.get("by_bucket") or {}
+
+    # Sort trades newest-entry first; cap at 500 in the page (full JSON
+    # is downloadable via the raw-link). Most reports are well under this.
+    trades = sorted(trades, key=lambda t: t.get("entry_ts") or "", reverse=True)[:500]
+
+    return templates.TemplateResponse(
+        request=request,
+        name="alpha_score_backtest_view.html",
+        context={
+            "settings": s,
+            "active_page": "alpha_score",
+            "filename": filename,
+            "report": report,
+            "by_bucket": by_bucket,
+            "trades": trades,
+            "trade_count_displayed": len(trades),
+            "trade_count_total": int(report.get("trades_total") or 0),
+            "high_threshold": HIGH_THRESHOLD,
+            "medium_threshold": MEDIUM_THRESHOLD,
+        },
+    )
+
+
+@router.get("/alpha-score/backtest/{filename}/raw")
+async def alpha_score_backtest_raw(filename: str):
+    """Return the raw saved JSON. Useful for downloading or debugging."""
+    return JSONResponse(_load_backtest(filename))
 
 
 @router.get("/alpha-score/{symbol}", response_class=HTMLResponse)

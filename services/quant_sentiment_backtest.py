@@ -225,15 +225,36 @@ async def backtest_universe(
     start: datetime,
     end: datetime,
     concurrency: int = 6,
+    progress_cb=None,
     **kwargs,
 ) -> tuple[list[BacktestTrade], list[AlphaScore]]:
-    """Run ``backtest_symbol`` across many symbols with bounded concurrency."""
+    """Run ``backtest_symbol`` across many symbols with bounded concurrency.
+
+    ``progress_cb(done, total, sym, n_trades)`` fires on each symbol's
+    completion. The CLI uses this to print a live progress line; a
+    future SSE-streaming UI can use the same hook.
+    """
+    import time as _time
     sem = asyncio.Semaphore(concurrency)
     syms = [s.upper() for s in symbols]
+    total = len(syms)
+    done = 0
+    started_at = _time.monotonic()
 
     async def _one(sym: str):
+        nonlocal done
         async with sem:
-            return await backtest_symbol(sym, start=start, end=end, **kwargs)
+            t0 = _time.monotonic()
+            trades, scores = await backtest_symbol(sym, start=start, end=end, **kwargs)
+            elapsed_sym = _time.monotonic() - t0
+            done += 1
+            if progress_cb is not None:
+                try:
+                    progress_cb(done, total, sym, len(trades), elapsed_sym,
+                                _time.monotonic() - started_at)
+                except Exception:                    # noqa: BLE001
+                    pass
+            return trades, scores
 
     results = await asyncio.gather(*(_one(s) for s in syms))
     all_trades: list[BacktestTrade] = []

@@ -100,8 +100,20 @@ async def _amain(args: argparse.Namespace) -> int:
 
     print(
         f"Backtesting {len(symbols)} symbols from {start.date()} to {end.date()} "
-        f"(threshold={args.threshold}, target={args.target_atr}xATR, stop={args.stop_atr}xATR)"
+        f"(threshold={args.threshold}, target={args.target_atr}xATR, stop={args.stop_atr}xATR, "
+        f"step={args.step}d, concurrency={args.concurrency})",
+        flush=True,
     )
+
+    def _progress(done, total, sym, n_trades, elapsed_sym, elapsed_total):
+        eta = (elapsed_total / done) * (total - done) if done else 0
+        print(
+            f"  [{done:>2}/{total}] {sym:<6} {n_trades:>3} trades "
+            f"({elapsed_sym:5.1f}s/sym · "
+            f"{int(elapsed_total // 60):>2}m elapsed · "
+            f"~{int(eta // 60):>2}m ETA)",
+            flush=True,
+        )
 
     trades, scores = await backtest_universe(
         symbols,
@@ -112,8 +124,9 @@ async def _amain(args: argparse.Namespace) -> int:
         max_hold_bars=args.max_hold,
         decision_step_days=args.step,
         concurrency=args.concurrency,
+        progress_cb=_progress,
     )
-    print(f"Computed {len(scores)} alpha scores; produced {len(trades)} trades")
+    print(f"Computed {len(scores)} alpha scores; produced {len(trades)} trades", flush=True)
 
     report = build_report(trades, universe_size=len(symbols))
     _print_report(report)

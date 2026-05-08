@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block title %}{{ filename }} — Alpha Score Backtest{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+  <div>
+    <h1 class="page-title" style="font-family:var(--font-mono);font-size:18px;">{{ filename }}</h1>
+    <p class="page-subtitle">
+      Alpha Score backtest report.
+      <a href="/alpha-score/backtest" style="color:var(--accent-blue);text-decoration:none;">&larr; all reports</a>
+      &middot;
+      <a href="/alpha-score/backtest/{{ filename }}/raw"
+         style="color:var(--text-secondary);text-decoration:none;">raw JSON &darr;</a>
+    </p>
+  </div>
+  <div style="font-size:11px;color:var(--text-secondary);text-align:right;">
+    Universe size: <strong>{{ report.universe_size or 0 }}</strong><br>
+    Trades total: <strong>{{ report.trades_total or 0 }}</strong><br>
+    {% if report.generated_at %}Generated: {{ report.generated_at }}{% endif %}
+  </div>
+</div>
+
+{# Weights used #}
+{% if report.weights_used %}
+<div class="card" style="margin-bottom:14px;padding:10px 14px;">
+  <div style="display:flex;flex-wrap:wrap;gap:18px;align-items:center;">
+    <span style="font-weight:600;font-size:12px;color:var(--text-secondary);">WEIGHTS USED</span>
+    {% for k, v in report.weights_used.items() %}
+      <span><span class="badge">{{ k|replace("_", " ") }}</span> <strong>{{ '%.0f'|format(v * 100) }}%</strong></span>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{# Per-bucket expectancy table — the headline result. #}
+<div class="card" style="padding:0;margin-bottom:14px;overflow:hidden;">
+  <div style="padding:12px 14px;border-bottom:1px solid var(--border-1);font-weight:600;">
+    Expectancy by bucket
+  </div>
+  <table class="table" style="width:100%;font-family:var(--font-mono);">
+    <thead>
+      <tr style="background:var(--surface-2);">
+        <th style="padding:8px 12px;text-align:left;">bucket</th>
+        <th style="padding:8px 12px;text-align:right;">n</th>
+        <th style="padding:8px 12px;text-align:right;">win %</th>
+        <th style="padding:8px 12px;text-align:right;">avg win %</th>
+        <th style="padding:8px 12px;text-align:right;">avg loss %</th>
+        <th style="padding:8px 12px;text-align:right;">avg R</th>
+        <th style="padding:8px 12px;text-align:right;">expectancy %</th>
+        <th style="padding:8px 12px;text-align:right;">total %</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for bucket_name in ["high", "medium", "low"] %}
+        {% set b = by_bucket.get(bucket_name) or {} %}
+        {% set color = "var(--accent-green)" if bucket_name == "high"
+                       else ("var(--accent-red)" if bucket_name == "low"
+                       else "var(--accent-blue)") %}
+        <tr>
+          <td style="padding:8px 12px;">
+            <span class="badge"
+                  style="background:{{ color }};color:#fff;font-size:9px;padding:1px 7px;">
+              {{ bucket_name|upper }}
+            </span>
+          </td>
+          <td style="padding:8px 12px;text-align:right;">{{ (b.get('n') or 0)|int }}</td>
+          <td style="padding:8px 12px;text-align:right;">
+            {% if b.get('n') %}{{ '%.1f'|format((b.get('win_rate') or 0) * 100) }}{% else %}&mdash;{% endif %}
+          </td>
+          <td style="padding:8px 12px;text-align:right;color:var(--accent-green);">
+            {% if b.get('n') %}+{{ '%.2f'|format(b.get('avg_win_pct') or 0) }}{% else %}&mdash;{% endif %}
+          </td>
+          <td style="padding:8px 12px;text-align:right;color:var(--accent-red);">
+            {% if b.get('n') %}{{ '%.2f'|format(b.get('avg_loss_pct') or 0) }}{% else %}&mdash;{% endif %}
+          </td>
+          <td style="padding:8px 12px;text-align:right;">
+            {% if b.get('n') %}{{ '%.2f'|format(b.get('avg_r') or 0) }}{% else %}&mdash;{% endif %}
+          </td>
+          <td style="padding:8px 12px;text-align:right;font-weight:700;
+                     {% if b.get('expectancy_pct', 0) > 0 %}color:var(--accent-green);{% endif %}
+                     {% if b.get('expectancy_pct', 0) < 0 %}color:var(--accent-red);{% endif %}">
+            {% if b.get('n') %}
+              {{ '%+.2f'|format(b.get('expectancy_pct') or 0) }}
+            {% else %}&mdash;{% endif %}
+          </td>
+          <td style="padding:8px 12px;text-align:right;
+                     {% if b.get('total_pct', 0) > 0 %}color:var(--accent-green);{% endif %}
+                     {% if b.get('total_pct', 0) < 0 %}color:var(--accent-red);{% endif %}">
+            {% if b.get('n') %}
+              {{ '%+.2f'|format(b.get('total_pct') or 0) }}
+            {% else %}&mdash;{% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div style="padding:8px 14px;border-top:1px solid var(--border-1);
+              font-size:11px;color:var(--text-secondary);">
+    <strong>expectancy_pct</strong> = win_rate × avg_win_pct + (1 − win_rate) × avg_loss_pct &middot;
+    <strong>total_pct</strong> = sum of every trade's pnl_pct in this bucket
+  </div>
+</div>
+
+{# Top tag correlations — answers "which tags actually move the needle" #}
+{% if report.tag_correlations %}
+<div class="card" style="padding:0;margin-bottom:14px;overflow:hidden;">
+  <div style="padding:12px 14px;border-bottom:1px solid var(--border-1);font-weight:600;">
+    Top news-tag correlations (sorted by lift over baseline)
+  </div>
+  <table class="table" style="width:100%;font-family:var(--font-mono);">
+    <thead>
+      <tr style="background:var(--surface-2);">
+        <th style="padding:8px 12px;text-align:left;">tag</th>
+        <th style="padding:8px 12px;text-align:right;">n</th>
+        <th style="padding:8px 12px;text-align:right;">win %</th>
+        <th style="padding:8px 12px;text-align:right;">lift vs avg</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tag in report.tag_correlations[:15] %}
+        <tr>
+          <td style="padding:8px 12px;">{{ tag.tag }}</td>
+          <td style="padding:8px 12px;text-align:right;">{{ (tag.n or 0)|int }}</td>
+          <td style="padding:8px 12px;text-align:right;">{{ '%.1f'|format((tag.win_rate or 0) * 100) }}</td>
+          <td style="padding:8px 12px;text-align:right;
+                     {% if tag.lift > 0 %}color:var(--accent-green);{% endif %}
+                     {% if tag.lift < 0 %}color:var(--accent-red);{% endif %}">
+            {{ '%+.2f'|format(tag.lift or 0) }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{# Per-trade list (capped at 500 in template). #}
+{% if trades %}
+<div class="card" style="padding:0;overflow:hidden;">
+  <div style="padding:12px 14px;border-bottom:1px solid var(--border-1);
+              display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-weight:600;">Trades</span>
+    <span style="font-size:11px;color:var(--text-secondary);">
+      Showing {{ trade_count_displayed }} of {{ trade_count_total }} (newest entry first)
+    </span>
+  </div>
+  <div style="max-height:520px;overflow-y:auto;">
+  <table class="table" style="width:100%;font-family:var(--font-mono);font-size:11px;">
+    <thead style="position:sticky;top:0;background:var(--surface-2);">
+      <tr>
+        <th style="padding:6px 10px;text-align:left;">symbol</th>
+        <th style="padding:6px 10px;text-align:left;">entry</th>
+        <th style="padding:6px 10px;text-align:left;">exit</th>
+        <th style="padding:6px 10px;text-align:right;">alpha</th>
+        <th style="padding:6px 10px;text-align:left;">bkt</th>
+        <th style="padding:6px 10px;text-align:right;">entry $</th>
+        <th style="padding:6px 10px;text-align:right;">exit $</th>
+        <th style="padding:6px 10px;text-align:right;">bars</th>
+        <th style="padding:6px 10px;text-align:right;">pnl %</th>
+        <th style="padding:6px 10px;text-align:right;">R</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in trades %}
+        {% set winning = t.pnl_pct and t.pnl_pct > 0 %}
+        <tr>
+          <td style="padding:5px 10px;">
+            <a href="/alpha-score/{{ t.symbol }}"
+               style="color:var(--accent-blue);text-decoration:none;">{{ t.symbol }}</a>
+          </td>
+          <td style="padding:5px 10px;color:var(--text-secondary);">{{ (t.entry_ts or '')[:10] }}</td>
+          <td style="padding:5px 10px;color:var(--text-secondary);">{{ (t.exit_ts or '')[:10] }}</td>
+          <td style="padding:5px 10px;text-align:right;">{{ '%.1f'|format(t.alpha_score or 0) }}</td>
+          <td style="padding:5px 10px;">
+            {% set color = "var(--accent-green)" if t.bucket == "high"
+                           else ("var(--accent-red)" if t.bucket == "low"
+                           else "var(--accent-blue)") %}
+            <span class="badge"
+                  style="background:{{ color }};color:#fff;font-size:9px;padding:1px 5px;">
+              {{ t.bucket|upper }}
+            </span>
+          </td>
+          <td style="padding:5px 10px;text-align:right;">{{ '%.2f'|format(t.entry_price or 0) }}</td>
+          <td style="padding:5px 10px;text-align:right;">{{ '%.2f'|format(t.exit_price or 0) }}</td>
+          <td style="padding:5px 10px;text-align:right;">{{ t.holding_bars or 0 }}</td>
+          <td style="padding:5px 10px;text-align:right;
+                     {% if winning %}color:var(--accent-green);{% else %}color:var(--accent-red);{% endif %}">
+            {{ '%+.2f'|format(t.pnl_pct or 0) }}
+          </td>
+          <td style="padding:5px 10px;text-align:right;
+                     {% if winning %}color:var(--accent-green);{% else %}color:var(--accent-red);{% endif %}">
+            {{ '%+.2f'|format(t.pnl_r or 0) }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

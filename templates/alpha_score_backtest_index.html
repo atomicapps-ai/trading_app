@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Alpha Score · Backtests — TradeAgent{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+  <div>
+    <h1 class="page-title">Alpha Score · Backtest Reports</h1>
+    <p class="page-subtitle">
+      Saved expectancy reports produced by the
+      <code style="font-family:var(--font-mono);font-size:11px;">scripts/run_quant_sentiment_backtest.py</code>
+      CLI harness. Each report shows per-bucket win rate and expectancy
+      computed against the entry rule
+      <em>adjusted_composite &ge; threshold AND price_action &ge; 60</em>.
+    </p>
+  </div>
+  <div style="font-size:11px;color:var(--text-secondary);text-align:right;">
+    <a href="/alpha-score" style="color:var(--accent-blue);text-decoration:none;">&larr; back to ranking</a>
+  </div>
+</div>
+
+{% if not files %}
+  <div class="card" style="padding:24px;text-align:center;">
+    <p style="color:var(--text-secondary);margin-bottom:12px;">
+      No backtest reports yet. Run the CLI to produce one:
+    </p>
+    <pre style="text-align:left;background:var(--surface-2);padding:12px 16px;border-radius:4px;
+                font-family:var(--font-mono);font-size:11px;overflow-x:auto;">python -m scripts.run_quant_sentiment_backtest \
+    --start 2024-01-01 --end 2026-01-01 \
+    --threshold 80 --step 5 \
+    --out data/alpha_score_backtest_2y.json</pre>
+    <p style="color:var(--text-secondary);font-size:11px;margin-top:12px;">
+      The page picks up any file matching <code>data/alpha_score_backtest*.json</code>.
+    </p>
+  </div>
+{% else %}
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table class="table" style="width:100%;">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding:10px 14px;">Report</th>
+          <th style="text-align:right;padding:10px 14px;">Modified</th>
+          <th style="text-align:right;padding:10px 14px;">Size</th>
+          <th style="padding:10px 14px;width:80px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in files %}
+          <tr>
+            <td style="padding:10px 14px;">
+              <a href="/alpha-score/backtest/{{ f.filename }}"
+                 style="color:var(--accent-blue);text-decoration:none;font-family:var(--font-mono);">
+                {{ f.filename }}
+              </a>
+            </td>
+            <td style="padding:10px 14px;text-align:right;color:var(--text-secondary);font-size:11px;">
+              {{ f.modified.strftime("%Y-%m-%d %H:%M UTC") }}
+            </td>
+            <td style="padding:10px 14px;text-align:right;color:var(--text-secondary);font-size:11px;">
+              {{ f.size_kb }} KB
+            </td>
+            <td style="padding:10px 14px;text-align:right;">
+              <a href="/alpha-score/backtest/{{ f.filename }}/raw"
+                 style="color:var(--text-secondary);text-decoration:none;font-size:11px;">raw &darr;</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+{% endblock %}
