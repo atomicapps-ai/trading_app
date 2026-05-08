@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import logging
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
 from models.alpha_score import SentimentMultiplier
@@ -151,10 +151,16 @@ async def compute_sentiment_multiplier(
     """
     from services.news_service import get_news  # lazy: avoids feedparser at import time
     end = as_of_ts or datetime.now(timezone.utc)
-    start = end - timedelta(days=lookback_days)
 
+    # news_service.get_news() takes (symbol, as_of_ts, lookback_hours) — not
+    # (start, end). Convert lookback_days → lookback_hours and pass the
+    # window end as as_of_ts so the backtest-safe filtering still works.
     try:
-        items = await get_news(symbol, start=start, end=end)
+        items = await get_news(
+            symbol,
+            as_of_ts=end,
+            lookback_hours=int(lookback_days * 24),
+        )
     except Exception as e:                         # noqa: BLE001
         log.warning("compute_sentiment_multiplier: news fetch failed for %s: %s", symbol, e)
         items = []
