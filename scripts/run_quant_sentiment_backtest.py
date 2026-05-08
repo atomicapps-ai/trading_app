@@ -138,8 +138,10 @@ async def _amain(args: argparse.Namespace) -> int:
             "report": report.model_dump(mode="json"),
             "trades": [t.model_dump(mode="json") for t in trades],
         }
-        out_path.write_text(json.dumps(payload, indent=2, default=str))
-        print(f"Wrote {len(trades)} trades + report → {out_path}")
+        out_path.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
+        # ASCII-only arrow — cp1252 (Windows default for stdout when redirected
+        # to a log file) can't encode U+2192 and would crash the whole script.
+        print(f"Wrote {len(trades)} trades + report -> {out_path}", flush=True)
     return 0
 
 

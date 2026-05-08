@@ -84,10 +84,10 @@
             {% else %}&mdash;{% endif %}
           </td>
           <td style="padding:8px 12px;text-align:right;
-                     {% if b.get('total_pct', 0) > 0 %}color:var(--accent-green);{% endif %}
-                     {% if b.get('total_pct', 0) < 0 %}color:var(--accent-red);{% endif %}">
+                     {% if b.get('total_pnl_pct', 0) > 0 %}color:var(--accent-green);{% endif %}
+                     {% if b.get('total_pnl_pct', 0) < 0 %}color:var(--accent-red);{% endif %}">
             {% if b.get('n') %}
-              {{ '%+.2f'|format(b.get('total_pct') or 0) }}
+              {{ '%+.2f'|format(b.get('total_pnl_pct') or 0) }}
             {% else %}&mdash;{% endif %}
           </td>
         </tr>
@@ -97,7 +97,7 @@
   <div style="padding:8px 14px;border-top:1px solid var(--border-1);
               font-size:11px;color:var(--text-secondary);">
     <strong>expectancy_pct</strong> = win_rate × avg_win_pct + (1 − win_rate) × avg_loss_pct &middot;
-    <strong>total_pct</strong> = sum of every trade's pnl_pct in this bucket
+    <strong>total_pnl_pct</strong> = sum of every trade's pnl_pct in this bucket
   </div>
 </div>
 
@@ -122,10 +122,11 @@
           <td style="padding:8px 12px;">{{ tag.tag }}</td>
           <td style="padding:8px 12px;text-align:right;">{{ (tag.n or 0)|int }}</td>
           <td style="padding:8px 12px;text-align:right;">{{ '%.1f'|format((tag.win_rate or 0) * 100) }}</td>
+          {% set lift = tag.lift_vs_baseline if tag.lift_vs_baseline is not none else 0 %}
           <td style="padding:8px 12px;text-align:right;
-                     {% if tag.lift > 0 %}color:var(--accent-green);{% endif %}
-                     {% if tag.lift < 0 %}color:var(--accent-red);{% endif %}">
-            {{ '%+.2f'|format(tag.lift or 0) }}
+                     {% if lift > 1 %}color:var(--accent-green);{% endif %}
+                     {% if lift < 1 %}color:var(--accent-red);{% endif %}">
+            {{ '%.2f'|format(lift) }}x
           </td>
         </tr>
       {% endfor %}
