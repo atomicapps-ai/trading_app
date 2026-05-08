@@ -374,6 +374,11 @@
                      .map(c => c.dataset.value);
         return;
       }
+      if (kind === 'select') {
+        const sel = field.querySelector('select');
+        if (sel) out[key] = sel.value;
+        return;
+      }
       // Defensive querySelector — if the partial drops an input for a
       // future field type, skip it instead of crashing the whole save.
       const inp = (kind === 'bool')

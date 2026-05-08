@@ -705,13 +705,25 @@ class MarketHeadlinesWidget(Widget):
 # --------------------------------------------------------------------------- #
 
 
+# Hardcoded fallback when no screener is selected or the chosen one has no
+# saved tickers. Matches the bellwether list the strategy validates against.
+_TOP_ALPHA_FALLBACK = [
+    "AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "TSLA", "AVGO",
+    "JPM",  "V",   "UNH",  "XOM",   "WMT",  "COST", "HD",   "LLY",
+]
+
+
 class TopAlphaWidget(Widget):
     """Top names ranked by adjusted Alpha Score.
 
-    Calls ``agents.alpha_score_agent.score_universe`` over the bellwether
-    16 list (cheap macro pulse + cached bars + news) and surfaces the
-    top-N. Highlights HIGH-bucket rows in green so the operator can see
-    at a glance whether anything currently meets the >=80 threshold.
+    Source list is dynamic — defaults to the active screener, but the
+    operator can pin it to any saved screener via the ⚙ panel. When the
+    selected screener has no saved tickers (or "active" with no active
+    screener configured), the widget falls back to a 16-name bellwether
+    list so it never renders empty.
+
+    Highlights HIGH-bucket rows in green so the operator can see at a
+    glance whether anything currently meets the >=80 threshold.
     """
 
     id = "top_alpha"
@@ -720,23 +732,119 @@ class TopAlphaWidget(Widget):
     tab = "market"
     refresh_seconds = 600  # 10 min — daily-bar + news-cache driven
 
+    user_configurable = True
+
+    # Dynamic schema: screener choices come from the SQLite preset registry
+    # so newly-created screeners show up without touching this file.
+    # Uses sync sqlite3 (not aiosqlite) because the schema property is
+    # called from sync template-render paths in the settings UI.
+    @property
+    def settings_schema(self) -> dict[str, dict[str, Any]]:    # type: ignore[override]
+        import json
+        import sqlite3
+
+        from services.db_service import DB_PATH
+
+        choices = [{"value": "__active__", "label": "Active screener"}]
+        try:
+            con = sqlite3.connect(str(DB_PATH))
+            con.row_factory = sqlite3.Row
+            rows = con.execute(
+                "SELECT name, title, tickers_json FROM universe_presets "
+                "ORDER BY is_active DESC, name ASC"
+            ).fetchall()
+            con.close()
+            for r in rows:
+                slug = r["name"]
+                if not slug:
+                    continue
+                try:
+                    count = len(json.loads(r["tickers_json"] or "[]"))
+                except Exception:                                # noqa: BLE001
+                    count = 0
+                label = f"{r['title'] or slug} ({count})"
+                choices.append({"value": slug, "label": label})
+        except Exception as e:                                  # noqa: BLE001
+            logger.warning("top_alpha schema: screener load failed: %s", e)
+        choices.append({"value": "__bellwether__", "label": "Bellwether 16 (fallback)"})
+
+        return {
+            "screener": {
+                "type": "select",
+                "label": "Source list",
+                "default": "__active__",
+                "choices": choices,
+                "help": "Universe scored. 'Active screener' tracks whichever "
+                        "is currently set active. Pin to a specific screener "
+                        "to ignore the active flag.",
+            },
+            "limit": {
+                "type": "int",
+                "label": "Top-N rows",
+                "default": 6,
+                "min": 3, "max": 25, "step": 1,
+                "help": "How many ranked names to show.",
+            },
+        }
+
+    async def _resolve_universe(self, choice: str) -> tuple[list[str], str]:
+        """Map a screener choice → (tickers, source_label)."""
+        from services import universe_service                   # lazy
+        if choice == "__bellwether__":
+            return list(_TOP_ALPHA_FALLBACK), "bellwether_16"
+        if choice == "__active__":
+            try:
+                presets = await universe_service.list_presets_db()
+                active = next((p for p in presets if p.get("is_active")), None)
+                if active:
+                    full = await universe_service.get_preset_db(active["name"])
+                    tickers = (full or {}).get("tickers") or []
+                    if tickers:
+                        return list(tickers), f"screener:{active['name']}"
+            except Exception as e:                              # noqa: BLE001
+                logger.warning("top_alpha: active-screener lookup failed: %s", e)
+            return list(_TOP_ALPHA_FALLBACK), "bellwether_16 (no active screener)"
+        # Specific screener pinned by slug
+        try:
+            full = await universe_service.get_preset_db(choice)
+            tickers = (full or {}).get("tickers") or []
+            if tickers:
+                return list(tickers), f"screener:{choice}"
+        except Exception as e:                                  # noqa: BLE001
+            logger.warning("top_alpha: pinned screener '%s' lookup failed: %s", choice, e)
+        return list(_TOP_ALPHA_FALLBACK), f"bellwether_16 (screener '{choice}' empty)"
+
     async def get_data(self) -> dict[str, Any]:
         # Lazy import keeps the widget registry importable even if the
         # quant-sentiment stack hasn't been touched yet.
         from agents.alpha_score_agent import HIGH_THRESHOLD, score_universe
 
-        symbols = ["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "TSLA",
-                   "AVGO", "JPM", "V", "UNH", "XOM", "WMT", "COST", "HD", "LLY"]
+        cfg = await self.resolve_settings()
+        choice = str(cfg.get("screener") or "__active__")
+        limit = max(3, min(25, int(cfg.get("limit", 6))))
+
+        symbols, source_label = await self._resolve_universe(choice)
+        if not symbols:
+            return {
+                "rows": [], "high_threshold": HIGH_THRESHOLD,
+                "universe_size": 0, "source_label": source_label,
+                "error": "no symbols in selected list",
+            }
+
         try:
             scores = await score_universe(symbols, concurrency=6)
-        except Exception as e:                                # noqa: BLE001
+        except Exception as e:                                  # noqa: BLE001
             logger.warning("top_alpha widget: %s", e)
-            return {"rows": [], "high_threshold": HIGH_THRESHOLD, "error": str(e)}
+            return {
+                "rows": [], "high_threshold": HIGH_THRESHOLD,
+                "universe_size": len(symbols), "source_label": source_label,
+                "error": str(e),
+            }
 
         rows: list[dict[str, Any]] = []
         for s in sorted(
             scores.values(), key=lambda r: r.adjusted_composite, reverse=True,
-        )[:6]:
+        )[:limit]:
             rows.append({
                 "symbol": s.symbol,
                 "adjusted": round(s.adjusted_composite, 1),
@@ -748,6 +856,7 @@ class TopAlphaWidget(Widget):
             "rows": rows,
             "high_threshold": HIGH_THRESHOLD,
             "universe_size": len(symbols),
+            "source_label": source_label,
             "error": None,
         }
 

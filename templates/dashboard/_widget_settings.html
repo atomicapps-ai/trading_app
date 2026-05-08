@@ -94,6 +94,17 @@
             <span>{{ spec.checkbox_label or "Enabled" }}</span>
           </label>
 
+        {% elif kind == "select" %}
+          {% set current_val = value if value is not none else spec.default %}
+          <select class="ws-input">
+            {% for choice in spec.choices or [] %}
+              <option value="{{ choice.value }}"
+                      {% if choice.value == current_val %}selected{% endif %}>
+                {{ choice.label }}
+              </option>
+            {% endfor %}
+          </select>
+
         {% else %}
           <input type="text" class="ws-input"
                  value="{{ value if value is not none else (spec.default or '') }}">

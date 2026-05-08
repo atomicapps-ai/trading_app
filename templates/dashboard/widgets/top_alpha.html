@@ -38,7 +38,7 @@
     View full ranking &rarr;
   </a>
   <span class="text-tertiary text-sm" style="margin-left:8px;">
-    {{ universe_size }} symbols &middot; threshold &ge; {{ '%.0f'|format(high_threshold) }}
+    {% if source_label %}{{ source_label }} &middot; {% endif %}{{ universe_size }} symbols &middot; threshold &ge; {{ '%.0f'|format(high_threshold) }}
   </span>
 </div>
 {% endif %}
