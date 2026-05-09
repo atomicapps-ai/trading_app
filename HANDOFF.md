@@ -1,3 +1,87 @@
+# Session Handoff — 2026-05-09 (LATEST: Strategy Research Pipeline)
+
+> **NEW SESSION:** start by reading the **STRATEGY RESEARCH PIPELINE** section at
+> the top of `CLAUDE.md`. The work since 2026-05-07 is a parallel research subsystem
+> living next to the existing trading app. Live trading code is unchanged.
+
+## Where we left off (2026-05-09)
+
+**Goal underway:** finding new strategies that generalize beyond the
+bellwether-16 universe. We just finished building the **`core_universe_100`**
+screener — a quality-filtered universe (~44 names today including 6 of Mag-7)
+that will be the substrate for the next phase: the
+**`price_action_pattern_recog_matrix`** vector-similarity system.
+
+**State of play:**
+- ✅ Random-search engine works; produced ~12k trials, identified PMax + per-symbol
+  tuning as best rule-based strategy on the bellwether-16
+- ✅ External Pine strategies translated to Python detectors
+- ✅ Optimization DB schema with full param + reasoning storage
+- ✅ Universe screener `core_universe_100` v4 with strict fundamentals + force-include
+  for Mag-7 mega-caps (44 final symbols)
+- 🔜 Bulk-fetch 15m + 30m bars via Alpaca for the 44-symbol universe (~30-60 min)
+- 🔜 Build `agents/state_memory/` (encoder + labeler + FAISS index)
+- 🔜 Build query CLI + evaluation harness
+
+**Active screener:** `core_universe_100` — see `strategies/CORE_UNIVERSE_100.md`
+for current contents (44 symbols, mega-caps include AAPL/AMZN/GOOG/GOOGL/NVDA/TSLA
++ AVGO, AMAT, ADI, MCHP, FTNT, AMD, LRCX, CDNS, GS, BAC, UNH, LLY, WMT, COST, KO).
+META and MSFT correctly excluded (currently below SMA50/SMA200).
+
+**Nothing is running.** Random search, bulk-fetch tasks all stopped.
+
+## To resume on the new machine
+
+```bash
+git fetch origin
+git checkout feat/strategy-research-pipeline
+# then in Claude Code:
+# tell it: "Read CLAUDE.md (top section "STRATEGY RESEARCH PIPELINE") and HANDOFF.md
+# (top section). Continue from "🔜 Bulk-fetch 15m + 30m bars" — that's the next step."
+```
+
+## Decision points pending review
+
+1. **Universe size — 44 names enough, or expand?**
+   - 44 includes 6 of 7 Mag-7 (META and MSFT below SMAs and correctly out)
+   - All passed strict balance-sheet filters or are in force-include + still in trend
+   - Could expand by waiting for more names to cross above SMAs, or by relaxing trend filter
+   - Recommend: proceed with 44 today, schedule weekly refresh
+
+2. **Bar intervals — 15m + 30m both?**
+   - Prompt asks for 15m. We also have 30m to align with DL's bar interval.
+   - 100% incremental cost to do both; ~30 min Alpaca fetch each
+
+3. **Vector DB — confirmed FAISS + parquet (not Pinecone/TimescaleDB)**
+
+4. **Force-include list (`build_core_universe_100.py::FORCE_INCLUDE`)** — current
+   list is the obvious mega-caps. If you want to add Russell 1000 names or specific
+   thematic baskets, edit there.
+
+## Files to read before continuing
+
+| File | Why |
+|---|---|
+| `CLAUDE.md` (top section "STRATEGY RESEARCH PIPELINE") | What's been built |
+| `strategies/WORKFLOW.md` | End-to-end pipeline diagram + commands |
+| `strategies/STRATEGY_KNOWLEDGE.md` | Validated truths + composite proposals |
+| `strategies/CORE_UNIVERSE_100.md` | Current universe snapshot |
+| `strategies/OPTIMIZATION_FINDINGS.md` | Grid sweep results |
+| `strategies/RANDOM_SEARCH_DESIGN.md` | Meta-strategy design space |
+| `scripts/build_core_universe_100.py` | The screener implementation |
+
+## What NOT to do
+
+- Don't restart the random search until we've decided on `core_universe_100`
+- Don't fetch 15m/30m for 300+ symbols — only for the 44 in the active screener
+- Don't change DL or live trading code while the research subsystem is being built
+- Don't commit `data/optimization_results.db` or `data/hf_cache/` (gitignored)
+
+---
+
+# Older handoff content below (from 2026-04-29)
+---
+
 # Session Handoff — 2026-04-29 (Plan B: vocabulary + IA restructure + 3 prod bug fixes)
 
 Short catch-up doc for resuming in a fresh Claude Code session.

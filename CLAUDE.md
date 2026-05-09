@@ -1,11 +1,133 @@
 # TradeAgent — Project Context for Claude Code
-**Last synced:** 2026-05-07 (merged: multi-account broker registry, fixed-USD sizing,
-manual position controls, daily digest, rejected alerts, screener YAML backup)
+**Last synced:** 2026-05-09 (added: data fetch page, Alpaca historical bars,
+strategy research pipeline, optimization DB, random search, core_universe_100
+screener, price_action_pattern_recog_matrix project plan)
 **Status:** Phase 4 + 4.5 + 6 + DL autonomous loop are production-ready. The system
 fires `wf_double_lock_1030` on schedule each weekday, auto-approves on paper, and
 auto-closes positions at 15:00 ET. First end-to-end autonomous fill is pending the
 next VIX>=20 day (currently ~17). Today's quiet days produce a 16:30 ET digest push
 + dashboard-only `rejected` alerts so the operator has visibility on no-fire days.
+
+---
+
+## STRATEGY RESEARCH PIPELINE (added 2026-05-08 / 2026-05-09)
+
+A parallel research subsystem next to the live trading code. Goal: find new
+strategies that generalize beyond the bellwether-16 universe DL was tuned on.
+
+### What was built
+- **Data fetch page** (`/data-fetch`) — bulk OHLCV fetcher from 3 sources:
+  - HF parquet (`paperswithbacktest/Stocks-Daily-Price`, daily, stocks)
+  - yfinance (any symbol, multi-interval)
+  - Alpaca historical bars (1d/1h/30m/15m/5m, ~5y intraday)
+  - Saves to `data/historical/{SYM}_{interval}.csv` matching `data_service` format
+  - Local HF parquet shards cached at `data/hf_cache/` (~488 MB) — bulk filtering
+    is local + free, no rate limits
+
+- **Optimization DB** (`services/optimization_db.py`, `data/optimization_results.db`):
+  - `optimization_runs` — Phase C grid sweep (12k rows) with full params + scores
+  - `param_reasoning` — per-param "why this value" text (auto-populated from
+    each strategy's PARAMETER_SPEC)
+  - `best_per_symbol` — winners per (strategy, symbol) with selection rationale
+  - `random_search_trials` — Phase F: every random-sampled meta-strategy trial
+    + IS/OOS scoring + symbol feature vector (12k rows so far)
+  - `analysis_log` — scoped findings + warnings
+  - `optimizer_checkpoints` — resume markers for the grid sweep
+
+- **External strategy detectors** (`agents/detectors/external/`):
+  - `bollinger_rsi_chartart`, `macd_sma200_chartart`, `pmax_explorer`,
+    `supertrend_kivanc` — Pine→Python translations of TradingView strategies
+    staged in `strategies/external/`
+  - `meta_strategy.py` — universal parameterized detector covering 5 entry
+    primitives × 3 regime filters × 3 stop types × 3 TP types
+  - `_base.py` — shared `Signal` / `Trade` / `simulate_trades` / `summarize_trades`
+
+- **Random search engine** (`scripts/random_search.py`) — samples meta-strategy
+  configs uniformly, scores each on full / IS / OOS windows, persists every
+  trial with feature vector. ~5 trials/sec, resumable, `--forever` mode for
+  multi-day collection.
+
+- **Vector analysis** (`scripts/vector_analyze.py`) — Spearman IC tables,
+  categorical rankings, OOS-robust archetype clustering, archetype config
+  cards. Output: `strategies/VECTOR_ANALYSIS.md`.
+
+- **Synthesis report** (`scripts/synthesize_optimization.py`) — heat maps,
+  primitive frequency, per-strategy summary. Output: `strategies/OPTIMIZATION_FINDINGS.md`.
+
+### Validated findings (data, not opinion)
+1. **DL real WR is ~53%, not 82%.** 4-yr replay over 2022-2026 on 30m bars
+   gave 103 trades, 53.4% WR, PF 1.21 — modest edge, not a home run.
+   The "82.4% WR" came from n=17. CLAUDE.md's older claim is updated here
+   to set expectations correctly.
+2. **PMax beats SuperTrend universally** when per-symbol-tuned (16/16
+   bellwether symbols qualified at PF>1, median PF 2.16 vs SuperTrend 1.40).
+3. **Author defaults from TradingView Pines are usually wrong** — ChartArt's
+   `bb_length=200` loses on every bellwether-16 symbol; `bb_length=20`
+   makes it a top performer on 5/16.
+4. **Random-search top archetypes are heavily long-only** — 5/5 OOS-robust
+   archetypes had `long_only=True` though it's only 30%-prior in the
+   sampler (p ≈ 0.24% if random).
+5. **All current research is on daily bars** — produces multi-week swing
+   trades. Different bucket than DL (intraday). They're complementary.
+
+### Universe screeners
+- `bellwether_16` — original DL-validated 16 names (kept as-is)
+- `high_atr_liquid` — 300 tickers, price>$10 / vol>2M / ATR>$3 USD (deprecated
+  as of 2026-05-09; replaced by core_universe_100)
+- `core_universe_100` (active research universe) — Two-stage:
+  - **Stage 1 (Finviz, max_pages=50)**: cap=midover, US-listed, profitable,
+    op margin pos, 5-yr EPS pos, current ratio>1, D/E<1, price>$15, vol>2M,
+    P>SMA50 AND P>SMA200
+  - **Stage 2 (local, fresh yfinance)**: ATR(14)/close ∈ [1.5%, 5%] AND
+    P>SMA50 AND P>SMA200 (re-verified locally to fix Finviz staleness)
+  - **Force-include list** in `scripts/build_core_universe_100.py::FORCE_INCLUDE`
+    bypasses Stage 1 for known mega-caps that fail strict balance-sheet filters
+    (e.g. AAPL D/E>1 from buybacks). Still subject to Stage 2 trend gate.
+  - Current state: **44 names**, ~6 of Mag-7 in (META and MSFT correctly
+    excluded for being below SMAs)
+
+### price_action_pattern_recog_matrix (planned, not built)
+Vector-similarity / kNN system for "find me past times the market state
+looked like *this* and tell me what happened next." Different methodology
+from random search:
+- Per-bar state vector: RSI, MACD slope, ADX, %dist from VWAP, %dist from
+  EMA20, range/ATR, rel-vol, candle sentiment
+- Indices: FAISS in-memory + parquet metadata sidecar (NOT Pinecone — overkill)
+- Bar interval: 15m AND 30m
+- Storage: `agents/state_memory/`, `services/state_memory_service.py`,
+  `data/state_memory/{faiss.index, metadata.parquet}`
+- Designed to live alongside DL + random search, not replace them
+- Spec lives in `strategies/RANDOM_SEARCH_DESIGN.md` (the meta-strategy
+  spec) and the project plan in this CLAUDE.md section
+
+### Companion documents (research)
+- [strategies/STRATEGY_KNOWLEDGE.md] — primitive vocabulary, validated
+  truths, per-strategy critique, composite proposals
+- [strategies/OPTIMIZATION_FINDINGS.md] — heat maps + archetype clusters
+- [strategies/VECTOR_ANALYSIS.md] — IC tables + OOS-robust top archetypes
+- [strategies/CORE_UNIVERSE_100.md] — current universe snapshot
+- [strategies/WORKFLOW.md] — end-to-end pipeline diagram + commands
+- [strategies/RANDOM_SEARCH_DESIGN.md] — meta-strategy design space
+- [HANDOFF.md] — what's running, what's next, where to pick up
+
+### Quick command cheatsheet
+```bash
+# Refresh universe
+python scripts/build_core_universe_100.py
+
+# Bulk-fetch daily bars for a screener (skips already-cached)
+python scripts/bulk_fetch_screener.py --screener core_universe_100 --source auto
+
+# Long-running random search on the universe
+python scripts/random_search.py --screener core_universe_100 --forever
+
+# Reports (any time, even mid-run)
+python scripts/report_random_search.py        # trial counts + top archetypes
+python scripts/vector_analyze.py              # IC + clusters → MD report
+python scripts/inspect_top_archetype.py       # re-run top 5 + dump trade ledger
+```
+
+---
 
 **Trading-app summary (live state as of 2026-05-07):**
 * **Strategy:** `double_lock` (intraday opening pattern; c1+c2 conviction at
