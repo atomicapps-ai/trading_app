@@ -1,5 +1,5 @@
 version: 1
-exported_at: '2026-05-01T02:14:13.494692+00:00'
+exported_at: '2026-05-09T19:27:25.365891+00:00'
 screeners:
 - name: bellwether_16
   title: Bellwether 16 (DL Validated)
@@ -34,8 +34,8 @@ screeners:
   - AAPL
   - MSFT
   - NVDA
-  tickers_refreshed_at: '2026-05-01T02:13:55.264952+00:00'
-  updated_at: '2026-05-01T02:13:55.264952+00:00'
+  tickers_refreshed_at: '2026-05-08T23:05:14.354884+00:00'
+  updated_at: '2026-05-08T23:05:14.354884+00:00'
 - name: bellwether_class
   title: Bellwether-Class Mega Caps
   description: Mega-cap (>00B) profitable names with strong daily liquidity. Built
@@ -121,8 +121,88 @@ screeners:
   - WFC
   - WMT
   - XOM
-  tickers_refreshed_at: '2026-05-01T02:09:51.810557+00:00'
-  updated_at: '2026-05-01T02:09:51.810557+00:00'
+  tickers_refreshed_at: '2026-05-08T23:05:14.379506+00:00'
+  updated_at: '2026-05-08T23:05:14.379506+00:00'
+- name: core_universe_100
+  title: Core Universe 100 (Quality + Trending + Goldilocks Vol)
+  description: "Two-stage screener for the price_action_pattern_recog_matrix system.\
+    \ Stage 1 (Finviz): mid+ cap US-listed stocks, ADV>2M, price>$15, 5-yr profitable,\
+    \ op margin positive, trading above SMA50 and SMA200. Stage 2 (local): ATR(14)/price\
+    \ between 1.5%-4% to exclude dead names and meme-style hyper-volatile stocks.\
+    \ Target ~100 names \u2014 quality, liquid, in-trend, with normalized volatility."
+  notes: "Stage 1 produced via Finviz scrape. Stage 2 computed locally from cached\
+    \ daily bars. Re-run weekly to refresh \u2014 universe drifts as names cross above/below\
+    \ the SMA50/200 trend gates and as ATR contracts/expands. v4 (2026-05-09): re-added\
+    \ strict fundamentals (fa_curratio>1, fa_debteq<1, fa_eps5years>0) now that max_pages=50\
+    \ captures the full ~500-ticker candidate set. Mag-7 names that fail strict balance-sheet\
+    \ filters (e.g. AAPL D/E>1 from buybacks) are FORCE-INCLUDED via the override\
+    \ list below, but still subject to Stage 2 (ATR%/SMA) \u2014 so a Mag-7 in downtrend\
+    \ is correctly excluded."
+  is_active: false
+  filters:
+    sh_price: o15
+    sh_avgvol: o2000
+    cap: midover
+    geo: usa
+    fa_pe: profitable
+    fa_opermargin: pos
+    fa_eps5years: pos
+    fa_curratio: o1
+    fa_debteq: u1
+    ta_sma50_pa: pa
+    ta_sma200_pa: pa
+  output_tags:
+  - core_universe
+  - quality
+  - trending
+  - tradeable
+  tickers:
+  - AAPL
+  - ADI
+  - AFL
+  - AHR
+  - AMAT
+  - AMD
+  - AMH
+  - AMZN
+  - AVGO
+  - BF-B
+  - BNL
+  - CDNS
+  - CTRE
+  - CTVA
+  - DLR
+  - ESI
+  - EXEL
+  - FCX
+  - FLEX
+  - FOXA
+  - FTNT
+  - GOOG
+  - GOOGL
+  - GTES
+  - HOG
+  - HWM
+  - LRCX
+  - MNST
+  - NEM
+  - NVDA
+  - OHI
+  - PPG
+  - ROST
+  - TDC
+  - TSLA
+  - XYZ
+  - ZM
+  - BAC
+  - GS
+  - UNH
+  - LLY
+  - WMT
+  - COST
+  - KO
+  tickers_refreshed_at: '2026-05-09T19:27:25.324347+00:00'
+  updated_at: '2026-05-09T19:27:25.324347+00:00'
 - name: etf_sector_rotation
   title: etf_sector_rotation
   description: 'US-listed sector and broad-market ETFs for the dual-momentum rotation
@@ -145,7 +225,328 @@ screeners:
   - dual_momentum
   tickers: []
   tickers_refreshed_at: null
-  updated_at: '2026-04-22T20:50:54.294937+00:00'
+  updated_at: '2026-05-08T23:05:14.225330+00:00'
+- name: high_atr_liquid
+  title: High-ATR Liquid (>$10, >2M vol, ATR>$3)
+  description: US stocks priced over $10 with average daily volume over 2M shares
+    and Average True Range above $3 USD. Wide enough to find swing-trade candidates
+    but liquid enough that fills are clean. Used as the expanded universe for random_search.py.
+  notes: "Filters chosen to surface stocks with enough $-range per day to produce\
+    \ meaningful swing trades. ATR>$3 in raw USD = at least $3 of intraday movement\
+    \ on average \u2014 too tight a range eliminates the edge of any directional strategy.\
+    \ This is a much broader universe than bellwether_16."
+  is_active: false
+  filters:
+    sh_price: o10
+    sh_avgvol: o2000
+    ta_averagetruerange: o3
+  output_tags:
+  - high_atr
+  - liquid
+  - swing_universe
+  tickers:
+  - A
+  - AAOI
+  - AAOX
+  - AAPL
+  - ABBV
+  - ABNB
+  - ACN
+  - ADBE
+  - ADI
+  - ADP
+  - ADSK
+  - AEHR
+  - AEM
+  - AFRM
+  - AGQ
+  - AJG
+  - AKAM
+  - AKAN
+  - ALAB
+  - ALB
+  - AMAT
+  - AMD
+  - AMDL
+  - AMGN
+  - AMKR
+  - AMT
+  - AMZN
+  - ANET
+  - APH
+  - APO
+  - APP
+  - ARES
+  - ARM
+  - ARWR
+  - ASTS
+  - ASTX
+  - ATI
+  - AU
+  - AVEX
+  - AVGO
+  - AXP
+  - AXTI
+  - AZN
+  - BA
+  - BABA
+  - BBIO
+  - BDX
+  - BE
+  - BIDU
+  - BKNG
+  - BLDR
+  - BMNG
+  - BRK-B
+  - BX
+  - C
+  - CAR
+  - CAT
+  - CAVA
+  - CBRE
+  - CCJ
+  - CDNS
+  - CE
+  - CEG
+  - CENX
+  - CF
+  - CHRW
+  - CHTR
+  - CIEN
+  - CLS
+  - CLX
+  - CME
+  - COF
+  - COHR
+  - COIN
+  - COP
+  - COPX
+  - CRCG
+  - CRCL
+  - CRDO
+  - CRH
+  - CRM
+  - CRWD
+  - CRWG
+  - CRWV
+  - CTAS
+  - CVNA
+  - CVX
+  - CYTK
+  - DASH
+  - DDOG
+  - DELL
+  - DG
+  - DHI
+  - DHR
+  - DIA
+  - DLR
+  - DLTR
+  - DOCN
+  - DUOL
+  - DUST
+  - EBAY
+  - EL
+  - ELF
+  - EMR
+  - ENTG
+  - EOG
+  - ETN
+  - EWY
+  - EXPE
+  - FANG
+  - FLEX
+  - FLS
+  - FLUT
+  - FLY
+  - FOUR
+  - FROG
+  - FSLR
+  - FSLY
+  - FTNT
+  - GDDY
+  - GDX
+  - GDXJ
+  - GE
+  - GEV
+  - GFS
+  - GILD
+  - GLD
+  - GLW
+  - GOOG
+  - GOOGL
+  - GS
+  - HD
+  - HIMZ
+  - HON
+  - HOOD
+  - HUT
+  - HWM
+  - HYMC
+  - IBM
+  - ICE
+  - INSM
+  - INTC
+  - INTU
+  - IONQ
+  - IONX
+  - IQV
+  - IRE
+  - IREN
+  - IVV
+  - IWM
+  - JCI
+  - JNJ
+  - JPM
+  - KKR
+  - KRMN
+  - KTOS
+  - LEN
+  - LIN
+  - LITE
+  - LITX
+  - LLY
+  - LMND
+  - LNG
+  - LOW
+  - LRCX
+  - LSCC
+  - LULU
+  - LYB
+  - LYV
+  - MA
+  - MCD
+  - MCHP
+  - META
+  - MMM
+  - MNDY
+  - MP
+  - MPC
+  - MRNA
+  - MRSH
+  - MRVL
+  - MS
+  - MSFT
+  - MSTR
+  - MSTX
+  - MU
+  - MUU
+  - MXL
+  - NBIL
+  - NBIS
+  - NEM
+  - NET
+  - NOW
+  - NRG
+  - NTAP
+  - NVDA
+  - NVDL
+  - NVT
+  - NXPI
+  - ODFL
+  - OKLO
+  - OKTA
+  - 'ON'
+  - ORCL
+  - ORCX
+  - P
+  - PANW
+  - PCAR
+  - PCOR
+  - PEP
+  - PGR
+  - PL
+  - PLNT
+  - PLTR
+  - PLTU
+  - PM
+  - PNC
+  - PPG
+  - PSX
+  - Q
+  - QCOM
+  - QQQ
+  - QQQM
+  - RBLX
+  - RBRK
+  - RCL
+  - RDDT
+  - REA
+  - RKLB
+  - RKLX
+  - RMBS
+  - ROKU
+  - ROST
+  - RTX
+  - RVMD
+  - SAP
+  - SATS
+  - SE
+  - SEDG
+  - SEI
+  - SFM
+  - SGI
+  - SHOP
+  - SIL
+  - SMH
+  - SMTC
+  - SNDK
+  - SNOW
+  - SNXX
+  - SOLS
+  - SOXL
+  - SOXX
+  - SPGI
+  - SPOT
+  - SPXL
+  - SPY
+  - STT
+  - STX
+  - STZ
+  - SUNB
+  - SWK
+  - SWKS
+  - SWMR
+  - SYK
+  - TEAM
+  - TECH
+  - TEL
+  - TEM
+  - TER
+  - TGT
+  - TMO
+  - TMUS
+  - TPR
+  - TRI
+  - TSEM
+  - TSLA
+  - TSM
+  - TWLO
+  - TXN
+  - UAL
+  - UNH
+  - UNP
+  - UPRO
+  - USO
+  - V
+  - VEEV
+  - VIAV
+  - VIK
+  - VLO
+  - VOO
+  - VRSK
+  - VRT
+  - VST
+  - VTI
+  - W
+  - WDAY
+  - WDC
+  - WELL
+  - WHR
+  - WIX
+  - WM
+  tickers_refreshed_at: '2026-05-09T18:22:13.269687+00:00'
+  updated_at: '2026-05-09T18:22:13.269687+00:00'
 - name: high_volume_largecap_highatr
   title: high_volume_largecap_highATR
   description: This one will return the big guns with lots of activity.
@@ -160,7 +561,7 @@ screeners:
   output_tags: []
   tickers: []
   tickers_refreshed_at: null
-  updated_at: '2026-05-01T00:12:21.514367+00:00'
+  updated_at: '2026-05-08T23:05:14.389499+00:00'
 - name: liquid_momentum_core
   title: liquid_momentum_core
   description: 'Highly liquid, established companies showing strong price momentum.
@@ -182,7 +583,7 @@ screeners:
   - institutional_liquidity
   tickers: []
   tickers_refreshed_at: null
-  updated_at: '2026-04-22T20:50:54.294937+00:00'
+  updated_at: '2026-05-08T23:05:14.225330+00:00'
 - name: liquid_profitable_lowvol
   title: Liquid Profitable Low-Vol
   description: 'Mid+ cap, profitable companies with strong daily liquidity and manageable
@@ -864,8 +1265,8 @@ screeners:
   - ZTO
   - ZTS
   - ZWS
-  tickers_refreshed_at: '2026-05-01T00:33:14.978888+00:00'
-  updated_at: '2026-05-01T00:33:14.978888+00:00'
+  tickers_refreshed_at: '2026-05-08T23:05:14.413507+00:00'
+  updated_at: '2026-05-08T23:05:14.413507+00:00'
 - name: mean_reversion_oversold
   title: mean_reversion_oversold
   description: "Established, profitable companies that have pulled back sharply from\
@@ -887,7 +1288,7 @@ screeners:
   - quality_pullback
   tickers: []
   tickers_refreshed_at: null
-  updated_at: '2026-04-22T20:50:54.294937+00:00'
+  updated_at: '2026-05-08T23:05:14.225330+00:00'
 - name: sentiment_catalyst
   title: sentiment_catalyst
   description: "Highly liquid names where a fresh catalyst has been detected by the\
@@ -911,7 +1312,7 @@ screeners:
   - high_liquidity_required
   tickers: []
   tickers_refreshed_at: null
-  updated_at: '2026-04-22T20:50:54.294937+00:00'
+  updated_at: '2026-05-08T23:05:14.225330+00:00'
 - name: volatility_compression
   title: volatility_compression
   description: "Stocks in a state of volatility compression \u2014 low ATR relative\
@@ -933,7 +1334,7 @@ screeners:
   - low_volatility_setup
   tickers: []
   tickers_refreshed_at: null
-  updated_at: '2026-04-22T20:50:54.294937+00:00'
+  updated_at: '2026-05-08T23:05:14.225330+00:00'
 - name: wyckoff_accumulation_watch
   title: wyckoff_accumulation_watch
   description: "Identifies stocks potentially in a Wyckoff accumulation phase \u2014\
@@ -958,4 +1359,4 @@ screeners:
   - high_quality_fundamental
   tickers: []
   tickers_refreshed_at: null
-  updated_at: '2026-04-22T20:50:54.294937+00:00'
+  updated_at: '2026-05-08T23:05:14.225330+00:00'

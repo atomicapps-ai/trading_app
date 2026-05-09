@@ -1,0 +1,229 @@
+//@version=6
+strategy("Empirical Breakout v1.2 — Strategy",
+     overlay=true, max_boxes_count=100, max_bars_back=500,
+     initial_capital=100000,
+     default_qty_type=strategy.percent_of_equity, default_qty_value=10,
+     pyramiding=0, calc_on_every_tick=false, process_orders_on_close=true,
+     commission_type=strategy.commission.percent, commission_value=0.05,
+     slippage=2)
+
+// ═══════════════════════════════════════════════════════════════════
+// Empirical Breakout — Strategy version for TradingView backtester.
+// Same gates + score as the indicator, with entry/exit rules so the
+// Strategy Tester can compute win rate, profit factor, max DD, etc.
+//
+// Trade plan (mirrors agents/detectors/breakout_empirical.py):
+//   Entry: at signal bar close, market order
+//   Stop:  base_low - 0.5 * ATR (capped at -10% from entry)
+//   TP1:   entry + 2R (close half)
+//   TP2:   entry + 4R (close remaining)
+//   Time stop: exit if neither TP nor stop hit within 120 bars
+// ═══════════════════════════════════════════════════════════════════
+
+// ──────── Gate inputs (defaults from data/threshold_spec.md) ────────
+g1 = "Hard gates"
+gate_pct_60d_high   = input.float(0.98,  "pct_of_60d_high  ≥",  0.5, 1.0, 0.01,  group=g1)
+gate_close_vs_sma50 = input.float(1.053, "close/sma50      ≥",  0.9, 1.5, 0.01,  group=g1)
+gate_rsi_min        = input.float(59.17, "RSI(14)          ≥",  30,  90,  1,     group=g1)
+gate_rsi_max        = input.float(71.74, "RSI(14)          ≤",  30,  90,  1,     group=g1)
+gate_max_dd_base    = input.float(0.247, "max_dd_base      ≤",  0.05, 0.5, 0.01, group=g1)
+gate_base_len_min   = input.int(12,      "base_len_25pct   ≥",  2, 60,           group=g1)
+gate_base_len_max   = input.int(180,     "base_len_25pct   ≤",  60, 365,         group=g1)
+gate_n_pairs        = input.int(5,       "min contractions",    2, 10,           group=g1)
+
+g2 = "Score"
+min_score = input.float(50.0, "min score to enter", 0.0, 100.0, 5.0, group=g2)
+
+g3 = "Trade plan"
+stop_atr_buffer = input.float(0.5, "Stop = base_low - X * ATR", 0.0, 3.0, 0.1, group=g3)
+stop_pct_cap    = input.float(0.10, "Stop cap below entry (max %)", 0.05, 0.30, 0.01, group=g3)
+tp1_r_multiple  = input.float(2.0, "TP1 = entry + X * R", 0.5, 10.0, 0.5, group=g3)
+tp2_r_multiple  = input.float(4.0, "TP2 = entry + X * R", 0.5, 20.0, 0.5, group=g3)
+tp1_qty_pct     = input.int(50, "TP1 closes X% of position", 10, 100, 10, group=g3)
+time_stop_bars  = input.int(120, "Time stop (bars in trade)", 10, 365, group=g3)
+
+g4 = "Visuals"
+show_box = input.bool(true, "Draw box around base", group=g4)
+
+// ──────── Primitives + computed features (same as indicator) ────────
+sma50  = ta.sma(close, 50)
+sma200 = ta.sma(close, 200)
+atr14  = ta.atr(14)
+rsi    = ta.rsi(close, 14)
+hi60   = ta.highest(close, 60)
+hi252c = ta.highest(close, 252)
+lo252c = ta.lowest(close, 252)
+
+pct_of_60d_high = close / hi60
+close_vs_sma50  = close / sma50
+pct_above_52w_low = (close - lo252c) / lo252c
+
+// Base length at 25% pullback
+f_base_len(threshold) =>
+    int n = 0
+    found = false
+    target = close * (1.0 - threshold)
+    for i = 1 to 180
+        if not found and close[i] < target
+            n := i - 1
+            found := true
+    found ? n : 180
+
+base_len_25pct = f_base_len(0.25)
+
+// max_dd_base
+max_dd_base = 0.0
+if base_len_25pct > 0
+    base_min = ta.lowest(close, base_len_25pct)
+    max_dd_base := (close - base_min) / close
+
+// Base low (for stop placement)
+base_low_bars = math.max(5, base_len_25pct)
+base_low = ta.lowest(low, base_low_bars)
+
+// Volume features
+vol_avg_30  = ta.sma(volume, 30)
+vol_avg_50  = ta.sma(volume, 50)
+vol_avg_180 = ta.sma(volume, 180)
+anchor_vol_vs_avg = volume / vol_avg_50
+
+// Up-vol share over 60 bars
+up_vol_sum   = 0.0
+down_vol_sum = 0.0
+for i = 0 to 59
+    if close[i] > open[i]
+        up_vol_sum := up_vol_sum + volume[i]
+    else
+        down_vol_sum := down_vol_sum + volume[i]
+total_vol_60 = up_vol_sum + down_vol_sum
+up_vol_share_60 = total_vol_60 > 0 ? up_vol_sum / total_vol_60 : 0.5
+
+// Wick + CPR (clipped)
+bar_range = high - low
+upper_wick = high - math.max(open, close)
+anchor_upper_wick = bar_range > 0 ? math.max(0.0, math.min(1.0, upper_wick / bar_range)) : 0.0
+anchor_cpr = bar_range > 0 ? math.max(0.0, math.min(1.0, (close - low) / bar_range)) : 0.5
+
+// Pivot count
+pivot_count = 0
+for i = 5 to 174
+    is_high = high[i] > high[i+1] and high[i] > high[i+2] and high[i] > high[i+3] and high[i] > high[i+4] and high[i] > high[i+5] and high[i] > high[i-1] and high[i] > high[i-2] and high[i] > high[i-3] and high[i] > high[i-4] and high[i] > high[i-5]
+    is_low = low[i] < low[i+1] and low[i] < low[i+2] and low[i] < low[i+3] and low[i] < low[i+4] and low[i] < low[i+5] and low[i] < low[i-1] and low[i] < low[i-2] and low[i] < low[i-3] and low[i] < low[i-4] and low[i] < low[i-5]
+    if is_high or is_low
+        pivot_count := pivot_count + 1
+n_contraction_pairs = math.floor(pivot_count / 2)
+
+// First/final depth approximations
+first_pullback_max = (ta.highest(high, 60)[120] - ta.lowest(low, 60)[120]) / ta.highest(high, 60)[120]
+first_depth_pct = first_pullback_max
+
+// ──────── Hard gates ────────
+gate_60d   = pct_of_60d_high >= gate_pct_60d_high
+gate_sma50 = close_vs_sma50 >= gate_close_vs_sma50
+gate_rsi   = rsi >= gate_rsi_min and rsi <= gate_rsi_max
+gate_dd    = max_dd_base <= gate_max_dd_base
+gate_base  = base_len_25pct >= gate_base_len_min and base_len_25pct <= gate_base_len_max
+gate_pairs = n_contraction_pairs >= gate_n_pairs
+all_gates_ok = gate_60d and gate_sma50 and gate_rsi and gate_dd and gate_base and gate_pairs
+
+// ──────── Score ────────
+f_feature_score(value, p10, p25, p50, p75, p90) =>
+    score = 0.0
+    if not na(value) and p90 > p10
+        if value <= p10 or value >= p90
+            half = (p90 - p10) / 2.0
+            if half > 0
+                if value < p10
+                    score := math.max(0.0, 50.0 * (1.0 - (p10 - value) / half))
+                else
+                    score := math.max(0.0, 50.0 * (1.0 - (value - p90) / half))
+        else if value <= p25
+            score := 50.0 + 25.0 * (value - p10) / math.max(1e-9, p25 - p10)
+        else if value <= p50
+            score := 75.0 + 25.0 * (value - p25) / math.max(1e-9, p50 - p25)
+        else if value <= p75
+            score := 75.0 + 25.0 * (p75 - value) / math.max(1e-9, p75 - p50)
+        else
+            score := 50.0 + 25.0 * (p90 - value) / math.max(1e-9, p90 - p75)
+    score
+
+score = 0.0
+score := score + 0.20 * f_feature_score(anchor_vol_vs_avg, 0.675, 0.859, 1.175, 1.812, 3.191)
+score := score + 0.15 * f_feature_score(pct_above_52w_low, 0.257, 0.482, 0.828, 1.420, 2.526)
+score := score + 0.13 * f_feature_score(anchor_cpr, 0.000, 0.000, 0.635, 0.884, 0.972)
+score := score + 0.10 * f_feature_score(anchor_upper_wick, 0.020, 0.090, 0.297, 0.595, 0.880)
+score := score + 0.10 * f_feature_score(base_len_25pct, 12.0, 32.2, 63.5, 125.0, 180.0)
+score := score + 0.08 * f_feature_score(close_vs_sma50, 1.053, 1.072, 1.118, 1.188, 1.290)
+score := score + 0.08 * f_feature_score(first_depth_pct, 0.055, 0.090, 0.138, 0.216, 0.358)
+score := score + 0.07 * f_feature_score(up_vol_share_60, 0.000, 0.096, 0.480, 0.546, 0.601)
+score := score + 0.05 * f_feature_score(rsi, 59.17, 61.60, 64.46, 67.92, 71.74)
+score := score + 0.04 * f_feature_score(max_dd_base, 0.170, 0.213, 0.233, 0.243, 0.247)
+
+signal = all_gates_ok and score >= min_score
+
+// ──────── Trade plan ────────
+// Compute stop / TPs at the moment of entry, then carry through the trade.
+var float entry_price = na
+var float stop_price  = na
+var float tp1_price   = na
+var float tp2_price   = na
+var int   bars_in_trade = 0
+
+// Enter on signal bar close
+if signal and strategy.position_size == 0
+    raw_stop = base_low - stop_atr_buffer * atr14
+    cap_stop = close * (1.0 - stop_pct_cap)
+    proposed_stop = math.max(raw_stop, cap_stop)
+    r_per_share = close - proposed_stop
+    if r_per_share > 0
+        entry_price := close
+        stop_price := proposed_stop
+        tp1_price := close + tp1_r_multiple * r_per_share
+        tp2_price := close + tp2_r_multiple * r_per_share
+        bars_in_trade := 0
+        strategy.entry("EB-long", strategy.long, comment="Score " + str.tostring(score, "#"))
+
+// Manage open trade
+if strategy.position_size > 0
+    bars_in_trade := bars_in_trade + 1
+    // Partial TP1
+    strategy.exit("TP1", from_entry="EB-long", limit=tp1_price,
+                   qty_percent=tp1_qty_pct, stop=stop_price)
+    // Final TP2 + stop
+    strategy.exit("TP2", from_entry="EB-long", limit=tp2_price, stop=stop_price)
+    // Time stop
+    if bars_in_trade >= time_stop_bars
+        strategy.close("EB-long", comment="time stop")
+
+// Reset trade-tracking on flat
+if strategy.position_size == 0
+    entry_price := na
+    stop_price  := na
+    tp1_price   := na
+    tp2_price   := na
+    bars_in_trade := 0
+
+// ──────── Visuals ────────
+// Draw box around the base on each new fire
+if signal and strategy.position_size == 0 and show_box
+    base_start = bar_index - base_len_25pct
+    bbase_high = ta.highest(high, base_len_25pct + 1)
+    bbase_low  = ta.lowest(low,  base_len_25pct + 1)
+    box.new(left=base_start, top=bbase_high, right=bar_index, bottom=bbase_low,
+            border_color=color.new(color.lime, 30), border_width=2,
+            bgcolor=color.new(color.lime, 88))
+
+// Plot stop + TPs while in a trade
+plot(strategy.position_size > 0 ? entry_price : na, "Entry",
+     color=color.new(color.blue, 0), style=plot.style_linebr, linewidth=1)
+plot(strategy.position_size > 0 ? stop_price : na, "Stop",
+     color=color.new(color.red, 0), style=plot.style_linebr, linewidth=1)
+plot(strategy.position_size > 0 ? tp1_price : na, "TP1",
+     color=color.new(color.green, 0), style=plot.style_linebr, linewidth=1)
+plot(strategy.position_size > 0 ? tp2_price : na, "TP2",
+     color=color.new(color.green, 0), style=plot.style_linebr, linewidth=1)
+
+plotshape(signal and strategy.position_size == 0,
+     title="Entry signal", location=location.belowbar,
+     color=color.lime, style=shape.triangleup, size=size.small,
+     text="EB", textcolor=color.white)
