@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% block title %}Data Fetch — TradeAgent{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Data Fetch</h1>
+  <p class="page-subtitle">
+    Bulk-download daily OHLCV bars and cache them locally so backtests don't
+    re-hit network APIs. Files land in <code>data/historical/{SYMBOL}_1d.csv</code>
+    and are read transparently by <code>data_service.get_bars</code>.
+  </p>
+</div>
+
+<div class="df-grid">
+
+  {# ----- Fetch form ----- #}
+  <section class="df-card">
+    <h2 class="df-card-title">Fetch & Save</h2>
+
+    <form id="fetch-form" onsubmit="return submitFetch(event)">
+      <label class="df-label">Symbols
+        <span class="df-hint">comma, space, or newline separated</span>
+      </label>
+      <textarea name="symbols" id="symbols" rows="4"
+                placeholder="AAPL, MSFT, NVDA&#10;SPY QQQ&#10;TSLA"
+                required></textarea>
+
+      <div class="df-row">
+        <div>
+          <label class="df-label">Source</label>
+          <select name="source" id="source">
+            <option value="auto" selected>Auto (HF stocks → yfinance fallback)</option>
+            <option value="hf">HF — paperswithbacktest/Stocks-Daily-Price (1d only)</option>
+            <option value="yfinance">yfinance (1d/1h/30m, 30m capped at 60d)</option>
+            <option value="alpaca">Alpaca (1d/1h/30m/15m/5m, ~5y of intraday)</option>
+          </select>
+        </div>
+        <div>
+          <label class="df-label">Interval</label>
+          <select name="interval" id="interval">
+            <option value="1d" selected>1d (daily)</option>
+            <option value="1h">1h (hourly)</option>
+            <option value="30m">30m (intraday — DL strategy)</option>
+            <option value="15m">15m (Alpaca only)</option>
+            <option value="5m">5m (Alpaca only)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="df-row">
+        <div>
+          <label class="df-label">Start date</label>
+          <input type="date" name="start" id="start" value="2010-01-01">
+        </div>
+        <div>
+          <label class="df-label">End date <span class="df-hint">blank = today</span></label>
+          <input type="date" name="end" id="end" value="">
+        </div>
+      </div>
+
+      <div class="df-actions">
+        <button type="submit" class="btn btn-primary" id="submit-btn">Fetch & save</button>
+        <span id="status" class="df-status"></span>
+      </div>
+    </form>
+
+    <div id="results"></div>
+  </section>
+
+  {# ----- Cached files ----- #}
+  <section class="df-card">
+    <h2 class="df-card-title">Cached files <span class="df-hint">data/historical/</span></h2>
+    <div id="cached-table">
+      {% include "_data_fetch_cached.html" %}
+    </div>
+  </section>
+
+</div>
+
+<style>
+  .df-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+  @media (max-width: 1100px) { .df-grid { grid-template-columns: 1fr; } }
+  .df-card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+  }
+  .df-card-title {
+    font-size: 16px; font-weight: 600; margin: 0 0 14px 0;
+    display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+  }
+  .df-label {
+    display: block; font-size: 12px; font-weight: 600;
+    color: var(--text-secondary); margin: 10px 0 6px 0;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .df-hint { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--text-muted); font-size: 11px; }
+  #fetch-form textarea, #fetch-form select, #fetch-form input[type=date] {
+    width: 100%; box-sizing: border-box;
+    background: var(--surface-2); color: var(--text-primary);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px; font-family: var(--font-mono, monospace); font-size: 13px;
+  }
+  #fetch-form select { font-family: inherit; }
+  .df-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .df-row > div { display: flex; flex-direction: column; }
+  .df-actions { margin-top: 14px; display: flex; align-items: center; gap: 12px; }
+  .df-status { font-size: 12px; color: var(--text-secondary); }
+  .df-status.ok { color: var(--accent-green, #36c46a); }
+  .df-status.err { color: var(--accent-red, #d44); }
+  #results { margin-top: 16px; }
+  .df-result {
+    display: grid; grid-template-columns: 80px 1fr auto; gap: 10px;
+    padding: 8px 10px; border-bottom: 1px solid var(--border);
+    align-items: center; font-size: 13px;
+  }
+  .df-result:last-child { border-bottom: none; }
+  .df-sym { font-family: var(--font-mono, monospace); font-weight: 600; }
+  .df-result.ok .df-sym { color: var(--accent-green, #36c46a); }
+  .df-result.err .df-sym { color: var(--accent-red, #d44); }
+  .df-meta { color: var(--text-secondary); font-size: 12px; }
+  .df-source { font-size: 11px; color: var(--text-muted); padding: 2px 6px; background: var(--surface-2); border-radius: 4px; }
+  .df-cached-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .df-cached-table th, .df-cached-table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--border); }
+  .df-cached-table th { color: var(--text-secondary); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .df-cached-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .btn-del { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+  .btn-del:hover { color: var(--accent-red, #d44); border-color: var(--accent-red, #d44); }
+</style>
+
+<script>
+async function submitFetch(ev) {
+  ev.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  const status = document.getElementById('status');
+  const results = document.getElementById('results');
+  const cachedDiv = document.getElementById('cached-table');
+
+  btn.disabled = true;
+  status.textContent = 'fetching… (this can take 10–60s per symbol on first run)';
+  status.className = 'df-status';
+  results.innerHTML = '';
+
+  const fd = new FormData(document.getElementById('fetch-form'));
+  try {
+    const r = await fetch('/api/data-fetch/save', { method: 'POST', body: fd });
+    const j = await r.json();
+    if (!j.ok) {
+      status.textContent = 'error: ' + (j.error || r.status);
+      status.className = 'df-status err';
+      return false;
+    }
+    renderResults(j.results);
+    cachedDiv.innerHTML = renderCached(j.cached);
+    const okCount = j.results.filter(x => x.ok).length;
+    const errCount = j.results.length - okCount;
+    status.textContent = `done — ${okCount} saved` + (errCount ? `, ${errCount} failed` : '');
+    status.className = 'df-status ' + (errCount ? 'err' : 'ok');
+  } catch (e) {
+    status.textContent = 'request failed: ' + e.message;
+    status.className = 'df-status err';
+  } finally {
+    btn.disabled = false;
+  }
+  return false;
+}
+
+function renderResults(rows) {
+  const out = document.getElementById('results');
+  out.innerHTML = rows.map(r => {
+    if (r.ok) {
+      return `<div class="df-result ok">
+        <div class="df-sym">${r.symbol}</div>
+        <div>
+          <div>${r.rows} rows · ${r.first} → ${r.last} · ${r.size_kb} KB</div>
+          <div class="df-meta">${r.path}</div>
+        </div>
+        <span class="df-source">${r.source}</span>
+      </div>`;
+    } else {
+      return `<div class="df-result err">
+        <div class="df-sym">${r.symbol}</div>
+        <div class="df-meta">${escapeHtml(r.error || 'unknown error')}</div>
+        <span class="df-source">${r.source || '—'}</span>
+      </div>`;
+    }
+  }).join('');
+}
+
+function renderCached(rows) {
+  if (!rows || !rows.length) {
+    return '<p class="df-meta" style="margin:0;">no cached files yet</p>';
+  }
+  const body = rows.map(r => `
+    <tr>
+      <td><strong>${r.symbol}</strong></td>
+      <td>${r.interval}</td>
+      <td class="num">${r.rows}</td>
+      <td class="num">${r.size_kb} KB</td>
+      <td>${r.modified}</td>
+      <td><button class="btn-del" onclick="deleteCached('${r.filename}', this)">delete</button></td>
+    </tr>`).join('');
+  return `<table class="df-cached-table">
+    <thead><tr><th>Symbol</th><th>Int</th><th>Rows</th><th>Size</th><th>Modified</th><th></th></tr></thead>
+    <tbody>${body}</tbody>
+  </table>`;
+}
+
+async function deleteCached(filename, btn) {
+  if (!confirm(`Delete ${filename}?`)) return;
+  const fd = new FormData();
+  fd.append('filename', filename);
+  const r = await fetch('/api/data-fetch/delete', { method: 'POST', body: fd });
+  const j = await r.json();
+  if (j.ok) {
+    document.getElementById('cached-table').innerHTML = renderCached(j.cached);
+  } else {
+    alert('delete failed');
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+</script>
+{% endblock %}

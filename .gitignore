@@ -76,12 +76,21 @@ data/universe_latest.json
 data/pipeline_status.json
 data/logs/
 
+# Strategy research caches (added 2026-05-09)
+# HF parquet shards (~510MB, regenerable via ensure_hf_shards_local)
+data/hf_cache/
+# explicit, even though *.db catches it
+data/optimization_results.db
+# FAISS index + parquet metadata (regenerable from random_search_trials)
+data/state_memory/
+
 # --- Claude Code ------------------------------------------------------------
 # settings.local.json holds per-machine allow-lists with absolute paths;
 # never commit. settings.json (without .local) IS commit-safe — use it
 # for team/project-wide permission defaults.
 .claude/settings.local.json
 .claude/todos/
+.claude/scheduled_tasks.lock
 
 # --- IDE / editor -----------------------------------------------------------
 .vscode/

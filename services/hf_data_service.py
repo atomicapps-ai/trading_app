@@ -1,0 +1,454 @@
+"""hf_data_service.py — bulk OHLCV fetch with three source backends.
+
+1. **HF Stocks-Daily-Price** (default, no auth) — paperswithbacktest's public
+   parquet dataset of 7000+ US stocks. Fast, no rate limits. **Daily only,
+   stocks only — no ETFs (SPY/QQQ etc.) and no indices (^GSPC).**
+
+2. **yfinance** (fallback) — covers everything Yahoo does: ETFs, indices,
+   foreign tickers. Caps: ~730d for 1h, ~60d for 30m bars. Reuses the same
+   caching path as ``services/data_service``.
+
+3. **Alpaca** — historical bars via ``StockHistoricalDataClient``. Paid-for-free
+   on a paper account, SIP feed, ~5y of intraday (30m/1h) history. **The right
+   source when you need 30m bars deep enough for backtest sample sizes.**
+
+The saved CSV format is identical for both sources so a downstream
+``get_bars(symbol, "1d")`` reads the local file without touching network:
+
+    Date,Open,High,Low,Close,Volume
+    2010-01-04 00:00:00+00:00,...
+
+Useful for bulk-seeding the bar cache before backtests where pulling
+100+ symbols from yfinance live would be rate-limited and slow.
+"""
+from __future__ import annotations
+
+import asyncio
+import logging
+import os
+from datetime import datetime, timezone
+from pathlib import Path
+
+import pandas as pd
+
+from services.settings_service import DATA_DIR
+
+log = logging.getLogger(__name__)
+
+HISTORICAL_DIR: Path = DATA_DIR / "historical"
+
+_HF_DATASET = "paperswithbacktest/Stocks-Daily-Price"
+_HF_SHARDS = 4
+_HF_URL_TEMPLATE = (
+    "hf://datasets/{ds}@~parquet/default/train/{idx:04d}.parquet"
+)
+_HF_LOCAL_CACHE: Path = DATA_DIR / "hf_cache" / "stocks_daily_price"
+
+
+def _shard_urls() -> list[str]:
+    return [
+        _HF_URL_TEMPLATE.format(ds=_HF_DATASET, idx=i) for i in range(_HF_SHARDS)
+    ]
+
+
+def _local_shard_paths() -> list[Path]:
+    return [_HF_LOCAL_CACHE / f"{i:04d}.parquet" for i in range(_HF_SHARDS)]
+
+
+def ensure_hf_shards_local() -> list[Path]:
+    """Download all 4 HF parquet shards to local disk once. ~510 MB total.
+
+    Subsequent reads filter locally — no network, no rate-limit risk.
+    Idempotent: returns immediately if all 4 files already exist with size > 50 MB.
+    """
+    _HF_LOCAL_CACHE.mkdir(parents=True, exist_ok=True)
+    paths = _local_shard_paths()
+    urls = _shard_urls()
+
+    needs_download = []
+    for p, u in zip(paths, urls):
+        if not p.exists() or p.stat().st_size < 50 * 1024 * 1024:
+            needs_download.append((p, u))
+
+    if not needs_download:
+        log.info("hf_data_service: all %d shards already cached (%s)",
+                 len(paths), _HF_LOCAL_CACHE)
+        return paths
+
+    import urllib.request
+    for p, u in needs_download:
+        # Translate hf:// URL to https:// for direct download
+        # hf://datasets/{ds}@~parquet/default/train/0000.parquet
+        # -> https://huggingface.co/datasets/{ds}/resolve/refs%2Fconvert%2Fparquet/default/train/0000.parquet
+        ds_part = u.split("@~parquet/", 1)[1]
+        https_url = (
+            f"https://huggingface.co/datasets/{_HF_DATASET}/"
+            f"resolve/refs%2Fconvert%2Fparquet/{ds_part}"
+        )
+        log.info("downloading shard: %s", https_url)
+        urllib.request.urlretrieve(https_url, p)
+        log.info("  saved %.1f MB to %s", p.stat().st_size / (1024 * 1024), p.name)
+
+    return paths
+
+
+def _cache_path(symbol: str) -> Path:
+    return HISTORICAL_DIR / f"{symbol.upper()}_1d.csv"
+
+
+def _fetch_symbol_sync(
+    symbol: str,
+    start: str | None = None,
+    end: str | None = None,
+) -> pd.DataFrame:
+    """Sync fetch — pulls all 4 shards filtered by symbol, returns canonical frame.
+
+    Columns returned: open, high, low, close, volume. Index is tz-aware UTC.
+
+    Reads from LOCAL parquet shards (in `data/hf_cache/`) when available,
+    falls back to streaming over HTTPS only if the local copy is missing.
+    Always prefer the local path for bulk fetches — HF rate-limits aggressive
+    streaming.
+    """
+    sym = symbol.upper()
+    frames = []
+
+    local_paths = _local_shard_paths()
+    use_local = all(p.exists() and p.stat().st_size > 50 * 1024 * 1024
+                    for p in local_paths)
+    sources = local_paths if use_local else _shard_urls()
+
+    for src in sources:
+        try:
+            part = pd.read_parquet(
+                src,
+                engine="pyarrow",
+                filters=[("symbol", "=", sym)],
+                columns=["date", "open", "high", "low", "close", "volume"],
+            )
+        except Exception as exc:                                       # noqa: BLE001
+            log.warning("HF shard read failed (%s): %s", src, exc)
+            continue
+        if not part.empty:
+            frames.append(part)
+
+    if not frames:
+        raise ValueError(
+            f"no rows for {sym!r} in {_HF_DATASET} (bad ticker or network error)"
+        )
+
+    df = pd.concat(frames, ignore_index=True)
+    df["date"] = pd.to_datetime(df["date"], utc=True)
+    df = df.set_index("date").sort_index()
+    df.index.name = "Date"
+
+    if start is not None:
+        df = df.loc[pd.Timestamp(start, tz="UTC"):]
+    if end is not None:
+        df = df.loc[: pd.Timestamp(end, tz="UTC")]
+
+    df = df.dropna(how="all")
+    return df[["open", "high", "low", "close", "volume"]]
+
+
+def _save_sync(symbol: str, df: pd.DataFrame) -> Path:
+    """Write the canonical CSV expected by `services/data_service`."""
+    HISTORICAL_DIR.mkdir(parents=True, exist_ok=True)
+    out = _cache_path(symbol)
+    out_df = df.rename(
+        columns={
+            "open": "Open",
+            "high": "High",
+            "low": "Low",
+            "close": "Close",
+            "volume": "Volume",
+        }
+    )
+    out_df.to_csv(out)
+    log.info("hf_data_service: cached %d rows → %s", len(out_df), out.name)
+    return out
+
+
+# --------------------------------------------------------------------------- #
+# Public async API
+# --------------------------------------------------------------------------- #
+
+
+async def fetch_symbol_hf(
+    symbol: str,
+    start: str | None = "2010-01-01",
+    end: str | None = None,
+) -> pd.DataFrame:
+    """Fetch a single symbol from the HF stocks dataset; do NOT save to disk."""
+    return await asyncio.to_thread(_fetch_symbol_sync, symbol, start, end)
+
+
+async def _fetch_symbol_yf(
+    symbol: str,
+    start: str | None = "2010-01-01",
+    end: str | None = None,
+    interval: str = "1d",
+) -> pd.DataFrame:
+    """yfinance path — supports 1d/1h/30m via the existing data_service cache."""
+    from services import data_service
+
+    await data_service.refresh_bars(symbol, interval)                  # type: ignore[arg-type]
+    df = await data_service.get_bars(
+        symbol, interval, min_bars=1, download_if_missing=False        # type: ignore[arg-type]
+    )
+    if start is not None:
+        df = df.loc[pd.Timestamp(start, tz="UTC"):]
+    if end is not None:
+        df = df.loc[: pd.Timestamp(end, tz="UTC")]
+    return df
+
+
+# --------------------------------------------------------------------------- #
+# Alpaca historical bars
+# --------------------------------------------------------------------------- #
+
+_ALPACA_INTERVAL_TO_SDK = {
+    # (amount, unit) used to build alpaca.data.timeframe.TimeFrame at runtime
+    "1d": (1, "Day"),
+    "1h": (1, "Hour"),
+    "30m": (30, "Minute"),
+    "15m": (15, "Minute"),
+    "5m": (5, "Minute"),
+}
+
+
+def _fetch_symbol_alpaca_sync(
+    symbol: str,
+    start: str,
+    end: str | None,
+    interval: str,
+) -> pd.DataFrame:
+    """Sync Alpaca historical-bars fetch. Returns canonical OHLCV frame."""
+    from datetime import datetime as _dt
+    from alpaca.data.historical.stock import StockHistoricalDataClient
+    from alpaca.data.requests import StockBarsRequest
+    from alpaca.data.timeframe import TimeFrame, TimeFrameUnit
+
+    key = os.getenv("ALPACA_TRADING_KEY_ID") or os.getenv("ALPACA_API_KEY")
+    secret = os.getenv("ALPACA_TRADING_SECRET") or os.getenv("ALPACA_API_SECRET")
+    if not key or not secret:
+        raise RuntimeError(
+            "Alpaca credentials missing — set ALPACA_API_KEY + "
+            "ALPACA_API_SECRET in .env or use the /broker page."
+        )
+
+    if interval not in _ALPACA_INTERVAL_TO_SDK:
+        raise ValueError(
+            f"unsupported Alpaca interval {interval!r}; expected one of "
+            f"{list(_ALPACA_INTERVAL_TO_SDK)}"
+        )
+    amount, unit = _ALPACA_INTERVAL_TO_SDK[interval]
+    tf_unit = getattr(TimeFrameUnit, unit)
+    timeframe = TimeFrame(amount, tf_unit)
+
+    start_ts = _dt.fromisoformat(start).replace(tzinfo=timezone.utc)
+    end_ts = (
+        _dt.fromisoformat(end).replace(tzinfo=timezone.utc)
+        if end
+        else None
+    )
+
+    client = StockHistoricalDataClient(api_key=key, secret_key=secret)
+    req = StockBarsRequest(
+        symbol_or_symbols=symbol.upper(),
+        timeframe=timeframe,
+        start=start_ts,
+        end=end_ts,
+        adjustment="all",
+        feed="sip",
+    )
+    bars = client.get_stock_bars(req)
+    df = bars.df  # multi-index (symbol, timestamp) → tabular
+    if df is None or df.empty:
+        raise ValueError(
+            f"Alpaca returned no bars for {symbol} {interval} from {start}"
+        )
+    if "symbol" in df.index.names:
+        df = df.reset_index(level="symbol", drop=True)
+
+    df.index.name = "Date"
+    if df.index.tz is None:
+        df.index = df.index.tz_localize("UTC")
+    keep = [c for c in ["open", "high", "low", "close", "volume"] if c in df.columns]
+    df = df[keep].sort_index()
+
+    # Filter intraday bars to RTH (9:30-16:00 ET) so the saved CSV matches
+    # what yfinance returns (RTH-only) — detectors that key off `bar.time()`
+    # for c1/c2 slot identification rely on this contract.
+    if interval in ("30m", "15m", "5m", "1h"):
+        et = df.index.tz_convert("America/New_York")
+        rth_mask = (
+            ((et.hour == 9) & (et.minute >= 30))
+            | ((et.hour > 9) & (et.hour < 16))
+        )
+        df = df[rth_mask]
+    return df
+
+
+async def _fetch_symbol_alpaca(
+    symbol: str,
+    start: str | None = "2010-01-01",
+    end: str | None = None,
+    interval: str = "1d",
+) -> pd.DataFrame:
+    return await asyncio.to_thread(
+        _fetch_symbol_alpaca_sync,
+        symbol,
+        start or "2010-01-01",
+        end,
+        interval,
+    )
+
+
+def _save_sync_interval(symbol: str, df: pd.DataFrame, interval: str) -> Path:
+    """Variant of _save_sync that writes to {SYMBOL}_{interval}.csv."""
+    HISTORICAL_DIR.mkdir(parents=True, exist_ok=True)
+    out = HISTORICAL_DIR / f"{symbol.upper()}_{interval}.csv"
+    out_df = df.rename(
+        columns={
+            "open": "Open", "high": "High", "low": "Low",
+            "close": "Close", "volume": "Volume",
+        }
+    )
+    out_df.to_csv(out)
+    log.info("hf_data_service: cached %d rows → %s", len(out_df), out.name)
+    return out
+
+
+async def fetch_and_save(
+    symbol: str,
+    source: str = "auto",
+    start: str | None = "2010-01-01",
+    end: str | None = None,
+    interval: str = "1d",
+) -> dict:
+    """Fetch + persist to ``data/historical/{SYMBOL}_{interval}.csv``.
+
+    ``source``:
+      * ``"hf"`` — HF stocks dataset (1d only; will error on 1h/30m)
+      * ``"yfinance"`` — yfinance (1d/1h/30m, but 30m capped at ~60d)
+      * ``"alpaca"`` — Alpaca historical bars (1d/1h/30m/15m/5m, ~5y deep)
+      * ``"auto"`` (default) — HF for 1d-stocks, else yfinance
+
+    Returns a status dict the router can render directly.
+    """
+    sym = symbol.upper()
+    used_source = source
+
+    try:
+        if source == "alpaca":
+            df = await _fetch_symbol_alpaca(sym, start=start, end=end, interval=interval)
+            used_source = "alpaca"
+        elif source == "yfinance":
+            df = await _fetch_symbol_yf(sym, start=start, end=end, interval=interval)
+            used_source = "yfinance"
+        elif source == "hf":
+            if interval != "1d":
+                raise ValueError(
+                    "HF source only supports 1d bars; pick yfinance or alpaca for "
+                    f"{interval}"
+                )
+            df = await fetch_symbol_hf(sym, start=start, end=end)
+            used_source = "hf"
+        else:  # auto
+            if interval != "1d":
+                # auto for intraday → yfinance (Alpaca requires explicit pick)
+                df = await _fetch_symbol_yf(sym, start=start, end=end, interval=interval)
+                used_source = "yfinance (auto)"
+            else:
+                try:
+                    df = await fetch_symbol_hf(sym, start=start, end=end)
+                    used_source = "hf"
+                except ValueError as hf_miss:
+                    log.info("HF miss for %s; falling back to yfinance: %s", sym, hf_miss)
+                    df = await _fetch_symbol_yf(sym, start=start, end=end, interval=interval)
+                    used_source = "yfinance (auto-fallback)"
+    except Exception as exc:                                           # noqa: BLE001
+        return {
+            "symbol": sym,
+            "ok": False,
+            "error": f"{type(exc).__name__}: {exc}",
+            "rows": 0,
+            "source": used_source,
+            "interval": interval,
+        }
+
+    # Persist. yfinance path already wrote the CSV via data_service.refresh_bars,
+    # but with the *full* yfinance window — re-save the date-sliced frame so the
+    # on-disk file matches what the user asked for.
+    if used_source.startswith("yfinance") or used_source == "alpaca" or used_source.startswith("hf"):
+        path = await asyncio.to_thread(_save_sync_interval, sym, df, interval)
+    else:
+        path = HISTORICAL_DIR / f"{sym}_{interval}.csv"
+
+    return {
+        "symbol": sym,
+        "ok": True,
+        "rows": int(len(df)),
+        "first": df.index[0].strftime("%Y-%m-%d %H:%M") if len(df) else None,
+        "last": df.index[-1].strftime("%Y-%m-%d %H:%M") if len(df) else None,
+        "path": str(path.relative_to(DATA_DIR.parent)).replace("\\", "/"),
+        "size_kb": round(path.stat().st_size / 1024, 1) if path.exists() else 0,
+        "source": used_source,
+        "interval": interval,
+    }
+
+
+async def fetch_many_and_save(
+    symbols: list[str],
+    source: str = "auto",
+    start: str | None = "2010-01-01",
+    end: str | None = None,
+    interval: str = "1d",
+) -> list[dict]:
+    """Run `fetch_and_save` for many symbols sequentially."""
+    out: list[dict] = []
+    for s in symbols:
+        out.append(await fetch_and_save(
+            s, source=source, start=start, end=end, interval=interval
+        ))
+    return out
+
+
+def list_cached() -> list[dict]:
+    """List every CSV currently in ``data/historical/`` with row counts."""
+    if not HISTORICAL_DIR.exists():
+        return []
+    rows: list[dict] = []
+    for path in sorted(HISTORICAL_DIR.glob("*.csv")):
+        stem = path.stem  # e.g. "SPY_1d"
+        if "_" in stem:
+            sym, interval = stem.rsplit("_", 1)
+        else:
+            sym, interval = stem, ""
+        try:
+            row_count = sum(1 for _ in path.open("r")) - 1
+        except Exception:
+            row_count = -1
+        st = path.stat()
+        rows.append({
+            "filename": path.name,
+            "symbol": sym,
+            "interval": interval,
+            "rows": row_count,
+            "size_kb": round(st.st_size / 1024, 1),
+            "modified": datetime.fromtimestamp(
+                st.st_mtime, tz=timezone.utc
+            ).strftime("%Y-%m-%d %H:%M UTC"),
+        })
+    return rows
+
+
+def delete_cached(filename: str) -> bool:
+    """Delete a single cached CSV. Filename must match a real entry exactly."""
+    safe = Path(filename).name
+    target = HISTORICAL_DIR / safe
+    if not target.exists() or target.parent != HISTORICAL_DIR:
+        return False
+    target.unlink()
+    return True

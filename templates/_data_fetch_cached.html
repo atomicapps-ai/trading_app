@@ -1,0 +1,21 @@
+{% if cached %}
+<table class="df-cached-table">
+  <thead>
+    <tr><th>Symbol</th><th>Int</th><th>Rows</th><th>Size</th><th>Modified</th><th></th></tr>
+  </thead>
+  <tbody>
+  {% for r in cached %}
+    <tr>
+      <td><strong>{{ r.symbol }}</strong></td>
+      <td>{{ r.interval }}</td>
+      <td class="num">{{ r.rows }}</td>
+      <td class="num">{{ r.size_kb }} KB</td>
+      <td>{{ r.modified }}</td>
+      <td><button class="btn-del" onclick="deleteCached('{{ r.filename }}', this)">delete</button></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="df-meta" style="margin:0;">no cached files yet</p>
+{% endif %}
