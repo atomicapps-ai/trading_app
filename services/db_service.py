@@ -775,20 +775,37 @@ async def update_plan_json(plan_id: str, plan: dict) -> bool:
 async def expire_stale_plans(timeout_minutes: int = 30) -> int:
     """Mark pending plans older than ``timeout_minutes`` as expired.
 
-    Returns the number of rows updated.
+    Exception: plans whose entry is good-till-cancelled (``valid_until == "gtc"``)
+    are NOT auto-expired — they represent multi-day/swing setups (e.g. Kronos daily)
+    whose entry price is valid until cancelled, so a short approval window doesn't
+    apply. Session-bound/intraday plans (e.g. double_lock) still expire normally.
+
+    Returns the number of rows expired.
     """
     cutoff = (datetime.now(timezone.utc) - timedelta(minutes=timeout_minutes)).isoformat()
     async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
         cur = await db.execute(
-            """
-            UPDATE pending_approvals
-               SET status = 'expired'
-             WHERE status = 'pending' AND ts_created < ?
-            """,
+            "SELECT plan_id, plan_json FROM pending_approvals "
+            "WHERE status = 'pending' AND ts_created < ?",
             (cutoff,),
         )
+        rows = await cur.fetchall()
+        to_expire: list[str] = []
+        for r in rows:
+            try:
+                plan = json.loads(r["plan_json"]) if r["plan_json"] else {}
+                valid_until = (plan.get("setup", {}).get("entry", {}) or {}).get("valid_until")
+            except Exception:  # noqa: BLE001
+                valid_until = None
+            if valid_until != "gtc":
+                to_expire.append(r["plan_id"])
+        for pid in to_expire:
+            await db.execute(
+                "UPDATE pending_approvals SET status = 'expired' WHERE plan_id = ?", (pid,),
+            )
         await db.commit()
-        return cur.rowcount
+        return len(to_expire)
 
 
 async def get_pending_count(status_filter: str | None = "pending") -> int:
@@ -909,11 +926,29 @@ def _row_to_ui_dict(row: Any) -> dict:
     instrument = plan.get("instrument", {}) or {}
 
     tp1 = tps[0]["price"] if len(tps) >= 1 else None
-    tp2 = tps[1]["price"] if len(tps) >= 2 else None
+    # Single-leg plans (e.g. Kronos, 100% at one target) have no second leg —
+    # fall back to TP1 so the detail template's "%.2f"|format(tp2) doesn't crash.
+    tp2 = tps[1]["price"] if len(tps) >= 2 else tp1
+
+    # Pivot S/R lines for the chart overlay (from the Kronos pivot context).
+    piv = thesis.get("pivots") or {}
+    pivot_lines: list[dict] = []
+    nr, ns = piv.get("nearest_resistance"), piv.get("nearest_support")
+    if nr and nr.get("level"):
+        pivot_lines.append({"label": "Resistance", "price": nr["level"], "kind": "resistance"})
+    if ns and ns.get("level"):
+        pivot_lines.append({"label": "Support", "price": ns["level"], "kind": "support"})
+    for src, prefix in ((piv.get("weekly"), "w"), (piv.get("monthly"), "m")):
+        if not src:
+            continue
+        for key, kind in (("R1", "resistance"), ("P", "pivot"), ("S1", "support")):
+            if src.get(key) is not None:
+                pivot_lines.append({"label": f"{prefix}{key}", "price": src[key], "kind": kind})
 
     return {
         "plan_id": row["plan_id"],
         "symbol": row["symbol"],
+        "name": instrument.get("name") or instrument.get("company_name"),
         "direction": row["direction"],
         "strategy": row["strategy"],
         "conviction": row["conviction"],
@@ -928,6 +963,19 @@ def _row_to_ui_dict(row: Any) -> dict:
         "stop": initial_stop.get("price"),
         "tp1": tp1,
         "tp2": tp2,
+        "pivot_lines": pivot_lines,
+        "pivot_confluence": thesis.get("pivot_confluence") or piv.get("confluence"),
+        "pivot_note": piv.get("note"),
+        # All the factors that made this a prospective trade (for the detail panel).
+        "factors": {
+            "kronos_prob": thesis.get("kronos_pred_prob"),
+            "baseline_prob": thesis.get("baseline_prob"),
+            "expected_r": thesis.get("kronos_expected_r"),
+            "path_sigma_pct": thesis.get("path_sigma_pct"),
+            "horizon_bars": thesis.get("horizon_bars"),
+            "nearest_support": piv.get("nearest_support"),
+            "nearest_resistance": piv.get("nearest_resistance"),
+        },
         "risk_usd": risk.get("position_risk_usd"),
         "rr_tp1": risk.get("r_multiple_to_tp1"),
         "rr_tp2": risk.get("r_multiple_to_tp2"),

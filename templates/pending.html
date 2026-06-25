@@ -129,6 +129,7 @@
     {% if pending %}
       {% for p in pending %}
         <div class="pending-card {% if selected and selected.plan_id == p.plan_id %}active{% endif %}"
+             title="{{ p.name or p.symbol }}"
              onclick="location.href='/pending/{{ p.plan_id }}?status={{ filter_status }}'">
           <div class="pending-row">
             <span class="pending-symbol">{{ p.symbol }}</span>
@@ -215,6 +216,10 @@
         </span>
       </div>
 
+      {% if p.name and p.name != p.symbol %}
+      <div class="text-secondary" style="font-size: 13px; margin: -4px 0 8px;">{{ p.name }}</div>
+      {% endif %}
+
       {# Provenance + cross-links — date the strategy decided, who produced
          it, and quick jumps to the live evaluation view + the scheduled
          job that fired the workflow run. #}
@@ -258,12 +263,26 @@
           center the others on that moment. Toggle indicator chips on
           either pane to overlay SMA/BB/H-L bands or open RSI/MACD/ATR/Volume sub-panes.
         </div>
+        {% if p.pivot_lines %}
+        <div style="display:flex; align-items:center; gap:8px; padding:6px 10px;">
+          <button id="toggle-pivots" type="button"
+                  style="font-size:12px; padding:3px 10px; border-radius:6px; cursor:pointer;
+                         border:0.5px solid var(--color-border-secondary, #555);
+                         background:transparent; color:var(--text-secondary, #aaa);">
+            Pivots (S/R)
+          </button>
+          {% if p.pivot_confluence %}
+            <span class="text-xs text-tertiary">confluence: {{ p.pivot_confluence }}{% if p.pivot_note %} — {{ p.pivot_note }}{% endif %}</span>
+          {% endif %}
+        </div>
+        {% endif %}
         <div class="dual-chart-wrap" id="dual-chart-wrap"
              data-symbol="{{ p.symbol }}"
              data-entry="{{ p.entry }}"
              data-stop="{{ p.stop }}"
              data-tp1="{{ p.tp1 }}"
-             data-tp2="{{ p.tp2 }}">
+             data-tp2="{{ p.tp2 }}"
+             data-pivots="{{ p.pivot_lines | tojson | forceescape }}">
           {% for chart_idx, default_interval in [('a', '1h'), ('b', '4h')] %}
             <div class="chart-pane">
               <div class="ct-mount" id="chart-{{ chart_idx }}-mount"
@@ -303,6 +322,52 @@
         </table>
       </div>
 
+      {# Why this trade — every factor that made it a prospective trade #}
+      {% if p.factors and p.factors.kronos_prob is not none %}
+      <div class="card mt-24">
+        <div class="card-header"><span class="card-title">Why this trade — factors</span></div>
+        <table style="width: 100%; font-size: 13px;">
+          <tbody>
+            <tr><td class="text-secondary" style="padding: 6px 0; width: 220px;">Kronos P(profit)</td>
+                <td class="mono">{{ (p.factors.kronos_prob * 100)|round|int }}% <span class="text-tertiary">· raw, uncalibrated</span></td></tr>
+            {% if p.factors.baseline_prob is not none %}
+            {% set edge = ((p.factors.kronos_prob - p.factors.baseline_prob) * 100)|round|int %}
+            <tr><td class="text-secondary" style="padding: 6px 0;">vs Brownian baseline</td>
+                <td class="mono">{{ (p.factors.baseline_prob * 100)|round|int }}%
+                  <span class="{% if edge > 0 %}text-accent-green{% elif edge < 0 %}text-accent-red{% endif %}">({{ '%+d'|format(edge) }} pts edge)</span></td></tr>
+            {% endif %}
+            {% if p.factors.expected_r is not none %}
+            <tr><td class="text-secondary" style="padding: 6px 0;">Expected R (after costs)</td>
+                <td class="mono">{{ "%.2f"|format(p.factors.expected_r) }}</td></tr>
+            {% endif %}
+            <tr><td class="text-secondary" style="padding: 6px 0;">Direction conviction</td>
+                <td class="mono">{{ (p.conviction * 100)|round|int }}%</td></tr>
+            {% if p.factors.path_sigma_pct is not none %}
+            <tr><td class="text-secondary" style="padding: 6px 0;">Forecast uncertainty (path σ)</td>
+                <td class="mono">{{ "%.1f"|format(p.factors.path_sigma_pct) }}%</td></tr>
+            {% endif %}
+            {% if p.factors.horizon_bars %}
+            <tr><td class="text-secondary" style="padding: 6px 0;">Forecast horizon</td>
+                <td class="mono">{{ p.factors.horizon_bars }} bars</td></tr>
+            {% endif %}
+            {% if p.pivot_confluence %}
+            <tr><td class="text-secondary" style="padding: 6px 0;">Pivot confluence</td>
+                <td class="mono">{{ p.pivot_confluence }}{% if p.pivot_note %} <span class="text-secondary">— {{ p.pivot_note }}</span>{% endif %}</td></tr>
+            {% endif %}
+            {% if p.factors.nearest_support and p.factors.nearest_support.level %}
+            <tr><td class="text-secondary" style="padding: 6px 0;">Nearest support</td>
+                <td class="mono">{{ "%.2f"|format(p.factors.nearest_support.level) }} ({{ "%+.1f"|format(p.factors.nearest_support.dist_pct) }}%)</td></tr>
+            {% endif %}
+            {% if p.factors.nearest_resistance and p.factors.nearest_resistance.level %}
+            <tr><td class="text-secondary" style="padding: 6px 0;">Nearest resistance</td>
+                <td class="mono">{{ "%.2f"|format(p.factors.nearest_resistance.level) }} ({{ "%+.1f"|format(p.factors.nearest_resistance.dist_pct) }}%)</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+        <div class="text-tertiary text-xs mt-8">News, sentiment, and earnings are not yet wired as factors — coming as context layers.</div>
+      </div>
+      {% endif %}
+
       {# Thesis #}
       <div class="card mt-24">
         <div class="card-header"><span class="card-title">Thesis</span></div>
@@ -334,8 +399,13 @@
         <ul style="list-style: none; padding: 0; margin: 0;">
           {% for ev in p.evidence %}
             <li class="flex items-center gap-12" style="padding: 6px 0; border-bottom: 0.5px solid var(--row-border);">
-              <span class="badge badge-gray" style="flex: 0 0 auto;">{{ ev.type }}</span>
-              <span class="text-sm">{{ ev.ref }}</span>
+              <span class="badge badge-gray" style="flex: 0 0 auto;">{{ ev.source or ev.type or 'factor' }}</span>
+              <span class="text-sm">
+                {%- if ev.ref %}{{ ev.ref }}
+                {%- elif ev.note %}{{ ev.note }}
+                {%- elif ev.p_profit is not none %}P(profit) {{ (ev.p_profit * 100)|round|int }}% · exp R {{ "%.2f"|format(ev.expected_r) }}{% if ev.baseline_p_profit is not none %} · baseline {{ (ev.baseline_p_profit * 100)|round|int }}%{% endif %}
+                {%- else %}—{% endif -%}
+              </span>
             </li>
           {% endfor %}
         </ul>
@@ -502,6 +572,47 @@
       panes[idx] = { inst, lastCrosshairTime: null,
                      loading: false, reachedStart: false };
     });
+
+    // ── Pivot S/R overlay (toggleable) ───────────────────────────────
+    // Add/remove deterministic support/resistance lines on both panes.
+    // Lines are created via the same addPriceLine path as plan levels, so
+    // they survive timeframe changes; removePriceLine clears them.
+    (function pivotOverlay() {
+      let pivots = [];
+      try { pivots = JSON.parse(wrap.dataset.pivots || '[]'); } catch (_) {}
+      const btn = document.getElementById('toggle-pivots');
+      if (!btn || !pivots.length) return;
+      const colorFor = k => k === 'resistance' ? '#d98a3d'
+                          : (k === 'support' ? '#7e57c2' : '#8a8a82');
+      let on = localStorage.getItem('pending_pivots_on') === '1';
+      let handles = [];
+      function apply(state) {
+        on = state;
+        if (on) {
+          Object.keys(panes).forEach(idx => {
+            pivots.forEach(p => {
+              const pl = panes[idx].inst.addPriceLine({
+                price: p.price, color: colorFor(p.kind), lineStyle: 3,
+                lineWidth: 1, axisLabelVisible: true, title: p.label,
+              });
+              handles.push({ idx, pl });
+            });
+          });
+          btn.style.background = 'var(--color-background-secondary, #333)';
+          btn.style.color = 'var(--text-primary, #eee)';
+        } else {
+          handles.forEach(h => {
+            try { panes[h.idx].inst.priceSeries.removePriceLine(h.pl); } catch (_) {}
+          });
+          handles = [];
+          btn.style.background = 'transparent';
+          btn.style.color = 'var(--text-secondary, #aaa)';
+        }
+        localStorage.setItem('pending_pivots_on', on ? '1' : '0');
+      }
+      btn.addEventListener('click', () => apply(!on));
+      if (on) apply(true);
+    })();
 
     // ── Crosshair sync ───────────────────────────────────────────────
     function wireCrosshair(a, b) {

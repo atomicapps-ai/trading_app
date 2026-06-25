@@ -513,14 +513,21 @@ input, select, textarea { font: inherit; color: inherit; }
 .approval-actions {
   position: sticky;
   bottom: 0;
+  z-index: 50;
   background: var(--bg-base);
-  padding-top: 16px;
-  margin-top: 24px;
+  /* Full-bleed across the .split-right pane (cancels its 28px h-padding) so
+     scrolling cards pass cleanly behind the bar instead of showing through. */
+  margin: 24px -28px 0;
+  padding: 14px 28px;
   border-top: 0.5px solid var(--border);
+  box-shadow: 0 -8px 16px -6px rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
 }
+/* Status/error wraps to its own full-width line below the buttons. */
+#ack-status { flex: 1 1 100%; order: 3; }
 .approval-countdown { margin-left: auto; font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 
 /* HR section divider for settings page */

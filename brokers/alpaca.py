@@ -79,6 +79,15 @@ def _alpaca_tif(tif: str):
     return mapping[tif]
 
 
+def _alpaca_symbol(sym: str) -> str:
+    """Map data-provider tickers to Alpaca's symbol format.
+
+    Yahoo/Finviz write class shares with a dash (BF-B, BRK-B); Alpaca uses a dot
+    (BF.B, BRK.B). Without this, place_order rejects with 'asset not found'.
+    """
+    return sym.replace("-", ".") if sym else sym
+
+
 def _build_order_request(order: Order):
     """Translate our ``Order`` model into the matching alpaca-py request."""
     from alpaca.trading.requests import (
@@ -88,7 +97,7 @@ def _build_order_request(order: Order):
         StopOrderRequest,
     )
     kwargs: dict[str, Any] = {
-        "symbol": order.symbol,
+        "symbol": _alpaca_symbol(order.symbol),
         "qty": order.quantity,
         "side": _alpaca_side(order.side),
         "time_in_force": _alpaca_tif(order.time_in_force),
