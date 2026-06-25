@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block title %}Explosive First-Hour Moves — TradeAgent{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+  <div>
+    <h1 class="page-title">Explosive First-Hour Moves</h1>
+    <p class="page-subtitle">
+      Identifies first-hour bars where the open-to-close return, the wick range, or the
+      overnight gap exceeded a per-symbol z-score threshold AND an ATR-multiple gate.
+      Source: <code>{{ csv_path }}</code>.
+      Refresh by re-running <code>scripts/find_explosive_first_hour.py</code>.
+    </p>
+  </div>
+  <div style="text-align:right;font-size:12px;color:var(--text-secondary);">
+    {% if csv_exists %}
+      <div><strong>{{ "{:,}".format(n_total) }}</strong> total hits across {{ n_symbols }} symbols</div>
+      <div>Showing <strong>{{ "{:,}".format(n_filtered) }}</strong> after filters</div>
+    {% else %}
+      <div style="color:var(--accent-red);">CSV not found — run the scanner first.</div>
+    {% endif %}
+  </div>
+</div>
+
+{% if csv_exists %}
+<div class="card" style="margin-bottom:14px;">
+  <div class="card-header"><span class="card-title">Filters</span></div>
+  <div class="card-body">
+    <form method="get" action="/research/explosive-moves" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));gap:10px 14px;">
+      <label>Symbol
+        <input type="text" name="symbol" value="{{ filters.symbol }}" placeholder="e.g. NVDA"
+               style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text-primary);padding:5px 8px;border-radius:4px;">
+      </label>
+      <label>Direction
+        <select name="direction" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text-primary);padding:5px 8px;border-radius:4px;">
+          <option value="any" {% if filters.direction=='any' %}selected{% endif %}>any</option>
+          <option value="UP"  {% if filters.direction=='UP'  %}selected{% endif %}>UP only</option>
+          <option value="DOWN" {% if filters.direction=='DOWN' %}selected{% endif %}>DOWN only</option>
+        </select>
+      </label>
+      <label>Trigger contains
+        <select name="triggers" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text-primary);padding:5px 8px;border-radius:4px;">
+          <option value="any"   {% if filters.triggers=='any'   %}selected{% endif %}>any</option>
+          <option value="RET"   {% if filters.triggers=='RET'   %}selected{% endif %}>RET</option>
+          <option value="RANGE" {% if filters.triggers=='RANGE' %}selected{% endif %}>RANGE</option>
+          <option value="GAP"   {% if filters.triggers=='GAP'   %}selected{% endif %}>GAP</option>
+        </select>
+      </label>
+      <label>Earnings day
+        <select name="earnings" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text-primary);padding:5px 8px;border-radius:4px;">
+          <option value="any" {% if filters.earnings=='any' %}selected{% endif %}>any</option>
+          <option value="yes" {% if filters.earnings=='yes' %}selected{% endif %}>only earnings days</option>
+          <option value="no"  {% if filters.earnings=='no'  %}selected{% endif %}>exclude earnings</option>
+        </select>
+      </label>
+      <label>Outcome (5d)
+        <select name="outcome" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text-primary);padding:5px 8px;border-radius:4px;">
+          <option value="any"      {% if filters.outcome=='any' %}selected{% endif %}>any</option>
+          <option value="CONTINUE" {% if filters.outcome=='CONTINUE' %}selected{% endif %}>CONTINUE</option>
+          <option value="FADE"     {% if filters.outcome=='FADE' %}selected{% endif %}>FADE</option>
+          <option value="REVERSE"  {% if filters.outcome=='REVERSE' %}selected{% endif %}>REVERSE</option>
+        </select>
+      </label>
+      <label>Min |z|
+        <input type="number" step="0.1" name="min_abs_z" value="{{ filters.min_abs_z }}"
+               style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text-primary);padding:5px 8px;border-radius:4px;">
+      </label>
+      <label>Min consolidation
+        <input type="number" step="0.05" min="0" max="1" name="min_consol" value="{{ filters.min_consol }}"
+               style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text-primary);padding:5px 8px;border-radius:4px;">
+      </label>
+      <label>Date from
+        <input type="date" name="date_from" value="{{ filters.date_from }}"
+               style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text-primary);padding:5px 8px;border-radius:4px;">
+      </label>
+      <label>Date to
+        <input type="date" name="date_to" value="{{ filters.date_to }}"
+               style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text-primary);padding:5px 8px;border-radius:4px;">
+      </label>
+      <label>Limit
+        <select name="limit" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text-primary);padding:5px 8px;border-radius:4px;">
+          {% for n in [50,100,200,500,1000,2000] %}
+            <option value="{{ n }}" {% if filters.limit==n %}selected{% endif %}>{{ n }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Sort by
+        <select name="sort" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text-primary);padding:5px 8px;border-radius:4px;">
+          <option value="abs_z" {% if filters.sort=='abs_z' %}selected{% endif %}>|z|</option>
+          <option value="date"  {% if filters.sort=='date'  %}selected{% endif %}>date</option>
+          <option value="first_return_pct" {% if filters.sort=='first_return_pct' %}selected{% endif %}>1h return</option>
+          <option value="first_range_pct"  {% if filters.sort=='first_range_pct'  %}selected{% endif %}>1h range</option>
+          <option value="gap_pct" {% if filters.sort=='gap_pct' %}selected{% endif %}>gap %</option>
+          <option value="consolidation_score" {% if filters.sort=='consolidation_score' %}selected{% endif %}>consolidation</option>
+          <option value="outcome_5d_pct" {% if filters.sort=='outcome_5d_pct' %}selected{% endif %}>outcome 5d</option>
+        </select>
+      </label>
+      <label>Order
+        <select name="desc" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text-primary);padding:5px 8px;border-radius:4px;">
+          <option value="1" {% if filters.desc==1 %}selected{% endif %}>desc</option>
+          <option value="0" {% if filters.desc==0 %}selected{% endif %}>asc</option>
+        </select>
+      </label>
+      <div style="display:flex;align-items:flex-end;gap:8px;">
+        <button type="submit" class="btn btn-primary" style="height:30px;">Apply</button>
+        <a href="/research/explosive-moves" class="btn btn-secondary" style="height:30px;line-height:18px;">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Triggers (filtered)</span></div>
+    <div class="card-body" style="font-size:12px;">
+      {% if trigger_breakdown %}
+        <table style="width:100%;border-collapse:collapse;">
+          {% for combo, n in trigger_breakdown.items() %}
+            <tr><td style="padding:3px 6px;color:var(--text-secondary);">{{ combo }}</td>
+                <td style="padding:3px 6px;text-align:right;font-variant-numeric:tabular-nums;">{{ "{:,}".format(n) }}</td></tr>
+          {% endfor %}
+        </table>
+      {% else %}<em style="color:var(--text-secondary);">no rows</em>{% endif %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">5d outcome (filtered)</span></div>
+    <div class="card-body" style="font-size:12px;">
+      {% if outcome_breakdown %}
+        <table style="width:100%;border-collapse:collapse;">
+          {% for label, n in outcome_breakdown.items() %}
+            <tr><td style="padding:3px 6px;color:var(--text-secondary);">{{ label }}</td>
+                <td style="padding:3px 6px;text-align:right;font-variant-numeric:tabular-nums;">{{ "{:,}".format(n) }}</td></tr>
+          {% endfor %}
+        </table>
+      {% else %}<em style="color:var(--text-secondary);">no rows</em>{% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">Hits</span></div>
+  <div class="card-body" style="overflow-x:auto;">
+    {% if rows %}
+    <table style="width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums;">
+      <thead style="background:var(--surface-2);">
+        <tr>
+          <th style="text-align:left;padding:6px 8px;">Symbol</th>
+          <th style="text-align:left;padding:6px 8px;">Date</th>
+          <th style="text-align:center;padding:6px 8px;">Dir</th>
+          <th style="text-align:left;padding:6px 8px;">Triggers</th>
+          <th style="text-align:right;padding:6px 8px;">1h ret %</th>
+          <th style="text-align:right;padding:6px 8px;">|z|</th>
+          <th style="text-align:right;padding:6px 8px;">1h rng %</th>
+          <th style="text-align:right;padding:6px 8px;">Gap %</th>
+          <th style="text-align:right;padding:6px 8px;">Consol</th>
+          <th style="text-align:right;padding:6px 8px;">ATR contr</th>
+          <th style="text-align:right;padding:6px 8px;">SMA9-20</th>
+          <th style="text-align:center;padding:6px 8px;">Earn</th>
+          <th style="text-align:right;padding:6px 8px;">5d outcome</th>
+          <th style="text-align:center;padding:6px 8px;">Label</th>
+          <th style="text-align:left;padding:6px 8px;">TV</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:5px 8px;font-weight:600;">{{ r.symbol }}</td>
+            <td style="padding:5px 8px;">{{ r.date }}</td>
+            <td style="padding:5px 8px;text-align:center;">
+              {% if r.direction == 'UP' %}<span style="color:var(--accent-green);">▲</span>
+              {% else %}<span style="color:var(--accent-red);">▼</span>{% endif %}
+            </td>
+            <td style="padding:5px 8px;font-size:11px;color:var(--text-secondary);">{{ r.triggers }}</td>
+            <td style="padding:5px 8px;text-align:right;{% if r.first_return_pct and r.first_return_pct>=0 %}color:var(--accent-green);{% else %}color:var(--accent-red);{% endif %}">
+              {% if r.first_return_pct is not none %}{{ "%+.2f"|format(r.first_return_pct) }}{% endif %}
+            </td>
+            <td style="padding:5px 8px;text-align:right;">
+              {% if r.first_return_z is not none %}{{ "%.2f"|format(r.first_return_z|abs) }}{% endif %}
+            </td>
+            <td style="padding:5px 8px;text-align:right;">
+              {% if r.first_range_pct is not none %}{{ "%.2f"|format(r.first_range_pct) }}{% endif %}
+            </td>
+            <td style="padding:5px 8px;text-align:right;{% if r.gap_pct and r.gap_pct>=0 %}color:var(--accent-green);{% else %}color:var(--accent-red);{% endif %}">
+              {% if r.gap_pct is not none %}{{ "%+.2f"|format(r.gap_pct) }}{% endif %}
+            </td>
+            <td style="padding:5px 8px;text-align:right;">
+              {% if r.consolidation_score is not none %}{{ "%.2f"|format(r.consolidation_score) }}{% endif %}
+            </td>
+            <td style="padding:5px 8px;text-align:right;">
+              {% if r.atr_contraction is not none %}{{ "%.2f"|format(r.atr_contraction) }}{% endif %}
+            </td>
+            <td style="padding:5px 8px;text-align:right;">
+              {% if r.sma9_sma20_spread_pct is not none %}{{ "%.2f"|format(r.sma9_sma20_spread_pct*100) }}%{% endif %}
+            </td>
+            <td style="padding:5px 8px;text-align:center;">
+              {% if r.is_earnings_day %}<span class="badge badge-amber" style="font-size:10px;">E</span>{% endif %}
+              {% if r.is_split_day %}<span class="badge badge-blue" style="font-size:10px;">SP</span>{% endif %}
+              {% if r.is_dividend_day %}<span class="badge badge-blue" style="font-size:10px;">D</span>{% endif %}
+            </td>
+            <td style="padding:5px 8px;text-align:right;{% if r.outcome_5d_pct and r.outcome_5d_pct>=0 %}color:var(--accent-green);{% else %}color:var(--accent-red);{% endif %}">
+              {% if r.outcome_5d_pct is not none %}{{ "%+.2f"|format(r.outcome_5d_pct) }}{% endif %}
+            </td>
+            <td style="padding:5px 8px;text-align:center;font-size:10px;">
+              {% if r.outcome_label == 'CONTINUE' %}<span style="background:#0d3a1f;color:#7ee5a4;padding:2px 6px;border-radius:3px;">CONT</span>
+              {% elif r.outcome_label == 'REVERSE' %}<span style="background:#3a0d1f;color:#e57e7e;padding:2px 6px;border-radius:3px;">REV</span>
+              {% elif r.outcome_label == 'FADE' %}<span style="background:#3a3a0d;color:#e5d57e;padding:2px 6px;border-radius:3px;">FADE</span>
+              {% else %}<span style="color:var(--text-secondary);">—</span>{% endif %}
+            </td>
+            <td style="padding:5px 8px;">
+              <a href="{{ r.tv_url }}" target="_blank" rel="noopener" title="Open in TradingView (30m)" style="color:var(--accent-blue);text-decoration:none;font-size:11px;">↗ TV</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p style="color:var(--text-secondary);">No rows match the current filters.</p>
+    {% endif %}
+  </div>
+</div>
+{% else %}
+<div class="card">
+  <div class="card-body">
+    <p>The explosive-moves CSV doesn't exist yet. Generate it with:</p>
+    <pre style="background:var(--surface-2);padding:10px;border-radius:4px;overflow-x:auto;">python scripts/find_explosive_first_hour.py --screener core_universe_100</pre>
+    <p>Then refresh this page.</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

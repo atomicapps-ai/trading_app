@@ -1,0 +1,172 @@
+// © 2026-05-09 — Trading_app research
+//@version=6
+indicator("Explosive First-Hour Move (z + ATR-mult gate)",
+     shorttitle = "ExploFH",
+     overlay    = true,
+     max_labels_count = 500,
+     max_boxes_count  = 500)
+
+// =========================================================================
+// Three independent definitions of "explosive first-hour":
+//
+//   RET   — first-hour open-to-close return moved one way hard
+//             |z(first_return)| >= Z  AND  |first_return| >= ATR_MULT * atr%
+//
+//   RANGE — first-hour wick / whipsaw, regardless of where it closed
+//             z(first_range) >= Z   AND   first_range >= ATR_MULT * atr%
+//
+//   GAP   — overnight gap was extreme (today's open vs prior daily close)
+//             |z(gap)| >= Z          AND   |gap| >= ATR_MULT * atr%
+//
+// Use a 30-minute chart so the bar grid aligns with 09:30 + 10:00 ET.
+// =========================================================================
+
+// ----- inputs ------------------------------------------------------------
+z_thresh    = input.float(3.0,  "z-score threshold (|z| >= this)",      minval = 1.0, step = 0.1)
+atr_mult    = input.float(0.75, "ATR multiple (|move| >= this * ATR%)", minval = 0.0, step = 0.05)
+hist_window = input.int(252,    "rolling samples (one per trading day)", minval = 60)
+fire_ret    = input.bool(true,  "trigger on first-hour RETURN")
+fire_range  = input.bool(true,  "trigger on first-hour RANGE (wick)")
+fire_gap    = input.bool(true,  "trigger on overnight GAP")
+draw_band   = input.bool(true,  "draw box covering the first-hour range on flagged days")
+show_table  = input.bool(true,  "show stats table")
+
+// ----- bar identification (US Eastern) -----------------------------------
+hour_ny    = hour(time, "America/New_York")
+minute_ny  = minute(time, "America/New_York")
+is_first_bar  = hour_ny == 9  and minute_ny == 30
+is_second_bar = hour_ny == 10 and minute_ny == 0
+
+var float first_open = na
+var float first_high = na
+var float first_low  = na
+
+if is_first_bar
+    first_open := open
+    first_high := high
+    first_low  := low
+
+if is_second_bar
+    first_high := math.max(first_high, high)
+    first_low  := math.min(first_low,  low)
+
+// First-hour return / range — populated only on the 10:00 bar
+first_hour_return = is_second_bar and not na(first_open) ? close / first_open - 1.0       : na
+first_hour_range  = is_second_bar and not na(first_open) ? (first_high - first_low) / first_open : na
+
+// ----- prior daily close (for gap calc) ---------------------------------
+// Use lookahead_off so today's daily bar is not visible until the day closes.
+prev_daily_close = request.security(syminfo.tickerid, "D", close[1], lookahead = barmerge.lookahead_off)
+gap_today        = is_first_bar and not na(prev_daily_close) and prev_daily_close > 0 ? open / prev_daily_close - 1.0 : na
+
+// We commit the gap value at the 09:30 bar but evaluate triggers at the
+// 10:00 bar (so gap_z, range_z, return_z all compute together).
+var float gap_for_today = na
+if is_first_bar
+    gap_for_today := gap_today
+
+// ----- daily ATR (% of close) -------------------------------------------
+atr14_d = request.security(syminfo.tickerid, "D", ta.atr(14), lookahead = barmerge.lookahead_off)
+close_d = request.security(syminfo.tickerid, "D", close,      lookahead = barmerge.lookahead_off)
+atr_pct_d = not na(atr14_d) and not na(close_d) and close_d > 0 ? atr14_d / close_d : na
+
+// ----- per-symbol rolling means / stds ---------------------------------
+var array<float> ret_arr = array.new<float>()
+var array<float> rng_arr = array.new<float>()
+var array<float> gap_arr = array.new<float>()
+
+if is_second_bar and not na(first_hour_return)
+    array.push(ret_arr, first_hour_return)
+    if array.size(ret_arr) > hist_window
+        array.shift(ret_arr)
+
+if is_second_bar and not na(first_hour_range)
+    array.push(rng_arr, first_hour_range)
+    if array.size(rng_arr) > hist_window
+        array.shift(rng_arr)
+
+if is_second_bar and not na(gap_for_today)
+    array.push(gap_arr, gap_for_today)
+    if array.size(gap_arr) > hist_window
+        array.shift(gap_arr)
+
+n_ret = array.size(ret_arr)
+n_rng = array.size(rng_arr)
+n_gap = array.size(gap_arr)
+
+ret_mean = n_ret > 5 ? array.avg(ret_arr)   : na
+ret_std  = n_ret > 5 ? array.stdev(ret_arr) : na
+rng_mean = n_rng > 5 ? array.avg(rng_arr)   : na
+rng_std  = n_rng > 5 ? array.stdev(rng_arr) : na
+gap_mean = n_gap > 5 ? array.avg(gap_arr)   : na
+gap_std  = n_gap > 5 ? array.stdev(gap_arr) : na
+
+// ----- z-scores at the 10:00 bar ---------------------------------------
+ret_z_now    = is_second_bar and not na(first_hour_return) and not na(ret_mean) and not na(ret_std) and ret_std > 0 ? (first_hour_return - ret_mean) / ret_std : na
+range_z_now  = is_second_bar and not na(first_hour_range)  and not na(rng_mean) and not na(rng_std) and rng_std > 0 ? (first_hour_range  - rng_mean) / rng_std : na
+gap_z_now    = is_second_bar and not na(gap_for_today)     and not na(gap_mean) and not na(gap_std) and gap_std > 0 ? (gap_for_today    - gap_mean) / gap_std : na
+
+// ----- triggers --------------------------------------------------------
+ret_trigger   = fire_ret   and not na(ret_z_now)   and math.abs(ret_z_now)   >= z_thresh and not na(atr_pct_d) and math.abs(first_hour_return) >= atr_mult * atr_pct_d
+range_trigger = fire_range and not na(range_z_now) and range_z_now            >= z_thresh and not na(atr_pct_d) and first_hour_range            >= atr_mult * atr_pct_d
+gap_trigger   = fire_gap   and not na(gap_z_now)   and math.abs(gap_z_now)    >= z_thresh and not na(atr_pct_d) and math.abs(gap_for_today)     >= atr_mult * atr_pct_d
+exploded      = ret_trigger or range_trigger or gap_trigger
+
+// Direction label for the marker — prefer return sign, fall back to gap sign
+dir_up = exploded and ((ret_trigger and first_hour_return > 0) or (gap_trigger and gap_for_today > 0) or range_trigger)
+dir_dn = exploded and ((ret_trigger and first_hour_return < 0) or (gap_trigger and gap_for_today < 0))
+
+// ----- visuals ----------------------------------------------------------
+// Plot a big arrow on the 09:30 bar (offset = -1 because exploded fires at the 10:00 bar)
+plotshape(dir_up,  title = "Explosive UP",   style = shape.triangleup,   color = color.new(color.lime, 0), size = size.large, location = location.belowbar, offset = -1, text = "UP")
+plotshape(dir_dn,  title = "Explosive DOWN", style = shape.triangledown, color = color.new(color.red,  0), size = size.large, location = location.abovebar, offset = -1, text = "DN")
+
+// Optional: tag which trigger(s) fired
+if exploded
+    label.new(x = bar_index - 1,
+              y = high,
+              text = (ret_trigger ? "RET " : "") + (range_trigger ? "RNG " : "") + (gap_trigger ? "GAP" : ""),
+              style = label.style_label_down,
+              color = color.new(color.yellow, 70),
+              textcolor = color.black,
+              size = size.small,
+              yloc = yloc.abovebar)
+
+// Box covering the first-hour range
+if draw_band and exploded
+    box.new(left  = bar_index - 1,
+            top   = first_high,
+            right = bar_index,
+            bottom = first_low,
+            border_color = first_hour_return >= 0 ? color.new(color.lime, 50) : color.new(color.red, 50),
+            bgcolor      = first_hour_return >= 0 ? color.new(color.lime, 85) : color.new(color.red, 85))
+
+// ----- stats panel ------------------------------------------------------
+var table panel = table.new(position.top_right, 2, 11, frame_color = color.gray, frame_width = 1)
+if show_table and barstate.islast
+    table.cell(panel, 0,  0, "ExploFH",        bgcolor = color.new(color.gray, 60), text_color = color.white)
+    table.cell(panel, 1,  0, syminfo.ticker,   bgcolor = color.new(color.gray, 60), text_color = color.white)
+    table.cell(panel, 0,  1, "samples (ret)")
+    table.cell(panel, 1,  1, str.tostring(n_ret))
+    table.cell(panel, 0,  2, "mean 1h ret")
+    table.cell(panel, 1,  2, na(ret_mean) ? "n/a" : str.tostring(ret_mean * 100, "#.###") + "%")
+    table.cell(panel, 0,  3, "std  1h ret")
+    table.cell(panel, 1,  3, na(ret_std)  ? "n/a" : str.tostring(ret_std  * 100, "#.###") + "%")
+    table.cell(panel, 0,  4, "mean 1h range")
+    table.cell(panel, 1,  4, na(rng_mean) ? "n/a" : str.tostring(rng_mean * 100, "#.###") + "%")
+    table.cell(panel, 0,  5, "std  1h range")
+    table.cell(panel, 1,  5, na(rng_std)  ? "n/a" : str.tostring(rng_std  * 100, "#.###") + "%")
+    table.cell(panel, 0,  6, "mean gap")
+    table.cell(panel, 1,  6, na(gap_mean) ? "n/a" : str.tostring(gap_mean * 100, "#.###") + "%")
+    table.cell(panel, 0,  7, "std  gap")
+    table.cell(panel, 1,  7, na(gap_std)  ? "n/a" : str.tostring(gap_std  * 100, "#.###") + "%")
+    table.cell(panel, 0,  8, "ATR% (daily)")
+    table.cell(panel, 1,  8, na(atr_pct_d) ? "n/a" : str.tostring(atr_pct_d * 100, "#.##") + "%")
+    table.cell(panel, 0,  9, "z threshold")
+    table.cell(panel, 1,  9, str.tostring(z_thresh))
+    table.cell(panel, 0, 10, "ATR mult")
+    table.cell(panel, 1, 10, str.tostring(atr_mult))
+
+// ----- alerts -----------------------------------------------------------
+alertcondition(dir_up, title = "Explosive first-hour UP",   message = "{{ticker}} explosive first-hour UP at 10:00 ET")
+alertcondition(dir_dn, title = "Explosive first-hour DOWN", message = "{{ticker}} explosive first-hour DOWN at 10:00 ET")

@@ -32,6 +32,7 @@ from routers import (
     pending,
     positions as positions_router,
     replay as replay_router,
+    research as research_router,
     settings as settings_router,
     stock_lists,
     strategies as strategies_router,
@@ -162,6 +163,7 @@ app.include_router(today_router.router)
 app.include_router(system_health_router.router)
 app.include_router(bars.router)
 app.include_router(data_fetch.router)
+app.include_router(research_router.router)
 app.include_router(indicators.router)
 # Register stock_lists BEFORE universe — universe has /universe/{preset_name}
 # which would shadow /universe/stock-lists if mounted in the wrong order.

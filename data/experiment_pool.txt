@@ -1,0 +1,83 @@
+# Experiment pool for empirical breakout analysis — ~60 diverse symbols.
+# Lines starting with # are comments. Edit freely before running.
+
+# Mega-cap tech (anchor set — high liquidity, deep history)
+AAPL
+MSFT
+GOOGL
+META
+AMZN
+NVDA
+AVGO
+TSLA
+ORCL
+NFLX
+
+# Semiconductors (beyond mega-cap)
+AMD
+INTC
+QCOM
+MU
+AMAT
+LRCX
+ASML
+TSM
+ARM
+MRVL
+
+# AI / Data / Cloud
+PLTR
+SMCI
+ANET
+CRWD
+SNOW
+DDOG
+PANW
+NET
+
+# Critical minerals / Rare Earth / Lithium
+MP
+UUUU
+LAC
+ALB
+SQM
+REMX
+
+# Oil & Energy
+XOM
+CVX
+COP
+OXY
+EOG
+SLB
+DVN
+FANG
+
+# Robotics / Automation
+ISRG
+ABB
+ROK
+SYM
+TER
+ZBRA
+
+# Quantum computing (recent IPOs — limited pre-2021 history)
+IONQ
+RGTI
+QBTS
+ARQQ
+QUBT
+
+# Defense / Space / Emerging
+ASTS
+RKLB
+LMT
+RTX
+BA
+
+# Index ETFs (market + sector context)
+SPY
+QQQ
+IWM
+SMH
+XLE

@@ -345,50 +345,50 @@ presets:
     - WIX
     - WM
   core_universe_100:
-    refreshed_at: '2026-05-09T19:27:25.354892+00:00'
-    source: finviz_plus_local_atr_sma
+    refreshed_at: '2026-05-09T19:47:03.613117+00:00'
+    source: seeded_from_md
     tickers:
-    - AAPL
-    - ADI
-    - AFL
-    - AHR
-    - AMAT
     - AMD
-    - AMH
-    - AMZN
-    - AVGO
-    - BF-B
-    - BNL
-    - CDNS
-    - CTRE
-    - CTVA
-    - DLR
-    - ESI
-    - EXEL
-    - FCX
-    - FLEX
-    - FOXA
-    - FTNT
-    - GOOG
-    - GOOGL
-    - GTES
-    - HOG
-    - HWM
-    - LRCX
-    - MNST
-    - NEM
-    - NVDA
-    - OHI
-    - PPG
-    - ROST
     - TDC
-    - TSLA
+    - FLEX
+    - LRCX
+    - BF-B
+    - HOG
+    - FCX
+    - NEM
+    - ESI
+    - FTNT
+    - AMAT
+    - GTES
     - XYZ
     - ZM
-    - BAC
-    - GS
-    - UNH
+    - TSLA
+    - AVGO
+    - HWM
+    - EXEL
+    - PPG
+    - CDNS
     - LLY
+    - NVDA
+    - MNST
+    - AHR
+    - ADI
+    - AMZN
+    - GS
+    - CTVA
+    - FOXA
+    - BAC
+    - UNH
+    - GOOGL
+    - CTRE
+    - GOOG
+    - AAPL
+    - DLR
+    - OHI
+    - AFL
+    - AMH
+    - ROST
     - WMT
     - COST
+    - BNL
     - KO
