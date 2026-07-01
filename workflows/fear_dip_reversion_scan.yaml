@@ -1,0 +1,28 @@
+workflow_id: fear_dip_reversion_scan
+description: >
+  Daily post-close scan for the Fear-Dip Reversion strategy (S5). Screens
+  liquid_momentum_core, runs only the mean-reversion detector (fear-regime gated),
+  builds plans, and queues them to /pending for human approval. Paper mode.
+default_mode: paper
+schedule: "20 16 * * 1-5"   # 16:20 ET Mon-Fri (staggered after Momentum Breakout)
+
+steps:
+  - id: filter_universe
+    kind: filter_universe
+    params:
+      preset: liquid_momentum_core
+      shortlist_size: 60
+  - id: compute_macro
+    kind: compute_macro
+    depends_on: [filter_universe]
+  - id: analyze
+    kind: analyze
+    params:
+      strategy: fear_dip_reversion
+      lenses: [technical, macro]
+    depends_on: [compute_macro]
+  - id: plan
+    kind: plan
+    params:
+      strategy: fear_dip_reversion
+    depends_on: [analyze]

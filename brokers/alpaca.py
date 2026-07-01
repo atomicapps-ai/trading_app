@@ -104,6 +104,15 @@ def _build_order_request(order: Order):
         "client_order_id": order.client_order_id,
         "extended_hours": order.extended_hours,
     }
+    # Bracket: attach OCO take-profit + stop-loss so exits are enforced by the
+    # broker even when our app is offline. Alpaca derives the leg sides from the
+    # entry side automatically.
+    if order.order_class == "bracket" and order.take_profit_price and order.stop_loss_price:
+        from alpaca.trading.enums import OrderClass
+        from alpaca.trading.requests import StopLossRequest, TakeProfitRequest
+        kwargs["order_class"] = OrderClass.BRACKET
+        kwargs["take_profit"] = TakeProfitRequest(limit_price=round(float(order.take_profit_price), 2))
+        kwargs["stop_loss"] = StopLossRequest(stop_price=round(float(order.stop_loss_price), 2))
     t = order.order_type
     if t == "market":
         return MarketOrderRequest(**kwargs)

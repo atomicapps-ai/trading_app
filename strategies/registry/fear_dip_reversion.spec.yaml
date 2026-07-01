@@ -1,0 +1,36 @@
+name: fear_dip_reversion
+display_name: Fear-Dip Reversion
+source_video: k-X0164r66U          # Lance — mean-reversion half
+family: mean-reversion
+instrument_timeframe: US stocks, daily
+data_fit: daily-stock testable
+status: DEPLOYED                    # live on paper via fear_dip_reversion_scan
+
+rules:
+  entry: close <= SMA50 - 3.0 x ATR(14)  (stretched below the mean; next-open fill)
+  stop: entry - 1.0 x ATR(14)
+  target: TP1 ~2.2R, TP2 = SMA50 (the mean)
+  hold: up to ~45 bars
+  direction: long only
+
+filters:                            # validated via attribution (OOS)
+  fear_regime: "fire only when SPY<200MA OR VIX>=26 (calm VIX<18 was worst, 0.12R)"
+  fear_extreme: "VIX>=32 = strongest tier (win 46%, PF 3.13)"
+  uptrend_dip: "close>200MA (buy a dip in an uptrend, not a falling knife) = bonus"
+  removed: "climax-volume bonus dropped — vol>=2x dips tested slightly WORSE"
+
+tuned_params:
+  stretch_atr_mult: 3.0
+  stop_atr_mult: 1.0
+  require_fear_regime: true
+  fear_vix_min: 26.0
+  fear_vix_extreme: 32.0
+
+results_oos:                        # 90 stocks, 2006-2026, 10bps cost
+  baseline: { win_pct: 32, expectancy_R: 0.51, profit_factor: 1.68 }
+  tuned_extreme_fear: { win_pct: 46, expectancy_R: 1.14, profit_factor: 3.13 }
+  beats_random_control: true
+caveats: best dips occur in weak markets; survivorship in the universe.
+detector: agents/detectors/s5_mean_reversion.py
+config: strategy_configs/fear_dip_reversion.yaml
+doc: strategies/strategy_docs/S5_price_action_primitives.md

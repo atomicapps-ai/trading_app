@@ -1,0 +1,55 @@
+{
+  "strategy": "s4_supply_demand",
+  "config": {
+    "universe": "daily stocks",
+    "trend_filter": "close > SMA200 (longs only)",
+    "demand_zone": "candle whose next 3 bars gain >= 1.5*ATR14; zone=[low,high] of that candle",
+    "entry": "price retraces into zone (low touched) -> zone high",
+    "stop": "zone low - 0.1*ATR",
+    "target": "prior 20-bar swing high",
+    "rr_floor": null
+  },
+  "n_symbols": 90,
+  "results": {
+    "all": {
+      "n": 15395,
+      "win_pct": 44.5,
+      "expectancy_R": -0.068,
+      "profit_factor": 0.88,
+      "avg_win_R": 1.139,
+      "avg_loss_R": -1.037,
+      "max_dd_R": -1136.82,
+      "total_R": -1046.7
+    },
+    "in_sample": {
+      "n": 7697,
+      "win_pct": 44.7,
+      "expectancy_R": -0.0823,
+      "profit_factor": 0.86,
+      "avg_win_R": 1.104,
+      "avg_loss_R": -1.039,
+      "max_dd_R": -812.23,
+      "total_R": -633.2
+    },
+    "out_sample": {
+      "n": 7698,
+      "win_pct": 44.4,
+      "expectancy_R": -0.0537,
+      "profit_factor": 0.91,
+      "avg_win_R": 1.175,
+      "avg_loss_R": -1.035,
+      "max_dd_R": -560.1,
+      "total_R": -413.4
+    },
+    "random_control": {
+      "n": 15395,
+      "win_pct": 48.0,
+      "expectancy_R": -0.1171,
+      "profit_factor": 0.8,
+      "avg_win_R": 0.998,
+      "avg_loss_R": -1.148,
+      "max_dd_R": -1856.33,
+      "total_R": -1803.5
+    }
+  }
+}

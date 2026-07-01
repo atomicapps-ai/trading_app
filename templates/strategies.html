@@ -67,6 +67,8 @@
            title="Per-strategy history: actual + simulated trades over a date range">
           📊 History
         </a>
+        <button class="btn btn-sm btn-ghost" onclick="toggleConfig('{{ s.name }}', this)"
+                title="Edit filters, thresholds, and the stock list this strategy uses">⚙ Configure</button>
         <button class="btn btn-sm btn-ghost" onclick="toggleStrategy('{{ s.name }}', this)">
           {% if s.active %}⏸ Disable{% else %}▶ Enable{% endif %}
         </button>
@@ -153,6 +155,9 @@
       </tr>
       {% endif %}
     </table>
+
+    <div class="strategy-config-panel" id="cfg-{{ s.name }}" data-loaded="0"
+         style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px;"></div>
   </div>
   {% endfor %}
 {% endif %}
@@ -223,6 +228,15 @@ async function runStrategy(name, btn) {
     }
 
     const j = await r.json();
+    if (j.replay_only) {
+      if (strip) {
+        strip.className = 'run-result-strip neutral';
+        strip.innerHTML = '<span class="run-icon">↻</span>' +
+          '<span class="run-status">Replay-only</span>' +
+          '<span class="text-secondary text-xs">' + escapeHtml(j.note || '') + '</span>';
+      }
+      return;
+    }
     let signals = 0, plans = 0, approved = 0, blocked = 0, errors = 0;
     let firstErr = null;
     (j.runs || []).forEach(run => {
@@ -313,6 +327,83 @@ async function toggleAutoApprove(name, currentlyOn, btn) {
     alert('Toggle failed: ' + e.message);
     btn.disabled = false;
   }
+}
+
+// ===== Configure panel (filters/thresholds + stock list) =====
+async function toggleConfig(name, btn) {
+  const panel = document.getElementById('cfg-' + name);
+  if (!panel) return;
+  if (panel.style.display !== 'none') { panel.style.display = 'none'; return; }
+  panel.style.display = '';
+  if (panel.dataset.loaded === '1') return;
+  panel.innerHTML = '<div class="text-tertiary text-xs" style="padding:8px;">Loading config…</div>';
+  try {
+    const r = await fetch('/api/strategies/' + encodeURIComponent(name) + '/config');
+    if (!r.ok) { panel.innerHTML = '<div class="text-accent-red text-xs">Failed to load config (HTTP ' + r.status + ')</div>'; return; }
+    renderConfigForm(name, await r.json(), panel);
+    panel.dataset.loaded = '1';
+  } catch (e) {
+    panel.innerHTML = '<div class="text-accent-red text-xs">' + escapeHtml(e.message || String(e)) + '</div>';
+  }
+}
+
+function cfgField(det, key, val) {
+  if (typeof val === 'boolean') {
+    return '<label style="display:flex;align-items:center;gap:6px;font-size:12px;white-space:nowrap;">' +
+      '<input type="checkbox" data-det="' + det + '" data-key="' + key + '" ' + (val ? 'checked' : '') + '> ' + key + '</label>';
+  }
+  return '<label style="display:flex;flex-direction:column;gap:2px;font-size:10px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em;">' + key +
+    '<input class="form-input mono" type="number" step="any" data-det="' + det + '" data-key="' + key + '" value="' + val + '" style="width:130px;font-size:12px;"></label>';
+}
+
+function renderConfigForm(name, d, panel) {
+  let h = '<div class="text-tertiary text-xs" style="text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;font-weight:600;">⚙ Filters & thresholds</div>';
+  const pt = d.pattern_thresholds || {};
+  Object.keys(pt).forEach(det => {
+    h += '<div style="margin-bottom:10px;"><div class="mono text-xs" style="color:var(--text-secondary);margin-bottom:6px;">' + det + '</div>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;">';
+    Object.entries(pt[det]).forEach(([k, v]) => { h += cfgField(det, k, v); });
+    h += '</div></div>';
+  });
+  h += '<div class="text-tertiary text-xs" style="text-transform:uppercase;letter-spacing:.04em;margin:12px 0 6px;font-weight:600;">📋 Stock list (universe)</div>';
+  h += '<select id="cfg-universe-' + name + '" class="form-input" style="max-width:340px;font-size:12px;">';
+  let found = false;
+  (d.screeners || []).forEach(s => {
+    const sel = (s.name === d.universe) ? 'selected' : ''; if (sel) found = true;
+    h += '<option value="' + s.name + '" ' + sel + '>' + s.name + ' (' + s.tickers + ' tickers)</option>';
+  });
+  if (!found && d.universe) h += '<option value="' + d.universe + '" selected>' + d.universe + '</option>';
+  h += '</select>';
+  h += '<div class="text-tertiary text-xs" style="margin-top:4px;">Pick which list this strategy scans. Edit a list\'s contents at <a href="/universe" style="color:var(--accent-blue);">/universe</a>.</div>';
+  h += '<div style="margin-top:12px;display:flex;gap:10px;align-items:center;">' +
+       '<button class="btn btn-sm btn-primary" onclick="saveConfig(\'' + name + '\', this)">Save config</button>' +
+       '<span class="cfg-status text-xs text-tertiary"></span></div>';
+  panel.innerHTML = h;
+}
+
+async function saveConfig(name, btn) {
+  const panel = document.getElementById('cfg-' + name);
+  const pt = {};
+  panel.querySelectorAll('[data-det]').forEach(el => {
+    const det = el.dataset.det, key = el.dataset.key;
+    pt[det] = pt[det] || {};
+    pt[det][key] = (el.type === 'checkbox') ? el.checked : el.value;
+  });
+  const uni = document.getElementById('cfg-universe-' + name)?.value;
+  const status = panel.querySelector('.cfg-status');
+  btn.disabled = true; status.textContent = 'Saving…';
+  try {
+    const r = await fetch('/api/strategies/' + encodeURIComponent(name) + '/config', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pattern_thresholds: pt, universe: uni }),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { status.innerHTML = '<span class="text-accent-red">Failed: ' + escapeHtml(j.detail || ('HTTP ' + r.status)) + '</span>'; }
+    else { status.innerHTML = '<span class="text-accent-green">✓ Saved ' + (j.changed || []).length + ' field(s) — applies on next run.</span>'; }
+  } catch (e) {
+    status.innerHTML = '<span class="text-accent-red">Error: ' + escapeHtml(e.message || String(e)) + '</span>';
+  }
+  btn.disabled = false;
 }
 </script>
 {% endblock %}

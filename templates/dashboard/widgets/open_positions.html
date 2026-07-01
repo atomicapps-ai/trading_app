@@ -1,0 +1,63 @@
+{# Open Positions — one card per live position. Joins broker position with its
+   TradePlan for entry time, time-held, stop, strategy. Click → full detail. #}
+{% if error %}
+  <div class="empty text-tertiary">{{ error }}</div>
+{% endif %}
+{% if not positions %}
+  <div class="empty text-tertiary">No open positions.</div>
+{% else %}
+<div class="open-positions">
+  {% for p in positions %}
+  {% set href = "/trades/" ~ p.plan_id if p.plan_id else None %}
+  <div class="position-card {% if p.pnl_usd >= 0 %}pos-up{% else %}pos-down{% endif %}"
+       {% if href %}onclick="if(!event.target.closest('.pos-close'))window.location='{{ href }}'" style="cursor:pointer"{% endif %}>
+    <div class="position-head">
+      <span class="position-symbol mono">{{ p.symbol }}</span>
+      <span class="badge {% if p.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ p.direction|upper }}</span>
+      <span class="position-strategy text-tertiary text-sm">{{ p.strategy }}</span>
+      <span class="position-pnl mono {% if p.pnl_usd >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">
+        {{ "%+.0f"|format(p.pnl_usd) }} <span class="text-sm">({{ "%+.2f"|format(p.pnl_pct) }}%{% if p.pnl_r is not none %} · {{ "%+.2f"|format(p.pnl_r) }}R{% endif %})</span>
+      </span>
+      <button class="btn btn-sm pos-close"
+              onclick="closePosition('{{ p.symbol }}', this)"
+              title="Close this position at market now">Close ASAP</button>
+    </div>
+    <div class="position-grid text-sm">
+      <div><span class="text-tertiary">Entered</span><br><span class="mono">{{ (p.entry_ts[:16]|replace('T',' ')) if p.entry_ts else '—' }}</span></div>
+      <div><span class="text-tertiary">Held</span><br><span class="mono">{{ p.held }}</span></div>
+      <div><span class="text-tertiary">Entry</span><br><span class="mono">{{ "%.5g"|format(p.entry) }}</span></div>
+      <div><span class="text-tertiary">Current</span><br><span class="mono">{{ "%.5g"|format(p.current) }}</span></div>
+      <div><span class="text-tertiary">Stop</span><br><span class="mono {% if p.stop is none %}text-accent-red{% endif %}">{{ "%.5g"|format(p.stop) if p.stop is not none else 'none!' }}</span></div>
+      <div><span class="text-tertiary">TP1</span><br><span class="mono">{{ "%.5g"|format(p.tp1) if p.tp1 is not none else '—' }}</span></div>
+      <div><span class="text-tertiary">Size</span><br><span class="mono">{{ p.shares }}</span></div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<script>
+async function closePosition(symbol, btn) {
+  if (!confirm('Close ' + symbol + ' at market now?')) return;
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Closing…';
+  try {
+    const r = await fetch('/api/positions/' + encodeURIComponent(symbol) + '/close', { method: 'POST' });
+    if (r.ok) { btn.textContent = 'Closed ✓'; setTimeout(() => location.reload(), 800); }
+    else { btn.textContent = 'Failed'; btn.disabled = false; }
+  } catch (e) { btn.textContent = 'Error'; btn.disabled = false; }
+}
+</script>
+
+<style>
+.open-positions { display:flex; flex-direction:column; gap:10px; }
+.position-card { border:1px solid var(--surface-3,#2a2f3a); border-left:3px solid #555;
+  border-radius:8px; padding:10px 12px; background:var(--surface-1,#161a22); transition:border-color .15s; }
+.position-card.pos-up { border-left-color:#26a69a; } .position-card.pos-down { border-left-color:#ef5350; }
+.position-card:hover { border-color:var(--accent,#4a90d9); }
+.position-head { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.position-symbol { font-size:16px; font-weight:600; }
+.position-strategy { flex:1; }
+.position-pnl { font-weight:600; }
+.position-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; margin-top:8px; }
+@media (max-width:720px){ .position-grid{ grid-template-columns:repeat(3,1fr);} }
+</style>

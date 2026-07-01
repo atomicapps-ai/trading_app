@@ -449,15 +449,31 @@ async def strategy_history_data(
         raise HTTPException(400, f"bad date format: {e}")
 
     sym_list = [x.strip().upper() for x in symbols.split(",") if x.strip()]
-    if not sym_list:
+    # fvg_continuation supplies its own FX pairs in replay_fvg, so it doesn't
+    # require the equity symbol list the daily strategies use.
+    if not sym_list and name != "fvg_continuation":
         raise HTTPException(400, "no symbols supplied")
 
     # ---- Simulated trades via the replay engine ----
+    # Engine dispatch by timeframe: intraday strategies (double_lock) use the
+    # 10:30 ET replay; daily swing strategies (momentum_breakout, fear_dip_
+    # reversion, swing_momentum) use replay_swing.
+    cfg_for_engine = _load_strategy(files[name])
+    is_intraday = str(cfg_for_engine.get("holding_period", "swing_days")) == "intraday"
     simulated: list[dict] = []
     sim_error: str | None = None
     try:
-        from scripts.replay_dl import replay
-        sim_trades = await replay(
+        if name == "fvg_continuation":
+            # FX intraday FVG-continuation has its own session-aware replay (FX 30m).
+            from scripts.replay_fvg import replay as _replay
+            trig = "NY"
+        elif is_intraday:
+            from scripts.replay_dl import replay as _replay
+            trig = "10:30"
+        else:
+            from scripts.replay_swing import replay as _replay
+            trig = "EOD"
+        sim_trades = await _replay(
             symbols=sym_list, since=since_d, until=until_d,
             strategy=name, refresh=refresh, ignore_regime=ignore_regime,
         )
@@ -465,13 +481,13 @@ async def strategy_history_data(
             simulated.append({
                 "source":      "simulated",
                 "date":        t.date_str,
-                "trigger_et":  "10:30",   # DL fires at 10:30 ET; future strategies override
+                "trigger_et":  trig,
                 "symbol":      t.symbol,
                 "direction":   t.direction.lower(),
                 "entry":       t.entry,
                 "stop":        t.stop,
                 "exit":        t.exit_px,
-                "tp":          None,           # DL replay simulates EOD/stop only, no TP target
+                "tp":          getattr(t, "tp", None),
                 "exit_reason": t.exit_reason,
                 "pnl_pct":     t.pnl_pct,
                 "pnl_per_100": t.pnl_dollars_per_100shr,
@@ -605,6 +621,27 @@ async def run_strategy(name: str, mode: str | None = None,
         if name in wf["strategies_used"] or wf["workflow_id"] == name
     ]
     if not matching:
+        # Replay-only strategies (e.g. fvg_continuation — FX, no live broker yet)
+        # have no scheduled workflow. Return a clear status instead of a 404 so the
+        # ▶ Run button explains itself rather than "failing".
+        from services.settings_service import STRATEGY_CONFIG_DIR
+        import yaml as _yaml
+        cfg_path = STRATEGY_CONFIG_DIR / f"{name}.yaml"
+        cfg = {}
+        if cfg_path.exists():
+            try:
+                cfg = _yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
+            except Exception:  # noqa: BLE001
+                cfg = {}
+        if cfg.get("live_wired") is False or cfg.get("asset_class") == "forex":
+            broker = cfg.get("broker_required", "an FX broker")
+            return {
+                "strategy": name, "runs": [],
+                "note": (f"{name} is replay-only — it needs {broker} + an intraday "
+                         f"workflow before it can run live. Use the History view to "
+                         f"review its signals."),
+                "replay_only": True,
+            }
         raise HTTPException(
             404,
             f"no workflow mentions strategy {name!r}. Add it to a step's "
@@ -621,3 +658,141 @@ async def run_strategy(name: str, mode: str | None = None,
                 "workflow_id": wf["workflow_id"], "error": str(e),
             })
     return {"strategy": name, "runs": results}
+
+
+# ---------------------------------------------------------------------- #
+# Strategy configuration editor (filters/thresholds + stock list)
+# ---------------------------------------------------------------------- #
+
+import re as _re  # noqa: E402
+
+
+def _yaml_replace_scalar(text: str, key: str, value, *, nth: int = 1) -> tuple[str, bool]:
+    """Replace the value of ``key:`` in YAML text, preserving indentation and
+    inline comments elsewhere. Only the nth matching line is changed. Returns
+    (new_text, changed). Comment-preserving by design (we never re-dump)."""
+    if isinstance(value, bool):
+        v = "true" if value else "false"
+    elif isinstance(value, float):
+        v = repr(value)
+    elif isinstance(value, int):
+        v = str(value)
+    else:
+        v = str(value)
+    pat = _re.compile(rf"^(?P<indent>[ \t]*){_re.escape(key)}:[ \t]*\S.*$", _re.M)
+    matches = list(pat.finditer(text))
+    if len(matches) < nth:
+        return text, False
+    m = matches[nth - 1]
+    new_line = f"{m.group('indent')}{key}: {v}"
+    return text[:m.start()] + new_line + text[m.end():], True
+
+
+async def _workflows_for(name: str) -> list[str]:
+    wfs = await _load_workflows()
+    return [wf["workflow_id"] for wf in wfs if name in wf["strategies_used"]]
+
+
+def _workflow_universe(wf_id: str, fallback: str | None) -> str | None:
+    from services.workflow_engine import WORKFLOWS_DIR
+    wp = WORKFLOWS_DIR / f"{wf_id}.yaml"
+    if not wp.exists():
+        return fallback
+    doc = yaml.safe_load(wp.read_text(encoding="utf-8")) or {}
+    for st in doc.get("steps", []):
+        if st.get("kind") == "filter_universe":
+            return (st.get("params") or {}).get("preset", fallback)
+    return fallback
+
+
+@router.get("/api/strategies/{name}/config", response_class=JSONResponse)
+async def get_strategy_config(name: str) -> dict:
+    """Return the editable config for one strategy: per-detector thresholds,
+    the runtime universe (from its workflow), and the available screeners."""
+    files = {p.stem: p for p in _strategy_files()}
+    if name not in files:
+        raise HTTPException(404, f"unknown strategy: {name}")
+    cfg = _load_strategy(files[name])
+    wf_ids = await _workflows_for(name)
+    universe = cfg.get("universe_filter_preset")
+    for wid in wf_ids:
+        universe = _workflow_universe(wid, universe)
+        break
+    screeners: list[dict] = []
+    try:
+        from services import db_service
+        for p in await db_service.list_universe_presets():
+            screeners.append({"name": p.get("name"),
+                              "tickers": len(p.get("tickers") or [])})
+    except Exception as e:                                    # noqa: BLE001
+        logger.debug("config: screener list failed: %s", e)
+    return {
+        "name": name,
+        "title": cfg.get("strategy_name", name),
+        "universe": universe,
+        "screeners": screeners,
+        "detectors": cfg.get("detectors") or [],
+        "pattern_thresholds": cfg.get("pattern_thresholds") or {},
+        "workflows": wf_ids,
+    }
+
+
+@router.post("/api/strategies/{name}/config", response_class=JSONResponse)
+async def save_strategy_config(name: str, request: Request) -> dict:
+    """Persist edited thresholds + stock list back to the YAML (comment-safe).
+    Applies on the strategy's next run — no restart needed for params."""
+    files = {p.stem: p for p in _strategy_files()}
+    if name not in files:
+        raise HTTPException(404, f"unknown strategy: {name}")
+    body = await request.json()
+    thresholds = body.get("pattern_thresholds") or {}
+    universe = body.get("universe")
+
+    path = files[name]
+    text = path.read_text(encoding="utf-8")
+    changed: list[str] = []
+
+    for det, fields in thresholds.items():
+        for k, raw in (fields or {}).items():
+            v = raw
+            if isinstance(v, str):
+                if v.lower() in ("true", "false"):
+                    v = v.lower() == "true"
+                elif _re.fullmatch(r"-?\d+", v):
+                    v = int(v)
+                else:
+                    try:
+                        v = float(v)
+                    except ValueError:
+                        pass
+            text, ok = _yaml_replace_scalar(text, k, v)
+            if ok:
+                changed.append(f"{det}.{k}={v}")
+
+    try:
+        yaml.safe_load(text)
+    except Exception as e:                                    # noqa: BLE001
+        raise HTTPException(400, f"edit produced invalid YAML: {e}")
+    path.write_text(text, encoding="utf-8")
+
+    if universe:
+        t2, _ = _yaml_replace_scalar(
+            path.read_text(encoding="utf-8"), "universe_filter_preset", universe)
+        path.write_text(t2, encoding="utf-8")
+        from services.workflow_engine import WORKFLOWS_DIR
+        for wid in await _workflows_for(name):
+            wp = WORKFLOWS_DIR / f"{wid}.yaml"
+            if not wp.exists():
+                continue
+            wt, ok = _yaml_replace_scalar(wp.read_text(encoding="utf-8"), "preset", universe)
+            if ok:
+                try:
+                    yaml.safe_load(wt)
+                except Exception:                            # noqa: BLE001
+                    continue
+                wp.write_text(wt, encoding="utf-8")
+                changed.append(f"{wid}.universe={universe}")
+        changed.append(f"universe_filter_preset={universe}")
+
+    logger.info("strategy %s config updated: %s", name, changed)
+    return {"name": name, "changed": changed}

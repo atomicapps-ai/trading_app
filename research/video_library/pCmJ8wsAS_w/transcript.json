@@ -1,0 +1,427 @@
+[
+  {
+    "text": "Bollinger Bands\nIn this video, I m going to show you a trading",
+    "start": 0.08,
+    "duration": 1.78
+  },
+  {
+    "text": "strategy that works so good I just have to\ntell you guys. And it involves using Bollinger",
+    "start": 1.86,
+    "duration": 5.86
+  },
+  {
+    "text": "Bands and RS. It s simple, easy to use, and\nhas a pretty high success rate if you use",
+    "start": 7.72,
+    "duration": 5.579
+  },
+  {
+    "text": "it correctly. Well enough talk, let s get\nstraight to it.",
+    "start": 13.299,
+    "duration": 2.811
+  },
+  {
+    "text": "The first step for this strategy is setting\nup the Bollinger bands. If you ve never used",
+    "start": 16.11,
+    "duration": 3.87
+  },
+  {
+    "text": "Bollinger Bands before, your lucky you clicked\nthis video, because this indicator is absolutely",
+    "start": 19.98,
+    "duration": 5.43
+  },
+  {
+    "text": "incredible and is great way to find support\nand resistance levels.",
+    "start": 25.41,
+    "duration": 4.07
+  },
+  {
+    "text": "So the first thing we want to do is to go\nto trading view or whatever trading chart",
+    "start": 29.48,
+    "duration": 3.61
+  },
+  {
+    "text": "platform you use, click the indicators tab,\nand type in Bollinger Bands .",
+    "start": 33.09,
+    "duration": 4.7
+  },
+  {
+    "text": "Now, the default settings trading view will\ngive you, are nice, but we want to change",
+    "start": 37.79,
+    "duration": 4.67
+  },
+  {
+    "text": "them for this specific strategy.\nFirst thing you want to do is go to the length",
+    "start": 42.46,
+    "duration": 3.63
+  },
+  {
+    "text": "section and change this value to 30, make\nsure the standard deviation is set to 2.",
+    "start": 46.09,
+    "duration": 5.44
+  },
+  {
+    "text": "Then I m also going to remove the background\nof the indicator, and change the lines to",
+    "start": 51.53,
+    "duration": 2.64
+  },
+  {
+    "text": "red. This is all personal preference, you\ncan do whatever you prefer here.",
+    "start": 54.17,
+    "duration": 3.36
+  },
+  {
+    "text": "So if you didn t know, this is how Bollinger\nbands work. The center line, is a moving average.",
+    "start": 57.53,
+    "duration": 4.98
+  },
+  {
+    "text": "So whatever amount the length is, this indicator\nis going back that many candle sticks and",
+    "start": 62.51,
+    "duration": 5.57
+  },
+  {
+    "text": "finding the average between them. So for this\nstrategy we are going back 30 candlesticks.",
+    "start": 68.08,
+    "duration": 6.03
+  },
+  {
+    "text": "The lower and upper lines are standard deviation\nlines.",
+    "start": 74.11,
+    "duration": 3.21
+  },
+  {
+    "text": "Alright we got the Bollinger Bands setup,\nnow let s add the RSI.",
+    "start": 77.32,
+    "duration": 3.51
+  },
+  {
+    "text": "To do this, just go to your indicators tab,\ntype in RSI and then click this top one that",
+    "start": 80.83,
+    "duration": 5.05
+  },
+  {
+    "text": "says Relative strength index\nNow that we have RSI added let s modify the",
+    "start": 85.88,
+    "duration": 4.49
+  },
+  {
+    "text": "settings a bit. Make sure that upper band\nis set to 70, and your lower band is set to",
+    "start": 90.37,
+    "duration": 4.75
+  },
+  {
+    "text": "30.\nThen this length is probably going to be set",
+    "start": 95.12,
+    "duration": 2.96
+  },
+  {
+    "text": "to 14, make sure to change that to 13 for\nthis strategy.",
+    "start": 98.08,
+    "duration": 3.38
+  },
+  {
+    "text": "If you haven t used RSI before it s a great\nindicator to tell you if a certain security",
+    "start": 101.46,
+    "duration": 4.64
+  },
+  {
+    "text": "is being overbought or oversold.\nIf the line is above the 70 value, its being",
+    "start": 106.1,
+    "duration": 4.9
+  },
+  {
+    "text": "overbought, if the line is below the 30 value,\nits being oversold.",
+    "start": 111.0,
+    "duration": 4.37
+  },
+  {
+    "text": "Now it s time to pair these 2 indicators together\nand get some profitable trades going.",
+    "start": 115.37,
+    "duration": 4.679
+  },
+  {
+    "text": "Make sure you watch the rest this video, because\nim going to explain a crucial tip to make",
+    "start": 120.049,
+    "duration": 4.311
+  },
+  {
+    "text": "this strategy working just okay, to turn into\na money making machine.",
+    "start": 124.36,
+    "duration": 5.12
+  },
+  {
+    "text": "So there are 2 different strategies you can\nchoose from when using these indicators. Both",
+    "start": 129.48,
+    "duration": 4.58
+  },
+  {
+    "text": "of these strategies are built around the concept\ncalled mean reversion.",
+    "start": 134.06,
+    "duration": 4.97
+  },
+  {
+    "text": "What s mean reversion you my ask? Well, mean\nrefers to the word average, and the word reversion",
+    "start": 139.03,
+    "duration": 5.74
+  },
+  {
+    "text": "means returning to\nSo to put it simply, the phrase mean reversion",
+    "start": 144.77,
+    "duration": 4.39
+  },
+  {
+    "text": "just means returning to the average. Which\nis exactly what we are going to be shooting",
+    "start": 149.16,
+    "duration": 4.21
+  },
+  {
+    "text": "for with this strategy.\nSo as an example, in most cases if there is",
+    "start": 153.37,
+    "duration": 5.27
+  },
+  {
+    "text": "extreme price movement in one direction whether\nits up or down, we can pretty much predict",
+    "start": 158.64,
+    "duration": 5.36
+  },
+  {
+    "text": "after that big price movement, the price will\nreturn back to the average (the moving average",
+    "start": 164.0,
+    "duration": 5.06
+  },
+  {
+    "text": "right here).\nSo if the price goes above the upper Bollinger",
+    "start": 169.06,
+    "duration": 3.69
+  },
+  {
+    "text": "band, we want to enter a short trade. If the\nprices goes below the bottom Bollinger band,",
+    "start": 172.75,
+    "duration": 4.46
+  },
+  {
+    "text": "we want to enter a long trade.\nSimple enough right? Well, if you did this",
+    "start": 177.21,
+    "duration": 4.05
+  },
+  {
+    "text": "by itself, odds are it wouldn t work to good.\nThat s why we added the RSI earlier.",
+    "start": 181.26,
+    "duration": 5.54
+  },
+  {
+    "text": "So as you can see in this example the price\nwent above or below the Bollinger bands many",
+    "start": 186.8,
+    "duration": 4.85
+  },
+  {
+    "text": "times giving lots of false signals. So if\nyou went in every time here, you probably",
+    "start": 191.65,
+    "duration": 5.56
+  },
+  {
+    "text": "lost money.\nTo solve this issue we are going to add one",
+    "start": 197.21,
+    "duration": 3.06
+  },
+  {
+    "text": "more requirement. You can only go in if the\nRSI hits an extreme value.",
+    "start": 200.27,
+    "duration": 5.39
+  },
+  {
+    "text": "Meaning, we can only enter a long trade if\nthe price moves below the lower Bollinger",
+    "start": 205.66,
+    "duration": 4.61
+  },
+  {
+    "text": "band and the rsi goes below the value of 25.\nFor shorting, we will only enter a trade if",
+    "start": 210.27,
+    "duration": 6.53
+  },
+  {
+    "text": "the price goes above the upper Bollinger band,\nand the rsi goes over the value of 75.",
+    "start": 216.8,
+    "duration": 6.1
+  },
+  {
+    "text": "So as an example here we are looing at apple\nand the price starts going below the bottom",
+    "start": 222.9,
+    "duration": 4.96
+  },
+  {
+    "text": "Bollinger band here, but at this point in\ntime the RSI is still not where we want it",
+    "start": 227.86,
+    "duration": 4.451
+  },
+  {
+    "text": "to be. So we wait it out a bit until the line\ngoes below 25. which it proceeds to go down",
+    "start": 232.311,
+    "duration": 6.008
+  },
+  {
+    "text": "all the way to 20, we enter a long trade at\nthis point, and the price returns to the average",
+    "start": 238.319,
+    "duration": 5.731
+  },
+  {
+    "text": "just like we predicted it would.\nNow there is some crucial information you",
+    "start": 244.05,
+    "duration": 4.019
+  },
+  {
+    "text": "need to know about this strategy or else it\nsimply just wont work. This next tip im about",
+    "start": 248.069,
+    "duration": 4.541
+  },
+  {
+    "text": "to tell you is the difference between making\nthis strategy profitable or making a money",
+    "start": 252.61,
+    "duration": 5.26
+  },
+  {
+    "text": "loser.\nWhere this strategy has its faults is when",
+    "start": 257.87,
+    "duration": 2.449
+  },
+  {
+    "text": "the market is moving sideways. For almost\nall trading strategies when the markets is",
+    "start": 260.319,
+    "duration": 4.831
+  },
+  {
+    "text": "moving sideways it s a lot harder to predict.\nSo as example here, the price goes below the",
+    "start": 265.15,
+    "duration": 5.449
+  },
+  {
+    "text": "lower Bollinger band, and the RSI is below\n25, but the price just keeps on dropping.",
+    "start": 270.599,
+    "duration": 6.66
+  },
+  {
+    "text": "So if you entered here, you would have an\nabsolute massive loss.",
+    "start": 277.259,
+    "duration": 4.041
+  },
+  {
+    "text": "So now im going to show you a nice little\ntrick, so you know before hand before these",
+    "start": 281.3,
+    "duration": 3.22
+  },
+  {
+    "text": "huge price movement even happen.\nSo in this example notice how skinny the Bollinger",
+    "start": 284.52,
+    "duration": 5.149
+  },
+  {
+    "text": "bands are at this point in time, they are\nvery close together, and there is barely any",
+    "start": 289.669,
+    "duration": 4.31
+  },
+  {
+    "text": "price movement, and the market is moving sideways.\nYou can also see that the RSI is being very",
+    "start": 293.979,
+    "duration": 6.62
+  },
+  {
+    "text": "tame and staying in between the purple rectangle\nand not going above or below the major points",
+    "start": 300.599,
+    "duration": 6.171
+  },
+  {
+    "text": "we made before. This alone, should immediately\nraise a huge red flag.",
+    "start": 306.77,
+    "duration": 5.06
+  },
+  {
+    "text": "Most times when the market is like this for\na while, when the price does break in a certain",
+    "start": 311.83,
+    "duration": 5.389
+  },
+  {
+    "text": "direction, it goes in that direction with\nhuge amounts of momentum.",
+    "start": 317.219,
+    "duration": 4.211
+  },
+  {
+    "text": "So in these types of examples, you never want\nto trade trying to catch a falling knife when",
+    "start": 321.43,
+    "duration": 4.829
+  },
+  {
+    "text": "the price starts to act like this.\nLet me show you another strategy we can use,",
+    "start": 326.259,
+    "duration": 4.171
+  },
+  {
+    "text": "to help solve this, that works like absolute\nmagic.",
+    "start": 330.43,
+    "duration": 3.579
+  },
+  {
+    "text": "Here you can see the price starts to drop\nto the lower Bollinger band and then reverses.",
+    "start": 334.009,
+    "duration": 4.53
+  },
+  {
+    "text": "The next time it comes down, it makes a new\nlower lower from the previous low, but something",
+    "start": 338.539,
+    "duration": 4.91
+  },
+  {
+    "text": "interesting is happening. The RSI made a higher\nlower.",
+    "start": 343.449,
+    "duration": 3.72
+  },
+  {
+    "text": "So we have price making a lower low, but the\nRSI is making a higher low. This right here,",
+    "start": 347.169,
+    "duration": 5.22
+  },
+  {
+    "text": "is called divergence and is an absolute great\nsign to enter a trade, especially if rsi was",
+    "start": 352.389,
+    "duration": 7.08
+  },
+  {
+    "text": "previously below 25, and the price went below\nthe lower Bollinger band.",
+    "start": 359.469,
+    "duration": 4.26
+  },
+  {
+    "text": "If this happens, there s an extremely great\nchance the price will reverse and make a new",
+    "start": 363.729,
+    "duration": 5.101
+  },
+  {
+    "text": "higher high.\nI just showed you how to pair Bollinger bands",
+    "start": 368.83,
+    "duration": 3.23
+  },
+  {
+    "text": "with RSI and make it a profitable trading\nstrategy. All I ask for in return is if you",
+    "start": 372.06,
+    "duration": 4.539
+  },
+  {
+    "text": "can take 2 seconds out of your day and like\nthis video.",
+    "start": 376.599,
+    "duration": 3.051
+  },
+  {
+    "text": "You should also watch my other video where\nI go over a MACD strategy which gets an 86%",
+    "start": 379.65,
+    "duration": 5.09
+  },
+  {
+    "text": "win rate, which is absolutely insane when\nit comes to trading.",
+    "start": 384.74,
+    "duration": 3.989
+  },
+  {
+    "text": "So go check that out, and ill see you guys\nnext time.",
+    "start": 388.729,
+    "duration": 3.05
+  }
+]

@@ -960,6 +960,7 @@ def _row_to_ui_dict(row: Any) -> dict:
 
         # Flat levels the template shows
         "entry": entry.get("price"),
+        "valid_until": entry.get("valid_until"),
         "stop": initial_stop.get("price"),
         "tp1": tp1,
         "tp2": tp2,

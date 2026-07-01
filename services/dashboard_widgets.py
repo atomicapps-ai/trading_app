@@ -701,11 +701,114 @@ class MarketHeadlinesWidget(Widget):
 
 
 # --------------------------------------------------------------------------- #
+# Widget: Open Positions (the most important cards — one per live position)
+# --------------------------------------------------------------------------- #
+
+
+def _humanize_since(iso_ts: str | None) -> str:
+    """'2026-06-20T14:30:00Z' -> '5d 3h' style time-since string."""
+    if not iso_ts:
+        return "—"
+    from datetime import datetime, timezone
+    try:
+        t = datetime.fromisoformat(str(iso_ts).replace("Z", "+00:00"))
+        if t.tzinfo is None:
+            t = t.replace(tzinfo=timezone.utc)
+    except ValueError:
+        return "—"
+    secs = (datetime.now(timezone.utc) - t).total_seconds()
+    if secs < 0:
+        return "just now"
+    d, rem = divmod(int(secs), 86400)
+    h, rem = divmod(rem, 3600)
+    m, _ = divmod(rem, 60)
+    if d:
+        return f"{d}d {h}h"
+    if h:
+        return f"{h}h {m}m"
+    return f"{m}m"
+
+
+class OpenPositionsWidget(Widget):
+    """One card per live broker position — the dashboard's most important cards.
+
+    Each card joins the broker position (symbol/shares/avg price/PnL) with its
+    originating TradePlan (stop, strategy, entry time, TP, evidence) so the
+    reviewer sees entry time, time-held, stop, and strategy at a glance, clicks
+    through to the full /trades/{id} detail, and can close immediately.
+    """
+
+    id = "open_positions"
+    title = "Open Positions"
+    size = "wide"
+    tab = "portfolio"
+    refresh_seconds = 15
+
+    async def get_data(self) -> dict[str, Any]:
+        from services import broker_service, db_service, trade_lookup
+        rows: list[dict[str, Any]] = []
+        error: str | None = None
+        try:
+            adapter = await broker_service.get_adapter_async()
+            st = await adapter.get_account_state()
+            positions = st.open_positions or []
+        except Exception as e:  # noqa: BLE001
+            return {"positions": [], "error": f"broker unavailable: {e}"}
+
+        # symbol -> most-recent open/approved/filled plan_id (plans come ts DESC)
+        by_symbol: dict[str, str] = {}
+        try:
+            plans = await db_service.get_pending_plans(status_filter=None, limit=300)
+            for pl in plans:
+                if str(pl.get("status", "")).lower() in ("approved", "awaiting_fill", "filled", "open"):
+                    sym = str(pl.get("symbol", "")).upper()
+                    if sym and sym not in by_symbol and pl.get("plan_id"):
+                        by_symbol[sym] = pl["plan_id"]
+        except Exception as e:  # noqa: BLE001
+            error = f"plan join degraded: {e}"
+
+        for p in positions:
+            entry = float(p.avg_entry_price or 0.0)
+            current = float(p.market_price or 0.0)
+            shares = int(p.shares or 0)
+            direction = "long" if shares >= 0 else "short"
+            pnl_pct = ((current - entry) / entry * 100.0) if entry else 0.0
+            if direction == "short":
+                pnl_pct = -pnl_pct
+            stop = strategy = entry_ts = plan_id = tp1 = None
+            pnl_r = None
+            pid = by_symbol.get(str(p.symbol).upper())
+            if pid:
+                try:
+                    v = await trade_lookup.get(pid)
+                    if v is not None:
+                        stop = v.stop_price; strategy = v.strategy_name
+                        entry_ts = v.ts_entered or v.ts_created
+                        tp1 = v.tp1_price; plan_id = v.id
+                        if stop and entry and (entry - stop) != 0:
+                            risk = abs(entry - stop)
+                            pnl_r = ((current - entry) / risk) if direction == "long" else ((entry - current) / risk)
+                except Exception:  # noqa: BLE001
+                    pass
+            rows.append({
+                "symbol": p.symbol, "direction": direction, "shares": abs(shares),
+                "entry": entry, "current": current,
+                "pnl_usd": float(p.unrealized_pnl_usd or 0.0), "pnl_pct": pnl_pct,
+                "pnl_r": pnl_r, "stop": stop, "tp1": tp1,
+                "strategy": strategy or "—", "entry_ts": entry_ts,
+                "held": _humanize_since(entry_ts), "plan_id": plan_id,
+            })
+        rows.sort(key=lambda r: (r["pnl_r"] is None, -(r["pnl_r"] or 0)))
+        return {"positions": rows, "error": error}
+
+
+# --------------------------------------------------------------------------- #
 # Registry
 # --------------------------------------------------------------------------- #
 
 
 WIDGETS: list[Widget] = [
+    OpenPositionsWidget(),       # most important — render first, portfolio tab
     SectorHeatmapWidget(),
     FearGreedWidget(),
     SpyTrendWidget(),

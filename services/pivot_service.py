@@ -60,6 +60,30 @@ def swing_levels(bars: pd.DataFrame, k: int = 3, lookback: int = 120) -> tuple[l
     return highs, lows
 
 
+def structural_pivots(bars: pd.DataFrame, left: int = 3, right: int = 3) -> list[dict]:
+    """Pivot Points High/Low — structural swing highs/lows by the 'Strength' param.
+
+    A swing high at bar i is a high greater than `left` bars before AND `right` bars
+    after it; a swing low is the mirror. Larger left/right = more major (stronger)
+    pivots. NO LOOK-AHEAD: a pivot is only *known* once the `right` confirming bars
+    have printed, so each result carries `confirm_ts` = the timestamp at i+right, the
+    first moment a strategy could legitimately act on the level.
+
+    Returns dicts: {kind: 'support'|'resistance', price, ts (pivot bar), confirm_ts}.
+    """
+    idx = list(bars.index)
+    hi = [float(x) for x in bars["high"].tolist()]
+    lo = [float(x) for x in bars["low"].tolist()]
+    n = len(bars)
+    out: list[dict] = []
+    for i in range(left, n - right):
+        if hi[i] == max(hi[i - left:i + right + 1]):
+            out.append({"kind": "resistance", "price": hi[i], "ts": idx[i], "confirm_ts": idx[i + right]})
+        if lo[i] == min(lo[i - left:i + right + 1]):
+            out.append({"kind": "support", "price": lo[i], "ts": idx[i], "confirm_ts": idx[i + right]})
+    return out
+
+
 def pivot_context(
     bars: pd.DataFrame,
     *,

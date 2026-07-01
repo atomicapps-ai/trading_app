@@ -1,0 +1,49 @@
+strategy_name: coil_breakout
+version: "1.0"
+description: >
+  Coil-Contraction Breakout: buys an expansion breakout above a 30-day range ONLY
+  when volatility has contracted first (ATR10 < ATR50), the breakout bar is an
+  expansion thrust (TR > 1.5x median TR), volume confirms (>=1.5x), and the market
+  is in an uptrend (close > SMA200). Selective (~7 trades/symbol/20y), high quality
+  (OOS PF 2.13, 55% win, +0.42R) and near-uncorrelated (0.14) with Momentum Breakout
+  — a diversifying sleeve, not a duplicate. Video-mined (YWBLKRLnrZ0); see
+  strategies/STRATEGY_GRID.md and research/video_library/YWBLKRLnrZ0/notes.md.
+universe_filter_preset: liquid_momentum_core
+mode: paper
+active: true
+holding_period: swing_days
+
+# Technical lens scoped to ONLY the coil-breakout detector.
+detectors:
+  - coil_breakout
+
+min_signal_strength: 0.55
+
+# Each qualifying coil-breakout builds a plan (validated standalone).
+portfolio_rules:
+  single_signal_override: 0.55
+  min_patterns_agreeing: 1
+  min_lenses_agreeing: 2
+  trail_mode: atr
+  trail_atr_multiple: 3.0      # loose trail = let winners run past the 3R target
+  trail_atr_period: 14
+  trail_activate_after: "price >= entry + 1.5R"
+  time_stop_sessions: 120
+
+risk:
+  max_risk_pct_per_trade: 0.50
+  max_position_pct_of_equity: 8.0
+  min_rr_ratio: 2.0
+
+pattern_thresholds:
+  coil_breakout:
+    range_lookback: 30
+    atr_fast: 10
+    atr_slow: 50
+    breakout_tr_mult: 1.5
+    require_breakout_volume: true
+    breakout_volume_min: 1.5
+    require_coil: true
+    require_trend: true
+    tp1_r_multiple: 3.0
+    tp2_r_multiple: 6.0

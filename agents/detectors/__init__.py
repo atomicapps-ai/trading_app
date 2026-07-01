@@ -25,11 +25,15 @@ Remaining:
 """
 from agents.detectors.ascending_triangle import detect_ascending_descending_triangle
 from agents.detectors.bull_flag import detect_bull_flag
+from agents.detectors.coil_breakout import detect_coil_breakout
 from agents.detectors.cup_and_handle import detect_cup_and_handle
 from agents.detectors.double_bottom_top import detect_double_bottom_top
 from agents.detectors.double_lock_filtered import detect_double_lock_filtered
 from agents.detectors.inside_bar_nr7 import detect_inside_bar_nr7
+from agents.detectors.macd_run import detect_macd_run
 from agents.detectors.rsi_divergence import detect_rsi_divergence
+from agents.detectors.s5_mean_reversion import detect_s5_mean_reversion
+from agents.detectors.s7_breakout_continuation import detect_s7_breakout_continuation
 from agents.detectors.volatility_squeeze import detect_volatility_squeeze
 from agents.detectors.vwap_reclaim import detect_vwap_reclaim
 from agents.detectors.wyckoff_accumulation import detect_wyckoff_accumulation
@@ -49,6 +53,11 @@ ALL_DETECTORS = {
     "ascending_descending_triangle": detect_ascending_descending_triangle,
     "cup_and_handle": detect_cup_and_handle,
     "wyckoff_accumulation": detect_wyckoff_accumulation,
+    # Video-mined, hardened daily strategies (see strategies/strategy_docs/)
+    "s7_breakout_continuation": detect_s7_breakout_continuation,
+    "s5_mean_reversion": detect_s5_mean_reversion,
+    "coil_breakout": detect_coil_breakout,
+    "macd_run": detect_macd_run,
 }
 
 # Intraday detectors — different signature than ALL_DETECTORS. Each
@@ -64,11 +73,15 @@ __all__ = [
     "INTRADAY_DETECTORS",
     "detect_ascending_descending_triangle",
     "detect_bull_flag",
+    "detect_coil_breakout",
     "detect_cup_and_handle",
     "detect_double_bottom_top",
     "detect_double_lock_filtered",
     "detect_inside_bar_nr7",
+    "detect_macd_run",
     "detect_rsi_divergence",
+    "detect_s5_mean_reversion",
+    "detect_s7_breakout_continuation",
     "detect_volatility_squeeze",
     "detect_vwap_reclaim",
     "detect_wyckoff_accumulation",

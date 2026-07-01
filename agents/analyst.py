@@ -84,7 +84,16 @@ def run_lens_technical(
     in-process; async only matters at the bar / news fetch layer above.
     """
     results: list[PatternResult] = []
-    for name, fn in ALL_DETECTORS.items():
+    # A strategy config may scope the technical lens to a subset of detectors
+    # via a ``detectors:`` whitelist. Default (no whitelist) = run them all,
+    # so existing strategies are unaffected.
+    whitelist = config.get("detectors")
+    if whitelist:
+        wl = set(whitelist)
+        detector_items = [(n, f) for n, f in ALL_DETECTORS.items() if n in wl]
+    else:
+        detector_items = list(ALL_DETECTORS.items())
+    for name, fn in detector_items:
         try:
             result = fn(daily, hourly, config, as_of_ts, macro_context=macro_context)
         except Exception as e:  # noqa: BLE001

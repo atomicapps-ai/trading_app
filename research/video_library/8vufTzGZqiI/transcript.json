@@ -1,0 +1,2982 @@
+[
+  {
+    "text": "Today I'm going to show you a trading",
+    "start": 1.199,
+    "duration": 3.6
+  },
+  {
+    "text": "strategy that is just scary accurate.",
+    "start": 2.72,
+    "duration": 4.559
+  },
+  {
+    "text": "It's called the ORE, the opening range",
+    "start": 4.799,
+    "duration": 5.361
+  },
+  {
+    "text": "reversal. It's simple, it's repeatable,",
+    "start": 7.279,
+    "duration": 5.28
+  },
+  {
+    "text": "but best of all, it is really hard to",
+    "start": 10.16,
+    "duration": 4.16
+  },
+  {
+    "text": "mess this thing up. And that's because",
+    "start": 12.559,
+    "duration": 3.361
+  },
+  {
+    "text": "all you need to do in order to master",
+    "start": 14.32,
+    "duration": 3.36
+  },
+  {
+    "text": "this strategy is wait for one",
+    "start": 15.92,
+    "duration": 4.08
+  },
+  {
+    "text": "candlestick to form, draw yourself a",
+    "start": 17.68,
+    "duration": 4.08
+  },
+  {
+    "text": "horizontal line, then wait for the",
+    "start": 20.0,
+    "duration": 3.519
+  },
+  {
+    "text": "entry. I mean, that's all there is to",
+    "start": 21.76,
+    "duration": 4.24
+  },
+  {
+    "text": "it. But don't let its simplicity fool",
+    "start": 23.519,
+    "duration": 4.481
+  },
+  {
+    "text": "you. Because when done correctly, it is",
+    "start": 26.0,
+    "duration": 3.84
+  },
+  {
+    "text": "hard to beat the power and accuracy of",
+    "start": 28.0,
+    "duration": 3.679
+  },
+  {
+    "text": "the opening range reversal. There just",
+    "start": 29.84,
+    "duration": 3.52
+  },
+  {
+    "text": "isn't anything like it. And that's",
+    "start": 31.679,
+    "duration": 3.281
+  },
+  {
+    "text": "because it takes advantage of one",
+    "start": 33.36,
+    "duration": 4.879
+  },
+  {
+    "text": "specific nuance that has to happen every",
+    "start": 34.96,
+    "duration": 5.439
+  },
+  {
+    "text": "day in financial markets. Now, I'm going",
+    "start": 38.239,
+    "duration": 3.921
+  },
+  {
+    "text": "to show you what that nuance is here in",
+    "start": 40.399,
+    "duration": 3.761
+  },
+  {
+    "text": "just a moment. But before I do that, let",
+    "start": 42.16,
+    "duration": 4.16
+  },
+  {
+    "text": "me take a moment to introduce myself. My",
+    "start": 44.16,
+    "duration": 3.36
+  },
+  {
+    "text": "name is Doug and I've been in the",
+    "start": 46.32,
+    "duration": 3.04
+  },
+  {
+    "text": "trading game since we've had dialed up",
+    "start": 47.52,
+    "duration": 4.24
+  },
+  {
+    "text": "internet. It's been a while. And",
+    "start": 49.36,
+    "duration": 4.24
+  },
+  {
+    "text": "throughout that time, I've studied",
+    "start": 51.76,
+    "duration": 3.68
+  },
+  {
+    "text": "hundreds upon hundreds of different",
+    "start": 53.6,
+    "duration": 3.76
+  },
+  {
+    "text": "trading strategies, and I have never",
+    "start": 55.44,
+    "duration": 4.08
+  },
+  {
+    "text": "seen anything close to the power and",
+    "start": 57.36,
+    "duration": 4.16
+  },
+  {
+    "text": "accuracy of the opening range reversal.",
+    "start": 59.52,
+    "duration": 3.199
+  },
+  {
+    "text": "So, what I'm going to do for today's",
+    "start": 61.52,
+    "duration": 3.039
+  },
+  {
+    "text": "video is show you everything I've",
+    "start": 62.719,
+    "duration": 4.4
+  },
+  {
+    "text": "learned about this trading strategy. And",
+    "start": 64.559,
+    "duration": 4.401
+  },
+  {
+    "text": "towards the end, I'll provide you with a",
+    "start": 67.119,
+    "duration": 3.921
+  },
+  {
+    "text": "series of live trading examples in a",
+    "start": 68.96,
+    "duration": 4.56
+  },
+  {
+    "text": "live market. That way, you know exactly",
+    "start": 71.04,
+    "duration": 4.32
+  },
+  {
+    "text": "how to implement the opening range",
+    "start": 73.52,
+    "duration": 3.279
+  },
+  {
+    "text": "reversal. So, let's go ahead and get",
+    "start": 75.36,
+    "duration": 3.2
+  },
+  {
+    "text": "started. So, let's go over a few details",
+    "start": 76.799,
+    "duration": 3.441
+  },
+  {
+    "text": "about the opening range reversal",
+    "start": 78.56,
+    "duration": 3.52
+  },
+  {
+    "text": "followed by four simple yet very",
+    "start": 80.24,
+    "duration": 3.44
+  },
+  {
+    "text": "critical steps. Now, when it comes to",
+    "start": 82.08,
+    "duration": 3.76
+  },
+  {
+    "text": "the opening range reversal strategy,",
+    "start": 83.68,
+    "duration": 3.92
+  },
+  {
+    "text": "it's about as basic and straightforward",
+    "start": 85.84,
+    "duration": 3.76
+  },
+  {
+    "text": "as it gets. I mean that. So, it's very,",
+    "start": 87.6,
+    "duration": 4.559
+  },
+  {
+    "text": "very difficult to mess this thing up. We",
+    "start": 89.6,
+    "duration": 4.24
+  },
+  {
+    "text": "don't need any fancy indicators. We",
+    "start": 92.159,
+    "duration": 3.521
+  },
+  {
+    "text": "don't need any complex theories. And we",
+    "start": 93.84,
+    "duration": 4.16
+  },
+  {
+    "text": "definitely do not need to overthink it.",
+    "start": 95.68,
+    "duration": 4.24
+  },
+  {
+    "text": "It's just straight down the middle. And",
+    "start": 98.0,
+    "duration": 3.2
+  },
+  {
+    "text": "here's what we're going to be doing.",
+    "start": 99.92,
+    "duration": 3.28
+  },
+  {
+    "text": "We're going to be looking to buy",
+    "start": 101.2,
+    "duration": 5.199
+  },
+  {
+    "text": "intraday weakness on strong assets or",
+    "start": 103.2,
+    "duration": 5.44
+  },
+  {
+    "text": "sell intraday strength on weak assets.",
+    "start": 106.399,
+    "duration": 3.201
+  },
+  {
+    "text": "Now, don't worry if you didn't",
+    "start": 108.64,
+    "duration": 2.72
+  },
+  {
+    "text": "comprehend that whole entire phrase. I'm",
+    "start": 109.6,
+    "duration": 3.12
+  },
+  {
+    "text": "going to pick apart this strategy here",
+    "start": 111.36,
+    "duration": 2.96
+  },
+  {
+    "text": "in just a second. But before we get",
+    "start": 112.72,
+    "duration": 3.679
+  },
+  {
+    "text": "involved in the steps, what I'd like to",
+    "start": 114.32,
+    "duration": 4.079
+  },
+  {
+    "text": "do is make sure we all have our charting",
+    "start": 116.399,
+    "duration": 4.32
+  },
+  {
+    "text": "set up correctly to maximize the quality",
+    "start": 118.399,
+    "duration": 4.161
+  },
+  {
+    "text": "of the opening range reversal. And the",
+    "start": 120.719,
+    "duration": 3.68
+  },
+  {
+    "text": "opening range reversal requires two",
+    "start": 122.56,
+    "duration": 4.559
+  },
+  {
+    "text": "types of charts. A small intraday chart",
+    "start": 124.399,
+    "duration": 4.881
+  },
+  {
+    "text": "that can be anything sub one hour. I",
+    "start": 127.119,
+    "duration": 3.36
+  },
+  {
+    "text": "like to use a five minute, but it could",
+    "start": 129.28,
+    "duration": 3.039
+  },
+  {
+    "text": "be a 1 minute, 5 minute, 10 minute, 15,",
+    "start": 130.479,
+    "duration": 4.561
+  },
+  {
+    "text": "30 minute. Anything sub one hour is just",
+    "start": 132.319,
+    "duration": 4.56
+  },
+  {
+    "text": "fine. You use whatever you like.",
+    "start": 135.04,
+    "duration": 4.24
+  },
+  {
+    "text": "However, we do need the daily chart. And",
+    "start": 136.879,
+    "duration": 4.72
+  },
+  {
+    "text": "the daily chart is not negotiable in",
+    "start": 139.28,
+    "duration": 4.319
+  },
+  {
+    "text": "this case. In order to get the most out",
+    "start": 141.599,
+    "duration": 4.321
+  },
+  {
+    "text": "of the opening range reversal, we need",
+    "start": 143.599,
+    "duration": 4.64
+  },
+  {
+    "text": "to heavily rely on the daily chart. And",
+    "start": 145.92,
+    "duration": 3.92
+  },
+  {
+    "text": "I'll show you why here in just a second.",
+    "start": 148.239,
+    "duration": 2.961
+  },
+  {
+    "text": "So, let's go ahead and look at the",
+    "start": 149.84,
+    "duration": 3.119
+  },
+  {
+    "text": "screen here. And I what I have for today",
+    "start": 151.2,
+    "duration": 3.679
+  },
+  {
+    "text": "is two charts. This is typically how I",
+    "start": 152.959,
+    "duration": 3.761
+  },
+  {
+    "text": "have it set up. You set it up however",
+    "start": 154.879,
+    "duration": 3.44
+  },
+  {
+    "text": "you like to, but we need those two",
+    "start": 156.72,
+    "duration": 3.599
+  },
+  {
+    "text": "charts. So, for today's example, you'll",
+    "start": 158.319,
+    "duration": 3.601
+  },
+  {
+    "text": "see in the upper corner, just for",
+    "start": 160.319,
+    "duration": 3.841
+  },
+  {
+    "text": "reference, I'm using the stock ARM,",
+    "start": 161.92,
+    "duration": 5.12
+  },
+  {
+    "text": "ticker symbol ARM. It does not matter",
+    "start": 164.16,
+    "duration": 4.56
+  },
+  {
+    "text": "what's up here in this corner. This",
+    "start": 167.04,
+    "duration": 3.76
+  },
+  {
+    "text": "could be gold, oil, some other",
+    "start": 168.72,
+    "duration": 3.599
+  },
+  {
+    "text": "commodity. It could be some",
+    "start": 170.8,
+    "duration": 3.6
+  },
+  {
+    "text": "cryptocurrency. It could be futures.",
+    "start": 172.319,
+    "duration": 3.601
+  },
+  {
+    "text": "Doesn't make a difference. I just happen",
+    "start": 174.4,
+    "duration": 3.36
+  },
+  {
+    "text": "to be using the stock today. And you'll",
+    "start": 175.92,
+    "duration": 3.599
+  },
+  {
+    "text": "see my preference for the short-term",
+    "start": 177.76,
+    "duration": 4.0
+  },
+  {
+    "text": "time frame is the five minute. Again,",
+    "start": 179.519,
+    "duration": 3.921
+  },
+  {
+    "text": "you can use whatever you want here as",
+    "start": 181.76,
+    "duration": 4.72
+  },
+  {
+    "text": "long as it is sub one hour. And down",
+    "start": 183.44,
+    "duration": 5.28
+  },
+  {
+    "text": "below, I will have the daily chart",
+    "start": 186.48,
+    "duration": 4.08
+  },
+  {
+    "text": "selected. So, you'll see now it says the",
+    "start": 188.72,
+    "duration": 4.08
+  },
+  {
+    "text": "daily chart. And that's all we really",
+    "start": 190.56,
+    "duration": 4.0
+  },
+  {
+    "text": "need to do for right now when it comes",
+    "start": 192.8,
+    "duration": 3.28
+  },
+  {
+    "text": "to charting. Now, once we have that",
+    "start": 194.56,
+    "duration": 3.36
+  },
+  {
+    "text": "charting sorted, we can move on to step",
+    "start": 196.08,
+    "duration": 3.12
+  },
+  {
+    "text": "number one, which is something called",
+    "start": 197.92,
+    "duration": 3.28
+  },
+  {
+    "text": "trend bias. Now, I know a lot of you",
+    "start": 199.2,
+    "duration": 4.08
+  },
+  {
+    "text": "watching have heard the term bias and",
+    "start": 201.2,
+    "duration": 3.679
+  },
+  {
+    "text": "may have a general understanding with",
+    "start": 203.28,
+    "duration": 4.4
+  },
+  {
+    "text": "it. However, trend bias is something",
+    "start": 204.879,
+    "duration": 5.681
+  },
+  {
+    "text": "that's focused on the long-term trend,",
+    "start": 207.68,
+    "duration": 5.04
+  },
+  {
+    "text": "not just the short-term trend. You see,",
+    "start": 210.56,
+    "duration": 3.679
+  },
+  {
+    "text": "a lot of scalping and day trading",
+    "start": 212.72,
+    "duration": 3.28
+  },
+  {
+    "text": "strategies that we learn in the very",
+    "start": 214.239,
+    "duration": 3.92
+  },
+  {
+    "text": "beginning are centered around patterns",
+    "start": 216.0,
+    "duration": 3.92
+  },
+  {
+    "text": "and theories that have to do with",
+    "start": 218.159,
+    "duration": 4.0
+  },
+  {
+    "text": "intraday trends and intraday structures.",
+    "start": 219.92,
+    "duration": 5.28
+  },
+  {
+    "text": "Now, those have their place. However, if",
+    "start": 222.159,
+    "duration": 5.601
+  },
+  {
+    "text": "you are not using the daily chart on a",
+    "start": 225.2,
+    "duration": 4.64
+  },
+  {
+    "text": "day-to-day basis for all of your trades,",
+    "start": 227.76,
+    "duration": 4.32
+  },
+  {
+    "text": "no matter what strategies you're using,",
+    "start": 229.84,
+    "duration": 4.479
+  },
+  {
+    "text": "you are missing out on a very big",
+    "start": 232.08,
+    "duration": 4.719
+  },
+  {
+    "text": "critical piece of context. And all the",
+    "start": 234.319,
+    "duration": 3.92
+  },
+  {
+    "text": "professionals traders will always tell",
+    "start": 236.799,
+    "duration": 3.36
+  },
+  {
+    "text": "you, if you don't like the daily, you",
+    "start": 238.239,
+    "duration": 3.92
+  },
+  {
+    "text": "don't like the intraday either. And",
+    "start": 240.159,
+    "duration": 3.121
+  },
+  {
+    "text": "that's very, very important to",
+    "start": 242.159,
+    "duration": 3.761
+  },
+  {
+    "text": "understand because the daily chart holds",
+    "start": 243.28,
+    "duration": 4.4
+  },
+  {
+    "text": "keys and secrets that we need to make",
+    "start": 245.92,
+    "duration": 4.399
+  },
+  {
+    "text": "great trades. Whoever controls the",
+    "start": 247.68,
+    "duration": 5.52
+  },
+  {
+    "text": "daily, whether that's bulls or bears,",
+    "start": 250.319,
+    "duration": 5.361
+  },
+  {
+    "text": "will ultimately, in most cases, they",
+    "start": 253.2,
+    "duration": 5.039
+  },
+  {
+    "text": "will win out on a day-to-day basis. Let",
+    "start": 255.68,
+    "duration": 3.76
+  },
+  {
+    "text": "me show you what I'm talking about right",
+    "start": 258.239,
+    "duration": 3.361
+  },
+  {
+    "text": "here on the screen. If we go back to our",
+    "start": 259.44,
+    "duration": 5.039
+  },
+  {
+    "text": "chart at ARM, I now have the daily chart",
+    "start": 261.6,
+    "duration": 5.52
+  },
+  {
+    "text": "selected up here in the corner. Now,",
+    "start": 264.479,
+    "duration": 4.641
+  },
+  {
+    "text": "most of the time, you will be able to",
+    "start": 267.12,
+    "duration": 4.72
+  },
+  {
+    "text": "use common sense and you can see if I",
+    "start": 269.12,
+    "duration": 5.359
+  },
+  {
+    "text": "was to ask you what was the price action",
+    "start": 271.84,
+    "duration": 4.799
+  },
+  {
+    "text": "or what was the trend over the last few",
+    "start": 274.479,
+    "duration": 4.321
+  },
+  {
+    "text": "months. Well, that's pretty simple. You",
+    "start": 276.639,
+    "duration": 4.401
+  },
+  {
+    "text": "can see this with your eyes that over",
+    "start": 278.8,
+    "duration": 5.2
+  },
+  {
+    "text": "the last few months, ARM has gone up in",
+    "start": 281.04,
+    "duration": 6.159
+  },
+  {
+    "text": "a very steady trend. So, that's obvious.",
+    "start": 284.0,
+    "duration": 6.08
+  },
+  {
+    "text": "The trend is up, meaning bulls are in",
+    "start": 287.199,
+    "duration": 5.361
+  },
+  {
+    "text": "control. That's the trend bias. Now, if",
+    "start": 290.08,
+    "duration": 4.399
+  },
+  {
+    "text": "there's any doubt or there's any",
+    "start": 292.56,
+    "duration": 4.48
+  },
+  {
+    "text": "confusion, let's call it a fail safe.",
+    "start": 294.479,
+    "duration": 5.201
+  },
+  {
+    "text": "You can always go to your indicator tab",
+    "start": 297.04,
+    "duration": 5.84
+  },
+  {
+    "text": "and you can select moving average.",
+    "start": 299.68,
+    "duration": 5.76
+  },
+  {
+    "text": "simple, not X potential, not weighted,",
+    "start": 302.88,
+    "duration": 5.599
+  },
+  {
+    "text": "just a simple moving average, and it'll",
+    "start": 305.44,
+    "duration": 5.599
+  },
+  {
+    "text": "give you a line here on your chart. Now,",
+    "start": 308.479,
+    "duration": 4.241
+  },
+  {
+    "text": "this one says nine, but we want to come",
+    "start": 311.039,
+    "duration": 3.361
+  },
+  {
+    "text": "over here to the settings, and we want",
+    "start": 312.72,
+    "duration": 4.0
+  },
+  {
+    "text": "to move this to 50. I once did a video",
+    "start": 314.4,
+    "duration": 3.6
+  },
+  {
+    "text": "about this. I'll try to put it up there",
+    "start": 316.72,
+    "duration": 3.52
+  },
+  {
+    "text": "on the screen if I can. Now, the 50",
+    "start": 318.0,
+    "duration": 5.36
+  },
+  {
+    "text": "moving average is just a visual guide",
+    "start": 320.24,
+    "duration": 4.64
+  },
+  {
+    "text": "when you're in doubt. Like, I can see",
+    "start": 323.36,
+    "duration": 3.76
+  },
+  {
+    "text": "the chart here of ARM. It's going up.",
+    "start": 324.88,
+    "duration": 5.28
+  },
+  {
+    "text": "But any asset that is trading above its",
+    "start": 327.12,
+    "duration": 6.32
+  },
+  {
+    "text": "50 moving average, it bulls are",
+    "start": 330.16,
+    "duration": 5.92
+  },
+  {
+    "text": "considered to be in control and should",
+    "start": 333.44,
+    "duration": 5.039
+  },
+  {
+    "text": "be given the benefit of the doubt. And",
+    "start": 336.08,
+    "duration": 5.44
+  },
+  {
+    "text": "the further that separation is away from",
+    "start": 338.479,
+    "duration": 6.081
+  },
+  {
+    "text": "that 50, the stronger and more intact",
+    "start": 341.52,
+    "duration": 4.88
+  },
+  {
+    "text": "the trend is. So like at this point, it",
+    "start": 344.56,
+    "duration": 4.079
+  },
+  {
+    "text": "was a substantial difference. Anything",
+    "start": 346.4,
+    "duration": 5.12
+  },
+  {
+    "text": "trading below that 50 moving average or",
+    "start": 348.639,
+    "duration": 5.521
+  },
+  {
+    "text": "even at that 50 moving average tends to",
+    "start": 351.52,
+    "duration": 5.119
+  },
+  {
+    "text": "have bears in controls. So, what does",
+    "start": 354.16,
+    "duration": 4.16
+  },
+  {
+    "text": "this mean to you and how does the",
+    "start": 356.639,
+    "duration": 3.441
+  },
+  {
+    "text": "opening range reversal take advantage of",
+    "start": 358.32,
+    "duration": 4.4
+  },
+  {
+    "text": "it? Well, it's very simple. Dips tend to",
+    "start": 360.08,
+    "duration": 5.52
+  },
+  {
+    "text": "get bought on strong assets. That's the",
+    "start": 362.72,
+    "duration": 5.759
+  },
+  {
+    "text": "point. Rallies tend to get sold on weak",
+    "start": 365.6,
+    "duration": 4.8
+  },
+  {
+    "text": "assets. And let me show you how valuable",
+    "start": 368.479,
+    "duration": 3.601
+  },
+  {
+    "text": "and important this is. Now, if we go",
+    "start": 370.4,
+    "duration": 3.519
+  },
+  {
+    "text": "back to the five-minute chart here on",
+    "start": 372.08,
+    "duration": 3.52
+  },
+  {
+    "text": "ARM, now you see I have the fiveminute",
+    "start": 373.919,
+    "duration": 4.081
+  },
+  {
+    "text": "intraday selected. If I'm just paying",
+    "start": 375.6,
+    "duration": 4.159
+  },
+  {
+    "text": "attention to the intraday structure",
+    "start": 378.0,
+    "duration": 3.84
+  },
+  {
+    "text": "only, you tell me what you think this",
+    "start": 379.759,
+    "duration": 4.321
+  },
+  {
+    "text": "is. Bullish, bearish, strong, or weak.",
+    "start": 381.84,
+    "duration": 4.479
+  },
+  {
+    "text": "Well, that looks weak. I think a 100% of",
+    "start": 384.08,
+    "duration": 4.959
+  },
+  {
+    "text": "us can agree that does not look strong",
+    "start": 386.319,
+    "duration": 5.041
+  },
+  {
+    "text": "whatsoever. It's just straight down. In",
+    "start": 389.039,
+    "duration": 4.241
+  },
+  {
+    "text": "fact, it looks pretty aggressive. Now,",
+    "start": 391.36,
+    "duration": 3.76
+  },
+  {
+    "text": "when newer traders see this, or if",
+    "start": 393.28,
+    "duration": 3.6
+  },
+  {
+    "text": "you're only using strategies that are",
+    "start": 395.12,
+    "duration": 4.0
+  },
+  {
+    "text": "focused on intraday activities, you're",
+    "start": 396.88,
+    "duration": 3.68
+  },
+  {
+    "text": "going to look at this like I did 20",
+    "start": 399.12,
+    "duration": 3.12
+  },
+  {
+    "text": "years ago, like, \"Oh my god, that that's",
+    "start": 400.56,
+    "duration": 3.919
+  },
+  {
+    "text": "a sale. I better get my short stick out,",
+    "start": 402.24,
+    "duration": 4.239
+  },
+  {
+    "text": "right, and bash on that thing, or I",
+    "start": 404.479,
+    "duration": 3.361
+  },
+  {
+    "text": "better get out of my long because I",
+    "start": 406.479,
+    "duration": 3.761
+  },
+  {
+    "text": "don't want to get smoke.\" However, what",
+    "start": 407.84,
+    "duration": 5.76
+  },
+  {
+    "text": "happens to ARM? it ends up retracing all",
+    "start": 410.24,
+    "duration": 6.0
+  },
+  {
+    "text": "of that activity all the way back up to",
+    "start": 413.6,
+    "duration": 4.719
+  },
+  {
+    "text": "the highs. Right now, I'm sure you guys",
+    "start": 416.24,
+    "duration": 3.679
+  },
+  {
+    "text": "have seen this a ton of times if you've",
+    "start": 418.319,
+    "duration": 3.44
+  },
+  {
+    "text": "been trading and wondered why did it",
+    "start": 419.919,
+    "duration": 3.601
+  },
+  {
+    "text": "look like it was going one way and then",
+    "start": 421.759,
+    "duration": 4.56
+  },
+  {
+    "text": "it moved the other. Well, a big reason",
+    "start": 423.52,
+    "duration": 5.679
+  },
+  {
+    "text": "is because of that intraday bias. Now,",
+    "start": 426.319,
+    "duration": 5.521
+  },
+  {
+    "text": "it's not just off one-off occurrence. If",
+    "start": 429.199,
+    "duration": 5.28
+  },
+  {
+    "text": "I move forward into the next day, which",
+    "start": 431.84,
+    "duration": 4.16
+  },
+  {
+    "text": "is right here, we're now at the second",
+    "start": 434.479,
+    "duration": 3.84
+  },
+  {
+    "text": "day. I sped it forward there real quick.",
+    "start": 436.0,
+    "duration": 3.68
+  },
+  {
+    "text": "If you're just looking at intraday",
+    "start": 438.319,
+    "duration": 2.72
+  },
+  {
+    "text": "structure, you tell me what this look",
+    "start": 439.68,
+    "duration": 2.959
+  },
+  {
+    "text": "like. Does this look like it's bullish?",
+    "start": 441.039,
+    "duration": 3.361
+  },
+  {
+    "text": "Does it look like it's bearish? It looks",
+    "start": 442.639,
+    "duration": 3.921
+  },
+  {
+    "text": "bearish. It looks weak. It does not look",
+    "start": 444.4,
+    "duration": 4.16
+  },
+  {
+    "text": "like a buy. But what do you think",
+    "start": 446.56,
+    "duration": 5.68
+  },
+  {
+    "text": "happens with ARM, right? It goes all the",
+    "start": 448.56,
+    "duration": 5.359
+  },
+  {
+    "text": "way back up. Not just this time, it goes",
+    "start": 452.24,
+    "duration": 4.079
+  },
+  {
+    "text": "all the way back up over the previous",
+    "start": 453.919,
+    "duration": 4.801
+  },
+  {
+    "text": "high of day. So again, the reason that's",
+    "start": 456.319,
+    "duration": 5.201
+  },
+  {
+    "text": "happening is because the daily bias is",
+    "start": 458.72,
+    "duration": 4.0
+  },
+  {
+    "text": "strong. So if you're trading just",
+    "start": 461.52,
+    "duration": 3.36
+  },
+  {
+    "text": "intraday biases only, again, they have",
+    "start": 462.72,
+    "duration": 3.44
+  },
+  {
+    "text": "their place. I'm not saying that they",
+    "start": 464.88,
+    "duration": 3.12
+  },
+  {
+    "text": "don't, but if you're trading them only,",
+    "start": 466.16,
+    "duration": 3.439
+  },
+  {
+    "text": "you're leaving out that critical piece",
+    "start": 468.0,
+    "duration": 3.039
+  },
+  {
+    "text": "of context. Now, let me show you what",
+    "start": 469.599,
+    "duration": 3.281
+  },
+  {
+    "text": "the opposite looks like here on",
+    "start": 471.039,
+    "duration": 4.56
+  },
+  {
+    "text": "something like Lulu. So, if we pull up a",
+    "start": 472.88,
+    "duration": 5.12
+  },
+  {
+    "text": "daily chart here on Lulu, what do you",
+    "start": 475.599,
+    "duration": 5.201
+  },
+  {
+    "text": "see? It's substantially under the 50",
+    "start": 478.0,
+    "duration": 4.879
+  },
+  {
+    "text": "moving average. Not just slightly, it's",
+    "start": 480.8,
+    "duration": 4.48
+  },
+  {
+    "text": "way, way below. So, this is ultra",
+    "start": 482.879,
+    "duration": 5.681
+  },
+  {
+    "text": "bearish price action. Not just that, it",
+    "start": 485.28,
+    "duration": 5.359
+  },
+  {
+    "text": "spent a considerable amount of time,",
+    "start": 488.56,
+    "duration": 4.88
+  },
+  {
+    "text": "like an entire month or two underneath",
+    "start": 490.639,
+    "duration": 4.96
+  },
+  {
+    "text": "of that 50 moving average. So that is",
+    "start": 493.44,
+    "duration": 5.199
+  },
+  {
+    "text": "significantly bearish. Now here is why",
+    "start": 495.599,
+    "duration": 5.6
+  },
+  {
+    "text": "this bias is so important to the trader",
+    "start": 498.639,
+    "duration": 4.96
+  },
+  {
+    "text": "and to understand because rallies will",
+    "start": 501.199,
+    "duration": 5.041
+  },
+  {
+    "text": "tend to hold on something like ARM but",
+    "start": 503.599,
+    "duration": 4.961
+  },
+  {
+    "text": "not on something like Lulu. So if I kind",
+    "start": 506.24,
+    "duration": 4.16
+  },
+  {
+    "text": "of move this I now back to the intraday",
+    "start": 508.56,
+    "duration": 4.8
+  },
+  {
+    "text": "five-minute chart. Is this not the same",
+    "start": 510.4,
+    "duration": 6.24
+  },
+  {
+    "text": "type of price action that ARM had? You",
+    "start": 513.36,
+    "duration": 6.559
+  },
+  {
+    "text": "begin with an opening cell, right? But",
+    "start": 516.64,
+    "duration": 6.079
+  },
+  {
+    "text": "where ARM had bounced all the way back",
+    "start": 519.919,
+    "duration": 5.6
+  },
+  {
+    "text": "up over the high, you begin to have a",
+    "start": 522.719,
+    "duration": 5.281
+  },
+  {
+    "text": "bounce here with Lulu. But let me just",
+    "start": 525.519,
+    "duration": 5.361
+  },
+  {
+    "text": "kind of quiz you because the daily is so",
+    "start": 528.0,
+    "duration": 6.0
+  },
+  {
+    "text": "weak. What do you think might happen? Is",
+    "start": 530.88,
+    "duration": 5.84
+  },
+  {
+    "text": "this the same quality of bounce that ARM",
+    "start": 534.0,
+    "duration": 4.399
+  },
+  {
+    "text": "is? Well, let's play it forward and take",
+    "start": 536.72,
+    "duration": 4.799
+  },
+  {
+    "text": "a look. And the answer is no. Lulu",
+    "start": 538.399,
+    "duration": 5.601
+  },
+  {
+    "text": "continues to go down practically the",
+    "start": 541.519,
+    "duration": 4.32
+  },
+  {
+    "text": "entire day. It's almost the reversed",
+    "start": 544.0,
+    "duration": 4.32
+  },
+  {
+    "text": "inverse relationship to ARM. Why is",
+    "start": 545.839,
+    "duration": 5.68
+  },
+  {
+    "text": "that? It's all from the daily. Now, once",
+    "start": 548.32,
+    "duration": 5.04
+  },
+  {
+    "text": "we've determined what our daily bias is,",
+    "start": 551.519,
+    "duration": 3.601
+  },
+  {
+    "text": "we can now move on to step number two,",
+    "start": 553.36,
+    "duration": 3.44
+  },
+  {
+    "text": "which is something I call the sucker",
+    "start": 555.12,
+    "duration": 3.76
+  },
+  {
+    "text": "step. Now, this is also referred to as",
+    "start": 556.8,
+    "duration": 3.76
+  },
+  {
+    "text": "things like manipulation, liquidity",
+    "start": 558.88,
+    "duration": 3.84
+  },
+  {
+    "text": "sweeps, liquidity grabs, tons and tons",
+    "start": 560.56,
+    "duration": 4.0
+  },
+  {
+    "text": "of terms for this, but I like to use the",
+    "start": 562.72,
+    "duration": 3.92
+  },
+  {
+    "text": "word sucker step because that's exactly",
+    "start": 564.56,
+    "duration": 4.24
+  },
+  {
+    "text": "what it is. The moves I've been showing",
+    "start": 566.64,
+    "duration": 4.48
+  },
+  {
+    "text": "you on these charts are specifically",
+    "start": 568.8,
+    "duration": 4.64
+  },
+  {
+    "text": "designed to sucker the inexperienced and",
+    "start": 571.12,
+    "duration": 4.64
+  },
+  {
+    "text": "newer traders out of their money. And",
+    "start": 573.44,
+    "duration": 3.839
+  },
+  {
+    "text": "that's where the edge lies with the",
+    "start": 575.76,
+    "duration": 3.04
+  },
+  {
+    "text": "opening range reversal. We don't want to",
+    "start": 577.279,
+    "duration": 2.801
+  },
+  {
+    "text": "get sucked out of our money. We actually",
+    "start": 578.8,
+    "duration": 3.12
+  },
+  {
+    "text": "want to make money, right? And that's",
+    "start": 580.08,
+    "duration": 3.439
+  },
+  {
+    "text": "all because of the famous term",
+    "start": 581.92,
+    "duration": 2.96
+  },
+  {
+    "text": "liquidity. Now, a lot of you are",
+    "start": 583.519,
+    "duration": 3.281
+  },
+  {
+    "text": "watching, you understand to some degree",
+    "start": 584.88,
+    "duration": 4.079
+  },
+  {
+    "text": "what liquidity is. But a lot of you",
+    "start": 586.8,
+    "duration": 4.479
+  },
+  {
+    "text": "might not. In simple trading terms, it's",
+    "start": 588.959,
+    "duration": 4.241
+  },
+  {
+    "text": "just the ease in which you can get in",
+    "start": 591.279,
+    "duration": 4.161
+  },
+  {
+    "text": "and out of an asset. Now, let me show",
+    "start": 593.2,
+    "duration": 4.48
+  },
+  {
+    "text": "you why this is important and where it",
+    "start": 595.44,
+    "duration": 3.76
+  },
+  {
+    "text": "becomes a problem for larger",
+    "start": 597.68,
+    "duration": 3.44
+  },
+  {
+    "text": "institutions and funds. So, if we go",
+    "start": 599.2,
+    "duration": 3.84
+  },
+  {
+    "text": "back to this ARM or the easiest way I",
+    "start": 601.12,
+    "duration": 4.0
+  },
+  {
+    "text": "can explain it for the sake of time,",
+    "start": 603.04,
+    "duration": 4.16
+  },
+  {
+    "text": "let's say I'm a big institution and I",
+    "start": 605.12,
+    "duration": 6.399
+  },
+  {
+    "text": "currently own 300,000 shares long of",
+    "start": 607.2,
+    "duration": 7.84
+  },
+  {
+    "text": "ARM, but I'd really like 600,000. But",
+    "start": 611.519,
+    "duration": 5.44
+  },
+  {
+    "text": "the problem is there's not enough",
+    "start": 615.04,
+    "duration": 5.2
+  },
+  {
+    "text": "sellside volume, sellside 300,000",
+    "start": 616.959,
+    "duration": 6.0
+  },
+  {
+    "text": "activity for me to get this 300,000",
+    "start": 620.24,
+    "duration": 4.64
+  },
+  {
+    "text": "share. Now, this is a basic version.",
+    "start": 622.959,
+    "duration": 3.601
+  },
+  {
+    "text": "There's obviously more to it, but this",
+    "start": 624.88,
+    "duration": 3.6
+  },
+  {
+    "text": "is exactly how business works in",
+    "start": 626.56,
+    "duration": 4.959
+  },
+  {
+    "text": "markets. So, what I would need to do to",
+    "start": 628.48,
+    "duration": 6.32
+  },
+  {
+    "text": "get the other 300,000 shares filled to",
+    "start": 631.519,
+    "duration": 5.921
+  },
+  {
+    "text": "get to the 600, I need to sell a",
+    "start": 634.8,
+    "duration": 6.8
+  },
+  {
+    "text": "significant portion of the 300,000 I",
+    "start": 637.44,
+    "duration": 7.2
+  },
+  {
+    "text": "already have. And I need to do that to",
+    "start": 641.6,
+    "duration": 5.76
+  },
+  {
+    "text": "create what appears to be a sellside",
+    "start": 644.64,
+    "duration": 5.92
+  },
+  {
+    "text": "event, a sucker move to get the numerous",
+    "start": 647.36,
+    "duration": 5.36
+  },
+  {
+    "text": "retail traders from around the world to",
+    "start": 650.56,
+    "duration": 4.32
+  },
+  {
+    "text": "think, \"Oh my goodness, this thing's",
+    "start": 652.72,
+    "duration": 4.48
+  },
+  {
+    "text": "going to crash.\" and all of those retail",
+    "start": 654.88,
+    "duration": 4.56
+  },
+  {
+    "text": "traders start to sell, short sellers",
+    "start": 657.2,
+    "duration": 4.24
+  },
+  {
+    "text": "start to pile in, which is increasing",
+    "start": 659.44,
+    "duration": 5.36
+  },
+  {
+    "text": "the sell side volume. Then I need to",
+    "start": 661.44,
+    "duration": 5.68
+  },
+  {
+    "text": "create enough liquidity, enough volume,",
+    "start": 664.8,
+    "duration": 4.479
+  },
+  {
+    "text": "enough shares so I can turn around and",
+    "start": 667.12,
+    "duration": 5.2
+  },
+  {
+    "text": "buy back what it is I sold in the first",
+    "start": 669.279,
+    "duration": 6.961
+  },
+  {
+    "text": "place plus the 300,000 that I wanted to",
+    "start": 672.32,
+    "duration": 6.0
+  },
+  {
+    "text": "add. Now, that kind of sounds bizarre",
+    "start": 676.24,
+    "duration": 4.0
+  },
+  {
+    "text": "because where you and I trade, we look",
+    "start": 678.32,
+    "duration": 4.079
+  },
+  {
+    "text": "for patterns and indicators and we wait",
+    "start": 680.24,
+    "duration": 5.279
+  },
+  {
+    "text": "for a trade. An institution actually has",
+    "start": 682.399,
+    "duration": 6.721
+  },
+  {
+    "text": "to create the event to get in the event.",
+    "start": 685.519,
+    "duration": 5.121
+  },
+  {
+    "text": "Meaning if they want to buy, they have",
+    "start": 689.12,
+    "duration": 3.279
+  },
+  {
+    "text": "to create the sell to create the",
+    "start": 690.64,
+    "duration": 4.16
+  },
+  {
+    "text": "liquidity to buy and the vice versa.",
+    "start": 692.399,
+    "duration": 3.68
+  },
+  {
+    "text": "They have if they want to sell, they",
+    "start": 694.8,
+    "duration": 3.039
+  },
+  {
+    "text": "have to create a buying event to get a",
+    "start": 696.079,
+    "duration": 4.401
+  },
+  {
+    "text": "selling event. It sounds super weird and",
+    "start": 697.839,
+    "duration": 4.801
+  },
+  {
+    "text": "it is. And I'll point you again to a few",
+    "start": 700.48,
+    "duration": 4.24
+  },
+  {
+    "text": "videos where I explain this concept, but",
+    "start": 702.64,
+    "duration": 4.08
+  },
+  {
+    "text": "kind of keep that in your mind. Now,",
+    "start": 704.72,
+    "duration": 5.04
+  },
+  {
+    "text": "here's how we know exactly this is a",
+    "start": 706.72,
+    "duration": 4.96
+  },
+  {
+    "text": "sucker step and that it's most likely to",
+    "start": 709.76,
+    "duration": 3.759
+  },
+  {
+    "text": "get reversed, which is something I've",
+    "start": 711.68,
+    "duration": 4.32
+  },
+  {
+    "text": "often used, always use every day is",
+    "start": 713.519,
+    "duration": 5.361
+  },
+  {
+    "text": "range. What we're looking for here is",
+    "start": 716.0,
+    "duration": 5.76
+  },
+  {
+    "text": "going back to the daily chart and we",
+    "start": 718.88,
+    "duration": 5.04
+  },
+  {
+    "text": "want to determine what the daily value",
+    "start": 721.76,
+    "duration": 4.4
+  },
+  {
+    "text": "is. And for that, we're going to use the",
+    "start": 723.92,
+    "duration": 4.56
+  },
+  {
+    "text": "average true range indicator. So, we're",
+    "start": 726.16,
+    "duration": 3.52
+  },
+  {
+    "text": "going to click on this. And you'll see",
+    "start": 728.48,
+    "duration": 3.52
+  },
+  {
+    "text": "now at the bottom it has included the",
+    "start": 729.68,
+    "duration": 6.88
+  },
+  {
+    "text": "average true range and it says $5.73",
+    "start": 732.0,
+    "duration": 6.639
+  },
+  {
+    "text": "on the right side of your screen. So",
+    "start": 736.56,
+    "duration": 4.48
+  },
+  {
+    "text": "this $5.73",
+    "start": 738.639,
+    "duration": 6.88
+  },
+  {
+    "text": "represents an average daily move in ARM.",
+    "start": 741.04,
+    "duration": 6.96
+  },
+  {
+    "text": "Whether that move is up or it's down,",
+    "start": 745.519,
+    "duration": 5.201
+  },
+  {
+    "text": "that's a standard typical say",
+    "start": 748.0,
+    "duration": 5.279
+  },
+  {
+    "text": "predictable move. So to make this math",
+    "start": 750.72,
+    "duration": 6.88
+  },
+  {
+    "text": "easier, let's just use the figure of $6.",
+    "start": 753.279,
+    "duration": 7.68
+  },
+  {
+    "text": "If these opening ranged moves, opening",
+    "start": 757.6,
+    "duration": 5.2
+  },
+  {
+    "text": "from the bell, opening range, that's why",
+    "start": 760.959,
+    "duration": 3.041
+  },
+  {
+    "text": "it's called an opening range reversal.",
+    "start": 762.8,
+    "duration": 5.279
+  },
+  {
+    "text": "If that opening range move exceeds 20%",
+    "start": 764.0,
+    "duration": 7.279
+  },
+  {
+    "text": "of that daily range, you are under",
+    "start": 768.079,
+    "duration": 5.601
+  },
+  {
+    "text": "manipulation and that stands to be",
+    "start": 771.279,
+    "duration": 4.961
+  },
+  {
+    "text": "reversed. Now, let me back up, slow down",
+    "start": 773.68,
+    "duration": 5.2
+  },
+  {
+    "text": "so everybody can follow along. You take",
+    "start": 776.24,
+    "duration": 6.08
+  },
+  {
+    "text": "the six bucks, 20% of six bucks is what?",
+    "start": 778.88,
+    "duration": 5.04
+  },
+  {
+    "text": "$120.",
+    "start": 782.32,
+    "duration": 5.12
+  },
+  {
+    "text": "So, as long as the top of this move to",
+    "start": 783.92,
+    "duration": 6.56
+  },
+  {
+    "text": "the bottom of this move exceeds",
+    "start": 787.44,
+    "duration": 5.839
+  },
+  {
+    "text": "$120, its manipulation and will most",
+    "start": 790.48,
+    "duration": 4.799
+  },
+  {
+    "text": "likely be reversed. So, if I grab a",
+    "start": 793.279,
+    "duration": 3.921
+  },
+  {
+    "text": "measuring tool and I measure at the top",
+    "start": 795.279,
+    "duration": 4.481
+  },
+  {
+    "text": "to bottom, you'll see it's already well",
+    "start": 797.2,
+    "duration": 5.439
+  },
+  {
+    "text": "outside of that. You're almost at 100%.",
+    "start": 799.76,
+    "duration": 5.6
+  },
+  {
+    "text": "You'll see it says $483, not quite 100%.",
+    "start": 802.639,
+    "duration": 5.521
+  },
+  {
+    "text": "But you are excessive in that range.",
+    "start": 805.36,
+    "duration": 5.36
+  },
+  {
+    "text": "That right there is manipulation. So",
+    "start": 808.16,
+    "duration": 4.479
+  },
+  {
+    "text": "what perhaps to newer traders may look",
+    "start": 810.72,
+    "duration": 3.44
+  },
+  {
+    "text": "like fear because that's what it's",
+    "start": 812.639,
+    "duration": 3.841
+  },
+  {
+    "text": "designed to do or where you may think,",
+    "start": 814.16,
+    "duration": 4.239
+  },
+  {
+    "text": "\"Oh, I'm catching a falling knife.\"",
+    "start": 816.48,
+    "duration": 3.84
+  },
+  {
+    "text": "You're not. You're under a manipulation",
+    "start": 818.399,
+    "duration": 4.24
+  },
+  {
+    "text": "move that is going to be reversed. So",
+    "start": 820.32,
+    "duration": 3.68
+  },
+  {
+    "text": "what I'm going to do here in this part",
+    "start": 822.639,
+    "duration": 3.841
+  },
+  {
+    "text": "is combine number three and steps number",
+    "start": 824.0,
+    "duration": 4.8
+  },
+  {
+    "text": "four together. Number three has to do",
+    "start": 826.48,
+    "duration": 4.4
+  },
+  {
+    "text": "with the entry, the precise entry signal",
+    "start": 828.8,
+    "duration": 3.68
+  },
+  {
+    "text": "that we're looking at. And step number",
+    "start": 830.88,
+    "duration": 3.519
+  },
+  {
+    "text": "four is the exit. It'd be better if we",
+    "start": 832.48,
+    "duration": 3.84
+  },
+  {
+    "text": "just did all these together. Now, in my",
+    "start": 834.399,
+    "duration": 3.921
+  },
+  {
+    "text": "past videos, I've done nothing but talk",
+    "start": 836.32,
+    "duration": 4.0
+  },
+  {
+    "text": "about my two favorite candles, which is",
+    "start": 838.32,
+    "duration": 3.759
+  },
+  {
+    "text": "the inverted hammer and hammer candles",
+    "start": 840.32,
+    "duration": 4.079
+  },
+  {
+    "text": "that I've dubbed the John Wick and the",
+    "start": 842.079,
+    "duration": 4.56
+  },
+  {
+    "text": "Power of Towers, which is the engulfing",
+    "start": 844.399,
+    "duration": 3.761
+  },
+  {
+    "text": "candle to most of you. And I've",
+    "start": 846.639,
+    "duration": 3.921
+  },
+  {
+    "text": "explained why, and I will direct you to",
+    "start": 848.16,
+    "duration": 3.919
+  },
+  {
+    "text": "those videos if you'd like to watch them",
+    "start": 850.56,
+    "duration": 3.36
+  },
+  {
+    "text": "and learn more about those candles. But",
+    "start": 852.079,
+    "duration": 3.921
+  },
+  {
+    "text": "to dumb it down today and to make it as",
+    "start": 853.92,
+    "duration": 4.88
+  },
+  {
+    "text": "easy as I possibly can, all we really",
+    "start": 856.0,
+    "duration": 4.72
+  },
+  {
+    "text": "need, regardless of what the candle",
+    "start": 858.8,
+    "duration": 4.64
+  },
+  {
+    "text": "looks like, we need one candle to take",
+    "start": 860.72,
+    "duration": 5.119
+  },
+  {
+    "text": "out the high of another candle. So, in",
+    "start": 863.44,
+    "duration": 4.48
+  },
+  {
+    "text": "this formation, we would need a candle",
+    "start": 865.839,
+    "duration": 5.44
+  },
+  {
+    "text": "to take out the last candle's high. So,",
+    "start": 867.92,
+    "duration": 5.359
+  },
+  {
+    "text": "if I kind of move this tape forward real",
+    "start": 871.279,
+    "duration": 4.321
+  },
+  {
+    "text": "quick, and I'll try not to skip too far,",
+    "start": 873.279,
+    "duration": 4.081
+  },
+  {
+    "text": "you'll see that this is what we get. And",
+    "start": 875.6,
+    "duration": 4.4
+  },
+  {
+    "text": "I want to back it up just right here and",
+    "start": 877.36,
+    "duration": 4.8
+  },
+  {
+    "text": "focus in on this candle and kind of make",
+    "start": 880.0,
+    "duration": 4.48
+  },
+  {
+    "text": "it just a little bit bigger. So, what I",
+    "start": 882.16,
+    "duration": 4.4
+  },
+  {
+    "text": "like to do is once you've got your green",
+    "start": 884.48,
+    "duration": 4.56
+  },
+  {
+    "text": "candle, I like to look for the next",
+    "start": 886.56,
+    "duration": 6.0
+  },
+  {
+    "text": "candle to take out this candle's high.",
+    "start": 889.04,
+    "duration": 5.599
+  },
+  {
+    "text": "And I'll tell you why you need to do",
+    "start": 892.56,
+    "duration": 4.399
+  },
+  {
+    "text": "this. Because we are not sure that this",
+    "start": 894.639,
+    "duration": 5.361
+  },
+  {
+    "text": "tiny little green candle is the final",
+    "start": 896.959,
+    "duration": 5.44
+  },
+  {
+    "text": "candle or marks the low. And here's a",
+    "start": 900.0,
+    "duration": 4.72
+  },
+  {
+    "text": "better way to look at it. Let's go back",
+    "start": 902.399,
+    "duration": 6.24
+  },
+  {
+    "text": "and talk about these 600,000 shares that",
+    "start": 904.72,
+    "duration": 5.679
+  },
+  {
+    "text": "this institution may want. Our",
+    "start": 908.639,
+    "duration": 4.801
+  },
+  {
+    "text": "hypothetical as this is moving down.",
+    "start": 910.399,
+    "duration": 5.761
+  },
+  {
+    "text": "They can't just hit market order for all",
+    "start": 913.44,
+    "duration": 5.44
+  },
+  {
+    "text": "600,000 shares, right? They're",
+    "start": 916.16,
+    "duration": 5.28
+  },
+  {
+    "text": "staggering their way in or scaling their",
+    "start": 918.88,
+    "duration": 5.28
+  },
+  {
+    "text": "way in as it moves lower. So, the",
+    "start": 921.44,
+    "duration": 4.8
+  },
+  {
+    "text": "further it moves, they're actually",
+    "start": 924.16,
+    "duration": 3.44
+  },
+  {
+    "text": "adding. That's why you're seeing the",
+    "start": 926.24,
+    "duration": 4.399
+  },
+  {
+    "text": "wicks at the bottom. We don't know if",
+    "start": 927.6,
+    "duration": 6.0
+  },
+  {
+    "text": "this order has been completely filled",
+    "start": 930.639,
+    "duration": 6.161
+  },
+  {
+    "text": "and this asset is ready to move up until",
+    "start": 933.6,
+    "duration": 6.16
+  },
+  {
+    "text": "we have confirmation that the sellside",
+    "start": 936.8,
+    "duration": 5.839
+  },
+  {
+    "text": "activity is done. And the only method we",
+    "start": 939.76,
+    "duration": 5.519
+  },
+  {
+    "text": "have is via those candles. So this is a",
+    "start": 942.639,
+    "duration": 4.64
+  },
+  {
+    "text": "very strong candle that allows us to",
+    "start": 945.279,
+    "duration": 4.321
+  },
+  {
+    "text": "know that a temporary low has been",
+    "start": 947.279,
+    "duration": 4.161
+  },
+  {
+    "text": "marked. What will give us the",
+    "start": 949.6,
+    "duration": 4.88
+  },
+  {
+    "text": "confirmation is a followth through",
+    "start": 951.44,
+    "duration": 6.0
+  },
+  {
+    "text": "candle. So what I would do here is I",
+    "start": 954.48,
+    "duration": 6.479
+  },
+  {
+    "text": "would buy at the very tip of the candle.",
+    "start": 957.44,
+    "duration": 5.44
+  },
+  {
+    "text": "If the next one is over it, the stop",
+    "start": 960.959,
+    "duration": 5.201
+  },
+  {
+    "text": "loss would be at the low of the day and",
+    "start": 962.88,
+    "duration": 7.519
+  },
+  {
+    "text": "the target would become 50% at least of",
+    "start": 966.16,
+    "duration": 6.56
+  },
+  {
+    "text": "the very top point of that move to the",
+    "start": 970.399,
+    "duration": 4.961
+  },
+  {
+    "text": "bottom point. So not to confuse stop is",
+    "start": 972.72,
+    "duration": 5.6
+  },
+  {
+    "text": "at the low of day. 50% of the move from",
+    "start": 975.36,
+    "duration": 4.8
+  },
+  {
+    "text": "this peak to this peak would be just",
+    "start": 978.32,
+    "duration": 4.879
+  },
+  {
+    "text": "about right there. and that would mark",
+    "start": 980.16,
+    "duration": 4.799
+  },
+  {
+    "text": "what I would be looking at from a",
+    "start": 983.199,
+    "duration": 4.401
+  },
+  {
+    "text": "scalping standpoint. If you wanted to be",
+    "start": 984.959,
+    "duration": 4.481
+  },
+  {
+    "text": "more aggressive with that, you could",
+    "start": 987.6,
+    "duration": 3.679
+  },
+  {
+    "text": "lean it all the way up to the top",
+    "start": 989.44,
+    "duration": 3.519
+  },
+  {
+    "text": "because most likely that's in fact where",
+    "start": 991.279,
+    "duration": 3.041
+  },
+  {
+    "text": "it will go. But just for today's",
+    "start": 992.959,
+    "duration": 3.201
+  },
+  {
+    "text": "example, let's stick let's just keep it",
+    "start": 994.32,
+    "duration": 4.079
+  },
+  {
+    "text": "simple. And that would be the trade.",
+    "start": 996.16,
+    "duration": 4.56
+  },
+  {
+    "text": "You'll see the very next candle does in",
+    "start": 998.399,
+    "duration": 4.641
+  },
+  {
+    "text": "fact push through and then you'll see",
+    "start": 1000.72,
+    "duration": 4.0
+  },
+  {
+    "text": "eventually it finds its way to go all",
+    "start": 1003.04,
+    "duration": 3.599
+  },
+  {
+    "text": "the way back up. Let's kind of move that",
+    "start": 1004.72,
+    "duration": 6.559
+  },
+  {
+    "text": "out into your target. Right. And there",
+    "start": 1006.639,
+    "duration": 6.961
+  },
+  {
+    "text": "it is. Okay. Now, here's something also",
+    "start": 1011.279,
+    "duration": 5.281
+  },
+  {
+    "text": "to keep in mind. Once you have the",
+    "start": 1013.6,
+    "duration": 4.96
+  },
+  {
+    "text": "confirmation, some of these will go",
+    "start": 1016.56,
+    "duration": 3.839
+  },
+  {
+    "text": "straight back up with aggression and",
+    "start": 1018.56,
+    "duration": 3.92
+  },
+  {
+    "text": "others will move around a little bit",
+    "start": 1020.399,
+    "duration": 4.241
+  },
+  {
+    "text": "like this. But you must believe and",
+    "start": 1022.48,
+    "duration": 4.479
+  },
+  {
+    "text": "trust in the process. Now, let's kind of",
+    "start": 1024.64,
+    "duration": 4.559
+  },
+  {
+    "text": "do another trade example here using the",
+    "start": 1026.959,
+    "duration": 4.48
+  },
+  {
+    "text": "same formula and sticking with ARM. If",
+    "start": 1029.199,
+    "duration": 4.801
+  },
+  {
+    "text": "we move into the next day, you'll see we",
+    "start": 1031.439,
+    "duration": 4.88
+  },
+  {
+    "text": "have pretty much the same move as we did",
+    "start": 1034.0,
+    "duration": 4.959
+  },
+  {
+    "text": "before of what appears to be a very",
+    "start": 1036.319,
+    "duration": 5.36
+  },
+  {
+    "text": "aggressive selloff move, right? So,",
+    "start": 1038.959,
+    "duration": 3.921
+  },
+  {
+    "text": "what's the first thing we do? I mean,",
+    "start": 1041.679,
+    "duration": 2.801
+  },
+  {
+    "text": "we've already determined the bias on",
+    "start": 1042.88,
+    "duration": 3.36
+  },
+  {
+    "text": "ARM. It's strong. Bulls are in control",
+    "start": 1044.48,
+    "duration": 3.359
+  },
+  {
+    "text": "regardless of what the intraday looks",
+    "start": 1046.24,
+    "duration": 3.679
+  },
+  {
+    "text": "like. So, if we measure the very top of",
+    "start": 1047.839,
+    "duration": 3.84
+  },
+  {
+    "text": "the opening move to the bottom of the",
+    "start": 1049.919,
+    "duration": 4.721
+  },
+  {
+    "text": "move, we're probably well over that 20%",
+    "start": 1051.679,
+    "duration": 5.521
+  },
+  {
+    "text": "threshold. It's $324,",
+    "start": 1054.64,
+    "duration": 5.36
+  },
+  {
+    "text": "right? So, it's uh it's like 50% almost.",
+    "start": 1057.2,
+    "duration": 4.64
+  },
+  {
+    "text": "So it's that's substantial enough. You",
+    "start": 1060.0,
+    "duration": 4.32
+  },
+  {
+    "text": "know that the move is being manipulated.",
+    "start": 1061.84,
+    "duration": 5.52
+  },
+  {
+    "text": "So what do we need here? We need one of",
+    "start": 1064.32,
+    "duration": 5.12
+  },
+  {
+    "text": "these candles to retrace themselves. So",
+    "start": 1067.36,
+    "duration": 3.439
+  },
+  {
+    "text": "if I just move forward to the next",
+    "start": 1069.44,
+    "duration": 2.88
+  },
+  {
+    "text": "candle and let me back that up so I",
+    "start": 1070.799,
+    "duration": 3.601
+  },
+  {
+    "text": "don't mess up the whole entire spiel",
+    "start": 1072.32,
+    "duration": 5.2
+  },
+  {
+    "text": "here. There it is. You see right there",
+    "start": 1074.4,
+    "duration": 6.399
+  },
+  {
+    "text": "it crosses that threshold. That becomes",
+    "start": 1077.52,
+    "duration": 4.96
+  },
+  {
+    "text": "the entry. So I'll buy. It's a little",
+    "start": 1080.799,
+    "duration": 3.201
+  },
+  {
+    "text": "bit of a chase there based off this",
+    "start": 1082.48,
+    "duration": 3.36
+  },
+  {
+    "text": "platform. But what do we do? You know",
+    "start": 1084.0,
+    "duration": 3.76
+  },
+  {
+    "text": "stop loss moves underneath the low of",
+    "start": 1085.84,
+    "duration": 4.56
+  },
+  {
+    "text": "the day. target price goes back to 50%",
+    "start": 1087.76,
+    "duration": 5.44
+  },
+  {
+    "text": "of this bottom move to top move, which",
+    "start": 1090.4,
+    "duration": 4.639
+  },
+  {
+    "text": "would be about right there. And we'll",
+    "start": 1093.2,
+    "duration": 3.12
+  },
+  {
+    "text": "just play it forward and see what",
+    "start": 1095.039,
+    "duration": 3.841
+  },
+  {
+    "text": "happens. And you eventually get taken",
+    "start": 1096.32,
+    "duration": 4.56
+  },
+  {
+    "text": "out, right? It's kind of the same move",
+    "start": 1098.88,
+    "duration": 3.84
+  },
+  {
+    "text": "there as well. You'll see it doesn't",
+    "start": 1100.88,
+    "duration": 4.56
+  },
+  {
+    "text": "always go straight up, right? There is a",
+    "start": 1102.72,
+    "duration": 5.92
+  },
+  {
+    "text": "revisit or a retest right here. But the",
+    "start": 1105.44,
+    "duration": 6.239
+  },
+  {
+    "text": "only reason that move right there can",
+    "start": 1108.64,
+    "duration": 5.68
+  },
+  {
+    "text": "happen is because of the wash out",
+    "start": 1111.679,
+    "duration": 5.601
+  },
+  {
+    "text": "before. Okay, let's try one more. So you",
+    "start": 1114.32,
+    "duration": 4.56
+  },
+  {
+    "text": "know I'm not cherrypicking these charts.",
+    "start": 1117.28,
+    "duration": 3.759
+  },
+  {
+    "text": "We'll move to the next day and you",
+    "start": 1118.88,
+    "duration": 4.32
+  },
+  {
+    "text": "probably caught on there. Isn't it wild",
+    "start": 1121.039,
+    "duration": 5.201
+  },
+  {
+    "text": "that every single day ARM is giving you",
+    "start": 1123.2,
+    "duration": 5.04
+  },
+  {
+    "text": "this exact same move. What do we have",
+    "start": 1126.24,
+    "duration": 4.4
+  },
+  {
+    "text": "here again? Is this not another sucker",
+    "start": 1128.24,
+    "duration": 5.2
+  },
+  {
+    "text": "step? Because the daily chart is strong.",
+    "start": 1130.64,
+    "duration": 4.72
+  },
+  {
+    "text": "It's most likely going to be reversed.",
+    "start": 1133.44,
+    "duration": 3.599
+  },
+  {
+    "text": "Now this is a little bit better setup",
+    "start": 1135.36,
+    "duration": 3.76
+  },
+  {
+    "text": "here in terms of learning because take a",
+    "start": 1137.039,
+    "duration": 3.921
+  },
+  {
+    "text": "look at what we have here and why the",
+    "start": 1139.12,
+    "duration": 4.0
+  },
+  {
+    "text": "power isn't waiting for that secondary",
+    "start": 1140.96,
+    "duration": 5.36
+  },
+  {
+    "text": "candle. Notice at one point this candle",
+    "start": 1143.12,
+    "duration": 6.32
+  },
+  {
+    "text": "was green and almost above that peak. It",
+    "start": 1146.32,
+    "duration": 5.2
+  },
+  {
+    "text": "might be a little bit hard to see, but",
+    "start": 1149.44,
+    "duration": 5.44
+  },
+  {
+    "text": "it didn't get above that peak. Right?",
+    "start": 1151.52,
+    "duration": 5.039
+  },
+  {
+    "text": "So, what we would look for in this type",
+    "start": 1154.88,
+    "duration": 3.679
+  },
+  {
+    "text": "of formation is if you have multiple",
+    "start": 1156.559,
+    "duration": 5.281
+  },
+  {
+    "text": "candles in between, you still need to",
+    "start": 1158.559,
+    "duration": 6.24
+  },
+  {
+    "text": "break the base of the up the upper",
+    "start": 1161.84,
+    "duration": 5.92
+  },
+  {
+    "text": "portion of that high point candle or the",
+    "start": 1164.799,
+    "duration": 4.561
+  },
+  {
+    "text": "next candle in it. You still have to get",
+    "start": 1167.76,
+    "duration": 3.6
+  },
+  {
+    "text": "a move up here. So, if I kind of push",
+    "start": 1169.36,
+    "duration": 3.36
+  },
+  {
+    "text": "that through, you'll see that that in",
+    "start": 1171.36,
+    "duration": 4.48
+  },
+  {
+    "text": "fact does happen, right? This move gets",
+    "start": 1172.72,
+    "duration": 6.0
+  },
+  {
+    "text": "through that upper candle. Not this",
+    "start": 1175.84,
+    "duration": 4.8
+  },
+  {
+    "text": "candle. It was a fake. This is how you",
+    "start": 1178.72,
+    "duration": 3.199
+  },
+  {
+    "text": "make sure you don't get faked out. But",
+    "start": 1180.64,
+    "duration": 3.12
+  },
+  {
+    "text": "this candle was good. So, what do we do?",
+    "start": 1181.919,
+    "duration": 3.841
+  },
+  {
+    "text": "We should already have learned. We buy.",
+    "start": 1183.76,
+    "duration": 4.08
+  },
+  {
+    "text": "Stop loss goes under the low. Target",
+    "start": 1185.76,
+    "duration": 4.799
+  },
+  {
+    "text": "price goes 50% up. We let the thing run.",
+    "start": 1187.84,
+    "duration": 4.079
+  },
+  {
+    "text": "And what do you think happens? Yet",
+    "start": 1190.559,
+    "duration": 3.601
+  },
+  {
+    "text": "again, ARM finds another way to go",
+    "start": 1191.919,
+    "duration": 4.481
+  },
+  {
+    "text": "higher. But all of this is under three",
+    "start": 1194.16,
+    "duration": 4.72
+  },
+  {
+    "text": "different premises. One, the daily bias.",
+    "start": 1196.4,
+    "duration": 4.639
+  },
+  {
+    "text": "It appears that every day ARM is",
+    "start": 1198.88,
+    "duration": 4.08
+  },
+  {
+    "text": "bearish, but it's not because the daily",
+    "start": 1201.039,
+    "duration": 3.76
+  },
+  {
+    "text": "bias is strong and the stock is under",
+    "start": 1202.96,
+    "duration": 4.0
+  },
+  {
+    "text": "accumulation. They keep finding ways to",
+    "start": 1204.799,
+    "duration": 4.161
+  },
+  {
+    "text": "buy the dip, right? They're starting out",
+    "start": 1206.96,
+    "duration": 3.52
+  },
+  {
+    "text": "with these sucker moves. And how you",
+    "start": 1208.96,
+    "duration": 3.2
+  },
+  {
+    "text": "know you're being played and how you",
+    "start": 1210.48,
+    "duration": 3.28
+  },
+  {
+    "text": "know you're being suckered out is",
+    "start": 1212.16,
+    "duration": 3.519
+  },
+  {
+    "text": "they're trying to create fear to create",
+    "start": 1213.76,
+    "duration": 4.159
+  },
+  {
+    "text": "liquidity to get into these positions by",
+    "start": 1215.679,
+    "duration": 4.161
+  },
+  {
+    "text": "creating that 20% move. Right? Hopefully",
+    "start": 1217.919,
+    "duration": 3.76
+  },
+  {
+    "text": "this is not going too fast, but just",
+    "start": 1219.84,
+    "duration": 3.92
+  },
+  {
+    "text": "rewind it if you need to. By creating",
+    "start": 1221.679,
+    "duration": 4.401
+  },
+  {
+    "text": "the 20% that that draws our attention to",
+    "start": 1223.76,
+    "duration": 4.799
+  },
+  {
+    "text": "the trade, right? the candlestick, the",
+    "start": 1226.08,
+    "duration": 4.4
+  },
+  {
+    "text": "candlestick closure and the candlestick",
+    "start": 1228.559,
+    "duration": 4.161
+  },
+  {
+    "text": "pushup of the previous one lets us know",
+    "start": 1230.48,
+    "duration": 4.319
+  },
+  {
+    "text": "that the complete order whatever that",
+    "start": 1232.72,
+    "duration": 4.56
+  },
+  {
+    "text": "the sell-off that was engineered has",
+    "start": 1234.799,
+    "duration": 4.641
+  },
+  {
+    "text": "come to an end and now it's free to move",
+    "start": 1237.28,
+    "duration": 4.639
+  },
+  {
+    "text": "up or it's free to move down by",
+    "start": 1239.44,
+    "duration": 4.4
+  },
+  {
+    "text": "following that process. We're not",
+    "start": 1241.919,
+    "duration": 4.0
+  },
+  {
+    "text": "talking about some chart voodoo here",
+    "start": 1243.84,
+    "duration": 3.68
+  },
+  {
+    "text": "where we're drawing lines and just",
+    "start": 1245.919,
+    "duration": 3.441
+  },
+  {
+    "text": "trying to guess. This is a solid",
+    "start": 1247.52,
+    "duration": 4.08
+  },
+  {
+    "text": "strategy with a high accuracy rate that",
+    "start": 1249.36,
+    "duration": 3.439
+  },
+  {
+    "text": "can really help you start to put some",
+    "start": 1251.6,
+    "duration": 3.12
+  },
+  {
+    "text": "some good trades together. All right, my",
+    "start": 1252.799,
+    "duration": 3.36
+  },
+  {
+    "text": "friends, that will conclude today's",
+    "start": 1254.72,
+    "duration": 3.04
+  },
+  {
+    "text": "video. And as always, it is a pleasure",
+    "start": 1256.159,
+    "duration": 3.601
+  },
+  {
+    "text": "to share my strategies and knowledge",
+    "start": 1257.76,
+    "duration": 3.52
+  },
+  {
+    "text": "with you that I've learned along the way",
+    "start": 1259.76,
+    "duration": 3.52
+  },
+  {
+    "text": "of 25 plus years of trading. And I do",
+    "start": 1261.28,
+    "duration": 3.84
+  },
+  {
+    "text": "hope it's helping you and you can start",
+    "start": 1263.28,
+    "duration": 3.44
+  },
+  {
+    "text": "to take the right steps forward. One",
+    "start": 1265.12,
+    "duration": 3.679
+  },
+  {
+    "text": "thing I always want to mention, nothing",
+    "start": 1266.72,
+    "duration": 5.52
+  },
+  {
+    "text": "will ever replace screen time. So try to",
+    "start": 1268.799,
+    "duration": 5.841
+  },
+  {
+    "text": "get as much study and screen time. Every",
+    "start": 1272.24,
+    "duration": 4.08
+  },
+  {
+    "text": "day that you can get in front of that",
+    "start": 1274.64,
+    "duration": 3.84
+  },
+  {
+    "text": "screen is another day that you're going",
+    "start": 1276.32,
+    "duration": 4.32
+  },
+  {
+    "text": "to learn and it's one day closer to you",
+    "start": 1278.48,
+    "duration": 4.16
+  },
+  {
+    "text": "achieving those goals. Nothing will ever",
+    "start": 1280.64,
+    "duration": 3.44
+  },
+  {
+    "text": "replace that. And I think you know that.",
+    "start": 1282.64,
+    "duration": 3.12
+  },
+  {
+    "text": "the more you can do, the better off",
+    "start": 1284.08,
+    "duration": 3.28
+  },
+  {
+    "text": "you're going to be. Now, if you have any",
+    "start": 1285.76,
+    "duration": 3.039
+  },
+  {
+    "text": "questions about the strategy, because",
+    "start": 1287.36,
+    "duration": 2.64
+  },
+  {
+    "text": "sometimes this stuff is a little bit",
+    "start": 1288.799,
+    "duration": 2.641
+  },
+  {
+    "text": "confusing and we kind of move through",
+    "start": 1290.0,
+    "duration": 2.96
+  },
+  {
+    "text": "here and there, make sure you put it",
+    "start": 1291.44,
+    "duration": 3.119
+  },
+  {
+    "text": "down into the comment section. I'll do",
+    "start": 1292.96,
+    "duration": 3.28
+  },
+  {
+    "text": "my best to get back to you. Now, one",
+    "start": 1294.559,
+    "duration": 3.281
+  },
+  {
+    "text": "last thing I want to remind you of",
+    "start": 1296.24,
+    "duration": 4.0
+  },
+  {
+    "text": "before I officially sign out is every",
+    "start": 1297.84,
+    "duration": 4.16
+  },
+  {
+    "text": "week my wife and I put together",
+    "start": 1300.24,
+    "duration": 3.679
+  },
+  {
+    "text": "something called the gains guide. It",
+    "start": 1302.0,
+    "duration": 4.64
+  },
+  {
+    "text": "lists all of the best assets to trade",
+    "start": 1303.919,
+    "duration": 5.12
+  },
+  {
+    "text": "and includes entry points, exit points,",
+    "start": 1306.64,
+    "duration": 4.159
+  },
+  {
+    "text": "and risk management. everything you need",
+    "start": 1309.039,
+    "duration": 3.841
+  },
+  {
+    "text": "to know along with both the technical",
+    "start": 1310.799,
+    "duration": 4.481
+  },
+  {
+    "text": "basis and fundamental basis. It's pretty",
+    "start": 1312.88,
+    "duration": 4.56
+  },
+  {
+    "text": "thorough, but guess what? It's also",
+    "start": 1315.28,
+    "duration": 4.32
+  },
+  {
+    "text": "free. Doesn't cost you anything. It's",
+    "start": 1317.44,
+    "duration": 4.0
+  },
+  {
+    "text": "just a good place to get started with a",
+    "start": 1319.6,
+    "duration": 3.76
+  },
+  {
+    "text": "series of ideas to help get you through",
+    "start": 1321.44,
+    "duration": 4.08
+  },
+  {
+    "text": "the week. As always, I want to thank you",
+    "start": 1323.36,
+    "duration": 4.319
+  },
+  {
+    "text": "for watching this video. Take care.",
+    "start": 1325.52,
+    "duration": 6.88
+  },
+  {
+    "text": "Trade well. Until the next one. Cheers.",
+    "start": 1327.679,
+    "duration": 4.721
+  }
+]

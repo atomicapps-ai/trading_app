@@ -1,0 +1,52 @@
+{
+  "strategy": "s8_presidential_cycle",
+  "config": {
+    "universe": "SPY (headline) + all stocks (robustness)",
+    "rule": "buy Jan 2 yrs pre-election, sell Nov of election year",
+    "elections": [
+      2008,
+      2012,
+      2016,
+      2020,
+      2024
+    ],
+    "benchmark": "all overlapping 2-yr windows",
+    "spy_per_cycle_pct": [
+      [
+        2024,
+        33.9
+      ]
+    ],
+    "spy_avg_cycle_pct": 33.9,
+    "preelection_2yr_mean_pct": 26.0,
+    "all_2yr_window_mean_pct": 63.6,
+    "preelection_n": 298,
+    "all_windows_n": 1327
+  },
+  "n_symbols": 90,
+  "results": {
+    "all": {
+      "n": 1,
+      "win_pct": 100.0,
+      "expectancy_R": 0.337,
+      "profit_factor": Infinity,
+      "avg_win_R": 0.337,
+      "avg_loss_R": 0.0,
+      "max_dd_R": 0.0,
+      "total_R": 0.3
+    },
+    "in_sample": {
+      "n": 0
+    },
+    "out_sample": {
+      "n": 1,
+      "win_pct": 100.0,
+      "expectancy_R": 0.337,
+      "profit_factor": Infinity,
+      "avg_win_R": 0.337,
+      "avg_loss_R": 0.0,
+      "max_dd_R": 0.0,
+      "total_R": 0.3
+    }
+  }
+}

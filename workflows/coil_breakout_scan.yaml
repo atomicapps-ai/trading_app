@@ -1,0 +1,29 @@
+workflow_id: coil_breakout_scan
+description: >
+  Daily post-close scan for the Coil-Contraction Breakout strategy. Screens
+  liquid_momentum_core, runs only the coil-breakout detector, builds plans, and
+  queues them to /pending for human approval. Paper mode. Diversifier sleeve
+  alongside momentum_breakout (0.14 correlated) and fear_dip_reversion.
+default_mode: paper
+schedule: "25 16 * * 1-5"   # 16:25 ET Mon-Fri (after the close; staggered after the other scans)
+
+steps:
+  - id: filter_universe
+    kind: filter_universe
+    params:
+      preset: liquid_momentum_core
+      shortlist_size: 60
+  - id: compute_macro
+    kind: compute_macro
+    depends_on: [filter_universe]
+  - id: analyze
+    kind: analyze
+    params:
+      strategy: coil_breakout
+      lenses: [technical, macro]
+    depends_on: [compute_macro]
+  - id: plan
+    kind: plan
+    params:
+      strategy: coil_breakout
+    depends_on: [analyze]

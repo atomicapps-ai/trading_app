@@ -369,8 +369,17 @@ class Executioner:
             raise ValueError("plan.instrument.symbol missing")
         side = _side_for_direction(plan.setup.direction)
         entry = plan.setup.entry
-        order_type = _order_type_for_entry(entry.type)
-        tif = _tif_for_valid_until(entry.valid_until)
+        execution = plan.execution or {}
+
+        # entry_style="market" → fill at the open (marketable) instead of a passive
+        # limit. order_class="bracket" → attach OCO stop + TP server-side.
+        entry_style = execution.get("entry_style")
+        if entry_style == "market":
+            order_type = "market"
+            tif = "day"  # market orders must be day-valid
+        else:
+            order_type = _order_type_for_entry(entry.type)
+            tif = _tif_for_valid_until(entry.valid_until)
 
         client_order_id = f"exec-{plan.plan_id[:8]}-{uuid4().hex[:6]}"
 
@@ -381,6 +390,16 @@ class Executioner:
         elif order_type == "stop":
             stop_price = float(entry.price)
         # market → no price
+
+        order_class: str | None = None
+        tp_price: float | None = None
+        sl_price: float | None = None
+        if execution.get("order_class") == "bracket":
+            tps = plan.setup.take_profit or []
+            tp_price = float(tps[-1].price) if tps else None  # final target
+            sl_price = float(plan.setup.stop_loss.initial.price)
+            if tp_price and sl_price:
+                order_class = "bracket"
 
         return Order(
             client_order_id=client_order_id,
@@ -393,6 +412,9 @@ class Executioner:
             time_in_force=tif,  # type: ignore[arg-type]
             algo=None,
             extended_hours=False,
+            order_class=order_class,
+            take_profit_price=tp_price,
+            stop_loss_price=sl_price,
         )
 
     def _reject(

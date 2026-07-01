@@ -1,0 +1,38 @@
+name: momentum_breakout
+display_name: Momentum Breakout
+source_video: k-X0164r66U          # Lance — continuation/breakout half
+family: trend/breakout
+instrument_timeframe: US stocks, daily
+data_fit: daily-stock testable
+status: DEPLOYED                    # live on paper via momentum_breakout_scan
+
+rules:
+  entry: close exceeds the prior 126-day high (next-open fill)
+  stop: entry - 1.0 x ATR(14)
+  target: TP1 +3R, TP2 +6R
+  exit_trail: close below the 50-day SMA (let winners run)
+  direction: long only
+
+filters:                            # validated via attribution (OOS)
+  breakout_volume: ">= 1.5x 20-day avg  (top filter; ~2x expectancy)"
+  adx: ">= 20  (skip chop; ADX<20 was PF ~1.1)"
+  trend_zone: "5-15% above 200-MA = sweet spot (PF 2.34); optional hard gate"
+  regime: "SPY>200MA supportive; SPY<200MA penalized (win cratered to 16%)"
+
+tuned_params:
+  lookback_high: 126
+  stop_atr_mult: 1.0
+  require_breakout_volume: true
+  breakout_volume_min: 1.5
+  require_min_adx: 20.0
+  trend_zone_lo: 0.05
+  trend_zone_hi: 0.15
+
+results_oos:                        # 90 stocks, 2006-2026, 10bps cost
+  baseline: { win_pct: 22, expectancy_R: 0.45, profit_factor: 1.43 }
+  tuned_sweet_spot: { win_pct: 30, expectancy_R: 0.91, profit_factor: 2.34 }
+  beats_random_control: true
+caveats: outlier-driven tail (a few explosive names); survivorship in the universe.
+detector: agents/detectors/s7_breakout_continuation.py
+config: strategy_configs/momentum_breakout.yaml
+doc: strategies/strategy_docs/S7_breakout_continuation.md

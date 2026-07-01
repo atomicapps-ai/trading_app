@@ -1,0 +1,37 @@
+strategy_name: fvg_continuation
+version: "1.0"
+description: >
+  FVG Displacement-Continuation (FX intraday). NY-session bias (Asia ranges / London
+  sweeps / NY reverses) → enter the displacement Fair-Value-Gap at MARKET on the next
+  bar (ride the move; do NOT wait for the retrace) → 3R / stop at far gap edge / EOD.
+  VALIDATED: PF ~1.48, OOS 1.46, clean control, 9-pair breadth, realistic market fills
+  (see strategies/strategy_docs/FVG_CONTINUATION.md). Derived from the E3Mc video; the
+  retrace version it teaches is a fill mirage that loses.
+asset_class: forex
+universe: [EURUSD, USDJPY, EURJPY, GBPJPY, AUDJPY, EURAUD, EURCAD, GBPUSD, AUDUSD]
+mode: paper
+active: true
+holding_period: intraday
+
+# Review is REPLAY-ONLY until the FX broker (IBKR Pro) is live + an intraday workflow
+# is wired. No live scan workflow yet — see BROKER_INTEGRATION.md remaining-work list.
+broker_required: ibkr
+live_wired: false
+
+# Detection lives in services/fvg_service.py + scripts/replay_fvg.py (session logic),
+# not the ALL_DETECTORS swing path, so no `detectors:` whitelist here.
+params:
+  sessions_tz: America/New_York
+  asia: "19:00-00:00"
+  london: "02:00-07:00"
+  ny_open_range: "09:30-09:45"
+  ny_trade_window: "09:45-16:00"
+  displacement_min_body_x: 1.5
+  min_gap_pips: 2
+  target_r: 3.0
+  entry: market_next_bar
+  stop: far_gap_edge
+
+risk:
+  max_risk_pct_per_trade: 0.50
+  min_rr_ratio: 2.0

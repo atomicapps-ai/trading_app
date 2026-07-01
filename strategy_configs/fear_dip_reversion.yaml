@@ -1,0 +1,43 @@
+strategy_name: fear_dip_reversion
+version: "1.0"
+description: >
+  Fear-Dip Reversion (formerly S5): buys stocks stretched >=3.0xATR below their
+  50-day SMA and targets the mean. Only fires in FEARFUL markets (SPY below its
+  200-MA OR VIX >= 26) — dip-buying pays when there's blood, not in calm. Steady,
+  broad edge (~32% win, ~0.58R expectancy OOS). See HARDENING_S7_S5.md.
+universe_filter_preset: liquid_momentum_core
+mode: paper
+active: true
+holding_period: swing_days
+
+# Technical lens scoped to ONLY the mean-reversion detector.
+detectors:
+  - s5_mean_reversion
+
+min_signal_strength: 0.55
+
+portfolio_rules:
+  single_signal_override: 0.55
+  min_patterns_agreeing: 1
+  min_lenses_agreeing: 2
+  trail_mode: atr
+  trail_atr_multiple: 2.0
+  trail_atr_period: 14
+  trail_activate_after: "price >= entry + 1.0R"
+  time_stop_sessions: 45
+
+risk:
+  max_risk_pct_per_trade: 0.50
+  max_position_pct_of_equity: 8.0
+  min_rr_ratio: 2.0
+
+pattern_thresholds:
+  s5_mean_reversion:
+    stretch_atr_mult: 3.0
+    stop_atr_mult: 1.0
+    # Selection filter (S5's edge concentrates in fearful markets).
+    require_fear_regime: true
+    fear_vix_min: 26.0
+    # Phase-2 attribution: VIX>=32 (extreme fear) was win 46% / PF 3.13 — strong
+    # conviction tier. Dip-in-uptrend (close>200MA) also boosts conviction.
+    fear_vix_extreme: 32.0

@@ -25,6 +25,10 @@
       </div>
     </div>
     <div class="trade-detail-actions">
+      {% if tradingview_url %}
+        <a class="btn" href="{{ tradingview_url }}" target="_blank" rel="noopener"
+           title="Open this symbol on TradingView">Open in TradingView ↗</a>
+      {% endif %}
       {% if trade.is_active %}
         <button class="btn" type="button"
                 onclick="document.getElementById('trade-edit-form').classList.toggle('is-open');

@@ -42,13 +42,28 @@ DEFAULT_RISK_PCT = 0.005   # 0.5% of equity risked per trade; risk_manager re-ca
 
 
 def _build_trade_plan(kp, *, mode: str, equity: float, pred_len: int,
-                      baseline_p: float | None, pivots: dict | None = None) -> TradePlan:
-    """Map a KronosPlan into the app's full TradePlan (single 100% TP leg)."""
+                      baseline_p: float | None, pivots: dict | None = None,
+                      entry_style: str = "market") -> TradePlan:
+    """Map a KronosPlan into the app's full TradePlan (single 100% TP leg).
+
+    entry_style="market" → fill at the open as a bracket order (stop+TP attached
+    server-side; the broker manages exits so no time-stop is scheduled).
+    entry_style="limit"  → passive GTC limit at the prior close, with a horizon
+    time-stop managed by the app.
+    """
     r_per_share = kp.risk_per_share or abs(kp.entry - kp.stop)
     risk_budget = max(equity, 1.0) * DEFAULT_RISK_PCT
     shares = max(1, int(risk_budget / r_per_share)) if r_per_share > 0 else 1
     deadline = (pd.Timestamp.now(tz=timezone.utc)
                 + pd.tseries.offsets.BDay(pred_len)).isoformat()
+
+    if entry_style == "market":
+        execution_cfg = {"algo": "market", "broker": "alpaca", "account_type": "paper",
+                         "entry_style": "market", "order_class": "bracket"}
+        time_stop_active = False  # bracket's OCO stop/TP manage the exit
+    else:
+        execution_cfg = {"algo": "limit", "broker": "alpaca", "account_type": "paper"}
+        time_stop_active = True
 
     return TradePlan(
         mode=mode,
@@ -85,7 +100,7 @@ def _build_trade_plan(kp, *, mode: str, equity: float, pred_len: int,
                 ),
                 trail=TrailingStop(active=False, activate_after="", mode="atr"),
                 time_stop=TimeStop(
-                    active=True,
+                    active=time_stop_active,
                     condition=f"close at {pred_len}-bar forecast horizon",
                     deadline=deadline,
                 ),
@@ -101,7 +116,7 @@ def _build_trade_plan(kp, *, mode: str, equity: float, pred_len: int,
             "r_multiple_to_tp1": kp.rr,
             "r_multiple_to_tp2": kp.rr,
         },
-        execution={"algo": "limit", "broker": "alpaca", "account_type": "paper"},
+        execution=execution_cfg,
         evidence=[
             {
                 "source": "kronos",
@@ -131,6 +146,7 @@ async def queue_candidates(
     device: str | None = None,
     min_prob: float = 0.60,
     min_er: float = 0.0,
+    entry_style: str = "market",
     settings=None,
 ) -> dict:
     """Forecast each symbol, gate it, and queue survivors to /pending."""
@@ -182,7 +198,8 @@ async def queue_candidates(
                 pivots = None
 
             plan = _build_trade_plan(kp, mode=mode, equity=equity,
-                                     pred_len=pred_len, baseline_p=baseline_p, pivots=pivots)
+                                     pred_len=pred_len, baseline_p=baseline_p,
+                                     pivots=pivots, entry_style=entry_style)
             plan_dict = plan.model_dump()
             market_state = await _market_state_for_plan(plan, adapter)
 

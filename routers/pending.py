@@ -69,10 +69,14 @@ def _decorate(p: dict, *, stale_minutes: int) -> dict:
         ts_ago = time_ago(p["ts_created"])
     except Exception:
         ts_ago = ""
+    # GTC plans (multi-day/swing, e.g. Kronos daily) never go stale — their entry
+    # price is valid until cancelled, so the short approval window doesn't apply.
+    gtc = p.get("valid_until") == "gtc"
     return {
         **p,
         "ts_ago": ts_ago,
-        "is_stale": _is_stale(p.get("ts_created") or "", stale_minutes),
+        "is_gtc": gtc,
+        "is_stale": False if gtc else _is_stale(p.get("ts_created") or "", stale_minutes),
     }
 
 
@@ -200,7 +204,7 @@ async def pending_ack(
     # Server-side stale guard: if the plan is older than the approval
     # window, refuse the approval even if the UI let the button slip
     # through (race between countdown and click). Reject is always fine.
-    if action == "approve" and _is_stale(
+    if action == "approve" and row.get("valid_until") != "gtc" and _is_stale(
         row["ts_created"], s.execution.stale_plan_timeout_minutes,
     ):
         await db_service.expire_stale_plans(

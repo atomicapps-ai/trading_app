@@ -1,0 +1,53 @@
+{
+  "strategy": "s6_capitulation_v",
+  "config": {
+    "universe": "daily stocks",
+    "capitulation": "10-day return <= -10% AND vol >= 2x 20d avg AND down day",
+    "entry": "first close > prior day's high after climax -> next open (right side of V)",
+    "stop": "recent 5-day low",
+    "exit": "trail prior-bar low OR 40-bar time stop"
+  },
+  "n_symbols": 90,
+  "results": {
+    "all": {
+      "n": 1157,
+      "win_pct": 33.2,
+      "expectancy_R": 0.0311,
+      "profit_factor": 1.13,
+      "avg_win_R": 0.803,
+      "avg_loss_R": -0.352,
+      "max_dd_R": -31.05,
+      "total_R": 36.0
+    },
+    "in_sample": {
+      "n": 578,
+      "win_pct": 30.4,
+      "expectancy_R": 0.0164,
+      "profit_factor": 1.07,
+      "avg_win_R": 0.805,
+      "avg_loss_R": -0.329,
+      "max_dd_R": -31.05,
+      "total_R": 9.5
+    },
+    "out_sample": {
+      "n": 579,
+      "win_pct": 35.9,
+      "expectancy_R": 0.0458,
+      "profit_factor": 1.19,
+      "avg_win_R": 0.801,
+      "avg_loss_R": -0.378,
+      "max_dd_R": -24.45,
+      "total_R": 26.5
+    },
+    "random_control": {
+      "n": 1157,
+      "win_pct": 44.0,
+      "expectancy_R": -0.0705,
+      "profit_factor": 0.75,
+      "avg_win_R": 0.48,
+      "avg_loss_R": -0.503,
+      "max_dd_R": -87.43,
+      "total_R": -81.6
+    }
+  }
+}

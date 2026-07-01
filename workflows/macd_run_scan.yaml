@@ -1,0 +1,28 @@
+workflow_id: macd_run_scan
+description: >
+  Daily post-close scan for the MACD-run strategy (daily diversifier, ~0.26 correlated
+  with Momentum Breakout). Screens liquid_momentum_core, runs only the macd_run detector,
+  builds plans, queues to /pending for human approval. Paper mode.
+default_mode: paper
+schedule: "30 16 * * 1-5"   # 16:30 ET Mon-Fri (staggered after coil at 16:25)
+
+steps:
+  - id: filter_universe
+    kind: filter_universe
+    params:
+      preset: liquid_momentum_core
+      shortlist_size: 60
+  - id: compute_macro
+    kind: compute_macro
+    depends_on: [filter_universe]
+  - id: analyze
+    kind: analyze
+    params:
+      strategy: macd_run
+      lenses: [technical, macro]
+    depends_on: [compute_macro]
+  - id: plan
+    kind: plan
+    params:
+      strategy: macd_run
+    depends_on: [analyze]

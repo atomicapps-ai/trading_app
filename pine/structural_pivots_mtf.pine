@@ -1,0 +1,112 @@
+//@version=6
+// =============================================================================
+// Structural Pivots + Multi-Timeframe Confluence
+// -----------------------------------------------------------------------------
+// Marks structural swing pivots (Pivot Points High/Low) with icons, draws each
+// level as a line, counts how many times a level is retested (the "weakening"
+// theory), and overlays pivots from two higher timeframes so confluence zones
+// (levels stacking across timeframes) are visually obvious.
+//
+// Each timeframe has its OWN strength (Left/Right bars):
+//   • lower timeframes are noisier -> use a higher strength to filter
+//   • higher timeframes need fewer bars to be "major"
+// Put the chart on 4H, set HTF1 = Daily and HTF2 = Weekly to see all three.
+// =============================================================================
+indicator("Structural Pivots + MTF Confluence", overlay = true,
+         max_lines_count = 500, max_labels_count = 500)
+
+// ---- Current chart timeframe ------------------------------------------------
+gC        = "Current timeframe"
+cShow     = input.bool(true,  "Show pivots",            group = gC)
+cLeft     = input.int(5,      "Strength — left bars",   minval = 1, group = gC)
+cRight    = input.int(5,      "Strength — right bars",  minval = 1, group = gC)
+cLines    = input.bool(true,  "Draw level lines",       group = gC)
+cTouch    = input.bool(true,  "Count retests (x N)",    group = gC)
+bandPct   = input.float(0.4,  "Touch band %",           step = 0.1, group = gC) / 100.0
+maxLvls   = input.int(40,     "Max levels kept",        minval = 5, group = gC)
+resCol    = input.color(color.new(color.red, 0),   "Resistance", inline = "c", group = gC)
+supCol    = input.color(color.new(color.green, 0), "Support",    inline = "c", group = gC)
+
+// ---- Higher timeframe 1 (e.g. Daily) ---------------------------------------
+g1        = "Higher timeframe 1"
+h1Show    = input.bool(true,  "Show",            group = g1)
+h1TF      = input.timeframe("D", "Timeframe",    group = g1)
+h1Left    = input.int(4,      "Strength left",   minval = 1, group = g1)
+h1Right   = input.int(4,      "Strength right",  minval = 1, group = g1)
+h1Col     = input.color(color.new(color.orange, 0), "Color", group = g1)
+
+// ---- Higher timeframe 2 (e.g. Weekly) --------------------------------------
+g2        = "Higher timeframe 2"
+h2Show    = input.bool(true,  "Show",            group = g2)
+h2TF      = input.timeframe("W", "Timeframe",    group = g2)
+h2Left    = input.int(3,      "Strength left",   minval = 1, group = g2)
+h2Right   = input.int(3,      "Strength right",  minval = 1, group = g2)
+h2Col     = input.color(color.new(color.blue, 0), "Color", group = g2)
+
+// =============================================================================
+// Current-timeframe pivots: icon + level line + retest counter
+// =============================================================================
+var array<float> pP   = array.new<float>()   // price
+var array<int>   pDir = array.new<int>()      // 1 = resistance, -1 = support
+var array<int>   pCnt = array.new<int>()      // retest count
+var array<bool>  pIn  = array.new<bool>()     // inside band last bar
+var array<line>  pLn  = array.new<line>()
+var array<label> pLb  = array.new<label>()
+
+addLevel(float price, int dir) =>
+    col = dir == 1 ? resCol : supCol
+    ln  = cLines ? line.new(bar_index - cRight, price, bar_index, price, color = col, width = 1) : line(na)
+    lb  = label.new(bar_index - cRight, price, dir == 1 ? "▽" : "△",
+                     style = dir == 1 ? label.style_label_down : label.style_label_up,
+                     color = col, textcolor = color.white, size = size.tiny)
+    array.push(pP, price), array.push(pDir, dir), array.push(pCnt, 0)
+    array.push(pIn, false), array.push(pLn, ln), array.push(pLb, lb)
+    if array.size(pP) > maxLvls
+        line.delete(array.shift(pLn)), label.delete(array.shift(pLb))
+        array.shift(pP), array.shift(pDir), array.shift(pCnt), array.shift(pIn)
+
+ph = ta.pivothigh(high, cLeft, cRight)
+pl = ta.pivotlow(low,  cLeft, cRight)
+if cShow and not na(ph)
+    addLevel(ph, 1)
+if cShow and not na(pl)
+    addLevel(pl, -1)
+
+if cShow and array.size(pP) > 0
+    for i = 0 to array.size(pP) - 1
+        price = array.get(pP, i)
+        ln    = array.get(pLn, i)
+        if not na(ln)
+            line.set_x2(ln, bar_index)
+        if cTouch
+            band   = price * bandPct
+            inside = low <= price + band and high >= price - band
+            if inside and not array.get(pIn, i)
+                cnt = array.get(pCnt, i) + 1
+                array.set(pCnt, i, cnt)
+                dir = array.get(pDir, i)
+                label.set_text(array.get(pLb, i), (dir == 1 ? "▽" : "△") + " x" + str.tostring(cnt))
+                if not na(ln)
+                    // fade the level as it gets retested (your "weakening" theory)
+                    line.set_color(ln, color.new(dir == 1 ? resCol : supCol, math.min(75, cnt * 15)))
+            array.set(pIn, i, inside)
+
+// =============================================================================
+// Higher-timeframe pivot levels — drawn as horizontal lines (confluence view)
+// =============================================================================
+htfLevel(string tf, int l, int r, color col, array<line> store) =>
+    hph = request.security(syminfo.tickerid, tf, ta.pivothigh(high, l, r), lookahead = barmerge.lookahead_off)
+    hpl = request.security(syminfo.tickerid, tf, ta.pivotlow(low,  l, r), lookahead = barmerge.lookahead_off)
+    if not na(hph) and hph != hph[1]
+        array.push(store, line.new(bar_index, hph, bar_index + 1, hph, color = col, width = 2, extend = extend.both))
+    if not na(hpl) and hpl != hpl[1]
+        array.push(store, line.new(bar_index, hpl, bar_index + 1, hpl, color = col, width = 2, extend = extend.both))
+    if array.size(store) > 8
+        line.delete(array.shift(store))
+
+var array<line> h1L = array.new<line>()
+var array<line> h2L = array.new<line>()
+if h1Show
+    htfLevel(h1TF, h1Left, h1Right, h1Col, h1L)
+if h2Show
+    htfLevel(h2TF, h2Left, h2Right, h2Col, h2L)

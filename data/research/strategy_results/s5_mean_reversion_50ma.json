@@ -1,0 +1,54 @@
+{
+  "strategy": "s5_mean_reversion_50ma",
+  "config": {
+    "universe": "daily stocks",
+    "signal": "close <= SMA50 - 2.5*ATR14 (stretched below mean)",
+    "entry": "next open",
+    "target": "SMA50 (mean)",
+    "stop": "entry - 1.0*ATR14",
+    "max_hold_bars": 30
+  },
+  "n_symbols": 90,
+  "results": {
+    "all": {
+      "n": 9133,
+      "win_pct": 30.1,
+      "expectancy_R": 0.1709,
+      "profit_factor": 1.23,
+      "avg_win_R": 3.03,
+      "avg_loss_R": -1.061,
+      "max_dd_R": -358.07,
+      "total_R": 1561.2
+    },
+    "in_sample": {
+      "n": 4566,
+      "win_pct": 28.6,
+      "expectancy_R": 0.1041,
+      "profit_factor": 1.14,
+      "avg_win_R": 3.011,
+      "avg_loss_R": -1.063,
+      "max_dd_R": -358.07,
+      "total_R": 475.4
+    },
+    "out_sample": {
+      "n": 4567,
+      "win_pct": 31.6,
+      "expectancy_R": 0.2378,
+      "profit_factor": 1.33,
+      "avg_win_R": 3.047,
+      "avg_loss_R": -1.06,
+      "max_dd_R": -197.1,
+      "total_R": 1085.9
+    },
+    "random_control": {
+      "n": 9133,
+      "win_pct": 50.2,
+      "expectancy_R": -0.0494,
+      "profit_factor": 0.94,
+      "avg_win_R": 1.571,
+      "avg_loss_R": -1.681,
+      "max_dd_R": -514.01,
+      "total_R": -451.0
+    }
+  }
+}

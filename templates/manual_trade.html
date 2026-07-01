@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Copy Trade' if is_copy else 'New Trade' }} — TradeAgent{% endblock %}
+
+{% block content %}
+<div style="max-width:680px;">
+  <div class="flex items-center gap-12" style="margin-bottom:6px;">
+    <a href="/pending" class="text-tertiary text-xs" style="text-decoration:none;">← Pending</a>
+    <h2 style="font-size:18px;font-weight:500;margin:0;">{{ 'Copy Trade' if is_copy else 'New Manual Trade' }}</h2>
+  </div>
+  <p class="text-tertiary text-xs" style="margin-bottom:16px;">
+    Operator-entered trade. Runs through the same compliance + risk gates as strategy trades.
+    Queue it for review in /pending, or place a market order immediately with <strong>Execute now</strong>.
+  </p>
+
+  <div class="card">
+    <form id="mt-form">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <label class="mt-l">Symbol
+          <input class="form-input mono" name="symbol" value="{{ prefill.symbol or '' }}"
+                 placeholder="AAPL" required style="text-transform:uppercase;">
+        </label>
+        <label class="mt-l">Direction
+          <select class="form-input" name="direction">
+            <option value="long"  {{ 'selected' if prefill.direction!='short' else '' }}>Long (buy)</option>
+            <option value="short" {{ 'selected' if prefill.direction=='short' else '' }}>Short (sell)</option>
+          </select>
+        </label>
+        <label class="mt-l">Entry type
+          <select class="form-input" name="entry_type" id="mt-entry-type">
+            <option value="market" {{ 'selected' if prefill.entry_type=='market' else '' }}>Market (fill now)</option>
+            <option value="limit"  {{ 'selected' if prefill.entry_type!='market' else '' }}>Limit</option>
+          </select>
+        </label>
+        <label class="mt-l">Entry price <span class="text-tertiary">(ref for market)</span>
+          <input class="form-input mono" name="entry_price" type="number" step="any"
+                 value="{{ prefill.entry_price or '' }}" required>
+        </label>
+        <label class="mt-l">Stop price
+          <input class="form-input mono" name="stop_price" type="number" step="any"
+                 value="{{ prefill.stop_price or '' }}" required>
+        </label>
+        <label class="mt-l">Take-profit 1 <span class="text-tertiary">(blank = 2R)</span>
+          <input class="form-input mono" name="tp1_price" type="number" step="any"
+                 value="{{ prefill.tp1_price or '' }}">
+        </label>
+        <label class="mt-l">Take-profit 2 <span class="text-tertiary">(blank = 4R)</span>
+          <input class="form-input mono" name="tp2_price" type="number" step="any"
+                 value="{{ prefill.tp2_price or '' }}">
+        </label>
+        <div></div>
+        <label class="mt-l">Size — Dollars $
+          <input class="form-input mono" name="dollars" type="number" step="any" placeholder="e.g. 10000">
+        </label>
+        <label class="mt-l">Size — Shares <span class="text-tertiary">(wins if both set)</span>
+          <input class="form-input mono" name="shares" type="number" step="1"
+                 value="{{ prefill.shares or '' }}" placeholder="e.g. 50">
+        </label>
+      </div>
+
+      <div class="flex items-center gap-12" style="margin-top:18px;flex-wrap:wrap;">
+        <button type="button" class="btn btn-primary" onclick="submitTrade(false, this)">Queue for review</button>
+        <button type="button" class="btn" style="background:var(--accent-green);color:#fff;border:none;"
+                onclick="if(confirm('Place a MARKET order for this trade right now?')) submitTrade(true, this);">
+          ⚡ Execute now (market)
+        </button>
+        <span id="mt-status" class="text-tertiary text-xs"></span>
+      </div>
+    </form>
+  </div>
+  <div id="mt-result" style="margin-top:14px;"></div>
+</div>
+
+<style>
+  .mt-l { display:flex; flex-direction:column; gap:4px; font-size:11px;
+          color:var(--text-secondary); text-transform:uppercase; letter-spacing:.04em; }
+  .mt-l .form-input { text-transform:none; }
+</style>
+
+<script>
+async function submitTrade(executeNow, btn) {
+  const form = document.getElementById('mt-form');
+  if (!form.symbol.value || !form.entry_price.value || !form.stop_price.value) {
+    document.getElementById('mt-status').textContent = 'Symbol, entry, and stop are required.';
+    return;
+  }
+  const status = document.getElementById('mt-status');
+  const result = document.getElementById('mt-result');
+  btn.disabled = true; status.textContent = executeNow ? 'Placing order…' : 'Submitting…';
+  try {
+    const url = executeNow ? '/api/trades/manual/execute' : '/api/trades/manual';
+    const r = await fetch(url, { method: 'POST', body: new FormData(form) });
+    const j = await r.json();
+    if (!r.ok || j.error) {
+      result.innerHTML = '<div class="card text-accent-red">' + (j.error || ('HTTP ' + r.status)) + '</div>';
+    } else if (j.status === 'rejected') {
+      result.innerHTML = '<div class="card" style="border-color:var(--accent-red);">' +
+        '<strong class="text-accent-red">Rejected by ' + j.gate + ' gate:</strong> ' + (j.reason || '') + '</div>';
+    } else {
+      let msg;
+      if (j.status === 'executed') msg = '<strong class="text-accent-green">✓ Order placed</strong> (' + j.shares + ' sh' +
+        (j.broker_order_id ? ', id ' + j.broker_order_id : '') + ').';
+      else if (j.status === 'execute_failed') msg = '<strong class="text-accent-red">Execution failed:</strong> ' + (j.reject_reason || '');
+      else msg = '<strong class="text-accent-green">✓ Queued</strong> (' + j.shares + ' sh) — review in <a href="/pending" class="text-accent-blue">/pending</a>.';
+      result.innerHTML = '<div class="card">' + msg + '</div>';
+    }
+    status.textContent = '';
+  } catch (e) {
+    result.innerHTML = '<div class="card text-accent-red">Network error: ' + (e.message || e) + '</div>';
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+{% endblock %}

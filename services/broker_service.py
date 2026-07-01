@@ -29,6 +29,8 @@ import os
 from brokers.alpaca import AlpacaAdapter
 from brokers.base import BrokerAdapter
 from brokers.historical import HistoricalAdapter
+from brokers.ibkr import IbkrAdapter
+from brokers.oanda import OandaAdapter
 from brokers.tradestation import TradeStationAdapter
 from services import account_service
 from services.settings_service import get_settings
@@ -105,6 +107,21 @@ async def build_adapter() -> BrokerAdapter:
                     "sim" if paper else "live")
         return TradeStationAdapter(sim=paper)
 
+    if provider == "ibkr":
+        logger.info("Broker: IbkrAdapter (%s) account=%s",
+                    "paper" if paper else "LIVE", active["slug"])
+        return IbkrAdapter(paper=paper, label=label)
+
+    if provider == "oanda":
+        logger.info("Broker: OandaAdapter (%s) account=%s",
+                    "practice" if paper else "LIVE", active["slug"])
+        return OandaAdapter(
+            paper=paper,
+            token=active.get("secret") or None,      # store the OANDA token in the secret field
+            account_id=active.get("key_id") or None,  # store the OANDA account id in the key_id field
+            label=label,
+        )
+
     logger.warning(
         "Unknown provider %r in active account row — falling back to Alpaca paper",
         provider,
@@ -118,6 +135,12 @@ def _legacy_env_adapter(mode: str) -> BrokerAdapter:
     if provider == "tradestation":
         ts_sim = os.getenv("TS_SIM", "true").lower() == "true"
         return TradeStationAdapter(sim=ts_sim)
+    if provider == "oanda":
+        env = (os.getenv("OANDA_ENV") or "practice").lower()
+        return OandaAdapter(paper=(env != "live"))
+    if provider == "ibkr":
+        port = int(os.getenv("IBKR_PORT", "4002"))
+        return IbkrAdapter(paper=(port in (4002, 7497)))  # paper ports
     paper = mode == "paper" or os.getenv("ALPACA_PAPER", "true").lower() == "true"
     return AlpacaAdapter(paper=paper)
 

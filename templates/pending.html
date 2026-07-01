@@ -76,6 +76,9 @@
 {%- endmacro %}
 
 {% block content %}
+<div class="flex items-center" style="justify-content:flex-end;gap:8px;margin-bottom:10px;">
+  <a href="/trades/new" class="btn btn-primary btn-sm" style="text-decoration:none;">+ New Trade</a>
+</div>
 <div class="split-layout">
 
   {# ===== Left: queue ===== #}
@@ -126,12 +129,27 @@
       {% endfor %}
     </div>
 
+    {% if pending and filter_status in ('pending', 'all') %}
+      <div class="pending-row" style="gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
+        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); cursor: pointer;">
+          <input type="checkbox" id="bulk-select-all"> select all
+        </label>
+        <button type="button" class="btn btn-success" id="bulk-approve" style="font-size: 12px; padding: 4px 10px; margin-left: auto;" disabled>Approve (0)</button>
+        <button type="button" class="btn btn-danger" id="bulk-reject" style="font-size: 12px; padding: 4px 10px;" disabled>Reject (0)</button>
+      </div>
+      <div id="bulk-status" class="text-sm text-secondary" style="margin-bottom: 8px;"></div>
+    {% endif %}
+
     {% if pending %}
       {% for p in pending %}
         <div class="pending-card {% if selected and selected.plan_id == p.plan_id %}active{% endif %}"
              title="{{ p.name or p.symbol }}"
              onclick="location.href='/pending/{{ p.plan_id }}?status={{ filter_status }}'">
           <div class="pending-row">
+            {% if p.status == 'pending' %}
+            <input type="checkbox" class="bulk-check" data-plan-id="{{ p.plan_id }}"
+                   onclick="event.stopPropagation()" title="select for bulk action">
+            {% endif %}
             <span class="pending-symbol">{{ p.symbol }}</span>
             <span class="badge {% if p.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ p.direction|upper }}</span>
             <span class="badge gate-badge
@@ -467,10 +485,14 @@
           <button class="btn btn-danger"
                   onclick="ackAction('{{ p.plan_id }}', 'reject')">Reject</button>
           <span id="ack-status" class="text-sm"></span>
+          {% if p.is_gtc %}
+          <span class="approval-countdown" id="ack-countdown" data-gtc="1">GTC · no expiry</span>
+          {% else %}
           <span class="approval-countdown"
                 data-created="{{ p.ts_created }}"
                 data-timeout-min="{{ stale_minutes }}"
                 id="ack-countdown">--:--</span>
+          {% endif %}
         </div>
       {% else %}
         <div class="card mt-24">
@@ -780,6 +802,52 @@
     }
   }
 
+  // Bulk approve/reject — checkboxes on the queue cards POST each selected plan
+  // to the same /pending/{id}/ack endpoint, then reload.
+  (function bulkActions() {
+    const approveBtn = document.getElementById('bulk-approve');
+    const rejectBtn = document.getElementById('bulk-reject');
+    const selectAll = document.getElementById('bulk-select-all');
+    if (!approveBtn || !rejectBtn) return;
+    const boxes = () => Array.from(document.querySelectorAll('.bulk-check'));
+    const picked = () => boxes().filter(b => b.checked).map(b => b.dataset.planId);
+    function refresh() {
+      const n = picked().length;
+      approveBtn.textContent = `Approve (${n})`;
+      rejectBtn.textContent = `Reject (${n})`;
+      approveBtn.disabled = rejectBtn.disabled = n === 0;
+    }
+    boxes().forEach(b => b.addEventListener('change', refresh));
+    if (selectAll) selectAll.addEventListener('change', () => {
+      boxes().forEach(b => { b.checked = selectAll.checked; });
+      refresh();
+    });
+    async function run(action) {
+      const ids = picked();
+      if (!ids.length) return;
+      if (action === 'approve' && !confirm(`Approve ${ids.length} trade(s)? This places orders on Alpaca paper.`)) return;
+      approveBtn.disabled = rejectBtn.disabled = true;
+      const status = document.getElementById('bulk-status');
+      let ok = 0, fail = 0;
+      for (const id of ids) {
+        try {
+          const r = await fetch(`/pending/${id}/ack`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `action=${action}`,
+          });
+          r.ok ? ok++ : fail++;
+        } catch (e) { fail++; }
+        if (status) status.textContent = `${action}: ${ok} ok, ${fail} failed (${ok + fail}/${ids.length})`;
+      }
+      if (status) status.textContent = `Done — ${ok} ${action}d, ${fail} failed. Reloading…`;
+      setTimeout(() => location.reload(), 1200);
+    }
+    approveBtn.addEventListener('click', () => run('approve'));
+    rejectBtn.addEventListener('click', () => run('reject'));
+    refresh();
+  })();
+
   function disableApprove() {
     const btn = document.getElementById('ack-approve-btn');
     if (btn) {
@@ -794,6 +862,7 @@
   (function () {
     const el = document.getElementById('ack-countdown');
     if (!el) return;
+    if (el.dataset.gtc) { el.textContent = 'GTC · no expiry'; return; }
     const created = new Date(el.dataset.created).getTime();
     const minutes = parseInt(el.dataset.timeoutMin || '30', 10);
     const expiresAt = created + minutes * 60 * 1000;

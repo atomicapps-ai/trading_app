@@ -1,0 +1,214 @@
+{
+  "c1_macd_200ma": {
+    "config": {
+      "universe": "daily stocks",
+      "trend": "close>SMA200",
+      "entry": "MACD(12,26,9) cross up while macd<0 -> next open",
+      "stop": "SMA200-0.1*ATR14",
+      "target": "1.5R",
+      "max_hold_bars": 40
+    },
+    "n_symbols": 45,
+    "results": {
+      "all": {
+        "n": 1416,
+        "win_pct": 50.7,
+        "expectancy_R": 0.0524,
+        "profit_factor": 1.11,
+        "avg_win_R": 1.078,
+        "avg_loss_R": -1.003,
+        "max_dd_R": -34.35,
+        "total_R": 74.2
+      },
+      "in_sample": {
+        "n": 708,
+        "win_pct": 51.7,
+        "expectancy_R": 0.0635,
+        "profit_factor": 1.13,
+        "avg_win_R": 1.055,
+        "avg_loss_R": -0.998,
+        "max_dd_R": -31.73,
+        "total_R": 44.9
+      },
+      "out_sample": {
+        "n": 708,
+        "win_pct": 49.7,
+        "expectancy_R": 0.0413,
+        "profit_factor": 1.08,
+        "avg_win_R": 1.103,
+        "avg_loss_R": -1.008,
+        "max_dd_R": -34.35,
+        "total_R": 29.2
+      },
+      "random_control": {
+        "n": 1416,
+        "win_pct": 48.6,
+        "expectancy_R": -0.1116,
+        "profit_factor": 0.8,
+        "avg_win_R": 0.943,
+        "avg_loss_R": -1.108,
+        "max_dd_R": -163.6,
+        "total_R": -158.0
+      }
+    }
+  },
+  "c1_macd_200ma_atrstop": {
+    "config": {
+      "universe": "daily stocks",
+      "trend": "close>SMA200",
+      "entry": "MACD(12,26,9) cross up while macd<0 -> next open",
+      "stop": "entry-1.5*ATR14",
+      "target": "1.5R",
+      "max_hold_bars": 40
+    },
+    "n_symbols": 45,
+    "results": {
+      "all": {
+        "n": 1714,
+        "win_pct": 48.2,
+        "expectancy_R": 0.1389,
+        "profit_factor": 1.25,
+        "avg_win_R": 1.422,
+        "avg_loss_R": -1.055,
+        "max_dd_R": -44.79,
+        "total_R": 238.1
+      },
+      "in_sample": {
+        "n": 857,
+        "win_pct": 48.5,
+        "expectancy_R": 0.1481,
+        "profit_factor": 1.27,
+        "avg_win_R": 1.426,
+        "avg_loss_R": -1.058,
+        "max_dd_R": -44.79,
+        "total_R": 126.9
+      },
+      "out_sample": {
+        "n": 857,
+        "win_pct": 47.8,
+        "expectancy_R": 0.1297,
+        "profit_factor": 1.24,
+        "avg_win_R": 1.418,
+        "avg_loss_R": -1.052,
+        "max_dd_R": -35.49,
+        "total_R": 111.2
+      },
+      "random_control": {
+        "n": 1714,
+        "win_pct": 50.2,
+        "expectancy_R": -0.0578,
+        "profit_factor": 0.91,
+        "avg_win_R": 1.169,
+        "avg_loss_R": -1.294,
+        "max_dd_R": -108.27,
+        "total_R": -99.1
+      }
+    }
+  },
+  "c2_turtle_20_10": {
+    "config": {
+      "universe": "daily stocks",
+      "trend": "close>SMA200",
+      "entry": "close>prior 20-day high -> next open",
+      "stop": "entry-2.0*ATR20",
+      "exit": "close<prior 10-day low",
+      "max_hold_bars": 250
+    },
+    "n_symbols": 45,
+    "results": {
+      "all": {
+        "n": 3073,
+        "win_pct": 38.2,
+        "expectancy_R": 0.2159,
+        "profit_factor": 1.41,
+        "avg_win_R": 1.945,
+        "avg_loss_R": -0.852,
+        "max_dd_R": -79.55,
+        "total_R": 663.5
+      },
+      "in_sample": {
+        "n": 1536,
+        "win_pct": 37.8,
+        "expectancy_R": 0.1818,
+        "profit_factor": 1.34,
+        "avg_win_R": 1.897,
+        "avg_loss_R": -0.862,
+        "max_dd_R": -79.55,
+        "total_R": 279.3
+      },
+      "out_sample": {
+        "n": 1537,
+        "win_pct": 38.5,
+        "expectancy_R": 0.25,
+        "profit_factor": 1.48,
+        "avg_win_R": 1.992,
+        "avg_loss_R": -0.841,
+        "max_dd_R": -51.58,
+        "total_R": 384.2
+      },
+      "random_control": {
+        "n": 3073,
+        "win_pct": 48.7,
+        "expectancy_R": -0.0453,
+        "profit_factor": 0.93,
+        "avg_win_R": 1.247,
+        "avg_loss_R": -1.271,
+        "max_dd_R": -254.8,
+        "total_R": -139.2
+      }
+    }
+  },
+  "c2_turtle_55_20": {
+    "config": {
+      "universe": "daily stocks",
+      "trend": "close>SMA200",
+      "entry": "close>prior 55-day high -> next open",
+      "stop": "entry-2.0*ATR20",
+      "exit": "close<prior 20-day low",
+      "max_hold_bars": 250
+    },
+    "n_symbols": 45,
+    "results": {
+      "all": {
+        "n": 1888,
+        "win_pct": 34.5,
+        "expectancy_R": 0.3164,
+        "profit_factor": 1.52,
+        "avg_win_R": 2.677,
+        "avg_loss_R": -0.929,
+        "max_dd_R": -70.44,
+        "total_R": 597.4
+      },
+      "in_sample": {
+        "n": 944,
+        "win_pct": 36.5,
+        "expectancy_R": 0.3573,
+        "profit_factor": 1.61,
+        "avg_win_R": 2.579,
+        "avg_loss_R": -0.922,
+        "max_dd_R": -54.97,
+        "total_R": 337.3
+      },
+      "out_sample": {
+        "n": 944,
+        "win_pct": 32.5,
+        "expectancy_R": 0.2755,
+        "profit_factor": 1.44,
+        "avg_win_R": 2.788,
+        "avg_loss_R": -0.935,
+        "max_dd_R": -70.44,
+        "total_R": 260.1
+      },
+      "random_control": {
+        "n": 1888,
+        "win_pct": 49.6,
+        "expectancy_R": 0.0488,
+        "profit_factor": 1.07,
+        "avg_win_R": 1.578,
+        "avg_loss_R": -1.454,
+        "max_dd_R": -149.76,
+        "total_R": 92.1
+      }
+    }
+  }
+}

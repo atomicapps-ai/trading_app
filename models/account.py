@@ -48,6 +48,11 @@ class Order(BaseModel):
     time_in_force: TimeInForce = "day"
     algo: str | None = None
     extended_hours: bool = False
+    # Bracket support: when order_class == "bracket", the broker attaches an
+    # OCO take-profit + stop-loss to the entry so exits are enforced server-side.
+    order_class: str | None = None
+    take_profit_price: float | None = None
+    stop_loss_price: float | None = None
 
 
 class OrderAck(BaseModel):

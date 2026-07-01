@@ -1,0 +1,130 @@
+//@version=6
+// ============================================================================
+// TradeAgent — E3Mc "Displacement ORB + Session Analysis" (faithful encoding)
+// Source video: youtube.com/watch?v=E3McKlAp3qk  (spec: research/video_library/E3McKlAp3qk/spec.md)
+//
+// PURPOSE: independent backtest with HONEST fills, to adjudicate the suspicious
+// Python result (72% win / PF ~3, control >1.0 = likely fill-optimism artifact).
+// If TradingView's Strategy Tester also shows the edge -> real. If it's break-even
+// -> our Python fill assumption was the culprit.
+//
+// HOW TO RUN:
+//   1. Open a 5-minute chart of the creator's instrument (XAUUSD / gold) and also
+//      test EURUSD, etc.  Set chart timezone = "Exchange".
+//   2. Pine Editor -> paste -> Add to chart -> open "Strategy Tester".
+//   3. Toggle "Use session bias" on/off to replicate the bias vs no-bias comparison.
+//
+// STEP 1 (entry engine): NY opening range (first 15m), then on the 5m a displacement
+//   close beyond the range that leaves a Fair Value Gap; buy/sell the retrace into the
+//   FVG, stop the far side of the gap, target a fixed R.
+// STEP 2 (direction filter): Asia ranges -> London pushes/sweeps -> NY reverses
+//   (continuation if London sweeps BOTH Asia high and low).
+// ============================================================================
+strategy("TradeAgent E3Mc — Displacement ORB + Session Bias", overlay=true,
+         calc_on_every_tick=false, pyramiding=0, close_entries_rule="ANY",
+         default_qty_type=strategy.fixed, default_qty_value=1,
+         initial_capital=10000, commission_type=strategy.commission.percent, commission_value=0.0)
+
+tz = "America/New_York"
+grpS = "Sessions (New York time)"
+asiaSess   = input.session("1900-0000", "Asia range",       group=grpS)
+londonSess = input.session("0200-0700", "London push",      group=grpS)
+orbSess    = input.session("0930-0945", "NY opening range",  group=grpS)
+tradeSess  = input.session("0945-1600", "NY trade window",   group=grpS)
+
+grpE = "Entry"
+useBias  = input.bool(true,  "Use session bias (Asia/London/NY)", group=grpE)
+dispMult = input.float(1.5,  "Displacement: middle body ≥ x·avg body", minval=0.0, step=0.1, group=grpE)
+bodyLen  = input.int(20,     "Avg body length", minval=1, group=grpE)
+rr       = input.float(1.5,  "Target (R multiple)", minval=0.1, step=0.1, group=grpE)
+minGapT  = input.float(20.0, "Min gap size (ticks; 20 = 2 pips on 5-dec FX — matches Python)", minval=0.0, group=grpE)
+
+inAsia   = not na(time(timeframe.period, asiaSess,   tz))
+inLondon = not na(time(timeframe.period, londonSess, tz))
+inORB    = not na(time(timeframe.period, orbSess,    tz))
+inTrade  = not na(time(timeframe.period, tradeSess,  tz))
+
+avgBody = ta.sma(math.abs(close - open), bodyLen)
+
+// ---- daily state ----
+var float asiaHi = na
+var float asiaLo = na
+var float lonHi = na
+var float lonLo = na
+var float lonOpen = na
+var float orbHi = na
+var float orbLo = na
+var int   bias = 0
+var bool  traded = false
+
+// new cycle starts at first Asia bar
+if inAsia and not inAsia[1]
+    asiaHi := high
+    asiaLo := low
+    lonHi := na
+    lonLo := na
+    lonOpen := na
+    orbHi := na
+    orbLo := na
+    bias := 0
+    traded := false
+else if inAsia
+    asiaHi := math.max(asiaHi, high)
+    asiaLo := math.min(asiaLo, low)
+
+// London accumulation
+if inLondon
+    lonOpen := na(lonOpen) ? open : lonOpen
+    lonHi   := na(lonHi) ? high : math.max(lonHi, high)
+    lonLo   := na(lonLo) ? low  : math.min(lonLo, low)
+
+// compute bias at the close of London (first bar after the London window)
+if not inLondon and inLondon[1] and not na(lonOpen)
+    bool sweptHi = lonHi > asiaHi
+    bool sweptLo = lonLo < asiaLo
+    int  lonDir  = close[1] > lonOpen ? 1 : -1
+    bias := (sweptHi and sweptLo) ? lonDir : -lonDir
+
+// NY opening range
+if inORB
+    orbHi := na(orbHi) ? high : math.max(orbHi, high)
+    orbLo := na(orbLo) ? low  : math.min(orbLo, low)
+
+minGap = minGapT * syminfo.mintick
+
+// ---- entry: displacement-created FVG retrace, in the bias direction ----
+bullFVG = high[2] < low[0]
+bearFVG = low[2]  > high[0]
+bigBody = dispMult <= 0 or math.abs(close[1] - open[1]) >= dispMult * avgBody[1]
+canTrade = inTrade and not traded and not na(orbHi)
+
+// LONG: bullish FVG after an up-displacement that broke the ORB high
+if canTrade and bigBody and bullFVG and close > orbHi and (not useBias or bias == 1)
+    float top = low[0]            // gap top  (limit entry on the pullback)
+    float bot = high[2]           // gap bottom (stop)
+    if top - bot >= minGap
+        float risk = top - bot
+        strategy.entry("L", strategy.long, limit=top)
+        strategy.exit("Lx", "L", stop=bot, limit=top + rr * risk)
+        traded := true
+
+// SHORT: bearish FVG after a down-displacement that broke the ORB low
+if canTrade and bigBody and bearFVG and close < orbLo and (not useBias or bias == -1)
+    float bot = high[0]           // gap bottom (limit entry on the pullback)
+    float top = low[2]            // gap top (stop)
+    if top - bot >= minGap
+        float risk = top - bot
+        strategy.entry("S", strategy.short, limit=bot)
+        strategy.exit("Sx", "S", stop=top, limit=bot - rr * risk)
+        traded := true
+
+// flatten + cancel any unfilled order at the end of the NY trade window (EOD exit)
+if not inTrade and inTrade[1]
+    strategy.cancel_all()
+    strategy.close_all(comment="EOD")
+
+// ---- visuals ----
+plot(not na(orbHi) and inTrade ? orbHi : na, "ORB high", color.new(color.gray, 0), style=plot.style_linebr)
+plot(not na(orbLo) and inTrade ? orbLo : na, "ORB low",  color.new(color.gray, 0), style=plot.style_linebr)
+bgcolor(useBias and inTrade and bias == 1  ? color.new(color.teal, 92) : na)
+bgcolor(useBias and inTrade and bias == -1 ? color.new(color.red,  92) : na)

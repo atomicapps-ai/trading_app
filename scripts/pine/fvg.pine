@@ -1,0 +1,94 @@
+//@version=6
+// ============================================================================
+// TradeAgent — Fair Value Gap (FVG) indicator
+// Mirrors services/fvg_service.py EXACTLY so TradingView and our Python detector
+// cross-validate. 3-candle imbalance:
+//   bullish: high[2] < low[0]   -> gap [high[2], low[0]]   (middle bar[1] = displacement)
+//   bearish: low[2]  > high[0]  -> gap [high[0], low[2]]
+// Optional displacement filter (middle body >= mult x avg body) + min gap size.
+// Boxes extend right until price trades fully through the gap (mitigation/fill).
+// ============================================================================
+indicator("TradeAgent FVG", overlay=true, max_boxes_count=500, max_lines_count=500)
+
+// ---- inputs (the same knobs we sweep in Python) ----
+grpD       = "Detection"
+dispMult   = input.float(1.5, "Displacement: middle body ≥ x · avg body (0=off)", minval=0.0, step=0.1, group=grpD)
+bodyLen    = input.int(20,  "Avg body length",  minval=1, group=grpD)
+minSizeATR = input.float(0.0,"Min gap size (× ATR14, 0=off)", minval=0.0, step=0.1, group=grpD)
+sess       = input.session("0000-2400", "Session filter (FVGs only form in window)", group=grpD)
+
+grpV       = "Display"
+showMid    = input.bool(true,  "Show 50% midline (entry / consequent encroachment)", group=grpV)
+extendFill = input.bool(true,  "Extend boxes until filled", group=grpV)
+keepFilled = input.bool(false, "Keep filled boxes (else delete on fill)", group=grpV)
+bullCol    = input.color(color.new(color.teal, 82), "Bullish FVG", group=grpV)
+bearCol    = input.color(color.new(color.red,  82), "Bearish FVG", group=grpV)
+
+inSess  = not na(time(timeframe.period, sess))
+avgBody = ta.sma(math.abs(close - open), bodyLen)
+atr14   = ta.atr(14)
+midBody = math.abs(close[1] - open[1])
+isDisp  = dispMult <= 0 or midBody >= dispMult * avgBody[1]
+minSize = minSizeATR * atr14
+
+// active (unfilled) boxes + their midlines
+var box[]  bullBox = array.new_box()
+var box[]  bearBox = array.new_box()
+var line[] bullMid = array.new_line()
+var line[] bearMid = array.new_line()
+
+// ---- detect on the 3-candle window ending at the current bar ----
+bull = high[2] < low[0]
+bear = low[2]  > high[0]
+
+if inSess and isDisp and bull
+    bot = high[2]
+    top = low[0]
+    if top - bot >= minSize
+        array.push(bullBox, box.new(bar_index[2], top, bar_index, bot, border_color=color.new(color.teal,40), bgcolor=bullCol))
+        if showMid
+            array.push(bullMid, line.new(bar_index[2], (top+bot)/2, bar_index, (top+bot)/2, color=color.new(color.teal,30), style=line.style_dashed))
+
+if inSess and isDisp and bear
+    top = low[2]
+    bot = high[0]
+    if top - bot >= minSize
+        array.push(bearBox, box.new(bar_index[2], top, bar_index, bot, border_color=color.new(color.red,40), bgcolor=bearCol))
+        if showMid
+            array.push(bearMid, line.new(bar_index[2], (top+bot)/2, bar_index, (top+bot)/2, color=color.new(color.red,30), style=line.style_dashed))
+
+// ---- extend + fill management (bullish fills when low pierces the bottom) ----
+if extendFill
+    i = array.size(bullBox) - 1
+    while i >= 0
+        b = array.get(bullBox, i)
+        filled = low <= box.get_bottom(b)
+        box.set_right(b, bar_index)
+        if filled
+            if not keepFilled
+                box.delete(b)
+            array.remove(bullBox, i)
+            if showMid and array.size(bullMid) > i
+                ln = array.get(bullMid, i)
+                if not keepFilled
+                    line.delete(ln)
+                array.remove(bullMid, i)
+        i -= 1
+    j = array.size(bearBox) - 1
+    while j >= 0
+        b = array.get(bearBox, j)
+        filled = high >= box.get_top(b)
+        box.set_right(b, bar_index)
+        if filled
+            if not keepFilled
+                box.delete(b)
+            array.remove(bearBox, j)
+            if showMid and array.size(bearMid) > j
+                ln = array.get(bearMid, j)
+                if not keepFilled
+                    line.delete(ln)
+                array.remove(bearMid, j)
+        j -= 1
+
+alertcondition(bull, "Bullish FVG formed", "Bullish FVG")
+alertcondition(bear, "Bearish FVG formed", "Bearish FVG")

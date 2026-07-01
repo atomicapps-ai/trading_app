@@ -120,6 +120,9 @@ async def trade_detail(
             news_items.append(d)
         news_summary = sentiment_service.summarize(items).to_dict()
 
+    from services.tradingview import tv_for_trade
+    tradingview_url = tv_for_trade(trade.symbol, trade.strategy_name)
+
     return templates.TemplateResponse(
         request=request,
         name="trades/detail.html",
@@ -129,6 +132,7 @@ async def trade_detail(
             "active_page": "trades",
             "trade": trade,
             "probability": prob,
+            "tradingview_url": tradingview_url,
             "news_items": news_items,
             "news_summary": news_summary,
             "news_error": news_error,

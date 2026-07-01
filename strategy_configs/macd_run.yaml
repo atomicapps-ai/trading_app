@@ -1,0 +1,43 @@
+strategy_name: macd_run
+version: "1.0"
+description: >
+  MACD-run: trend-pullback momentum entry (MACD 12/26/9 line crosses up through signal
+  while below zero, in a 200-MA uptrend), then LETS WINNERS RUN — exit on the MACD line
+  crossing back below signal, not a fixed target. Video-mined (rf_EQvubKlk); OOS PF ~1.52,
+  +0.27R, ~0.26 correlated with Momentum Breakout (a daily diversifier). NB: the author's
+  "86% win rate" is false (~37% real). See strategies/STRATEGY_GRID.md.
+universe_filter_preset: liquid_momentum_core
+mode: paper
+active: true
+holding_period: swing_days
+
+detectors:
+  - macd_run
+
+min_signal_strength: 0.55
+
+portfolio_rules:
+  single_signal_override: 0.55
+  min_patterns_agreeing: 1
+  min_lenses_agreeing: 2
+  trail_mode: atr
+  trail_atr_multiple: 3.0      # loose trail ≈ "let winners run until MACD rolls over"
+  trail_atr_period: 14
+  trail_activate_after: "price >= entry + 1.0R"
+  time_stop_sessions: 120
+
+risk:
+  max_risk_pct_per_trade: 0.50
+  max_position_pct_of_equity: 8.0
+  min_rr_ratio: 2.0
+
+pattern_thresholds:
+  macd_run:
+    macd_fast: 12
+    macd_slow: 26
+    macd_signal: 9
+    stop_atr_mult: 1.5
+    tp1_r_multiple: 3.0
+    tp2_r_multiple: 6.0
+    require_below_zero: true
+    require_trend: true

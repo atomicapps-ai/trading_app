@@ -1,0 +1,1207 @@
+[
+  {
+    "text": "this trading view indicator finds",
+    "start": 0.12,
+    "duration": 4.32
+  },
+  {
+    "text": "massive breakouts in the market and in",
+    "start": 1.92,
+    "duration": 3.879
+  },
+  {
+    "text": "this short video we will take a look at",
+    "start": 4.44,
+    "duration": 3.84
+  },
+  {
+    "text": "exactly how to find and how to use the",
+    "start": 5.799,
+    "duration": 4.361
+  },
+  {
+    "text": "indicator we will also take a look at",
+    "start": 8.28,
+    "duration": 4.04
+  },
+  {
+    "text": "the best settings and I will also show",
+    "start": 10.16,
+    "duration": 4.32
+  },
+  {
+    "text": "you guys how you can combine it with",
+    "start": 12.32,
+    "duration": 4.44
+  },
+  {
+    "text": "another indicator to improve the win",
+    "start": 14.48,
+    "duration": 4.6
+  },
+  {
+    "text": "ratees sounds good let's get started",
+    "start": 16.76,
+    "duration": 3.759
+  },
+  {
+    "text": "right away",
+    "start": 19.08,
+    "duration": 3.52
+  },
+  {
+    "text": "here all right so the first thing you",
+    "start": 20.519,
+    "duration": 3.92
+  },
+  {
+    "text": "want to do is that you want to open up a",
+    "start": 22.6,
+    "duration": 4.12
+  },
+  {
+    "text": "clean chart right now as I'm speaking",
+    "start": 24.439,
+    "duration": 5.68
+  },
+  {
+    "text": "I'm looking at the US oil on a 15minute",
+    "start": 26.72,
+    "duration": 5.12
+  },
+  {
+    "text": "time frame the next thing you want to do",
+    "start": 30.119,
+    "duration": 3.881
+  },
+  {
+    "text": "is that you want to navigate up here to",
+    "start": 31.84,
+    "duration": 4.559
+  },
+  {
+    "text": "the indicators tab in trading View and",
+    "start": 34.0,
+    "duration": 5.52
+  },
+  {
+    "text": "then you want to search for Lux algo and",
+    "start": 36.399,
+    "duration": 6.081
+  },
+  {
+    "text": "then range wait you want to search for",
+    "start": 39.52,
+    "duration": 6.719
+  },
+  {
+    "text": "Lux algo like this and then range",
+    "start": 42.48,
+    "duration": 5.599
+  },
+  {
+    "text": "detector and then you want to go down",
+    "start": 46.239,
+    "duration": 4.241
+  },
+  {
+    "text": "here and open up the indicator by Lux",
+    "start": 48.079,
+    "duration": 4.401
+  },
+  {
+    "text": "algo and as you can see now the",
+    "start": 50.48,
+    "duration": 4.64
+  },
+  {
+    "text": "indicator has appeared here on the chart",
+    "start": 52.48,
+    "duration": 4.239
+  },
+  {
+    "text": "so now before we take a look at how to",
+    "start": 55.12,
+    "duration": 3.759
+  },
+  {
+    "text": "use the indicator and how to combine the",
+    "start": 56.719,
+    "duration": 4.401
+  },
+  {
+    "text": "indicator with another one to improve",
+    "start": 58.879,
+    "duration": 4.84
+  },
+  {
+    "text": "the win rate it's important to go up",
+    "start": 61.12,
+    "duration": 4.319
+  },
+  {
+    "text": "here and take a look at the best",
+    "start": 63.719,
+    "duration": 3.801
+  },
+  {
+    "text": "settings for the indicator so we go up",
+    "start": 65.439,
+    "duration": 3.761
+  },
+  {
+    "text": "here to the upper left corner and we",
+    "start": 67.52,
+    "duration": 4.2
+  },
+  {
+    "text": "press on the settings tab right here the",
+    "start": 69.2,
+    "duration": 3.84
+  },
+  {
+    "text": "first setting we have to take a look at",
+    "start": 71.72,
+    "duration": 3.88
+  },
+  {
+    "text": "is the minimum range length and what",
+    "start": 73.04,
+    "duration": 4.439
+  },
+  {
+    "text": "this number basically tell us is what is",
+    "start": 75.6,
+    "duration": 5.199
+  },
+  {
+    "text": "the minimum length of the range before",
+    "start": 77.479,
+    "duration": 5.32
+  },
+  {
+    "text": "the breakout and as you can see the",
+    "start": 80.799,
+    "duration": 4.841
+  },
+  {
+    "text": "standard number here is 20 and I like to",
+    "start": 82.799,
+    "duration": 5.561
+  },
+  {
+    "text": "actually increase this length because if",
+    "start": 85.64,
+    "duration": 5.159
+  },
+  {
+    "text": "we increase the length of the range it",
+    "start": 88.36,
+    "duration": 5.6
+  },
+  {
+    "text": "can make the ranges more significant but",
+    "start": 90.799,
+    "duration": 4.921
+  },
+  {
+    "text": "at the same time if you increase this",
+    "start": 93.96,
+    "duration": 4.839
+  },
+  {
+    "text": "number by too much you will miss many",
+    "start": 95.72,
+    "duration": 5.2
+  },
+  {
+    "text": "ranges so what I like to do here is to",
+    "start": 98.799,
+    "duration": 4.201
+  },
+  {
+    "text": "increase the minimum length of you know",
+    "start": 100.92,
+    "duration": 6.239
+  },
+  {
+    "text": "around 50% so we increase this one to 30",
+    "start": 103.0,
+    "duration": 6.36
+  },
+  {
+    "text": "right here the next setting is all about",
+    "start": 107.159,
+    "duration": 4.32
+  },
+  {
+    "text": "the range width and by changing this",
+    "start": 109.36,
+    "duration": 4.28
+  },
+  {
+    "text": "number you can make the ranges either",
+    "start": 111.479,
+    "duration": 4.361
+  },
+  {
+    "text": "wider or smaller so as you can see if",
+    "start": 113.64,
+    "duration": 3.92
+  },
+  {
+    "text": "you for example change this number to",
+    "start": 115.84,
+    "duration": 3.36
+  },
+  {
+    "text": "two right here you can see that the",
+    "start": 117.56,
+    "duration": 4.559
+  },
+  {
+    "text": "trading range Ines will be much wider",
+    "start": 119.2,
+    "duration": 4.8
+  },
+  {
+    "text": "but this is actually usually something",
+    "start": 122.119,
+    "duration": 3.881
+  },
+  {
+    "text": "we don't want to do because this can",
+    "start": 124.0,
+    "duration": 4.399
+  },
+  {
+    "text": "many times lead to less significant",
+    "start": 126.0,
+    "duration": 5.76
+  },
+  {
+    "text": "ranges and more false signals what you",
+    "start": 128.399,
+    "duration": 5.321
+  },
+  {
+    "text": "can do here is that you can actually",
+    "start": 131.76,
+    "duration": 6.199
+  },
+  {
+    "text": "decrease the width to for example 0.9 to",
+    "start": 133.72,
+    "duration": 7.12
+  },
+  {
+    "text": "find these sort of tighter ranges but I",
+    "start": 137.959,
+    "duration": 4.64
+  },
+  {
+    "text": "think that keeping this one as the",
+    "start": 140.84,
+    "duration": 4.44
+  },
+  {
+    "text": "regular setting of one is usually a good",
+    "start": 142.599,
+    "duration": 5.521
+  },
+  {
+    "text": "idea as for the ATR length this one is a",
+    "start": 145.28,
+    "duration": 5.16
+  },
+  {
+    "text": "bit tricky the standard length here is",
+    "start": 148.12,
+    "duration": 5.24
+  },
+  {
+    "text": "500 for the ATR and if you're familiar",
+    "start": 150.44,
+    "duration": 6.48
+  },
+  {
+    "text": "with the ATR a look back range of 500 is",
+    "start": 153.36,
+    "duration": 6.0
+  },
+  {
+    "text": "usually a very large number what you can",
+    "start": 156.92,
+    "duration": 4.2
+  },
+  {
+    "text": "do here is that you can decrease the",
+    "start": 159.36,
+    "duration": 5.959
+  },
+  {
+    "text": "length of the ATR to perhaps 200 or even",
+    "start": 161.12,
+    "duration": 6.56
+  },
+  {
+    "text": "even 100 here uh but some Traders",
+    "start": 165.319,
+    "duration": 4.92
+  },
+  {
+    "text": "actually prefer to keep this one at 500",
+    "start": 167.68,
+    "duration": 4.6
+  },
+  {
+    "text": "and I'm not really sure why the standard",
+    "start": 170.239,
+    "duration": 4.36
+  },
+  {
+    "text": "setting for the ATR is 500 here so if",
+    "start": 172.28,
+    "duration": 3.92
+  },
+  {
+    "text": "you want to you can definitely decrease",
+    "start": 174.599,
+    "duration": 4.121
+  },
+  {
+    "text": "this one by a bit but let's keep this at",
+    "start": 176.2,
+    "duration": 4.44
+  },
+  {
+    "text": "200 right here as for this and you can",
+    "start": 178.72,
+    "duration": 4.72
+  },
+  {
+    "text": "choose to show or not show these gray",
+    "start": 180.64,
+    "duration": 4.679
+  },
+  {
+    "text": "lines right here and you may of course",
+    "start": 183.44,
+    "duration": 4.519
+  },
+  {
+    "text": "wonder what does these gray lines right",
+    "start": 185.319,
+    "duration": 4.881
+  },
+  {
+    "text": "here and right here mean well the",
+    "start": 187.959,
+    "duration": 4.441
+  },
+  {
+    "text": "vertical Gray Line is basically the",
+    "start": 190.2,
+    "duration": 5.08
+  },
+  {
+    "text": "candle that confirmed the range so for",
+    "start": 192.4,
+    "duration": 5.199
+  },
+  {
+    "text": "example for this range right here you",
+    "start": 195.28,
+    "duration": 4.76
+  },
+  {
+    "text": "can see that it is this red candle right",
+    "start": 197.599,
+    "duration": 5.401
+  },
+  {
+    "text": "here that confirmed this trading range",
+    "start": 200.04,
+    "duration": 5.479
+  },
+  {
+    "text": "so if we use our replay tool and jump",
+    "start": 203.0,
+    "duration": 4.4
+  },
+  {
+    "text": "back here you can see that if we take a",
+    "start": 205.519,
+    "duration": 3.72
+  },
+  {
+    "text": "look at the live market right here you",
+    "start": 207.4,
+    "duration": 4.6
+  },
+  {
+    "text": "can see that it's not until it's not",
+    "start": 209.239,
+    "duration": 5.64
+  },
+  {
+    "text": "until this red candle right here that",
+    "start": 212.0,
+    "duration": 5.2
+  },
+  {
+    "text": "you see that the trading range appear",
+    "start": 214.879,
+    "duration": 4.08
+  },
+  {
+    "text": "and what you can also see here is that",
+    "start": 217.2,
+    "duration": 5.039
+  },
+  {
+    "text": "the range will be blue here it will be",
+    "start": 218.959,
+    "duration": 6.92
+  },
+  {
+    "text": "blue until let me forward a bit here it",
+    "start": 222.239,
+    "duration": 7.64
+  },
+  {
+    "text": "will be blue until we break the range",
+    "start": 225.879,
+    "duration": 6.601
+  },
+  {
+    "text": "and if the range breaks to the upside",
+    "start": 229.879,
+    "duration": 5.481
+  },
+  {
+    "text": "the trading range will be become green",
+    "start": 232.48,
+    "duration": 4.72
+  },
+  {
+    "text": "and if we break to the downside the",
+    "start": 235.36,
+    "duration": 4.079
+  },
+  {
+    "text": "trading range will become red so let's",
+    "start": 237.2,
+    "duration": 4.72
+  },
+  {
+    "text": "go back here to the settings tab for the",
+    "start": 239.439,
+    "duration": 4.72
+  },
+  {
+    "text": "indicator I actually recommend to have",
+    "start": 241.92,
+    "duration": 4.84
+  },
+  {
+    "text": "this background color shaked and as for",
+    "start": 244.159,
+    "duration": 4.201
+  },
+  {
+    "text": "the rest of the settings here you can",
+    "start": 246.76,
+    "duration": 4.36
+  },
+  {
+    "text": "just keep them as they are so now we are",
+    "start": 248.36,
+    "duration": 4.32
+  },
+  {
+    "text": "done with the settings and we are ready",
+    "start": 251.12,
+    "duration": 4.24
+  },
+  {
+    "text": "to press okay so now then how do we",
+    "start": 252.68,
+    "duration": 4.799
+  },
+  {
+    "text": "actually use this indicator to find good",
+    "start": 255.36,
+    "duration": 4.52
+  },
+  {
+    "text": "breakout trades in the market but what",
+    "start": 257.479,
+    "duration": 3.921
+  },
+  {
+    "text": "we want to do here is that we want to",
+    "start": 259.88,
+    "duration": 3.92
+  },
+  {
+    "text": "once again go up here to the indicators",
+    "start": 261.4,
+    "duration": 4.519
+  },
+  {
+    "text": "Tab and we want to open up another",
+    "start": 263.8,
+    "duration": 4.76
+  },
+  {
+    "text": "indicator so let's search here for",
+    "start": 265.919,
+    "duration": 5.161
+  },
+  {
+    "text": "volume and and let's actually just open",
+    "start": 268.56,
+    "duration": 4.919
+  },
+  {
+    "text": "up the simple volume indicator that is",
+    "start": 271.08,
+    "duration": 5.08
+  },
+  {
+    "text": "just called volume right here because",
+    "start": 273.479,
+    "duration": 3.881
+  },
+  {
+    "text": "what we want to do when we trade",
+    "start": 276.16,
+    "duration": 3.879
+  },
+  {
+    "text": "breakouts is that we want to have lots",
+    "start": 277.36,
+    "duration": 5.76
+  },
+  {
+    "text": "of volume when we see the breakout",
+    "start": 280.039,
+    "duration": 5.241
+  },
+  {
+    "text": "appear so let's take a look at the first",
+    "start": 283.12,
+    "duration": 4.68
+  },
+  {
+    "text": "example right here you can see that the",
+    "start": 285.28,
+    "duration": 5.8
+  },
+  {
+    "text": "indicator showed us a trading range from",
+    "start": 287.8,
+    "duration": 5.44
+  },
+  {
+    "text": "this point to this point this is an area",
+    "start": 291.08,
+    "duration": 4.44
+  },
+  {
+    "text": "where the price is going sideways and as",
+    "start": 293.24,
+    "duration": 4.92
+  },
+  {
+    "text": "you can see we have pretty small candles",
+    "start": 295.52,
+    "duration": 4.16
+  },
+  {
+    "text": "and what you also can see and this this",
+    "start": 298.16,
+    "duration": 4.24
+  },
+  {
+    "text": "is a good sign is that we don't have a",
+    "start": 299.68,
+    "duration": 4.84
+  },
+  {
+    "text": "lot of volume you can see the volume",
+    "start": 302.4,
+    "duration": 5.04
+  },
+  {
+    "text": "bars here are pretty small but what we",
+    "start": 304.52,
+    "duration": 5.519
+  },
+  {
+    "text": "want to see when the breakout happens so",
+    "start": 307.44,
+    "duration": 4.84
+  },
+  {
+    "text": "you can see that we have a strong green",
+    "start": 310.039,
+    "duration": 4.241
+  },
+  {
+    "text": "candle right here we actually want to",
+    "start": 312.28,
+    "duration": 5.08
+  },
+  {
+    "text": "see two things when the breakout happens",
+    "start": 314.28,
+    "duration": 4.8
+  },
+  {
+    "text": "the first thing we want to see is that",
+    "start": 317.36,
+    "duration": 4.839
+  },
+  {
+    "text": "we want to have a strong momentum candle",
+    "start": 319.08,
+    "duration": 5.239
+  },
+  {
+    "text": "so we want the Candlestick that breaks",
+    "start": 322.199,
+    "duration": 5.601
+  },
+  {
+    "text": "out to be much larger than the candles",
+    "start": 324.319,
+    "duration": 5.6
+  },
+  {
+    "text": "in the range right here and as you can",
+    "start": 327.8,
+    "duration": 4.839
+  },
+  {
+    "text": "see this candle right here is much much",
+    "start": 329.919,
+    "duration": 5.481
+  },
+  {
+    "text": "larger than the candles in the range and",
+    "start": 332.639,
+    "duration": 5.161
+  },
+  {
+    "text": "that is a good sign the other thing you",
+    "start": 335.4,
+    "duration": 4.359
+  },
+  {
+    "text": "want to see is that you want to see",
+    "start": 337.8,
+    "duration": 4.72
+  },
+  {
+    "text": "increased volume so you take a look at",
+    "start": 339.759,
+    "duration": 4.921
+  },
+  {
+    "text": "the breakout candle right here and you",
+    "start": 342.52,
+    "duration": 5.2
+  },
+  {
+    "text": "go down to the volume indicator and you",
+    "start": 344.68,
+    "duration": 6.44
+  },
+  {
+    "text": "can see that on this candle we also had",
+    "start": 347.72,
+    "duration": 5.8
+  },
+  {
+    "text": "lots of volume so when you have a strong",
+    "start": 351.12,
+    "duration": 4.96
+  },
+  {
+    "text": "momentum candle and lots of volume and",
+    "start": 353.52,
+    "duration": 4.519
+  },
+  {
+    "text": "you are breaking out of the range these",
+    "start": 356.08,
+    "duration": 4.239
+  },
+  {
+    "text": "are three signs that this is a good",
+    "start": 358.039,
+    "duration": 4.681
+  },
+  {
+    "text": "breakout trade before we take a look at",
+    "start": 360.319,
+    "duration": 4.0
+  },
+  {
+    "text": "exactly where to set the stop- loss and",
+    "start": 362.72,
+    "duration": 3.24
+  },
+  {
+    "text": "where to set the profit Target let's",
+    "start": 364.319,
+    "duration": 3.561
+  },
+  {
+    "text": "also take a look at the previous",
+    "start": 365.96,
+    "duration": 4.0
+  },
+  {
+    "text": "breakout or I mean the next breakout",
+    "start": 367.88,
+    "duration": 3.68
+  },
+  {
+    "text": "here you can see that this indicator",
+    "start": 369.96,
+    "duration": 3.679
+  },
+  {
+    "text": "produced actually two very nice signals",
+    "start": 371.56,
+    "duration": 4.919
+  },
+  {
+    "text": "in a row we had this range that led to a",
+    "start": 373.639,
+    "duration": 5.12
+  },
+  {
+    "text": "massive massive breakout uh The price",
+    "start": 376.479,
+    "duration": 4.84
+  },
+  {
+    "text": "came down we had another range that led",
+    "start": 378.759,
+    "duration": 4.88
+  },
+  {
+    "text": "to yet another massive breakout and",
+    "start": 381.319,
+    "duration": 3.921
+  },
+  {
+    "text": "let's take a look at the the next",
+    "start": 383.639,
+    "duration": 3.601
+  },
+  {
+    "text": "breakout right here so you can see in",
+    "start": 385.24,
+    "duration": 4.76
+  },
+  {
+    "text": "this case this one is a bit more tricky",
+    "start": 387.24,
+    "duration": 4.959
+  },
+  {
+    "text": "because you before the real breakout",
+    "start": 390.0,
+    "duration": 4.0
+  },
+  {
+    "text": "happened you can see that we actually",
+    "start": 392.199,
+    "duration": 4.481
+  },
+  {
+    "text": "had a sort of fake out right here so if",
+    "start": 394.0,
+    "duration": 4.24
+  },
+  {
+    "text": "you take a look at this candle right",
+    "start": 396.68,
+    "duration": 5.4
+  },
+  {
+    "text": "here why was this candle a bad breakout",
+    "start": 398.24,
+    "duration": 5.399
+  },
+  {
+    "text": "well first of all we can see that the",
+    "start": 402.08,
+    "duration": 4.6
+  },
+  {
+    "text": "candle itself is definitely not a strong",
+    "start": 403.639,
+    "duration": 5.201
+  },
+  {
+    "text": "breakout candle you can see we we just",
+    "start": 406.68,
+    "duration": 4.76
+  },
+  {
+    "text": "slightly went above the resistance and",
+    "start": 408.84,
+    "duration": 4.759
+  },
+  {
+    "text": "then the price quickly pushed down you",
+    "start": 411.44,
+    "duration": 3.96
+  },
+  {
+    "text": "can also see here if you go down to the",
+    "start": 413.599,
+    "duration": 4.201
+  },
+  {
+    "text": "volume bar that we don't have volume so",
+    "start": 415.4,
+    "duration": 4.0
+  },
+  {
+    "text": "that is definitely a trade you don't",
+    "start": 417.8,
+    "duration": 4.32
+  },
+  {
+    "text": "don't want to take um then we had a few",
+    "start": 419.4,
+    "duration": 4.28
+  },
+  {
+    "text": "more candles you can see that the next",
+    "start": 422.12,
+    "duration": 3.639
+  },
+  {
+    "text": "candle which many Traders would would",
+    "start": 423.68,
+    "duration": 4.72
+  },
+  {
+    "text": "argue was the real breakout was this",
+    "start": 425.759,
+    "duration": 4.88
+  },
+  {
+    "text": "Candlestick right here and this breakout",
+    "start": 428.4,
+    "duration": 4.04
+  },
+  {
+    "text": "right here is much better than this",
+    "start": 430.639,
+    "duration": 4.28
+  },
+  {
+    "text": "candle but this one is still not really",
+    "start": 432.44,
+    "duration": 4.759
+  },
+  {
+    "text": "good enough at least for me you can see",
+    "start": 434.919,
+    "duration": 5.041
+  },
+  {
+    "text": "that yes this candle one could argue",
+    "start": 437.199,
+    "duration": 4.761
+  },
+  {
+    "text": "that this was a momentum candle but you",
+    "start": 439.96,
+    "duration": 3.72
+  },
+  {
+    "text": "can see that the length of the real body",
+    "start": 441.96,
+    "duration": 4.4
+  },
+  {
+    "text": "here was was pretty similar to many",
+    "start": 443.68,
+    "duration": 5.4
+  },
+  {
+    "text": "other candles so I would personally not",
+    "start": 446.36,
+    "duration": 5.44
+  },
+  {
+    "text": "end on this candle right here uh but if",
+    "start": 449.08,
+    "duration": 4.88
+  },
+  {
+    "text": "you take a look at the next Green candle",
+    "start": 451.8,
+    "duration": 5.0
+  },
+  {
+    "text": "you can see that we finally have a",
+    "start": 453.96,
+    "duration": 5.6
+  },
+  {
+    "text": "strong momentum candle and another thing",
+    "start": 456.8,
+    "duration": 4.32
+  },
+  {
+    "text": "you can look out for is that if you look",
+    "start": 459.56,
+    "duration": 3.479
+  },
+  {
+    "text": "down to the volume bar here you can see",
+    "start": 461.12,
+    "duration": 4.84
+  },
+  {
+    "text": "that this volume bar is much larger than",
+    "start": 463.039,
+    "duration": 5.72
+  },
+  {
+    "text": "all of the previous volume bars so for",
+    "start": 465.96,
+    "duration": 4.679
+  },
+  {
+    "text": "that reason I would actually enter the",
+    "start": 468.759,
+    "duration": 5.12
+  },
+  {
+    "text": "trade on this breakout candle right here",
+    "start": 470.639,
+    "duration": 5.12
+  },
+  {
+    "text": "so let's take a look at an example of",
+    "start": 473.879,
+    "duration": 4.561
+  },
+  {
+    "text": "our long position so in this case I",
+    "start": 475.759,
+    "duration": 5.0
+  },
+  {
+    "text": "would enter at the breakout right here",
+    "start": 478.44,
+    "duration": 4.96
+  },
+  {
+    "text": "so at the candle close of the breakout",
+    "start": 480.759,
+    "duration": 5.041
+  },
+  {
+    "text": "as for your stop loss here uh this one",
+    "start": 483.4,
+    "duration": 5.0
+  },
+  {
+    "text": "can be a bit tricky what I usually look",
+    "start": 485.8,
+    "duration": 5.16
+  },
+  {
+    "text": "out for is that I look out for the most",
+    "start": 488.4,
+    "duration": 5.72
+  },
+  {
+    "text": "previous low here inside the range so",
+    "start": 490.96,
+    "duration": 5.4
+  },
+  {
+    "text": "you can see that here we have a low",
+    "start": 494.12,
+    "duration": 4.32
+  },
+  {
+    "text": "right so we have a low and what I",
+    "start": 496.36,
+    "duration": 4.799
+  },
+  {
+    "text": "usually do is that I set my stop loss",
+    "start": 498.44,
+    "duration": 5.479
+  },
+  {
+    "text": "below that low and I also leave some",
+    "start": 501.159,
+    "duration": 5.401
+  },
+  {
+    "text": "room for some wiggle room so I would set",
+    "start": 503.919,
+    "duration": 5.68
+  },
+  {
+    "text": "my stoploss somewhere around here and as",
+    "start": 506.56,
+    "duration": 5.199
+  },
+  {
+    "text": "for your risk to reward ratio when we're",
+    "start": 509.599,
+    "duration": 3.721
+  },
+  {
+    "text": "looking out for these breakout trades",
+    "start": 511.759,
+    "duration": 3.28
+  },
+  {
+    "text": "we're usually looking out for some",
+    "start": 513.32,
+    "duration": 3.76
+  },
+  {
+    "text": "pretty big profit here so what you can",
+    "start": 515.039,
+    "duration": 3.761
+  },
+  {
+    "text": "do here is of course you can keep it",
+    "start": 517.08,
+    "duration": 4.36
+  },
+  {
+    "text": "simple with a risk reward Ratio or of",
+    "start": 518.8,
+    "duration": 4.84
+  },
+  {
+    "text": "two or something like this but many",
+    "start": 521.44,
+    "duration": 4.36
+  },
+  {
+    "text": "times you can actually have lots or more",
+    "start": 523.64,
+    "duration": 3.759
+  },
+  {
+    "text": "profit here you can have a risk reward",
+    "start": 525.8,
+    "duration": 4.56
+  },
+  {
+    "text": "ratio of three or even more because",
+    "start": 527.399,
+    "duration": 5.361
+  },
+  {
+    "text": "these kind of strong breakouts from",
+    "start": 530.36,
+    "duration": 4.479
+  },
+  {
+    "text": "significant trading ranges can many",
+    "start": 532.76,
+    "duration": 3.92
+  },
+  {
+    "text": "times be the beginning of strong",
+    "start": 534.839,
+    "duration": 3.761
+  },
+  {
+    "text": "uptrends so many times you can have a",
+    "start": 536.68,
+    "duration": 4.76
+  },
+  {
+    "text": "risk reward ratio of three or even more",
+    "start": 538.6,
+    "duration": 4.239
+  },
+  {
+    "text": "you can see in this case you could have",
+    "start": 541.44,
+    "duration": 3.2
+  },
+  {
+    "text": "locked in profits you know with a risk",
+    "start": 542.839,
+    "duration": 5.641
+  },
+  {
+    "text": "to to reward ratio of seven or even more",
+    "start": 544.64,
+    "duration": 6.6
+  },
+  {
+    "text": "uh but this many times is not realistic",
+    "start": 548.48,
+    "duration": 4.56
+  },
+  {
+    "text": "but a risk reward ratio of three can",
+    "start": 551.24,
+    "duration": 4.719
+  },
+  {
+    "text": "many times be a good rule of thumb all",
+    "start": 553.04,
+    "duration": 5.12
+  },
+  {
+    "text": "right guys so the additional indicator",
+    "start": 555.959,
+    "duration": 4.801
+  },
+  {
+    "text": "we used in this video was volume and",
+    "start": 558.16,
+    "duration": 4.32
+  },
+  {
+    "text": "volume is one of these indicators that",
+    "start": 560.76,
+    "duration": 4.72
+  },
+  {
+    "text": "can improve so many trading strategies",
+    "start": 562.48,
+    "duration": 5.16
+  },
+  {
+    "text": "so if you have the time today I highly",
+    "start": 565.48,
+    "duration": 3.72
+  },
+  {
+    "text": "recommend you guys to watch my video",
+    "start": 567.64,
+    "duration": 6.36
+  },
+  {
+    "text": "video about the volume indicator next",
+    "start": 569.2,
+    "duration": 4.8
+  }
+]

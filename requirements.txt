@@ -23,3 +23,8 @@ vaderSentiment>=3.3.2
 # ---- state_memory (price-action pattern recognition matrix) ----
 faiss-cpu>=1.8.0
 pyarrow>=16.0.0
+# ---- FX/futures execution (optional; install when wiring live FX) ----
+# Interactive Brokers (chosen): needs IB Gateway/TWS running locally.
+ib_insync>=0.9.86            # or the maintained fork: ib_async
+# OANDA FX alternative (cloud REST, free practice) — already used by brokers/oanda.py:
+# oandapyV20>=0.7.2   (optional; brokers/oanda.py uses httpx directly, no extra dep)
