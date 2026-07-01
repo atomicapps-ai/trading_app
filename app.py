@@ -25,6 +25,7 @@ from routers import (
     copy_trading,
     dashboard,
     data_fetch,
+    favorites,
     indicators,
     jobs,
     live_status as live_status_router,
@@ -172,6 +173,7 @@ app.include_router(indicators.router)
 app.include_router(stock_lists.router)
 app.include_router(universe.router)
 app.include_router(copy_trading.router)
+app.include_router(favorites.router)
 app.include_router(stubs.router)
 
 

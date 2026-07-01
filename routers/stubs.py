@@ -45,13 +45,6 @@ router.add_api_route("/strategies", _strategies_root,
 # /strategies/validated, /strategies/in-progress, /strategies/archived
 # are owned by routers/strategies.py (real implementation in Ship 3).
 # /today is owned by routers/today.py (real implementation in Ship 5).
-router.add_api_route(
-    "/favorites", _placeholder(
-        "favorites", "Favorites",
-        "Later",
-        "Independent watchlist. Any symbol from anywhere in the app can be starred; the source is recorded and shown on hover.",
-    ),
-    methods=["GET"], response_class=HTMLResponse,
-)
+# /favorites is owned by routers/favorites.py (real implementation 2026-07-01).
 # /replay is owned by routers/replay.py (real implementation in Ship 4).
 # /system-health is owned by routers/system_health.py (real implementation in Ship 6).

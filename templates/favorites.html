@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Favorites — TradeAgent{% endblock %}
+{% block content %}
+<div style="max-width: 900px;">
+  <div class="flex items-center gap-12 mb-16">
+    <h2 style="font-size: 20px; font-weight: 500;">Favorites</h2>
+    <span class="text-secondary text-sm">{{ favorites|length }} pinned</span>
+  </div>
+
+  <div class="text-secondary text-xs mb-16">
+    Pin any page or item with the ★ in the top bar (or an item's own star).
+    Favorites show as sublinks under <strong>Favorites</strong> in the sidebar.
+  </div>
+
+  {% if favorites %}
+    <div id="fav-list">
+      {% for f in favorites %}
+        <div class="card mb-8" style="padding:12px 14px;display:flex;align-items:center;gap:12px;">
+          <span class="badge {{ 'badge-blue' if f.kind == 'item' else 'badge-gray' }}"
+                style="font-size:11px;">{{ f.kind }}</span>
+          <a href="{{ f.href }}" style="flex:1;font-weight:500;font-size:14px;text-decoration:none;">
+            {{ f.label }}
+          </a>
+          <span class="text-tertiary mono" style="font-size:11px;">{{ f.href }}</span>
+          <button class="btn-sm btn-danger"
+                  onclick="unfav('{{ f.href|e }}', this)">Remove</button>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="card"><div class="text-secondary">No favorites yet.</div></div>
+  {% endif %}
+</div>
+
+<style>
+.btn-sm{padding:4px 10px;font-size:12px;border-radius:4px;border:1px solid var(--border);
+  background:var(--surface-2);color:var(--text-primary);cursor:pointer;}
+.btn-danger{border-color:var(--accent-red);color:var(--accent-red);}
+</style>
+<script>
+async function unfav(href, btn){
+  btn.disabled = true;
+  await fetch('/api/favorites/toggle', {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({href})});
+  btn.closest('.card').remove();
+  // refresh the sidebar favorites group
+  const nav = document.querySelector('.nav-group[data-group="favorites"] .nav-children');
+  if (nav && window.htmx) htmx.trigger(nav, 'load');
+}
+</script>
+{% endblock %}

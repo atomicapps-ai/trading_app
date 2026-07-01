@@ -19,34 +19,45 @@
         {# nav schema: leaf items have href; parent items have children list (no href).
            active_page is matched against item.key; for parent groups, active_section
            expands the parent (and any child match auto-expands too). #}
+        {# Consolidated nav (reorganized 2026-07-01). Groups: Dashboard ·
+           Favorites · Strategies · Trading · Automation · Copy Insiders · Settings.
+           REMOVED from nav on 2026-07-01 (routes/code kept, just unlisted):
+             - Today            (/today)                merged into Dashboard
+             - Stock Lists      (/universe/stock-lists) low-use
+             - Strategy Live    (/strategy-live/dl)     stale — pointed at deleted double_lock
+             - Research         (/research/*)           niche explosive-moves viewer; research now lives under Strategies
+             - System Health    (/system-health)        ops-only
+           Favorites is now a dynamic group: children are the user's pinned
+           pages/items, loaded via hx-get. #}
         {% set nav_items = [
           {"key":"dashboard",      "label":"Dashboard",         "href":"/",                 "icon":"grid"},
-          {"key":"today",          "label":"Today",             "href":"/today",            "icon":"activity"},
-          {"key":"pending",        "label":"Pending Approvals", "href":"/pending",          "icon":"clock", "badge":True},
           {"divider": True},
-          {"key":"stock_lists",    "label":"Stock Lists",       "href":"/universe/stock-lists", "icon":"list"},
-          {"key":"screeners",      "label":"Screeners",         "href":"/universe",         "icon":"filter"},
-          {"key":"data_fetch",     "label":"Data Fetch",        "href":"/data-fetch",       "icon":"chart"},
-          {"key":"favorites",      "label":"Favorites",         "href":"/favorites",        "icon":"star"},
+          {"key":"favorites",      "label":"Favorites",         "icon":"star", "dynamic":"/api/favorites/nav"},
           {"divider": True},
           {"key":"strategies",     "label":"Strategies",        "icon":"sliders", "children": [
-              {"key":"strategies_validated",   "label":"Validated",   "href":"/strategies/validated"},
-              {"key":"strategies_in_progress", "label":"In Progress", "href":"/strategies/in-progress"},
-              {"key":"strategies_archived",    "label":"Archived",    "href":"/strategies/archived"},
+              {"key":"strategies_validated",   "label":"All Strategies",    "href":"/strategies/validated"},
+              {"key":"strategies_in_progress", "label":"In Progress",       "href":"/strategies/in-progress"},
+              {"key":"strategies_archived",    "label":"Archived",          "href":"/strategies/archived"},
+              {"key":"replay",                 "label":"Backtest & Replay", "href":"/replay"},
           ]},
-          {"key":"strategy-live",  "label":"Strategy Live",     "href":"/strategy-live/dl", "icon":"activity"},
-          {"key":"replay",         "label":"Replay",            "href":"/replay",           "icon":"chart"},
-          {"key":"research",       "label":"Research",          "icon":"pulse", "children": [
-              {"key":"research_explosive", "label":"Explosive Moves", "href":"/research/explosive-moves"},
+          {"key":"trading",        "label":"Trading",           "icon":"activity", "badge":True, "children": [
+              {"key":"pending",    "label":"Pending Approvals", "href":"/pending"},
+              {"key":"trades",     "label":"Trade History",     "href":"/trades"},
+          ]},
+          {"key":"automation",     "label":"Automation",        "icon":"clock", "children": [
+              {"key":"jobs",       "label":"Scheduled Jobs",    "href":"/jobs"},
+              {"key":"data_fetch", "label":"Cached Candles",    "href":"/data-fetch"},
+              {"key":"screeners",  "label":"Screeners",         "href":"/universe"},
+          ]},
+          {"key":"copy_insiders",  "label":"Copy Insiders",     "icon":"copy", "children": [
+              {"key":"copy_rankings", "label":"Rankings",       "href":"/copy-insiders/rankings"},
+              {"key":"copy_trades",   "label":"Disclosures",    "href":"/copy-insiders/trades"},
           ]},
           {"divider": True},
-          {"key":"trades",         "label":"Trade History",     "href":"/trades",           "icon":"list"},
-          {"key":"copy_insiders",  "label":"Copy Insiders",     "href":"/copy-insiders/rankings", "icon":"copy"},
-          {"divider": True},
-          {"key":"jobs",           "label":"Jobs",              "href":"/jobs",             "icon":"clock"},
-          {"key":"broker",         "label":"Broker",            "href":"/broker",           "icon":"link"},
-          {"key":"system_health",  "label":"System Health",     "href":"/system-health",    "icon":"pulse"},
-          {"key":"settings",       "label":"Settings",          "href":"/settings",         "icon":"gear"},
+          {"key":"settings",       "label":"Settings",          "icon":"gear", "children": [
+              {"key":"settings_general", "label":"Settings",    "href":"/settings"},
+              {"key":"broker",           "label":"Broker",      "href":"/broker"},
+          ]},
         ] %}
         {% macro nav_icon(name) -%}
           <span class="nav-icon">
@@ -82,6 +93,20 @@
         {% for item in nav_items %}
           {% if item.divider %}
             <div class="nav-divider"></div>
+          {% elif item.dynamic %}
+            {# dynamic group (Favorites): children are hx-loaded from an endpoint #}
+            <div class="nav-group open" data-group="{{ item.key }}">
+              <button type="button" class="nav-item nav-parent" onclick="toggleNavGroup(this)">
+                {{ nav_icon(item.icon) }}
+                <span style="flex:1;text-align:left;">{{ item.label }}</span>
+                <span class="nav-caret" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </button>
+              <div class="nav-children" hx-get="{{ item.dynamic }}" hx-trigger="load, every 60s" hx-swap="innerHTML">
+                <span class="nav-item nav-child text-tertiary" style="font-size:11px;">Loading…</span>
+              </div>
+            </div>
           {% elif item.children %}
             {# parent group with collapsible children. Active when active_section == key
                OR any child key matches active_page. Open by default if active. #}
@@ -90,6 +115,7 @@
               <button type="button" class="nav-item nav-parent {% if is_open %}active-parent{% endif %}" onclick="toggleNavGroup(this)">
                 {{ nav_icon(item.icon) }}
                 <span style="flex:1;text-align:left;">{{ item.label }}</span>
+                {% if item.badge %}<span class="nav-badge" id="pending-badge" hx-get="/api/pending/count" hx-trigger="load, every 30s" hx-swap="innerHTML">0</span>{% endif %}
                 <span class="nav-caret" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
                 </span>
@@ -143,6 +169,13 @@
         <span class="mode-badge {{ settings.app.mode }}">{{ settings.app.mode }}</span>
       </div>
       <div class="topbar-right">
+        {# ★ Favorite this page — pins the current URL under Favorites in the sidebar #}
+        <button type="button" class="topbar-status" id="fav-page-btn"
+                onclick="toggleFavPage(this)"
+                title="Favorite this page"
+                style="cursor:pointer;background:none;border:none;color:inherit;font:inherit;display:flex;align-items:center;gap:4px;">
+          <span id="fav-page-star" style="font-size:15px;line-height:1;">☆</span>
+        </button>
         {# Account picker — click to switch active broker_account.
            Lazy-rendered partial: lists slugs + active state and lets the
            user activate by click. Closed-by-default. #}
@@ -219,6 +252,36 @@
       if (open) set.add(group.dataset.group); else set.delete(group.dataset.group);
       localStorage.setItem(KEY, JSON.stringify([...set]));
     }
+
+    // ── Favorite-this-page (★ topbar) ────────────────────────────────────
+    function _favHref() { return window.location.pathname + window.location.search; }
+    function _favLabel() {
+      return (document.title || '').replace(/\s*[—-]\s*TradeAgent\s*$/, '').trim()
+             || _favHref();
+    }
+    async function refreshFavStar() {
+      const star = document.getElementById('fav-page-star');
+      if (!star) return;
+      try {
+        const r = await fetch('/api/favorites/status?href=' + encodeURIComponent(_favHref()));
+        const d = await r.json();
+        star.textContent = d.favorited ? '★' : '☆';
+        star.style.color = d.favorited ? 'var(--accent-blue)' : '';
+      } catch (e) {}
+    }
+    async function toggleFavPage(btn) {
+      btn.disabled = true;
+      try {
+        await fetch('/api/favorites/toggle', {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({href: _favHref(), label: _favLabel(), kind: 'page'})
+        });
+        await refreshFavStar();
+        const nav = document.querySelector('.nav-group[data-group="favorites"] .nav-children');
+        if (nav && window.htmx) htmx.trigger(nav, 'load');
+      } finally { btn.disabled = false; }
+    }
+    document.addEventListener('DOMContentLoaded', refreshFavStar);
 
     // ET clock — updates every minute. America/New_York handles DST automatically.
     (function () {

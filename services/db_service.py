@@ -320,6 +320,17 @@ _SCHEMA = [
         acknowledged_at TEXT
     )
     """,
+    # Favorites — pinned pages OR items, rendered as nav sublinks
+    """
+    CREATE TABLE IF NOT EXISTS favorites (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        kind TEXT NOT NULL DEFAULT 'page',   -- 'page' | 'item'
+        label TEXT NOT NULL,
+        href TEXT NOT NULL UNIQUE,
+        ref_key TEXT,                        -- optional stable key (symbol, screener, …)
+        added_at TEXT NOT NULL
+    )
+    """,
     # Indexes for the queries we run often
     "CREATE INDEX IF NOT EXISTS idx_pending_status ON pending_approvals(status, ts_created DESC)",
     "CREATE INDEX IF NOT EXISTS idx_pending_symbol ON pending_approvals(symbol)",
@@ -1153,6 +1164,59 @@ async def set_copy_config(key: str, value: str) -> None:
             """,
             (key, value, now),
         )
+        await db.commit()
+
+
+# ---------------------------------------------------------------------- #
+# Favorites (pinned pages / items → nav sublinks)
+# ---------------------------------------------------------------------- #
+
+
+async def list_favorites() -> list[dict]:
+    """All favorites, most-recent first."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT id, kind, label, href, ref_key, added_at "
+            "FROM favorites ORDER BY added_at DESC"
+        )
+        return [dict(r) for r in await cur.fetchall()]
+
+
+async def is_favorite(href: str) -> bool:
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute("SELECT 1 FROM favorites WHERE href = ?", (href,))
+        return await cur.fetchone() is not None
+
+
+async def toggle_favorite(
+    href: str, label: str, kind: str = "page", ref_key: str | None = None,
+) -> bool:
+    """Add the favorite if absent, remove it if present.
+
+    Returns the new state: True = now favorited, False = now un-favorited.
+    Keyed on ``href`` so a page/item is favorited at most once.
+    """
+    now = datetime.now(timezone.utc).isoformat()
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute("SELECT 1 FROM favorites WHERE href = ?", (href,))
+        exists = await cur.fetchone() is not None
+        if exists:
+            await db.execute("DELETE FROM favorites WHERE href = ?", (href,))
+            await db.commit()
+            return False
+        await db.execute(
+            "INSERT INTO favorites (kind, label, href, ref_key, added_at) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (kind, label.strip() or href, href, ref_key, now),
+        )
+        await db.commit()
+        return True
+
+
+async def remove_favorite(href: str) -> None:
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute("DELETE FROM favorites WHERE href = ?", (href,))
         await db.commit()
 
 
