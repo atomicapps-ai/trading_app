@@ -1,4 +1,41 @@
-# Session Handoff — 2026-05-09 (LATEST: Strategy Research Pipeline)
+# Session Handoff
+
+## 🔧 OPEN TASK — 2026-07-01 · Manual trade/indicator review → find confluence indicators
+**Owner:** operator (manual review) · **Type:** research · **Goal:** raise win-rate /
+expectancy on the 5 live strategies by finding indicators that add *directional*
+confluence (better predict price up vs down), without killing the big winners.
+
+**Why now (from the 2022–2025 replay over 186 symbols, `scripts/replay_swing.py`):**
+the strategies work but win-rates are low and there's headroom —
+`momentum_breakout` 24% · `fear_dip_reversion` 36% · `macd_run` 35% · `coil_breakout` 51%.
+The rig's recurring lesson is *edge = payoff geometry, not direction prediction* — so the
+opportunity is a **directional confluence filter that lifts hit-rate** while preserving the
+"let winners run" tail.
+
+**Steps:**
+1. **Physically review the trades** — pull each strategy's ledger via
+   `/strategies/{name}/history`, `/replay`, or `scripts/replay_swing.py`; sort by
+   outcome; eyeball winners vs losers on the chart.
+2. **Review indicator state at entry** — for each trade look at the entry-bar readings
+   (RSI, ATR, ADX, MACD slope, volume vs avg, %dist from VWAP/SMA20/50/200, SPY/VIX regime,
+   rel-strength vs sector). Source: `services/indicator_service.py` (23 indicators),
+   `services/indicator_registry.py`.
+3. **Find the separators** — which readings distinguish winners from losers? Candidate
+   confluence: trend strength (ADX), volume expansion, higher-timeframe alignment, breadth/
+   regime, relative strength, momentum slope.
+4. **Propose 1–3 confluence filters per strategy** that gate entries toward the
+   higher-probability direction.
+5. **Backtest the filtered variant** — re-run `replay_swing` / `strategy_suite` and compare
+   WR / expectancy / OOS vs the baseline above. Keep only filters that hold up out-of-sample.
+
+**Leverage existing infra:** `scripts/random_search.py` (meta-strategy sweep),
+`services/optimization_db.py`, `strategies/strategy_docs/`, `STRATEGY_BACKTEST_REPORT.md`.
+**Guardrail:** favor filters that improve *entry direction quality*; don't over-tighten
+stops (that's what killed early variants — see the report).
+
+---
+
+## Session Handoff — 2026-05-09 (LATEST: Strategy Research Pipeline)
 
 > **NEW SESSION:** start by reading the **STRATEGY RESEARCH PIPELINE** section at
 > the top of `CLAUDE.md`. The work since 2026-05-07 is a parallel research subsystem
