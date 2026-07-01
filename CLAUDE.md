@@ -1,12 +1,46 @@
 # TradeAgent — Project Context for Claude Code
-**Last synced:** 2026-05-09 (added: data fetch page, Alpaca historical bars,
-strategy research pipeline, optimization DB, random search, core_universe_100
-screener, price_action_pattern_recog_matrix project plan)
-**Status:** Phase 4 + 4.5 + 6 + DL autonomous loop are production-ready. The system
-fires `wf_double_lock_1030` on schedule each weekday, auto-approves on paper, and
-auto-closes positions at 15:00 ET. First end-to-end autonomous fill is pending the
-next VIX>=20 day (currently ~17). Today's quiet days produce a 16:30 ET digest push
-+ dashboard-only `rejected` alerts so the operator has visibility on no-fire days.
+**Last synced:** 2026-07-01 (re-baseline: `feat/strategy-research-pipeline` merged to
+`main`. **`double_lock` + `swing_momentum` REMOVED**; the live layer is now the
+video-mined, OOS-validated strategy suite + the strategy-research/optimization
+pipeline + Kronos forecasting. Header rewritten to match the code — earlier "DL is
+production" status was stale after the strategy swap.)
+
+**Status:** The active strategy layer is the **video-mined strategy suite** (not
+`double_lock`, which no longer exists). Five strategies are wired — config +
+`workflows/<name>_scan.yaml` cron + the same compliance/risk gates — and marked
+`active: true` on paper. `double_lock` (DL) and `swing_momentum` were deleted: DL's
+*real* edge was ~53% WR (4-yr 30m replay, n=103, PF 1.21), not the n=17 82% figure,
+so the project pivoted to strategies that hold up out-of-sample on ~20y of data.
+
+### Live strategies — source of truth: `strategy_configs/*.yaml` + `strategies/strategy_docs/`
+| Strategy | Type | Edge (OOS, net) | Core trigger |
+|---|---|---|---|
+| `momentum_breakout` (was S7) | daily trend | ~25% win / +0.45R | 126-day high breakout + volume confirm, SPY>200MA; 50-SMA trail (let winners run) |
+| `fear_dip_reversion` (was S5) | daily mean-rev | ~32% win / +0.24R | ≥3×ATR below 50-SMA, targets the mean; only when SPY<200MA **or** VIX≥26 |
+| `macd_run` | daily momentum | OOS PF ~1.52 / +0.27R | MACD line crosses up through signal below zero, 200-MA uptrend; exit on cross-back-down |
+| `coil_breakout` | daily breakout | selective, high-quality | vol contraction (ATR10<ATR50) → expansion thrust breakout of 30-day range, uptrend |
+| `fvg_continuation` | FX intraday | PF ~1.48 (OOS 1.46) | NY-session displacement Fair-Value-Gap, enter at market next bar, 3R / stop far gap edge / EOD |
+
+Full rules + IS/OOS/control tables: `strategies/strategy_docs/S#_*.md` and
+`STRATEGY_BACKTEST_REPORT.md`. Machine-readable results: `data/research/strategy_results/*.json`.
+Recurring lesson from the rig: **edge is payoff geometry (cut at structure, let winners
+run), not direction prediction.**
+
+### Subsystems added in the pivot (beyond the pre-pivot app)
+- **Strategy research/optimization**: `services/optimization_db.py`,
+  `scripts/random_search.py`, `scripts/vector_analyze.py` (see the RESEARCH PIPELINE
+  section below — still current).
+- **Kronos forecasting**: `services/kronos_{service,pipeline,planner}.py`,
+  `models/forecast.py` + pending-UI hook.
+- **New routers**: `/data-fetch` (bulk OHLCV: HF parquet / yfinance / Alpaca),
+  `/research`, and `manual_trade` (operator-driven entries through the gate flow).
+
+> **NOTE (2026-07-01 re-sync):** any section below that presents `double_lock` /
+> `wf_double_lock_1030` / `bellwether_16` as "the active strategy" is **HISTORICAL** —
+> that layer was removed. It's kept for architectural context (agents, the two hard
+> gates, workflow engine, broker layer, UI) which is unchanged and still governs the
+> new strategies. The gate architecture (compliance C1–C8 global; risk R1–R9) applies
+> to all five live strategies.
 
 ---
 
@@ -129,7 +163,12 @@ python scripts/inspect_top_archetype.py       # re-run top 5 + dump trade ledger
 
 ---
 
-**Trading-app summary (live state as of 2026-05-07):**
+> ⛔ **SUPERSEDED (2026-07-01).** The block below describes the pre-pivot state.
+> `double_lock`, `bellwether_16`-as-active, and the DL auto-loop were **removed**.
+> For the current live strategies see the header table above. Kept only as a record
+> of the DL era and the "edge doesn't generalize" finding that motivated the pivot.
+
+**Trading-app summary (live state as of 2026-05-07 — SUPERSEDED, see header):**
 * **Strategy:** `double_lock` (intraday opening pattern; c1+c2 conviction at
   10:30 ET + regime gate VIX>=20, ADX<=35, RSI window). Backtest 87.5% WR /
   +5.18% on 16-name bellwether (Mar-Apr); 50% WR on 62 mega-caps;
