@@ -29,8 +29,8 @@ def _pip(sym: str) -> float:
     return 0.01 if sym.upper().endswith("JPY") else 0.0001
 
 
-def _load_30m(sym: str) -> pd.DataFrame | None:
-    f = HIST / f"{sym.upper()}_30m.csv"
+def _load(sym: str, interval: str = "30m") -> pd.DataFrame | None:
+    f = HIST / f"{sym.upper()}_{interval}.csv"
     if not f.exists():
         return None
     d = pd.read_csv(f); dc = d.columns[0]
@@ -40,8 +40,13 @@ def _load_30m(sym: str) -> pd.DataFrame | None:
     return d
 
 
-def _run_pair(sym: str, since: date, until: date, tR: float = 3.0, disp: float = 1.5) -> list[SwingTrade]:
-    d = _load_30m(sym)
+def _load_30m(sym: str) -> pd.DataFrame | None:   # back-compat wrapper
+    return _load(sym, "30m")
+
+
+def _run_pair(sym: str, since: date, until: date, tR: float = 3.0, disp: float = 1.5,
+              interval: str = "30m") -> list[SwingTrade]:
+    d = _load(sym, interval)
     if d is None or len(d) < 300:
         return []
     PIP = _pip(sym); cost = 2 * PIP
