@@ -283,6 +283,39 @@
     }
     document.addEventListener('DOMContentLoaded', refreshFavStar);
 
+    // ── Item-level ★ stars (buttons with class .fav-item-star + data-href/label) ──
+    async function toggleFavItem(btn) {
+      const href = btn.dataset.href, label = btn.dataset.label || href;
+      const kind = btn.dataset.kind || 'item', ref = btn.dataset.ref || null;
+      btn.disabled = true;
+      try {
+        const r = await fetch('/api/favorites/toggle', {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({href, label, kind, ref_key: ref})
+        });
+        const d = await r.json();
+        _paintStar(btn, d.favorited);
+        const nav = document.querySelector('.nav-group[data-group="favorites"] .nav-children');
+        if (nav && window.htmx) htmx.trigger(nav, 'load');
+      } finally { btn.disabled = false; }
+    }
+    function _paintStar(btn, on) {
+      btn.textContent = on ? '★' : '☆';
+      btn.style.color = on ? 'var(--accent-blue)' : '';
+      btn.title = on ? 'Unfavorite' : 'Add to Favorites';
+    }
+    async function initFavItemStars() {
+      const stars = document.querySelectorAll('.fav-item-star');
+      if (!stars.length) return;
+      try {
+        const d = await (await fetch('/api/favorites/hrefs')).json();
+        const set = new Set(d.hrefs || []);
+        stars.forEach(b => _paintStar(b, set.has(b.dataset.href)));
+      } catch (e) {}
+    }
+    document.addEventListener('DOMContentLoaded', initFavItemStars);
+    document.body.addEventListener('htmx:afterSettle', initFavItemStars);
+
     // ET clock — updates every minute. America/New_York handles DST automatically.
     (function () {
       const el = document.getElementById('et-clock');

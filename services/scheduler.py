@@ -137,6 +137,30 @@ async def _poll_capitol_trades_job() -> None:
             logger.info("Capitol Trades poll: no politicians followed — skipping")
             return
 
+        # Auto-suggest gate: only queue copies from TOP-RATED insiders. We reuse
+        # the SAME composite 1–10 decile the rankings UI shows, so "top-rated"
+        # means the same thing everywhere. auto_suggest_min_rank defaults to 7
+        # (top ~3 deciles). Set auto_suggest_enabled=false to copy every followed
+        # insider regardless of rank (the pre-gate behavior).
+        auto_suggest = cfg.get("auto_suggest_enabled", "true").lower() == "true"
+        try:
+            min_rank = int(float(cfg.get("auto_suggest_min_rank", "7")))
+        except (TypeError, ValueError):
+            min_rank = 7
+        rank_map: dict[str, int] = {}
+        try:
+            from types import SimpleNamespace
+            from routers.copy_trading import _compute_composite_ranks
+            perf_cache = await db_service.get_member_performance_cache_map()
+            members = [
+                SimpleNamespace(politician_slug=p["slug"],
+                                trade_count_90d=p.get("trade_count_90d", 0))
+                for p in active
+            ]
+            rank_map = _compute_composite_ranks(members, perf_cache)
+        except Exception as e:                                        # noqa: BLE001
+            logger.warning("auto-suggest rank map failed: %s", e)
+
         svc = CapitolTradesService()
         known_ids = await db_service.get_known_trade_ids()
         total_fetched = 0
@@ -150,9 +174,13 @@ async def _poll_capitol_trades_job() -> None:
 
             new_trades = [t for t in pol_trades if t.trade_id not in known_ids]
             for trade in new_trades:
-                await _process_one_trade(trade, cfg)
+                queued = await _process_one_trade(
+                    trade, cfg, rank_map=rank_map,
+                    min_rank=min_rank, auto_suggest=auto_suggest,
+                )
                 known_ids.add(trade.trade_id)
-                total_queued += 1
+                if queued:
+                    total_queued += 1
 
         await db_service.set_copy_config("last_scan_ts", datetime.now(timezone.utc).isoformat())
         await db_service.set_copy_config("last_scan_count", str(total_queued))
@@ -175,8 +203,16 @@ async def _poll_capitol_trades_job() -> None:
             pass
 
 
-async def _process_one_trade(trade, cfg: dict) -> None:
-    """Save a new trade to DB, evaluate it, and queue as TradePlan if it passes."""
+async def _process_one_trade(
+    trade, cfg: dict, *, rank_map: dict[str, int] | None = None,
+    min_rank: int = 0, auto_suggest: bool = False,
+) -> bool:
+    """Save a new trade to DB, evaluate it, and queue as TradePlan if it passes.
+
+    Returns True iff a plan was queued to /pending. When ``auto_suggest`` is on,
+    only trades from TOP-RATED insiders (composite decile >= ``min_rank``) are
+    queued; the rest are recorded as skipped so the operator can see why.
+    """
     from agents.compliance_officer import ComplianceOfficer
     from agents.copy_trader import CopyTrader
     from agents.risk_manager import RiskManager
@@ -202,7 +238,7 @@ async def _process_one_trade(trade, cfg: dict) -> None:
         amount_max=trade.amount_max,
     )
     if not is_new:
-        return  # Race condition — another poll already inserted it
+        return False  # Race condition — another poll already inserted it
 
     max_usd = float(cfg.get("max_per_trade_usd", "5000"))
     trader = CopyTrader(max_per_trade_usd=max_usd)
@@ -213,7 +249,20 @@ async def _process_one_trade(trade, cfg: dict) -> None:
         await db_service.update_politician_trade_copy(
             trade.trade_id, copy_status="skipped", skip_reason=skip_reason
         )
-        return
+        return False
+
+    # ── Auto-suggest gate: only top-rated insiders get a queued suggestion ──
+    insider_rank = (rank_map or {}).get(trade.politician_slug)
+    if auto_suggest and (insider_rank is None or insider_rank < min_rank):
+        reason = (
+            f"insider not top-rated (rank "
+            f"{insider_rank if insider_rank is not None else 'n/a'} < {min_rank})"
+        )
+        logger.info("Copy skip %s %s: %s", trade.ticker, trade.transaction_type, reason)
+        await db_service.update_politician_trade_copy(
+            trade.trade_id, copy_status="skipped", skip_reason=reason
+        )
+        return False
 
     try:
         adapter = get_adapter()
@@ -225,7 +274,7 @@ async def _process_one_trade(trade, cfg: dict) -> None:
         await db_service.update_politician_trade_copy(
             trade.trade_id, copy_status="skipped", skip_reason=f"quote error: {exc}"
         )
-        return
+        return False
 
     s = get_settings()
     plan = trader.generate_plan(trade, quote, mode=s.app.mode)
@@ -248,7 +297,7 @@ async def _process_one_trade(trade, cfg: dict) -> None:
                 copy_status="skipped",
                 skip_reason=f"compliance: {cv.reason}",
             )
-            return
+            return False
 
         risk_mgr = RiskManager()
         rv = risk_mgr.pre_trade_check(plan, account)
@@ -259,7 +308,7 @@ async def _process_one_trade(trade, cfg: dict) -> None:
                 copy_status="skipped",
                 skip_reason=f"risk: {rv.reason}",
             )
-            return
+            return False
 
     except Exception as exc:
         logger.warning("Gate check for %s raised: %s — queuing anyway", trade.ticker, exc)
@@ -278,9 +327,11 @@ async def _process_one_trade(trade, cfg: dict) -> None:
         trade.trade_id, copy_status="queued", copy_plan_id=plan.plan_id
     )
     logger.info(
-        "Copy trade queued: %s %s %s plan_id=%s",
+        "Copy trade queued (insider rank %s): %s %s %s plan_id=%s",
+        insider_rank if insider_rank is not None else "n/a",
         trade.politician_name, trade.transaction_type, trade.ticker, plan.plan_id,
     )
+    return True
 
 
 # --------------------------------------------------------------------------- #

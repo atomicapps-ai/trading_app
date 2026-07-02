@@ -60,7 +60,13 @@
           </div>
         {% endif %}
       </div>
-      <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;">
+      <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;align-items:center;">
+        <button type="button" class="fav-item-star"
+                data-href="/strategies/{{ s.name }}/history"
+                data-label="{{ s.title|e }}" data-kind="item" data-ref="{{ s.name }}"
+                onclick="toggleFavItem(this)"
+                style="background:none;border:none;cursor:pointer;font-size:16px;line-height:1;color:var(--text-tertiary);padding:2px 4px;"
+                title="Add to Favorites">☆</button>
         <button class="btn btn-sm" onclick="runStrategy('{{ s.name }}', this)">▶ Run</button>
         <a class="btn btn-sm btn-ghost"
            href="/strategies/{{ s.name }}/history"

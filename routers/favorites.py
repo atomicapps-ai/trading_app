@@ -52,6 +52,13 @@ async def favorites_status(href: str) -> dict:
     return {"href": href, "favorited": await db_service.is_favorite(href)}
 
 
+@router.get("/api/favorites/hrefs", response_class=JSONResponse)
+async def favorites_hrefs() -> dict:
+    """All favorited hrefs — lets item stars set their ★/☆ state in one call."""
+    favs = await db_service.list_favorites()
+    return {"hrefs": [f["href"] for f in favs]}
+
+
 @router.post("/api/favorites/toggle", response_class=JSONResponse)
 async def favorites_toggle(request: Request) -> dict:
     """Add/remove a favorite. Body: {href, label, kind?, ref_key?}."""

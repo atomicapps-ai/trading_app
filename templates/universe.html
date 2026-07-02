@@ -50,6 +50,12 @@
             </div>
 
             <div class="flex items-center gap-8" onclick="event.stopPropagation()">
+              <button type="button" class="fav-item-star"
+                      data-href="/universe/{{ p.name }}/edit"
+                      data-label="{{ (p.title or p.name)|e }}" data-kind="item" data-ref="{{ p.name }}"
+                      onclick="toggleFavItem(this)"
+                      style="background:none;border:none;cursor:pointer;font-size:15px;line-height:1;color:var(--text-tertiary);padding:2px 4px;"
+                      title="Add to Favorites">☆</button>
               {% if not p.is_active %}
                 <button class="btn-sm"
                         hx-post="/api/universe/presets/{{ p.name }}/set-active"
