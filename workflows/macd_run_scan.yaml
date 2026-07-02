@@ -11,7 +11,7 @@ steps:
     kind: filter_universe
     params:
       preset: liquid_momentum_core
-      shortlist_size: 60
+      shortlist_size: 500
   - id: compute_macro
     kind: compute_macro
     depends_on: [filter_universe]
