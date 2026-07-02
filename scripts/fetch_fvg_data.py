@@ -19,11 +19,20 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import sys
 import time
 import urllib.request
 from pathlib import Path
 
 import pandas as pd
+
+# Windows consoles default to cp1252, which can't encode characters like the
+# arrow below and crashes on print. Force UTF-8 output where the runtime
+# supports it (Python 3.7+); harmless elsewhere.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
+except Exception:  # noqa: BLE001
+    pass
 
 ROOT = Path(__file__).resolve().parent.parent
 HIST = ROOT / "data" / "historical"
@@ -80,7 +89,7 @@ def _resample_and_write(sym: str, raw: Path) -> None:
         path = HIST / f"{sym}_{iv}.csv"
         out.to_csv(path)
         print(f"    {sym}_{iv}: {len(out):>7} bars "
-              f"{out.index[0].date()}→{out.index[-1].date()}")
+              f"{out.index[0].date()} -> {out.index[-1].date()}")
     del df
 
 

@@ -8,9 +8,16 @@ Usage:
     python scripts/compare_fvg_intervals.py --symbols XAUUSD --intervals 30m,5m,15m
 """
 import argparse
+import sys
 from datetime import date
 
 from scripts.replay_fvg import _run_pair, FX_PAIRS
+
+# Windows cp1252 consoles crash on non-ASCII print; force UTF-8 where supported.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
+except Exception:  # noqa: BLE001
+    pass
 
 
 def _stats(trades):
@@ -37,7 +44,7 @@ def main() -> None:
     until = date.fromisoformat(a.until)
     syms = [s.strip().upper() for s in a.symbols.split(",") if s.strip()]
     ivs = [i.strip() for i in a.intervals.split(",") if i.strip()]
-    print(f"FVG comparison | {len(syms)} symbols | {since} → {until}\n")
+    print(f"FVG comparison | {len(syms)} symbols | {since} -> {until}\n")
     for iv in ivs:
         trades = []
         for s in syms:
