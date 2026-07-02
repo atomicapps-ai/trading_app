@@ -713,6 +713,26 @@ async def get_pending_plans(
     return [_row_to_ui_dict(r) for r in rows]
 
 
+async def get_latest_plan_for_symbol(symbol: str) -> dict | None:
+    """Most-recent pending_approvals row for a symbol, ANY status.
+
+    Used to give a broker position back its provenance. We don't filter by
+    status because a live position could map to a plan the app left in an
+    unexpected state (auto-approved but status not advanced, restarted
+    mid-fill, etc.) — any plan for the symbol is better than treating it as
+    an orphan. Newest first.
+    """
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM pending_approvals WHERE UPPER(symbol) = ? "
+            "ORDER BY ts_created DESC LIMIT 1",
+            (symbol.upper(),),
+        )
+        row = await cur.fetchone()
+    return _row_to_ui_dict(row) if row else None
+
+
 async def get_plan_by_id(plan_id: str) -> dict | None:
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row

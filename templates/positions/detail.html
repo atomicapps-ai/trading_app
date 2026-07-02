@@ -42,7 +42,21 @@
           <tr><td class="text-secondary">Unrealized P&amp;L</td>
               <td class="mono {% if position.pnl_usd >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">
                 {{ "%+.2f"|format(position.pnl_usd) }} ({{ "%+.2f"|format(position.pnl_pct) }}%)</td></tr>
+          <tr><td class="text-secondary">Entered</td>
+              <td class="mono">{% if position.entry_ts %}{{ position.entry_ts[:16]|replace('T',' ') }}
+                <span class="text-tertiary text-sm">(from broker fill history)</span>
+                {% else %}<span class="text-tertiary">— not in broker fill history</span>{% endif %}</td></tr>
+          <tr><td class="text-secondary">Held</td><td class="mono">{{ position.held }}</td></tr>
           {% if position.sector %}<tr><td class="text-secondary">Sector</td><td>{{ position.sector }}</td></tr>{% endif %}
+          {# These only exist on a strategy plan — spell out that they're absent, and why. #}
+          <tr><td class="text-secondary">Strategy</td>
+              <td><span class="text-accent-red">not set</span>
+                <span class="text-tertiary text-sm">— no originating strategy plan</span></td></tr>
+          <tr><td class="text-secondary">Stop</td>
+              <td><span class="text-accent-red">none</span>
+                <span class="text-tertiary text-sm">— no plan, so no protective stop is tracked</span></td></tr>
+          <tr><td class="text-secondary">Take-profit</td>
+              <td><span class="text-tertiary">— not set (no plan)</span></td></tr>
         </tbody>
       </table>
 

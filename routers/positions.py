@@ -173,17 +173,18 @@ async def position_detail(symbol: str, request: Request):
     symbol = symbol.upper().strip()
     s = get_settings()
 
-    # If a plan exists for this symbol, prefer the full trade-detail page.
+    # If a plan exists for this symbol in ANY status, prefer the full
+    # trade-detail page (which carries strategy / stop / TP / thesis).
     try:
         from services import db_service
-        for status in ("open", "filled", "approved", "pending"):
-            for row in await db_service.get_pending_plans(status_filter=status, limit=200):
-                if (row.get("symbol") or "").upper() == symbol and row.get("plan_id"):
-                    return RedirectResponse(url=f"/trades/{row['plan_id']}", status_code=307)
+        latest = await db_service.get_latest_plan_for_symbol(symbol)
+        if latest and latest.get("plan_id"):
+            return RedirectResponse(url=f"/trades/{latest['plan_id']}", status_code=307)
     except Exception as e:                                             # noqa: BLE001
         logger.warning("position_detail: plan lookup failed for %s: %s", symbol, e)
 
-    # No plan — fetch the raw broker position.
+    # No plan — fetch the raw broker position + recover the entry time from
+    # the broker's fill history so Entered/Held aren't blank.
     pos_data: dict | None = None
     fetch_error: str | None = None
     if s.app.mode == "research":
@@ -204,6 +205,21 @@ async def position_detail(symbol: str, request: Request):
                 pnl_pct = ((current - entry) / entry * 100.0) if entry else 0.0
                 if direction == "short":
                     pnl_pct = -pnl_pct
+
+                # Entry timestamp from the most-recent buy fill (best-effort).
+                entry_ts = None
+                try:
+                    fills = await adapter.get_fills()
+                    buys = [f for f in fills
+                            if str(getattr(f, "symbol", "")).upper() == symbol
+                            and str(getattr(f, "side", "")).lower() == "buy"
+                            and getattr(f, "ts", None)]
+                    if buys:
+                        entry_ts = max(f.ts for f in buys)
+                except Exception:                                     # noqa: BLE001
+                    pass
+
+                from services.dashboard_widgets import _humanize_since
                 pos_data = {
                     "symbol": p.symbol,
                     "direction": direction,
@@ -213,6 +229,8 @@ async def position_detail(symbol: str, request: Request):
                     "pnl_usd": float(p.unrealized_pnl_usd or 0.0),
                     "pnl_pct": pnl_pct,
                     "sector": p.sector or "",
+                    "entry_ts": entry_ts,
+                    "held": _humanize_since(entry_ts) if entry_ts else "—",
                 }
         except Exception as e:                                        # noqa: BLE001
             fetch_error = str(e)
