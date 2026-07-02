@@ -272,10 +272,11 @@ async function runStrategy(name, btn) {
       return;
     }
     let signals = 0, plans = 0, approved = 0, blocked = 0, errors = 0;
-    let firstErr = null;
+    let firstErr = null, runId = null;
     (j.runs || []).forEach(run => {
       if (run.error) { errors++; if (!firstErr) firstErr = run.error; }
       const res = run.result || {};
+      if (!runId && res.run_id) runId = res.run_id;
       signals  += res.signals_generated || 0;
       plans    += res.plans_proposed    || 0;
       approved += res.plans_approved    || 0;
@@ -294,6 +295,7 @@ async function runStrategy(name, btn) {
           approved + ' approved · ' +
           blocked + ' blocked' +
         '</span>' +
+        (runId ? ('<a href="/runs/' + runId + '" class="text-xs" style="color:var(--accent-blue);text-decoration:none;margin-left:8px;">drill down →</a>') : '') +
         (firstErr ? ('<span class="text-accent-red text-xs">err: ' + escapeHtml(firstErr).substring(0, 80) + '</span>') : '');
     }
   } catch (e) {

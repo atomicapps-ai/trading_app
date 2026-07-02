@@ -71,6 +71,12 @@ async def run_workflow_by_id(
     if plan_step and not plan_step.error:
         plans_proposed = plan_step.output.get("plans") or []
 
+    # Per-symbol drill-down: what happened to every symbol on the shortlist.
+    # Built regardless of plan count — a 0-plan run is exactly when the
+    # operator most needs to see WHY (no setup vs. blocked vs. no fear
+    # regime, etc.). Gate outcomes get merged in during the plan loop below.
+    outcomes = _build_symbol_outcomes(run_result)
+
     if not plans_proposed:
         await db_service.record_pipeline_run(
             run_id=run_result.run_id,
@@ -86,6 +92,7 @@ async def run_workflow_by_id(
             error_message=run_result.error,
             status="error" if run_result.error else "complete",
             duration_seconds=run_result.duration_seconds,
+            symbol_outcomes=outcomes,
         )
         return _summary(run_result, plans_proposed=0, plans_approved=0,
                         plans_blocked=[])
@@ -121,6 +128,9 @@ async def run_workflow_by_id(
                 "gate": "compliance",
                 "reason": compliance_verdict.block_reason or "",
             })
+            _mark_outcome(outcomes, symbol, "blocked_compliance",
+                          compliance_verdict.block_reason or "compliance gate",
+                          plan_id=plan.plan_id)
             logger.info(
                 "pipeline: %s blocked by compliance (%s)",
                 symbol, compliance_verdict.block_reason,
@@ -156,6 +166,9 @@ async def run_workflow_by_id(
                 "gate": "risk",
                 "reason": risk_verdict.reject_reason or "",
             })
+            _mark_outcome(outcomes, symbol, "blocked_risk",
+                          risk_verdict.reject_reason or "risk gate",
+                          plan_id=plan.plan_id)
             logger.info(
                 "pipeline: %s rejected by risk (%s)",
                 symbol, risk_verdict.reject_reason,
@@ -191,6 +204,10 @@ async def run_workflow_by_id(
             strategy=strategy,
         )
         approved += 1
+        _mark_outcome(
+            outcomes, symbol, "queued",
+            f"passed gates ({risk_verdict.result})", plan_id=plan.plan_id,
+        )
 
         # ── ARMED alert ─────────────────────────────────────────────
         # The plan cleared compliance + risk and is awaiting human ack.
@@ -296,6 +313,7 @@ async def run_workflow_by_id(
         error_message=run_result.error,
         status="error" if run_result.error else "complete",
         duration_seconds=run_result.duration_seconds,
+        symbol_outcomes=outcomes,
     )
 
     logger.info(
@@ -310,6 +328,94 @@ async def run_workflow_by_id(
 # ---------------------------------------------------------------------- #
 # Helpers
 # ---------------------------------------------------------------------- #
+
+
+# ---------------------------------------------------------------------- #
+# Per-symbol drill-down
+# ---------------------------------------------------------------------- #
+#
+# Outcome codes (ranked most→least actionable in the UI):
+#   queued              plan built + passed both gates → awaiting approval
+#   blocked_compliance  plan built but compliance gate rejected
+#   blocked_risk        plan built but risk gate rejected
+#   signal_no_plan      detector fired but no plan built (consensus / already
+#                       open / queue full / inverted stop)
+#   no_setup            analyzed, detector didn't fire (the common "nothing
+#                       here today" case — this is where a 0-trade day lives)
+#
+# Pre-shortlist rejections (symbols that never reached analysis) are kept as
+# an aggregate ``filter_rejections`` count, since the universe filter reports
+# reasons in aggregate, not per symbol.
+
+
+def _build_symbol_outcomes(run_result) -> dict[str, Any]:
+    """Assemble the per-symbol processing map from the workflow step outputs.
+
+    Every symbol on the shortlist gets a row. Symbols that fired a detector
+    start as ``signal_no_plan`` and get upgraded to ``queued`` / ``blocked_*``
+    as the gate loop runs (via ``_mark_outcome``). Symbols with no signal are
+    ``no_setup`` — that is the honest reason most scans return 0 on a calm day.
+    """
+    steps = {sr.step_id: sr for sr in run_result.step_results}
+    fu = steps.get("filter_universe")
+    an = steps.get("analyze")
+
+    shortlist: list[str] = list((fu.output.get("shortlist") if fu else None) or [])
+    filter_rejections: dict[str, int] = (
+        (fu.output.get("rejection_reasons") if fu else None) or {}
+    )
+    signals_by_symbol: dict[str, list] = (
+        (an.output.get("signals") if an else None) or {}
+    )
+
+    symbols: dict[str, dict[str, Any]] = {}
+    for sym in shortlist:
+        sigs = signals_by_symbol.get(sym) or []
+        if sigs:
+            # Strongest signal's direction/strength for context.
+            top = max(sigs, key=lambda s: s.get("strength", 0) if isinstance(s, dict) else 0)
+            symbols[sym] = {
+                "symbol": sym,
+                "outcome": "signal_no_plan",
+                "detail": "signal fired; no plan built (consensus / already open / queue)",
+                "direction": (top.get("direction") if isinstance(top, dict) else None),
+                "strength": (round(top.get("strength", 0), 2) if isinstance(top, dict) else None),
+                "pattern": (top.get("pattern_name") if isinstance(top, dict) else None),
+                "plan_id": None,
+            }
+        else:
+            symbols[sym] = {
+                "symbol": sym,
+                "outcome": "no_setup",
+                "detail": "analyzed — detector did not fire",
+                "direction": None,
+                "strength": None,
+                "pattern": None,
+                "plan_id": None,
+            }
+
+    return {
+        "shortlist_size": len(shortlist),
+        "signals_generated": run_result.signals_generated,
+        "filter_rejections": filter_rejections,
+        "total_screened": int((fu.output.get("total_screened") if fu else 0) or 0),
+        "symbols": symbols,
+    }
+
+
+def _mark_outcome(outcomes: dict, symbol: str, outcome: str, detail: str,
+                  *, plan_id: str | None = None) -> None:
+    """Upgrade a symbol's row to a terminal gate outcome, in place."""
+    if not outcomes:
+        return
+    row = outcomes.setdefault("symbols", {}).get(symbol)
+    if row is None:
+        row = {"symbol": symbol, "direction": None, "strength": None, "pattern": None}
+        outcomes["symbols"][symbol] = row
+    row["outcome"] = outcome
+    row["detail"] = detail
+    if plan_id:
+        row["plan_id"] = plan_id
 
 
 def _summary(run_result, *, plans_proposed: int, plans_approved: int,

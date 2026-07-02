@@ -135,10 +135,10 @@
               {% for pos in open_positions %}
                 <tr data-symbol="{{ pos.symbol }}">
                   <td>
-                    <a href="/strategy-live/dl?symbols={{ pos.symbol }}"
+                    <a href="{{ pos.detail_url }}"
                        class="mono text-accent-blue"
                        style="text-decoration: none;"
-                       title="Open live chart for {{ pos.symbol }}">{{ pos.symbol }}</a>
+                       title="Open position detail for {{ pos.symbol }}">{{ pos.symbol }}</a>
                   </td>
                   <td><span class="badge {% if pos.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ pos.direction|upper }}</span></td>
                   <td class="num mono">${{ "%.2f"|format(pos.entry) }}</td>
@@ -146,8 +146,10 @@
                   <td class="num mono {% if pos.pnl_usd >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(pos.pnl_usd) }}</td>
                   <td class="num mono {% if pos.pnl_pct >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(pos.pnl_pct) }}%</td>
                   <td class="num mono {% if pos.pnl_r >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ "%+.2f"|format(pos.pnl_r) }}R</td>
-                  <td class="num mono text-secondary">{% if pos.stop %}${{ "%.2f"|format(pos.stop) }}{% else %}—{% endif %}</td>
-                  <td class="text-secondary text-sm">{{ pos.strategy or '—' }}</td>
+                  <td class="num mono text-secondary">{% if pos.stop %}${{ "%.2f"|format(pos.stop) }}{% else %}<span title="No stop on this position — no linked plan">none!</span>{% endif %}</td>
+                  <td class="text-secondary text-sm">
+                    {% if pos.strategy %}{{ pos.strategy }}{% elif pos.origin == 'manual' %}<span class="badge badge-gray" title="No originating strategy plan — manual or broker-side position">manual</span>{% else %}—{% endif %}
+                  </td>
                   <td style="white-space: nowrap;">
                     <div style="display: inline-flex; gap: 4px;">
                       <button type="button" class="btn btn-sm"

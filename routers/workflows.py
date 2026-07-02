@@ -17,10 +17,12 @@ from __future__ import annotations
 import json
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 
-from services import pipeline_service
-from services.settings_service import Settings, get_settings
+from services import db_service, pipeline_service
+from services.settings_service import TEMPLATES_DIR, Settings, get_settings
 from services.workflow_engine import (
     PIPELINE_STATUS_FILE,
     UNIVERSE_LATEST_FILE,
@@ -30,6 +32,18 @@ from services.workflow_engine import (
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+templates = Jinja2Templates(directory=TEMPLATES_DIR)
+
+
+# Human-readable outcome metadata for the drill-down UI. Ranked so the
+# template can sort most-actionable first.
+_OUTCOME_META = {
+    "queued":             {"label": "Queued for approval", "badge": "green", "rank": 0},
+    "blocked_compliance": {"label": "Blocked — compliance", "badge": "red",   "rank": 1},
+    "blocked_risk":       {"label": "Blocked — risk",       "badge": "red",   "rank": 2},
+    "signal_no_plan":     {"label": "Signal, no plan",      "badge": "amber", "rank": 3},
+    "no_setup":           {"label": "No setup",             "badge": "gray",  "rank": 4},
+}
 
 
 def _engine(s: Settings = Depends(get_settings)) -> WorkflowEngine:
@@ -102,6 +116,60 @@ async def pipeline_status() -> dict:
 async def pipeline_runs(limit: int = 20) -> dict:
     runs = await pipeline_service.list_runs(limit=limit)
     return {"runs": runs}
+
+
+@router.get("/runs", response_class=HTMLResponse)
+async def runs_history(request: Request, limit: int = 50,
+                       s: Settings = Depends(get_settings)):
+    """Researchable run history — one row per scan, newest first, each
+    linking to its per-symbol drill-down."""
+    runs = await pipeline_service.list_runs(limit=limit)
+    return templates.TemplateResponse(
+        request=request,
+        name="runs/list.html",
+        context={"settings": s, "app_version": "0.1.0",
+                 "active_page": "runs", "runs": runs},
+    )
+
+
+@router.get("/runs/{run_id}", response_class=HTMLResponse)
+async def run_detail(run_id: str, request: Request,
+                     s: Settings = Depends(get_settings)):
+    """Per-symbol drill-down for one scan run: exactly which stocks were
+    processed and how each was resolved (setup / no-setup / blocked / queued),
+    plus the pre-shortlist filter rejections."""
+    run = await db_service.get_pipeline_run(run_id)
+    if run is None:
+        raise HTTPException(404, f"run {run_id} not found")
+
+    outcomes = run.get("symbol_outcomes") or {}
+    symbols = list((outcomes.get("symbols") or {}).values())
+    # Attach display metadata + sort most-actionable first, then by symbol.
+    for row in symbols:
+        meta = _OUTCOME_META.get(row.get("outcome"), {"label": row.get("outcome", "?"),
+                                                       "badge": "gray", "rank": 9})
+        row["label"] = meta["label"]
+        row["badge"] = meta["badge"]
+        row["_rank"] = meta["rank"]
+    symbols.sort(key=lambda r: (r.get("_rank", 9), r.get("symbol", "")))
+
+    # Tally counts per outcome for the summary strip.
+    tally: dict[str, int] = {}
+    for row in symbols:
+        tally[row["outcome"]] = tally.get(row["outcome"], 0) + 1
+
+    return templates.TemplateResponse(
+        request=request,
+        name="runs/detail.html",
+        context={
+            "settings": s, "app_version": "0.1.0", "active_page": "runs",
+            "run": run,
+            "outcomes": outcomes,
+            "symbols": symbols,
+            "tally": tally,
+            "outcome_meta": _OUTCOME_META,
+        },
+    )
 
 
 @router.get("/api/universe/latest")

@@ -400,10 +400,13 @@ class StrategyHealthWidget(Widget):
     refresh_seconds = 60
 
     async def get_data(self) -> dict[str, Any]:
-        from services import analysis_service as A   # avoid import cycle
-
-        df = A.load_trades(source="auto", filter_to_production=True)
-        live_summary = A.summary(df) if len(df) else None
+        # Per-strategy live stats come from probability_service, which
+        # filters the trade journal by strategy_name. This is the single
+        # source of truth — do NOT apply one aggregate dump to every row
+        # (that produced the "all strategies show identical numbers" bug:
+        # the legacy double_lock dump's 82.4%/n=17/PF was copied onto
+        # every strategy regardless of whether it had any live trades).
+        from services import probability_service as P   # avoid import cycle
 
         rows: list[dict[str, Any]] = []
         for path in sorted(STRATEGY_CONFIG_DIR.glob("*.yaml")):
@@ -419,13 +422,16 @@ class StrategyHealthWidget(Widget):
             bt_wr = bt.get("point_wr_pct")
             ci_lo = bt.get("bootstrap_95_ci_lo")
 
-            # Live numbers: today only the dump represents one strategy
-            # (double_lock). Once JSONL is multi-strategy we'll filter
-            # by trade_record.setup_snapshot.strategy_name. For now,
-            # any strategy whose name matches that dump source uses it.
-            live_wr = live_summary.get("wr") if live_summary else None
-            live_n  = live_summary.get("n", 0)  if live_summary else 0
-            live_pf = live_summary.get("pf") if live_summary else None
+            # Live numbers — strategy-specific. A strategy with no live
+            # trades yet returns live_n == 0 and shows "no trades yet".
+            try:
+                est = await P.compute(name)
+                live_wr = est.live_wr
+                live_n  = est.live_n
+                live_pf = est.live_pf
+            except Exception as e:                            # noqa: BLE001
+                logger.warning("strategy_health: probability compute failed for %s: %s", name, e)
+                live_wr, live_n, live_pf = None, 0, None
 
             # Drift status
             if live_wr is None or live_n == 0:

@@ -175,6 +175,15 @@ async def _real_positions_or_stub() -> list[dict]:
     if not st.open_positions:
         return []                                                     # genuinely 0 positions
 
+    # Enrichment index: every broker position carries only symbol / qty /
+    # entry / market price. The stop, strategy, TP and originating plan_id
+    # live in the TradePlan that opened it. Build a symbol -> plan map from
+    # pending_approvals so we can back-fill those fields and make each row
+    # openable. Positions with NO matching plan (manual buys, smoke-script
+    # leftovers, broker-side fills) are flagged origin="manual" so the UI
+    # can still open a detail view instead of a dead end.
+    plan_by_symbol = await _plan_index_by_symbol()
+
     rows: list[dict] = []
     for p in st.open_positions:
         entry = float(p.avg_entry_price or 0.0)
@@ -184,6 +193,19 @@ async def _real_positions_or_stub() -> list[dict]:
         pnl_pct = ((current - entry) / entry * 100.0) if entry else 0.0
         if direction == "short":
             pnl_pct = -pnl_pct
+
+        plan = plan_by_symbol.get(p.symbol.upper())
+        stop = float(plan.get("stop") or 0.0) if plan else 0.0
+        strategy = (plan.get("strategy") if plan else "") or ""
+        plan_id = plan.get("plan_id") if plan else None
+        # R-multiple only meaningful once we know the planned stop.
+        pnl_r = 0.0
+        if stop and entry and abs(entry - stop) > 1e-9:
+            r_per_share = abs(entry - stop)
+            pnl_r = (current - entry) / r_per_share
+            if direction == "short":
+                pnl_r = -pnl_r
+
         rows.append({
             "symbol":     p.symbol,
             "direction":  direction,
@@ -192,12 +214,49 @@ async def _real_positions_or_stub() -> list[dict]:
             "current":    current,
             "pnl_usd":    float(p.unrealized_pnl_usd or 0.0),
             "pnl_pct":    pnl_pct,
-            "pnl_r":      0.0,    # needs plan reference (stop) to compute
-            "stop":       0.0,    # not on broker; populate from plan_json later
-            "strategy":   "",
+            "pnl_r":      round(pnl_r, 2),
+            "stop":       stop,
+            "strategy":   strategy,
             "sector":     p.sector or "",
+            # Openability / provenance
+            "plan_id":    plan_id,
+            "tp1":        float(plan.get("tp1") or 0.0) if plan else 0.0,
+            "origin":     "strategy" if plan_id else "manual",
+            # Where the row links: the trade detail page when a plan exists,
+            # else the orphan position detail page (symbol-keyed).
+            "detail_url": f"/trades/{plan_id}" if plan_id
+                          else f"/positions/{p.symbol.upper()}",
         })
     return rows
+
+
+async def _plan_index_by_symbol() -> dict[str, dict]:
+    """Map SYMBOL -> {plan_id, strategy, stop, tp1} for open/approved/pending
+    plans, so dashboard positions can be back-filled from the TradePlan that
+    opened them. Most-recent plan per symbol wins.
+
+    Matching is by symbol (a position is one net line per symbol at the
+    broker; we don't get a plan_id back on the fill). Good enough for the
+    single-user tool — a symbol rarely has two live strategy plans at once.
+    """
+    from services import db_service
+    index: dict[str, dict] = {}
+    try:
+        # Newest first across the stages a live position could map to.
+        for status in ("open", "filled", "approved", "pending"):
+            for row in await db_service.get_pending_plans(status_filter=status, limit=200):
+                sym = (row.get("symbol") or "").upper()
+                if not sym or sym in index:
+                    continue
+                index[sym] = {
+                    "plan_id":  row.get("plan_id"),
+                    "strategy": row.get("strategy"),
+                    "stop":     row.get("stop"),
+                    "tp1":      row.get("tp1"),
+                }
+    except Exception as e:                                             # noqa: BLE001
+        logger.warning("dashboard: plan index build failed: %s", e)
+    return index
 
 
 @router.get("/api/dashboard/widgets/{widget_id}", response_class=HTMLResponse)

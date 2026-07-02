@@ -408,6 +408,23 @@ async def _migrate_pending_approvals(db: aiosqlite.Connection) -> None:
                 logger.warning("db_service: migrate add %s failed: %s", col, e)
 
 
+async def _migrate_pipeline_runs(db: aiosqlite.Connection) -> None:
+    """Additive migration for pipeline_runs. Adds the per-symbol drill-down
+    blob column (``symbol_outcomes_json``) to DBs created before it existed."""
+    cursor = await db.execute("PRAGMA table_info(pipeline_runs)")
+    rows = await cursor.fetchall()
+    existing = {r[1] for r in rows}
+    if "symbol_outcomes_json" not in existing:
+        try:
+            await db.execute(
+                "ALTER TABLE pipeline_runs ADD COLUMN symbol_outcomes_json TEXT"
+            )
+            logger.info("db_service: added column pipeline_runs.symbol_outcomes_json")
+        except aiosqlite.OperationalError as e:
+            if "duplicate column" not in str(e).lower():
+                logger.warning("db_service: migrate pipeline_runs failed: %s", e)
+
+
 async def ensure_tables() -> None:
     """Create tables + indexes if they don't exist. Idempotent."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -417,6 +434,7 @@ async def ensure_tables() -> None:
         await _migrate_pending_approvals(db)
         await _migrate_universe_presets(db)
         await _migrate_followed_politicians(db)
+        await _migrate_pipeline_runs(db)
         await db.commit()
     logger.info("db_service: tables ensured at %s", DB_PATH)
     # Migrate legacy single-politician config into the new table (no-op if already done)
@@ -853,6 +871,7 @@ async def record_pipeline_run(
     error_message: str | None = None,
     status: str = "complete",
     duration_seconds: float | None = None,
+    symbol_outcomes: dict | None = None,
 ) -> None:
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(
@@ -861,8 +880,8 @@ async def record_pipeline_run(
                 (run_id, workflow_id, ts_start, ts_end, preset_name, mode,
                  symbols_analyzed, signals_generated, plans_proposed,
                  plans_approved, plans_blocked_json, error_message, status,
-                 duration_seconds)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                 duration_seconds, symbol_outcomes_json)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             ON CONFLICT(run_id) DO UPDATE SET
                 ts_end = excluded.ts_end,
                 symbols_analyzed = excluded.symbols_analyzed,
@@ -872,7 +891,8 @@ async def record_pipeline_run(
                 plans_blocked_json = excluded.plans_blocked_json,
                 error_message = excluded.error_message,
                 status = excluded.status,
-                duration_seconds = excluded.duration_seconds
+                duration_seconds = excluded.duration_seconds,
+                symbol_outcomes_json = excluded.symbol_outcomes_json
             """,
             (
                 run_id, workflow_id, ts_start, ts_end, preset_name, mode,
@@ -880,6 +900,7 @@ async def record_pipeline_run(
                 plans_approved,
                 json.dumps(plans_blocked) if plans_blocked else None,
                 error_message, status, duration_seconds,
+                json.dumps(symbol_outcomes) if symbol_outcomes else None,
             ),
         )
         await db.commit()
@@ -894,6 +915,30 @@ async def list_pipeline_runs(limit: int = 20) -> list[dict]:
         )
         rows = await cur.fetchall()
     return [dict(r) for r in rows]
+
+
+async def get_pipeline_run(run_id: str) -> dict | None:
+    """Fetch one run by id, with ``symbol_outcomes`` parsed out of JSON so
+    the drill-down page can render per-symbol processing detail."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM pipeline_runs WHERE run_id = ?", (run_id,),
+        )
+        row = await cur.fetchone()
+    if row is None:
+        return None
+    d = dict(row)
+    keys = set(d.keys())
+    d["symbol_outcomes"] = (
+        json.loads(d["symbol_outcomes_json"])
+        if "symbol_outcomes_json" in keys and d.get("symbol_outcomes_json")
+        else None
+    )
+    d["plans_blocked"] = (
+        json.loads(d["plans_blocked_json"]) if d.get("plans_blocked_json") else []
+    )
+    return d
 
 
 # ---------------------------------------------------------------------- #
