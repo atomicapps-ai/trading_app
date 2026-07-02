@@ -17,6 +17,12 @@
       {% endif %}
     </p>
   </div>
+  <div>
+    <button class="btn btn-primary" id="run-all-btn" onclick="runAllStrategies(this)"
+            title="Run every active strategy in this view, one after another → /pending">
+      ▶ Run all active
+    </button>
+  </div>
 </div>
 
 {% include "_partials/_page_tabs.html" with context %}
@@ -184,6 +190,28 @@
 </style>
 
 <script>
+async function runAllStrategies(btn) {
+  // Run every active strategy in this view, sequentially, reusing runStrategy
+  // (so each card shows its own spinner + result strip).
+  const targets = Array.from(document.querySelectorAll('.strategy-card[data-strategy]'))
+    .map(c => ({ name: c.dataset.strategy,
+                 runBtn: c.querySelector('button[onclick^="runStrategy"]') }))
+    .filter(t => t.name && t.runBtn);
+  if (!targets.length) { alert('No runnable strategies in this view.'); return; }
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  let i = 0;
+  for (const t of targets) {
+    i += 1;
+    btn.innerHTML = '⏳ Running ' + i + '/' + targets.length + '…';
+    try { await runStrategy(t.name, t.runBtn); } catch (e) { /* keep going */ }
+  }
+  btn.innerHTML = orig;
+  btn.disabled = false;
+  const badge = document.getElementById('pending-badge');
+  if (badge && window.htmx) htmx.trigger(badge, 'load');
+}
+
 async function runStrategy(name, btn) {
   // Manual run: typically 5-30s (universe filter, analyst, gates, persist).
   // Show spinner + live elapsed-time counter while it's working, then a
