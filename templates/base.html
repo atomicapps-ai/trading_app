@@ -220,7 +220,11 @@
     </header>
 
     {# ===== Main content ===== #}
-    <main class="main">
+    {# Split pages (e.g. /pending) opt into a full-height, non-scrolling main so
+       their panes own the scroll and a pinned action bar stays visible. Set via
+       a server-rendered class so the layout never depends on the :has() CSS
+       feature. #}
+    <main class="main{% block main_class %}{% endblock %}">
       {% block content %}{% endblock %}
     </main>
   </div>

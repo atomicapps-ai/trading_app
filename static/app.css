@@ -419,16 +419,40 @@ input, select, textarea { font: inherit; color: inherit; }
 .two-col { display: grid; grid-template-columns: 65fr 35fr; gap: var(--section-gap); }
 
 /* Pending split layout ------------------------------------------------ */
+/* ROBUSTNESS: the split must fill exactly the height .main gives it — never
+   a hardcoded `calc(100vh - topbar)`, which silently breaks the moment any
+   other element (the live status bar, a second topbar row, a banner) takes
+   vertical space. When .main hosts a split we make it a non-scrolling flex
+   column; the split flexes to fill it, and the panes own their own scroll.
+   The pinned approval bar then lives OUTSIDE the scroll region as a flex
+   child, so it is always visible regardless of content length or shell
+   changes. Driven by the server-rendered `.main--split` class (robust, no
+   feature dependency); `:has()` is a belt-and-suspenders fallback. */
+.main--split,
+.main:has(.split-layout) {
+  overflow: hidden;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
 .split-layout {
   display: grid;
   grid-template-columns: 340px 1fr;
   gap: 0;
-  height: calc(100vh - var(--topbar-h));
-  margin: calc(var(--content-pad) * -1);
-  margin: -28px -32px;
+  flex: 1 1 auto;
+  min-height: 0;          /* let the grid shrink so panes scroll, not .main */
 }
-.split-left  { border-right: 0.5px solid var(--border); overflow-y: auto; padding: 20px 16px; }
-.split-right { overflow-y: auto; padding: 24px 28px; position: relative; }
+.split-left  { border-right: 0.5px solid var(--border); overflow-y: auto; padding: 20px 16px; min-height: 0; }
+/* .split-right is a flex column: scrollable content on top, pinned bar below. */
+.split-right {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  min-height: 0;
+}
+.split-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 24px 28px; }
 .split-empty { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary); font-size: 14px; }
 
 /* TradingView embed wrapper */
@@ -509,15 +533,15 @@ input, select, textarea { font: inherit; color: inherit; }
 }
 .tab-panel { display: block; }
 
-/* Approval action sticky row */
+/* Approval action bar — a NON-scrolling flex child of .split-right, pinned at
+   the bottom of the pane. Not sticky (which only pins while more content
+   scrolls below it) and not fixed (iframe-hostile). Because it sits outside
+   .split-scroll it is ALWAYS visible: content scrolls behind/above it, and it
+   never depends on content length or the shell's height math. */
 .approval-actions {
-  position: sticky;
-  bottom: 0;
-  z-index: 50;
+  flex: 0 0 auto;
+  z-index: 1;
   background: var(--bg-base);
-  /* Full-bleed across the .split-right pane (cancels its 28px h-padding) so
-     scrolling cards pass cleanly behind the bar instead of showing through. */
-  margin: 24px -28px 0;
   padding: 14px 28px;
   border-top: 0.5px solid var(--border);
   box-shadow: 0 -8px 16px -6px rgba(0, 0, 0, 0.45);

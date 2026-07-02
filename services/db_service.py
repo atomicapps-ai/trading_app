@@ -1151,12 +1151,15 @@ def _row_to_ui_dict(row: Any) -> dict:
             "nearest_support": piv.get("nearest_support"),
             "nearest_resistance": piv.get("nearest_resistance"),
         },
-        "risk_usd": risk.get("position_risk_usd"),
-        "rr_tp1": risk.get("r_multiple_to_tp1"),
-        "rr_tp2": risk.get("r_multiple_to_tp2"),
-        "position_size": risk.get("position_size_shares"),
-        "notional": risk.get("position_notional_usd"),
-        "risk_pct": risk.get("position_risk_pct_of_equity"),
+        # Numeric fields the pending list formats with %f — default to 0.0 so a
+        # single malformed plan (missing a risk field) can't crash the whole
+        # /pending page. Real plans always carry these.
+        "risk_usd": risk.get("position_risk_usd") or 0.0,
+        "rr_tp1": risk.get("r_multiple_to_tp1") or 0.0,
+        "rr_tp2": risk.get("r_multiple_to_tp2") or 0.0,
+        "position_size": risk.get("position_size_shares") or 0,
+        "notional": risk.get("position_notional_usd") or 0.0,
+        "risk_pct": risk.get("position_risk_pct_of_equity") or 0.0,
 
         # Gate-outcome summary (for the decision card + list badges).
         #
