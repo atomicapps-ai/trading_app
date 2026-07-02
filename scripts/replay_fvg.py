@@ -26,7 +26,14 @@ FX_PAIRS = ["EURUSD", "USDJPY", "EURJPY", "GBPJPY", "AUDJPY", "EURAUD", "EURCAD"
 
 
 def _pip(sym: str) -> float:
-    return 0.01 if sym.upper().endswith("JPY") else 0.0001
+    s = sym.upper()
+    # Gold (XAUUSD ~2000): conventional pip is 0.1; a 0.0001 FX pip would make
+    # the 2-pip cost and min-gap filter meaningless on a 4-digit-dollar quote.
+    if s.startswith("XAU"):
+        return 0.1
+    if s.startswith("XAG"):          # silver ~25 → 0.01
+        return 0.01
+    return 0.01 if s.endswith("JPY") else 0.0001
 
 
 def _load(sym: str, interval: str = "30m") -> pd.DataFrame | None:

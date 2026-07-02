@@ -31,6 +31,35 @@ Per FX pair, per day, New York time (DST-aware):
 - **Plateau:** stable across displacement threshold (1.0–1.5) and target (2R–3R) → not curve-fit.
 - Win 48–53% at 2–3R is far above the 25–33% breakeven.
 
+## Independent verification — 25y HistData source (2026-07-02)
+Re-ran the identical engine (3R, disp1.5, 2-pip cost, DST-correct ET sessions, market
+fills) on a **completely independent data source**: HistData 1-minute bars
+(HF `elthariel/histdata_fx_1m`, 2000–2025) resampled to 30m/5m. Rebuild any time with
+`python -m scripts.fetch_fvg_data && python -m scripts.compare_fvg_intervals`.
+
+| scope | n | win% | PF | net% |
+|---|---|---|---|---|
+| **FX 30m, 2021+** (validated window) | 1,609 | 49% | **1.24** | +21.9 |
+| **FX 30m, 2005+ (20 yr)** | 9,257 | 46% | **1.19** | +127.9 |
+| FX 5m, 2021+ | 4,704 | 38% | 1.03 | +7.3 |
+| **GOLD XAUUSD 30m, 2015+** (source instrument) | 521 | 49% | **1.36** | +17.6 |
+| GOLD XAUUSD 5m, 2015+ | 1,440 | 37% | 1.09 | +11.1 |
+
+**Findings (what actually held up):**
+1. **The edge is real and remarkably stable OOS** — 30m FX holds PF ~1.2 across **20 years
+   and 9,257 trades**. This is the strongest out-of-sample confirmation of any strategy in
+   the project.
+2. **But softer than the original claim: PF ~1.19–1.24, not 1.48.** The 1.48 was
+   data-source-specific (a different feed); on clean independent HistData the honest number
+   is ~1.2. Still profitable, still directional — a *modest* edge, not a big one.
+3. **30m ≫ 5m, decisively.** FX 5m collapses to PF 1.03 (essentially breakeven — noise). The
+   repo's 30m variant is correct; adopting the source video's 5m would DESTROY the FX edge.
+4. **Gold is the best on 30m (PF 1.36 > FX's 1.24)** — vindicating the video's instrument
+   choice — but gold 5m (1.09) is again far weaker than gold 30m. Even on the source
+   instrument, **30m wins and 5m is noise.**
+5. **Conclusion:** best configuration is **30m on gold (or 30m FX)**, target 3R. The "5m"
+   the source teaches is inferior everywhere. Deploy expectations at **PF ~1.2–1.35**, not 1.5.
+
 ## Contrast with the rejected retrace version (why this is different)
 | version | entry | realistic-fill result |
 |---|---|---|
