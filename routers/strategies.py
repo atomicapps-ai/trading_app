@@ -608,6 +608,7 @@ async def toggle_auto_approve(name: str) -> dict:
 
 @router.post("/api/strategies/{name}/run", response_class=JSONResponse)
 async def run_strategy(name: str, mode: str | None = None,
+                       as_of: str | None = None,
                        s: Settings = Depends(get_settings)) -> dict:
     """Run every workflow that mentions this strategy, ad-hoc.
 
@@ -633,6 +634,25 @@ async def run_strategy(name: str, mode: str | None = None,
                 cfg = _yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
             except Exception:  # noqa: BLE001
                 cfg = {}
+        # FVG-continuation (FX/gold intraday) has no daily workflow — it runs
+        # through its own session-based scan service, which evaluates the
+        # latest NY session per symbol and queues gated plans to /pending.
+        if name == "fvg_continuation" or cfg.get("strategy_name") == "fvg_continuation":
+            from services.fvg_scan_service import run_fvg_scan
+            from datetime import date as _date
+            as_of_d = None
+            if as_of:
+                try:
+                    as_of_d = _date.fromisoformat(as_of)
+                except ValueError:
+                    raise HTTPException(400, f"bad as_of date: {as_of!r} (want YYYY-MM-DD)")
+            try:
+                summary = await run_fvg_scan(settings=s, mode=mode, as_of=as_of_d)
+            except Exception as e:                            # noqa: BLE001
+                logger.exception("fvg scan run failed")
+                raise HTTPException(422, f"FVG scan failed: {e}")
+            return {"strategy": name, "runs": [{"workflow_id": "fvg_continuation_scan",
+                                                "result": summary}], "fvg": True}
         if cfg.get("live_wired") is False or cfg.get("asset_class") == "forex":
             broker = cfg.get("broker_required", "an FX broker")
             return {
