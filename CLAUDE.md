@@ -44,6 +44,44 @@ run), not direction prediction.**
 
 ---
 
+## DEFERRED TASK (2026-07-02) — FVG fidelity + conclusive intraday backtest
+
+**Status: paused by operator; tooling built, data run pending on operator's machine.**
+
+**Findings**
+- `fvg_continuation` source = the **E3Mc "Displacement ORB + FVG"** video
+  (`research/video_library/E3McKlAp3qk`). The creator executes on **5-minute**
+  candles (15-min ORB → drop to 5m) on **GOLD (XAUUSD)** — *not* FX majors.
+- The repo's validated version (PF 1.48 / OOS 1.46) is a **variant**: FX majors on
+  **30m** — not the source instrument or timeframe.
+- Logic confirmed with operator = **continuation** (enter at market when the FVG
+  confirms and ride; do NOT wait for a return into the gap). ["A", 2026-07-02.]
+- Quick yfinance stand-in (FX majors, ~2 months 2026-05-03→07-02): 30m PF 1.05 vs
+  5m PF 0.91 — 5m added noise, but the sample is far too small + wrong instrument
+  to conclude anything faithful.
+
+**Already built (ready to run where an IB Gateway is up)**
+- IBKR candle source with **paged/chunked history** (years) + **metal (XAUUSD)
+  contract** support — `services/hf_data_service.py` (`_fetch_symbol_ibkr[_sync]`,
+  `_ibkr_contract`, `_IBKR_CHUNK`).
+- `scripts/fetch_fx_history.py` — pull years of FX + gold at 30m/5m via IBKR
+  (paged → slow, ~1–2h for deep 5m; run once, overnight).
+- `scripts/compare_fvg_intervals.py` — 30m-vs-5m (and FX-vs-gold) backtest on
+  cached candles.
+- `scripts/replay_fvg.py` parameterized by bar interval (30m stays default).
+
+**Remaining (the task — on the operator's machine; the sandbox can't reach a local gateway)**
+1. Gateway up → `python scripts/fetch_fx_history.py --start 2015-01-01 --intervals 30m,5m`
+   (9 FX majors + XAUUSD).
+2. `python scripts/compare_fvg_intervals.py --since 2015-01-01 --intervals 30m,5m`
+   (and `--symbols XAUUSD` for the faithful gold run).
+3. Decide: keep the validated 30m-FX variant, and/or adopt the faithful 5m-gold
+   version if it holds OOS.
+4. If adopting gold: confirm the `XAUUSD` CMDTY contract fetches cleanly; re-validate
+   (control + OOS + breadth). Open follow-ups in `FVG_CONTINUATION.md` still apply.
+
+---
+
 ## STRATEGY RESEARCH PIPELINE (added 2026-05-08 / 2026-05-09)
 
 A parallel research subsystem next to the live trading code. Goal: find new

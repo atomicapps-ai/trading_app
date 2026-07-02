@@ -315,42 +315,59 @@ _IBKR_BAR_SIZE = {"1d": "1 day", "1h": "1 hour", "30m": "30 mins",
                   "15m": "15 mins", "5m": "5 mins"}
 _IBKR_DURATION = {"1d": "20 Y", "1h": "2 Y", "30m": "60 D",
                   "15m": "30 D", "5m": "10 D"}
+# Per-request chunk when pulling YEARS (IBKR caps history per request; deep
+# intraday must be paged backward). Conservative windows well inside IBKR limits.
+_IBKR_CHUNK = {"1d": "15 Y", "1h": "6 M", "30m": "1 M", "15m": "1 M", "5m": "20 D"}
+# Spot metals trade as CMDTY on IBKR, not FX pairs.
+_IBKR_METALS = {"XAUUSD", "XAGUSD", "XPTUSD", "XPDUSD"}
+_IBKR_PACE_S = 3.0   # sleep between paged requests (IBKR pacing: ~60 req / 10 min)
+
+
+def _ibkr_contract(s: str):
+    """(contract, whatToShow) for a symbol: metal → CMDTY, 6-alpha → Forex, else Stock."""
+    from ib_insync import Forex, Stock, Contract  # local import (optional dep)
+    if s in _IBKR_METALS:
+        return Contract(secType="CMDTY", symbol=s, exchange="SMART", currency="USD"), "MIDPOINT"
+    if len(s) == 6 and s.isalpha():
+        return Forex(s), "MIDPOINT"
+    return Stock(s, "SMART", "USD"), "TRADES"
 
 
 def _fetch_symbol_ibkr_sync(symbol: str, interval: str = "30m",
-                            duration: str | None = None) -> pd.DataFrame:
+                            duration: str | None = None,
+                            start: str | None = None) -> pd.DataFrame:
     """Pull historical bars from a running IB Gateway/TWS via ib_insync.
 
-    FX pairs (6 letters, e.g. EURUSD) → Forex contract + MIDPOINT (FX has no
-    consolidated volume); everything else → US Stock + TRADES. Spins its own
-    ib_insync event loop, so call it via ``asyncio.to_thread``. Connection
-    params come from the env (IBKR_HOST/IBKR_PORT); the data pull uses an
-    offset clientId so it never collides with the live trading adapter.
+    Contract type is auto-detected: spot metals (XAUUSD…) → CMDTY, 6-letter
+    alpha (EURUSD…) → Forex+MIDPOINT, else US Stock+TRADES. When ``start`` is
+    given the request is **paged backward** in ``_IBKR_CHUNK`` windows until it
+    reaches ``start`` (this is how you get YEARS of intraday — a single request
+    is capped). Spins its own event loop, so call via ``asyncio.to_thread``.
+
+    NOTE: only validated against a live IB Gateway on the operator's machine;
+    the sandbox has no route to a local gateway.
     """
-    # ib_insync's sync API needs an event loop in THIS thread. asyncio.to_thread
-    # workers start without one, so create it before importing/using ib_insync.
+    import time as _time
+
     try:
         asyncio.get_event_loop()
     except RuntimeError:
         asyncio.set_event_loop(asyncio.new_event_loop())
 
     try:
-        from ib_insync import IB, Forex, Stock, util
+        from ib_insync import IB, util
     except ImportError:
         try:
-            from ib_async import IB, Forex, Stock, util  # maintained fork
+            from ib_async import IB, util  # maintained fork
         except ImportError as e:  # pragma: no cover
             raise RuntimeError("ib_insync/ib_async not installed") from e
 
     bar_size = _IBKR_BAR_SIZE.get(interval)
     if bar_size is None:
         raise ValueError(f"ibkr: unsupported interval {interval!r}")
-    dur = duration or _IBKR_DURATION.get(interval, "60 D")
 
     s = symbol.upper().replace("/", "")
-    is_fx = len(s) == 6 and s.isalpha()
-    contract = Forex(s) if is_fx else Stock(s, "SMART", "USD")
-    what = "MIDPOINT" if is_fx else "TRADES"
+    contract, what = _ibkr_contract(s)
 
     host = os.getenv("IBKR_HOST", "127.0.0.1")
     port = int(os.getenv("IBKR_PORT", "4002"))
@@ -360,26 +377,54 @@ def _fetch_symbol_ibkr_sync(symbol: str, interval: str = "30m",
     ))
 
     ib = IB()
+    frames: list[pd.DataFrame] = []
     try:
         ib.connect(host, port, clientId=client_id, timeout=15)
-        bars = ib.reqHistoricalData(
-            contract, endDateTime="", durationStr=dur,
-            barSizeSetting=bar_size, whatToShow=what,
-            useRTH=False, formatDate=2,
-        )
-        df = util.df(bars)
+        if start:
+            # Page backward from "now" in chunks until we cover `start`.
+            start_ts = pd.Timestamp(start).tz_localize("UTC") if pd.Timestamp(start).tzinfo is None else pd.Timestamp(start)
+            chunk = _IBKR_CHUNK.get(interval, "1 M")
+            end_dt = ""  # "" = now
+            for _ in range(600):  # safety cap
+                bars = ib.reqHistoricalData(
+                    contract, endDateTime=end_dt, durationStr=chunk,
+                    barSizeSetting=bar_size, whatToShow=what,
+                    useRTH=False, formatDate=2,
+                )
+                d = util.df(bars)
+                if d is None or d.empty:
+                    break
+                frames.append(d)
+                earliest = pd.to_datetime(d["date"].iloc[0], utc=True)
+                if earliest <= start_ts:
+                    break
+                end_dt = earliest.to_pydatetime()  # next chunk ends where this began
+                _time.sleep(_IBKR_PACE_S)          # respect IBKR pacing
+        else:
+            dur = duration or _IBKR_DURATION.get(interval, "60 D")
+            bars = ib.reqHistoricalData(
+                contract, endDateTime="", durationStr=dur,
+                barSizeSetting=bar_size, whatToShow=what,
+                useRTH=False, formatDate=2,
+            )
+            d = util.df(bars)
+            if d is not None and not d.empty:
+                frames.append(d)
     finally:
         if ib.isConnected():
             ib.disconnect()
 
-    if df is None or df.empty:
+    if not frames:
         raise ValueError(
-            f"ibkr returned no bars for {s} {interval} (dur={dur}, size={bar_size}). "
+            f"ibkr returned no bars for {s} {interval}. "
             f"Is IB Gateway/TWS running with the API enabled?"
         )
+    df = pd.concat(frames, ignore_index=True)
     df = df.rename(columns={"date": "datetime"})
     df["datetime"] = pd.to_datetime(df["datetime"], utc=True)
-    df = df.set_index("datetime").sort_index()
+    df = df.drop_duplicates(subset="datetime").set_index("datetime").sort_index()
+    if start:
+        df = df[df.index >= pd.Timestamp(start, tz="UTC")]
     for col in ("open", "high", "low", "close"):
         if col not in df.columns:
             raise ValueError(f"ibkr df missing column {col!r}")
@@ -395,8 +440,8 @@ async def _fetch_symbol_ibkr(
     end: str | None = None,
     interval: str = "30m",
 ) -> pd.DataFrame:
-    # start/end unused — IBKR fetches a durationStr window ending "now".
-    return await asyncio.to_thread(_fetch_symbol_ibkr_sync, symbol, interval)
+    # start → paged backward for deep history; no start → single default window.
+    return await asyncio.to_thread(_fetch_symbol_ibkr_sync, symbol, interval, None, start)
 
 
 def _save_sync_interval(symbol: str, df: pd.DataFrame, interval: str) -> Path:
