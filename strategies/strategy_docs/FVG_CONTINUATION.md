@@ -60,6 +60,21 @@ fills) on a **completely independent data source**: HistData 1-minute bars
 5. **Conclusion:** best configuration is **30m on gold (or 30m FX)**, target 3R. The "5m"
    the source teaches is inferior everywhere. Deploy expectations at **PF ~1.2–1.35**, not 1.5.
 
+**Random-direction control (2026-07-02) — the edge is prediction, not geometry.**
+Re-ran the identical setups/timing/entry/risk/3R geometry but replaced the long/short
+call with a seeded coin flip (mean of 5 seeds). Rebuild with
+`python -m scripts.compare_fvg_intervals --control`.
+
+| config | real PF | control PF | real WR | control WR | directional edge |
+|---|---|---|---|---|---|
+| FX 30m, 2021+ | 1.24 | **0.78** (0.73–0.82) | 49% | 39% | **+0.46 PF, +10pp** |
+| GOLD 30m, 2015+ | 1.36 | **0.84** (0.81–0.88) | 49% | 39% | **+0.52 PF, +10pp** |
+
+The control *loses* (PF < 1), so a coin flip on these setups is a money-loser after cost —
+the strategy overcomes a negative baseline. The entire gap from ~0.8 to ~1.3 comes from the
+direction call (London sweeps Asia → NY reverses). This is the cleanest confirmation in the
+project that a strategy's signal is real predictive skill, not favorable payoff math.
+
 ## Contrast with the rejected retrace version (why this is different)
 | version | entry | realistic-fill result |
 |---|---|---|

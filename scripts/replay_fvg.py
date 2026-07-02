@@ -52,7 +52,18 @@ def _load_30m(sym: str) -> pd.DataFrame | None:   # back-compat wrapper
 
 
 def _run_pair(sym: str, since: date, until: date, tR: float = 3.0, disp: float = 1.5,
-              interval: str = "30m") -> list[SwingTrade]:
+              interval: str = "30m", control: bool = False, seed: int = 0) -> list[SwingTrade]:
+    """Replay one instrument.
+
+    ``control=True`` runs the random-direction control: the SAME setups,
+    timing, entry, risk distance and 3R target are kept, but the long/short
+    call is replaced by a seeded coin flip. If the strategy's directional
+    prediction is worthless, the control PF collapses to ~1.0 (a 3R/1R
+    coin flip is breakeven by geometry). A control that stays ~1.0 while the
+    real run is >1 is what proves the edge is *prediction*, not payoff math.
+    """
+    import random
+    rng = random.Random(f"{sym}-{seed}") if control else None
     d = _load(sym, interval)
     if d is None or len(d) < 300:
         return []
@@ -93,6 +104,12 @@ def _run_pair(sym: str, since: date, until: date, tR: float = 3.0, disp: float =
             rk = (en - st) if d_ == 1 else (st - en)
             if rk <= 0:
                 continue
+            # Random-direction control: keep the same entry + |risk| + 3R
+            # geometry, but flip a coin for the direction. Rebuild stop/target
+            # for the coin-flip side so the trade is well-formed.
+            if control and rng is not None:
+                d_ = 1 if rng.random() < 0.5 else -1
+                st = en - rk if d_ == 1 else en + rk
             tg = en + tR * rk if d_ == 1 else en - tR * rk
             R = None; xpx = c[-1]; reason = "EOD"
             for m in range(j + 1, len(ny)):
