@@ -82,7 +82,7 @@ async def api_fetch_save(
         return JSONResponse(
             {"ok": False, "error": "no symbols supplied"}, status_code=422
         )
-    if source not in ("auto", "hf", "yfinance", "alpaca"):
+    if source not in ("auto", "hf", "yfinance", "alpaca", "ibkr"):
         return JSONResponse(
             {"ok": False, "error": f"bad source {source!r}"}, status_code=422
         )

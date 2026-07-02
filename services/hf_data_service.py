@@ -305,6 +305,100 @@ async def _fetch_symbol_alpaca(
     )
 
 
+# --------------------------------------------------------------------------- #
+# IBKR (Interactive Brokers) — FX + stocks via a running IB Gateway/TWS.
+# The API is NOT a cloud endpoint: it talks to a LOCAL gateway you must run.
+# This is the source that unlocks forex candles (e.g. for fvg_continuation).
+# --------------------------------------------------------------------------- #
+
+_IBKR_BAR_SIZE = {"1d": "1 day", "1h": "1 hour", "30m": "30 mins",
+                  "15m": "15 mins", "5m": "5 mins"}
+_IBKR_DURATION = {"1d": "20 Y", "1h": "2 Y", "30m": "60 D",
+                  "15m": "30 D", "5m": "10 D"}
+
+
+def _fetch_symbol_ibkr_sync(symbol: str, interval: str = "30m",
+                            duration: str | None = None) -> pd.DataFrame:
+    """Pull historical bars from a running IB Gateway/TWS via ib_insync.
+
+    FX pairs (6 letters, e.g. EURUSD) → Forex contract + MIDPOINT (FX has no
+    consolidated volume); everything else → US Stock + TRADES. Spins its own
+    ib_insync event loop, so call it via ``asyncio.to_thread``. Connection
+    params come from the env (IBKR_HOST/IBKR_PORT); the data pull uses an
+    offset clientId so it never collides with the live trading adapter.
+    """
+    # ib_insync's sync API needs an event loop in THIS thread. asyncio.to_thread
+    # workers start without one, so create it before importing/using ib_insync.
+    try:
+        asyncio.get_event_loop()
+    except RuntimeError:
+        asyncio.set_event_loop(asyncio.new_event_loop())
+
+    try:
+        from ib_insync import IB, Forex, Stock, util
+    except ImportError:
+        try:
+            from ib_async import IB, Forex, Stock, util  # maintained fork
+        except ImportError as e:  # pragma: no cover
+            raise RuntimeError("ib_insync/ib_async not installed") from e
+
+    bar_size = _IBKR_BAR_SIZE.get(interval)
+    if bar_size is None:
+        raise ValueError(f"ibkr: unsupported interval {interval!r}")
+    dur = duration or _IBKR_DURATION.get(interval, "60 D")
+
+    s = symbol.upper().replace("/", "")
+    is_fx = len(s) == 6 and s.isalpha()
+    contract = Forex(s) if is_fx else Stock(s, "SMART", "USD")
+    what = "MIDPOINT" if is_fx else "TRADES"
+
+    host = os.getenv("IBKR_HOST", "127.0.0.1")
+    port = int(os.getenv("IBKR_PORT", "4002"))
+    client_id = int(os.getenv(
+        "IBKR_DATA_CLIENT_ID",
+        str(int(os.getenv("IBKR_CLIENT_ID", "7")) + 20),
+    ))
+
+    ib = IB()
+    try:
+        ib.connect(host, port, clientId=client_id, timeout=15)
+        bars = ib.reqHistoricalData(
+            contract, endDateTime="", durationStr=dur,
+            barSizeSetting=bar_size, whatToShow=what,
+            useRTH=False, formatDate=2,
+        )
+        df = util.df(bars)
+    finally:
+        if ib.isConnected():
+            ib.disconnect()
+
+    if df is None or df.empty:
+        raise ValueError(
+            f"ibkr returned no bars for {s} {interval} (dur={dur}, size={bar_size}). "
+            f"Is IB Gateway/TWS running with the API enabled?"
+        )
+    df = df.rename(columns={"date": "datetime"})
+    df["datetime"] = pd.to_datetime(df["datetime"], utc=True)
+    df = df.set_index("datetime").sort_index()
+    for col in ("open", "high", "low", "close"):
+        if col not in df.columns:
+            raise ValueError(f"ibkr df missing column {col!r}")
+    if "volume" not in df.columns:
+        df["volume"] = 0.0
+    df["volume"] = pd.to_numeric(df["volume"], errors="coerce").fillna(0.0).clip(lower=0.0)
+    return df[["open", "high", "low", "close", "volume"]]
+
+
+async def _fetch_symbol_ibkr(
+    symbol: str,
+    start: str | None = None,
+    end: str | None = None,
+    interval: str = "30m",
+) -> pd.DataFrame:
+    # start/end unused — IBKR fetches a durationStr window ending "now".
+    return await asyncio.to_thread(_fetch_symbol_ibkr_sync, symbol, interval)
+
+
 def _save_sync_interval(symbol: str, df: pd.DataFrame, interval: str) -> Path:
     """Variant of _save_sync that writes to {SYMBOL}_{interval}.csv."""
     HISTORICAL_DIR.mkdir(parents=True, exist_ok=True)
@@ -344,6 +438,9 @@ async def fetch_and_save(
         if source == "alpaca":
             df = await _fetch_symbol_alpaca(sym, start=start, end=end, interval=interval)
             used_source = "alpaca"
+        elif source == "ibkr":
+            df = await _fetch_symbol_ibkr(sym, start=start, end=end, interval=interval)
+            used_source = "ibkr"
         elif source == "yfinance":
             df = await _fetch_symbol_yf(sym, start=start, end=end, interval=interval)
             used_source = "yfinance"
@@ -381,7 +478,8 @@ async def fetch_and_save(
     # Persist. yfinance path already wrote the CSV via data_service.refresh_bars,
     # but with the *full* yfinance window — re-save the date-sliced frame so the
     # on-disk file matches what the user asked for.
-    if used_source.startswith("yfinance") or used_source == "alpaca" or used_source.startswith("hf"):
+    if (used_source.startswith("yfinance") or used_source in ("alpaca", "ibkr")
+            or used_source.startswith("hf")):
         path = await asyncio.to_thread(_save_sync_interval, sym, df, interval)
     else:
         path = HISTORICAL_DIR / f"{sym}_{interval}.csv"
