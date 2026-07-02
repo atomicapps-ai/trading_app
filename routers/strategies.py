@@ -43,8 +43,14 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 # "<strategy_name>.archived" -> bool (set when user manually archives).
 _STRATEGY_OVERRIDES_KEY = "__strategies__"
 
-# Validation threshold for auto-promotion to the Validated bucket.
+# Validation thresholds for auto-promotion to the Validated bucket.
+# WR is a legacy criterion (the double_lock era claimed 82% win rate). The
+# current strategies are payoff-geometry edges that win 25-55% BY DESIGN and
+# make money on profit factor / R-multiple — so profit factor, not win rate,
+# is the correct validation metric. A high-WR strategy can still validate via
+# the legacy WR bar; an explicit ``backtest_summary.validated: true`` always wins.
 _VALIDATION_WR_THRESHOLD = 72.0
+_VALIDATION_PF_THRESHOLD = 1.20
 
 # Buckets shown as tabs on /strategies/{bucket}
 _BUCKETS = ("validated", "in-progress", "archived")
@@ -55,16 +61,34 @@ _BUCKET_LABELS = {
 }
 
 
-def _classify(cfg: dict, archived_override: bool) -> str:
+def _classify(cfg: dict, archived_override: bool,
+              validation: dict | None = None) -> str:
     """Decide which bucket a strategy belongs to.
 
-    archived: user explicitly archived (manual override, future UI)
-    validated: backtest_summary clears the WR threshold
-    in_progress: everything else (default for new strategies)
+    Priority:
+      archived   — user explicitly archived
+      validated  — the latest APP validation run (strategy_validations) PASSED;
+                   this is the earned, data-backed source of truth
+      else       — fall back to a config backtest_summary that clears the
+                   profit-factor bar (or the legacy WR bar); otherwise in-progress
     """
     if archived_override:
         return "archived"
+    # 1) Earned status from a real validation run in the app.
+    if validation is not None:
+        v = str(validation.get("verdict", "")).lower()
+        if v == "validated":
+            return "validated"
+        if v == "failed":
+            return "in-progress"
+    # 2) Config backtest_summary fallback (PF is the right metric; WR is legacy).
     bs = cfg.get("backtest_summary") or {}
+    pf = bs.get("oos_profit_factor") or bs.get("profit_factor")
+    try:
+        if pf is not None and float(pf) >= _VALIDATION_PF_THRESHOLD:
+            return "validated"
+    except (TypeError, ValueError):
+        pass
     wr = bs.get("point_wr_pct")
     try:
         if wr is not None and float(wr) >= _VALIDATION_WR_THRESHOLD:
@@ -164,10 +188,12 @@ async def _resolve_active(name: str, yaml_default: bool) -> tuple[bool, bool]:
 async def _bucket_counts() -> dict[str, int]:
     """Count strategies in each bucket — used to populate the page-tabs."""
     counts = {b: 0 for b in _BUCKETS}
+    validations = await db_service.latest_validations_all()
     for p in _strategy_files():
         c = _load_strategy(p)
         archived = bool(await ws.get("default", _STRATEGY_OVERRIDES_KEY, f"{c['_name']}.archived"))
-        counts[_classify(c, archived)] += 1
+        v = validations.get(c.get("strategy_name", c["_name"])) or validations.get(c["_name"])
+        counts[_classify(c, archived, v)] += 1
     return counts
 
 
@@ -207,6 +233,9 @@ async def _strategies_bucket_page(request: Request, s: Settings, bucket: str):
         if wf and wf not in latest_by_workflow:
             latest_by_workflow[wf] = r
 
+    # Latest earned validation per strategy — drives the bucket + the card.
+    validations = await db_service.latest_validations_all()
+
     rows = []
     for c in cfgs:
         name = c["_name"]
@@ -216,7 +245,8 @@ async def _strategies_bucket_page(request: Request, s: Settings, bucket: str):
         archived = bool(await ws.get("default", _STRATEGY_OVERRIDES_KEY, f"{name}.archived"))
         from services import auto_approve_service as _aas
         auto_approve = await _aas.is_enabled(name)
-        bucket_for_row = _classify(c, archived)
+        validation = validations.get(c.get("strategy_name", name)) or validations.get(name)
+        bucket_for_row = _classify(c, archived, validation)
         if bucket_for_row != bucket:
             continue
         wfs = by_strategy.get(c.get("strategy_name", name)) or []
@@ -242,6 +272,7 @@ async def _strategies_bucket_page(request: Request, s: Settings, bucket: str):
             "load_error": c.get("_load_error"),
             "archived": archived,
             "auto_approve": auto_approve,
+            "validation": validation,
         })
 
     counts = await _bucket_counts()
@@ -678,6 +709,75 @@ async def run_strategy(name: str, mode: str | None = None,
                 "workflow_id": wf["workflow_id"], "error": str(e),
             })
     return {"strategy": name, "runs": results}
+
+
+# ---------------------------------------------------------------------- #
+# Validation — run a real backtest from the UI; status is EARNED + stored
+# ---------------------------------------------------------------------- #
+
+# Strategies currently validating (guards double-runs; drives the spinner).
+_VALIDATION_INFLIGHT: set[str] = set()
+
+
+def _run_validation_sync(name: str) -> None:
+    """Run the (async) validation in a fresh event loop on a worker thread so
+    the main FastAPI loop stays responsive during the minutes-long backtest."""
+    import asyncio as _a
+    from services.strategy_validation_service import validate_strategy
+    loop = _a.new_event_loop()
+    _a.set_event_loop(loop)
+    try:
+        loop.run_until_complete(validate_strategy(name))
+    finally:
+        loop.close()
+
+
+async def _validate_bg(name: str) -> None:
+    import asyncio as _a
+    try:
+        await _a.to_thread(_run_validation_sync, name)
+    except Exception:                                             # noqa: BLE001
+        logger.exception("background validation failed for %s", name)
+    finally:
+        _VALIDATION_INFLIGHT.discard(name)
+
+
+@router.post("/api/strategies/{name}/validate", response_class=JSONResponse)
+async def validate_strategy_endpoint(name: str) -> dict:
+    """Kick off a backtest-validation for one strategy (runs in the
+    background; poll GET /api/strategies/{name}/validation for the result)."""
+    if not (STRATEGY_CONFIG_DIR / f"{name}.yaml").exists():
+        raise HTTPException(404, f"unknown strategy {name!r}")
+    if name in _VALIDATION_INFLIGHT:
+        return {"strategy": name, "status": "already_running"}
+    _VALIDATION_INFLIGHT.add(name)
+    import asyncio as _a
+    _a.create_task(_validate_bg(name))
+    return {"strategy": name, "status": "started"}
+
+
+@router.get("/api/strategies/{name}/validation", response_class=JSONResponse)
+async def get_latest_validation(name: str) -> dict:
+    v = await db_service.latest_validation(name)
+    return {"strategy": name, "running": name in _VALIDATION_INFLIGHT,
+            "validation": v}
+
+
+@router.get("/strategies/{name}/validations", response_class=HTMLResponse)
+async def validations_history_page(name: str, request: Request,
+                                   s: Settings = Depends(get_settings)):
+    if not (STRATEGY_CONFIG_DIR / f"{name}.yaml").exists():
+        raise HTTPException(404, f"unknown strategy {name!r}")
+    cfg = _load_strategy(STRATEGY_CONFIG_DIR / f"{name}.yaml")
+    history = await db_service.list_validations(name, limit=50)
+    return templates.TemplateResponse(
+        request=request, name="strategy_validations.html",
+        context={"settings": s, "app_version": "0.1.0",
+                 "active_page": "strategies", "active_section": "strategies",
+                 "strategy": name, "title": cfg.get("strategy_name", name),
+                 "description": (cfg.get("description") or "").strip(),
+                 "history": history, "running": name in _VALIDATION_INFLIGHT},
+    )
 
 
 # ---------------------------------------------------------------------- #

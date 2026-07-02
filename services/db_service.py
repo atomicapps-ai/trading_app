@@ -331,7 +331,33 @@ _SCHEMA = [
         added_at TEXT NOT NULL
     )
     """,
+    # Strategy validation runs — earned "Validated" status + proof/history.
+    # Each row is one backtest of a strategy over historical bars, with the
+    # standardized metrics and the pass/fail verdict that drives the bucket.
+    """
+    CREATE TABLE IF NOT EXISTS strategy_validations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        strategy TEXT NOT NULL,
+        ts TEXT NOT NULL,               -- when the validation ran (UTC ISO)
+        window_start TEXT,              -- backtest since (date)
+        window_end TEXT,                -- backtest until (date)
+        universe_n INTEGER,             -- symbols tested
+        n_trades INTEGER,
+        win_pct REAL,
+        profit_factor REAL,
+        oos_profit_factor REAL,         -- out-of-sample (recent split)
+        oos_win_pct REAL,
+        expectancy REAL,                -- mean pnl per trade (% or R)
+        control_pf REAL,                -- random-direction control (NULL if n/a)
+        net_pct REAL,
+        verdict TEXT NOT NULL,          -- 'validated' | 'failed'
+        threshold_pf REAL,              -- the bar it was judged against
+        metrics_json TEXT,              -- full metrics blob
+        params_json TEXT                -- engine params used
+    )
+    """,
     # Indexes for the queries we run often
+    "CREATE INDEX IF NOT EXISTS idx_validations_strategy ON strategy_validations(strategy, ts DESC)",
     "CREATE INDEX IF NOT EXISTS idx_pending_status ON pending_approvals(status, ts_created DESC)",
     "CREATE INDEX IF NOT EXISTS idx_pending_symbol ON pending_approvals(symbol)",
     "CREATE INDEX IF NOT EXISTS idx_pipeline_ts ON pipeline_runs(ts_start DESC)",
@@ -868,6 +894,78 @@ async def get_pending_count(status_filter: str | None = "pending") -> int:
             cur = await db.execute("SELECT COUNT(*) FROM pending_approvals")
         row = await cur.fetchone()
         return int(row[0]) if row else 0
+
+
+# ---------------------------------------------------------------------- #
+# strategy_validations — earned "Validated" status + proof/history
+# ---------------------------------------------------------------------- #
+
+
+async def insert_validation(row: dict) -> int:
+    """Persist one validation run. Returns the new row id."""
+    cols = ("strategy", "ts", "window_start", "window_end", "universe_n",
+            "n_trades", "win_pct", "profit_factor", "oos_profit_factor",
+            "oos_win_pct", "expectancy", "control_pf", "net_pct", "verdict",
+            "threshold_pf", "metrics_json", "params_json")
+    vals = []
+    for c in cols:
+        v = row.get(c)
+        if c in ("metrics_json", "params_json") and isinstance(v, (dict, list)):
+            v = json.dumps(v)
+        vals.append(v)
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute(
+            f"INSERT INTO strategy_validations ({','.join(cols)}) "
+            f"VALUES ({','.join('?' for _ in cols)})", vals,
+        )
+        await db.commit()
+        return int(cur.lastrowid)
+
+
+def _validation_row_to_dict(r) -> dict:
+    d = dict(r)
+    for k in ("metrics_json", "params_json"):
+        if d.get(k):
+            try:
+                d[k] = json.loads(d[k])
+            except (ValueError, TypeError):
+                pass
+    return d
+
+
+async def list_validations(strategy: str, limit: int = 25) -> list[dict]:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM strategy_validations WHERE strategy = ? "
+            "ORDER BY ts DESC LIMIT ?", (strategy, limit),
+        )
+        return [_validation_row_to_dict(r) for r in await cur.fetchall()]
+
+
+async def latest_validation(strategy: str) -> dict | None:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM strategy_validations WHERE strategy = ? "
+            "ORDER BY ts DESC LIMIT 1", (strategy,),
+        )
+        row = await cur.fetchone()
+    return _validation_row_to_dict(row) if row else None
+
+
+async def latest_validations_all() -> dict[str, dict]:
+    """Map strategy -> its most recent validation row (one query)."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT v.* FROM strategy_validations v "
+            "JOIN (SELECT strategy, MAX(ts) AS mts FROM strategy_validations "
+            "      GROUP BY strategy) m "
+            "ON v.strategy = m.strategy AND v.ts = m.mts",
+        )
+        return {r["strategy"]: _validation_row_to_dict(r)
+                for r in await cur.fetchall()}
 
 
 # ---------------------------------------------------------------------- #
