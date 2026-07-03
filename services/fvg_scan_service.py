@@ -37,11 +37,14 @@ from models.trade_plan import (
 )
 from services import db_service
 from services.broker_service import get_adapter
-from services.settings_service import STRATEGY_CONFIG_DIR, Settings, get_settings
+from services.settings_service import DATA_DIR, STRATEGY_CONFIG_DIR, Settings, get_settings
 
 logger = logging.getLogger(__name__)
 
 STRATEGY = "fvg_continuation"
+# Where replay_fvg._load reads its 30m bars — the same cache the IBKR refresh
+# writes into so a live "Run" evaluates the CURRENT session.
+HIST_DIR = DATA_DIR / "historical"
 # Gold is the source instrument + best config; the 9 FX majors are the
 # validated breadth set. Operator-selected: gold + 9 FX.
 DEFAULT_SYMBOLS = [
@@ -196,9 +199,67 @@ def _session_close_utc() -> str:
     return close.astimezone(timezone.utc).isoformat()
 
 
+def _merge_into_csv(path, new_df):
+    """Concat IBKR bars (lowercase ohlcv, UTC index) with the existing CSV,
+    dedupe on timestamp (keep the freshest), and write back in the
+    {datetime, Open..Volume} shape replay_fvg._load reads. Preserves deep
+    history — only the overlapping/newer tail is updated."""
+    import pandas as pd
+    frames = []
+    if path.exists():
+        old = pd.read_csv(path)
+        dc = old.columns[0]
+        old[dc] = pd.to_datetime(old[dc], utc=True, errors="coerce")
+        old = old.dropna(subset=[dc]).set_index(dc)
+        old.columns = [c.lower() for c in old.columns]
+        keep = [c for c in ("open", "high", "low", "close", "volume") if c in old.columns]
+        frames.append(old[keep])
+    frames.append(new_df[["open", "high", "low", "close", "volume"]])
+    merged = pd.concat(frames)
+    merged = merged[~merged.index.duplicated(keep="last")].sort_index()
+    out = merged.rename(columns={"open": "Open", "high": "High", "low": "Low",
+                                 "close": "Close", "volume": "Volume"})
+    out.index.name = "datetime"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    out.to_csv(path)
+    return merged
+
+
+async def _refresh_bars_from_ibkr(symbols: list[str], interval: str = "30m",
+                                  lookback_days: int = 12) -> dict[str, str]:
+    """Best-effort: pull the recent {interval} window per symbol from IBKR and
+    merge it into the cache so 'today' evaluates the CURRENT session. Needs a
+    running IB Gateway (uses IBKR_DATA_CLIENT_ID, separate from trading). On any
+    failure the symbol keeps its cached bars — the scan then shows a stale
+    preview instead of a fresh setup, which is the honest fallback."""
+    from services import hf_data_service as H
+    from datetime import date as _date
+
+    start = (_date.today() - timedelta(days=lookback_days)).isoformat()
+    out: dict[str, str] = {}
+    for sym in symbols:
+        try:
+            new = await H._fetch_symbol_ibkr(sym, start=start, interval=interval)
+        except Exception as e:  # noqa: BLE001
+            out[sym] = f"skip ({type(e).__name__})"
+            logger.info("fvg refresh: %s IBKR fetch failed: %s", sym, e)
+            continue
+        if new is None or getattr(new, "empty", True):
+            out[sym] = "no_new_bars"
+            continue
+        try:
+            merged = _merge_into_csv(HIST_DIR / f"{sym.upper()}_{interval}.csv", new)
+            out[sym] = f"+{len(new)} bars, last {merged.index[-1].date()}"
+        except Exception as e:  # noqa: BLE001
+            out[sym] = f"merge_error: {e}"
+            logger.warning("fvg refresh: %s merge failed: %s", sym, e)
+    return out
+
+
 async def run_fvg_scan(settings: Settings | None = None,
                        mode: str | None = None,
-                       as_of: date | None = None) -> dict:
+                       as_of: date | None = None,
+                       refresh: bool | None = None) -> dict:
     """Evaluate the latest FVG setup per symbol, gate it, queue to /pending.
 
     Returns a summary dict shaped like the equity scan summary so the
@@ -218,6 +279,20 @@ async def run_fvg_scan(settings: Settings | None = None,
     # regardless of window width).
     since = until - timedelta(days=730)
     run_id = str(uuid4())
+
+    # Live-bar refresh: before evaluating, top up each symbol's 30m cache from
+    # IBKR so "today" sees the CURRENT session, not last week's stale preview.
+    # Default: refresh in paper/live for a real-time run; skip in research and
+    # for any as_of (historical/backtest) run where the cache is the source.
+    do_refresh = refresh if refresh is not None else (
+        effective_mode != "research" and as_of is None)
+    refresh_status: dict[str, str] = {}
+    if do_refresh:
+        try:
+            refresh_status = await _refresh_bars_from_ibkr(symbols)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("fvg_scan: bar refresh failed wholesale: %s", e)
+            refresh_status = {"_error": str(e)}
 
     # Lazy import — replay_fvg pulls pandas + the fvg detector.
     from scripts.replay_fvg import _run_pair
@@ -330,7 +405,7 @@ async def run_fvg_scan(settings: Settings | None = None,
         "symbols_scanned": len(symbols),
         "setups_found": proposed, "plans_approved": approved,
         "plans_blocked": blocked, "per_symbol": per_symbol,
-        "mode": effective_mode,
+        "mode": effective_mode, "refresh": refresh_status,
         # Aliases so the Strategies "Run" result strip (which reads the equity
         # scan shape) renders FVG runs uniformly.
         "signals_generated": proposed, "plans_proposed": proposed,
