@@ -640,6 +640,7 @@ async def toggle_auto_approve(name: str) -> dict:
 @router.post("/api/strategies/{name}/run", response_class=JSONResponse)
 async def run_strategy(name: str, mode: str | None = None,
                        as_of: str | None = None,
+                       refresh: bool | None = None,
                        s: Settings = Depends(get_settings)) -> dict:
     """Run every workflow that mentions this strategy, ad-hoc.
 
@@ -678,7 +679,8 @@ async def run_strategy(name: str, mode: str | None = None,
                 except ValueError:
                     raise HTTPException(400, f"bad as_of date: {as_of!r} (want YYYY-MM-DD)")
             try:
-                summary = await run_fvg_scan(settings=s, mode=mode, as_of=as_of_d)
+                summary = await run_fvg_scan(settings=s, mode=mode, as_of=as_of_d,
+                                             refresh=refresh)
             except Exception as e:                            # noqa: BLE001
                 logger.exception("fvg scan run failed")
                 raise HTTPException(422, f"FVG scan failed: {e}")
