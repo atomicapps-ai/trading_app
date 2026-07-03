@@ -33,14 +33,25 @@ from models.account import AccountState, Fill, Order, OrderAck, Position, Quote
 
 logger = logging.getLogger(__name__)
 
-# ib_insync's eventkit calls asyncio.get_event_loop() at IMPORT time. On
-# Python 3.14 that raises RuntimeError when no event loop yet exists in the
-# thread — which happens for a plain `python -m scripts.smoke_ibkr` (the
-# import runs before asyncio.run). Under uvicorn a loop already exists, so the
-# app is fine; this guard makes standalone/CLI imports work too.
+# ib_insync's eventkit grabs a loop at IMPORT time via
+# ``asyncio.get_event_loop_policy().get_event_loop()``. On Python 3.14 that
+# raises RuntimeError("no current event loop") whenever the thread has no loop
+# SET on the policy — and there are two such cases:
+#   1. standalone CLI (`python -m scripts.smoke_ibkr`): import runs before any
+#      asyncio.run, so no loop exists at all.
+#   2. uvicorn dev/prod on 3.14: the app is imported inside uvicorn's running
+#      loop, but uvicorn constructs asyncio.Runner with a ``loop_factory``, and
+#      in that branch CPython's Runner does NOT call set_event_loop(). So a
+#      *running* loop exists (get_running_loop() works) yet the policy has no
+#      current loop, and eventkit's policy call still raises.
+# We must therefore mirror eventkit's EXACT call — probing get_event_loop()
+# alone is not enough (it returns the running loop in case 2 and hides the
+# problem). If the policy has no loop, set a fresh one so the import succeeds;
+# eventkit only needs a loop object reference (ib_insync passes the real
+# running loop explicitly when it actually connects).
 import asyncio as _asyncio  # noqa: E402
 try:
-    _asyncio.get_event_loop()
+    _asyncio.get_event_loop_policy().get_event_loop()
 except RuntimeError:
     _asyncio.set_event_loop(_asyncio.new_event_loop())
 
