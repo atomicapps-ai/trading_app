@@ -33,6 +33,17 @@ from models.account import AccountState, Fill, Order, OrderAck, Position, Quote
 
 logger = logging.getLogger(__name__)
 
+# ib_insync's eventkit calls asyncio.get_event_loop() at IMPORT time. On
+# Python 3.14 that raises RuntimeError when no event loop yet exists in the
+# thread — which happens for a plain `python -m scripts.smoke_ibkr` (the
+# import runs before asyncio.run). Under uvicorn a loop already exists, so the
+# app is fine; this guard makes standalone/CLI imports work too.
+import asyncio as _asyncio  # noqa: E402
+try:
+    _asyncio.get_event_loop()
+except RuntimeError:
+    _asyncio.set_event_loop(_asyncio.new_event_loop())
+
 # ib_insync (original) or ib_async (maintained fork) — import whichever is present.
 try:
     from ib_insync import (IB, Contract, Forex, Stock, Future,  # type: ignore
