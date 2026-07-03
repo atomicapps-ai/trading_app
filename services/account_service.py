@@ -26,6 +26,7 @@ import json
 import logging
 import os
 import re
+import sqlite3
 from datetime import datetime, timezone
 
 import aiosqlite
@@ -139,26 +140,39 @@ async def create_account(
         raise ValueError(f"{provider} requires key_id and secret")
 
     slug = slug or _unique_slug(label, provider, account_type)
+    base = slug
+    ts = _now()
     async with aiosqlite.connect(DB_PATH) as db:
-        # Slug collision guard. Append a numeric suffix until unique.
+        # Find a free slug from what's currently in the table, then INSERT with
+        # a retry loop. The in-memory check alone is racy: two near-simultaneous
+        # creates (e.g. a double-clicked Save) both pass it before either
+        # commits, so UNIQUE(slug) is the real arbiter — on a collision we bump
+        # the suffix and try again instead of 500-ing.
         existing = await _slugs(db)
-        base = slug
         i = 2
         while slug in existing:
             slug = f"{base}-{i}"
             i += 1
-        ts = _now()
-        await db.execute(
-            """
-            INSERT INTO broker_accounts
-                (slug, label, provider, account_type, key_id, secret,
-                 extra_json, is_active, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?)
-            """,
-            (slug, label, provider, account_type, key_id, secret,
-             json.dumps(extra) if extra else None, ts, ts),
-        )
-        await db.commit()
+        while True:
+            try:
+                await db.execute(
+                    """
+                    INSERT INTO broker_accounts
+                        (slug, label, provider, account_type, key_id, secret,
+                         extra_json, is_active, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?)
+                    """,
+                    (slug, label, provider, account_type, key_id, secret,
+                     json.dumps(extra) if extra else None, ts, ts),
+                )
+                await db.commit()
+                break
+            except sqlite3.IntegrityError:
+                await db.rollback()
+                slug = f"{base}-{i}"
+                i += 1
+                if i > 1000:
+                    raise ValueError("could not allocate a unique account slug")
     if activate:
         await set_active(slug)
     return await get_account(slug)  # type: ignore[return-value]

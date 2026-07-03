@@ -447,6 +447,17 @@
   async function saveAccount(ev) {
     ev.preventDefault();
     const f = ev.target;
+    // Guard against a double-submit creating two rows / racing the slug check.
+    const submitBtn = f.querySelector('button[type=submit]');
+    if (submitBtn) { if (submitBtn.disabled) return; submitBtn.disabled = true; }
+    try {
+      await _saveAccountInner(f);
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  }
+
+  async function _saveAccountInner(f) {
     const mode = f.elements['_mode'].value;
     const slug = f.elements['_slug'].value;
     const fd = new FormData(f);
