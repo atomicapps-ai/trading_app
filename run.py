@@ -30,8 +30,32 @@ On a trusted home network + Tailscale-only WAN this is fine; on a coffee-shop
 Wi-Fi prefer the explicit Tailscale IP.
 """
 import argparse
+import os
 import subprocess
 import sys
+from pathlib import Path
+
+# --- Run under the project's virtualenv no matter which python launched us. ---
+# uvicorn is spawned below with `sys.executable`, so the deps (aiosqlite,
+# ib_insync, …) must live in that interpreter. Launching with bare `python`
+# (system Python, no venv) is the single most common "it worked on the other
+# machine" failure. If we're not already the venv's python, re-exec under it.
+# A sentinel env var stops a re-exec loop. If there's no venv yet, fall through
+# and let the current python try (setup.ps1/.sh creates the venv).
+_ROOT = Path(__file__).resolve().parent
+_VENV_DIR = _ROOT / ".venv"
+_VENV_PY = _VENV_DIR / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+# Use sys.prefix (not the exe path) to detect the active venv: on Linux the
+# venv's python is a symlink to the system python, so comparing resolved
+# executable paths would falsely report "already in venv" even when launched
+# with bare system python. sys.prefix reflects the venv regardless of symlinks.
+_in_project_venv = Path(sys.prefix).resolve() == _VENV_DIR.resolve()
+if (_VENV_PY.exists() and not _in_project_venv
+        and not os.environ.get("_TRADEAGENT_VENV_REEXEC")):
+    os.environ["_TRADEAGENT_VENV_REEXEC"] = "1"
+    sys.exit(subprocess.run(
+        [str(_VENV_PY), str(Path(__file__).resolve()), *sys.argv[1:]]
+    ).returncode)
 
 
 parser = argparse.ArgumentParser(add_help=True)

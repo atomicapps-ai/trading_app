@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# TradeAgent launcher (macOS / Linux / Git Bash). Usage from the project folder:
+#     ./run dev
+#     ./run prod --port 8080
+# Always uses the project's venv python, so you never type the full path or
+# need the venv activated. Falls back to run.py's own bootstrap if no venv.
+set -euo pipefail
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+venv_py="$here/.venv/bin/python"
+if [ -x "$venv_py" ]; then
+    exec "$venv_py" "$here/run.py" "$@"
+fi
+exec python3 "$here/run.py" "$@"
