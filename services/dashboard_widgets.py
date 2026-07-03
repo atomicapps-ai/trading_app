@@ -400,10 +400,13 @@ class StrategyHealthWidget(Widget):
     refresh_seconds = 60
 
     async def get_data(self) -> dict[str, Any]:
-        from services import analysis_service as A   # avoid import cycle
-
-        df = A.load_trades(source="auto", filter_to_production=True)
-        live_summary = A.summary(df) if len(df) else None
+        # Per-strategy live stats come from probability_service, which
+        # filters the trade journal by strategy_name. This is the single
+        # source of truth — do NOT apply one aggregate dump to every row
+        # (that produced the "all strategies show identical numbers" bug:
+        # the legacy double_lock dump's 82.4%/n=17/PF was copied onto
+        # every strategy regardless of whether it had any live trades).
+        from services import probability_service as P   # avoid import cycle
 
         rows: list[dict[str, Any]] = []
         for path in sorted(STRATEGY_CONFIG_DIR.glob("*.yaml")):
@@ -419,13 +422,16 @@ class StrategyHealthWidget(Widget):
             bt_wr = bt.get("point_wr_pct")
             ci_lo = bt.get("bootstrap_95_ci_lo")
 
-            # Live numbers: today only the dump represents one strategy
-            # (double_lock). Once JSONL is multi-strategy we'll filter
-            # by trade_record.setup_snapshot.strategy_name. For now,
-            # any strategy whose name matches that dump source uses it.
-            live_wr = live_summary.get("wr") if live_summary else None
-            live_n  = live_summary.get("n", 0)  if live_summary else 0
-            live_pf = live_summary.get("pf") if live_summary else None
+            # Live numbers — strategy-specific. A strategy with no live
+            # trades yet returns live_n == 0 and shows "no trades yet".
+            try:
+                est = await P.compute(name)
+                live_wr = est.live_wr
+                live_n  = est.live_n
+                live_pf = est.live_pf
+            except Exception as e:                            # noqa: BLE001
+                logger.warning("strategy_health: probability compute failed for %s: %s", name, e)
+                live_wr, live_n, live_pf = None, 0, None
 
             # Drift status
             if live_wr is None or live_n == 0:
@@ -767,6 +773,21 @@ class OpenPositionsWidget(Widget):
         except Exception as e:  # noqa: BLE001
             error = f"plan join degraded: {e}"
 
+        # symbol -> most-recent BUY fill timestamp, so orphan positions (no
+        # plan) can still show "Entered"/"Held" from the broker's own history.
+        fill_ts_by_symbol: dict[str, str] = {}
+        try:
+            for f in await adapter.get_fills():
+                sym = str(getattr(f, "symbol", "")).upper()
+                # Keep the LAST buy per symbol as the entry proxy. Fills are
+                # not guaranteed ordered, so prefer the newest ts we see.
+                if sym and str(getattr(f, "side", "")).lower() == "buy":
+                    ts = getattr(f, "ts", None)
+                    if ts and (sym not in fill_ts_by_symbol or ts > fill_ts_by_symbol[sym]):
+                        fill_ts_by_symbol[sym] = ts
+        except Exception:  # noqa: BLE001
+            pass  # best-effort; blank Entered is acceptable if history unavailable
+
         for p in positions:
             entry = float(p.avg_entry_price or 0.0)
             current = float(p.market_price or 0.0)
@@ -777,7 +798,18 @@ class OpenPositionsWidget(Widget):
                 pnl_pct = -pnl_pct
             stop = strategy = entry_ts = plan_id = tp1 = None
             pnl_r = None
-            pid = by_symbol.get(str(p.symbol).upper())
+            sym_u = str(p.symbol).upper()
+            pid = by_symbol.get(sym_u)
+            # Fall back to the most-recent plan in ANY status for this symbol,
+            # so a position whose plan was left in an odd state still shows its
+            # strategy/stop/TP instead of reading as an orphan.
+            if not pid:
+                try:
+                    latest = await db_service.get_latest_plan_for_symbol(sym_u)
+                    if latest and latest.get("plan_id"):
+                        pid = latest["plan_id"]
+                except Exception:  # noqa: BLE001
+                    pass
             if pid:
                 try:
                     v = await trade_lookup.get(pid)
@@ -790,12 +822,20 @@ class OpenPositionsWidget(Widget):
                             pnl_r = ((current - entry) / risk) if direction == "long" else ((entry - current) / risk)
                 except Exception:  # noqa: BLE001
                     pass
+            # Even with no plan, recover the entry timestamp from the broker's
+            # own fill history so "Entered"/"Held" aren't blank on orphans.
+            if entry_ts is None:
+                entry_ts = fill_ts_by_symbol.get(sym_u)
+            is_orphan = plan_id is None
             rows.append({
                 "symbol": p.symbol, "direction": direction, "shares": abs(shares),
                 "entry": entry, "current": current,
                 "pnl_usd": float(p.unrealized_pnl_usd or 0.0), "pnl_pct": pnl_pct,
                 "pnl_r": pnl_r, "stop": stop, "tp1": tp1,
-                "strategy": strategy or "—", "entry_ts": entry_ts,
+                # No plan → say so plainly rather than a bare "—".
+                "strategy": strategy or ("manual · no plan" if is_orphan else "—"),
+                "origin": "manual" if is_orphan else "strategy",
+                "entry_ts": entry_ts,
                 "held": _humanize_since(entry_ts), "plan_id": plan_id,
             })
         rows.sort(key=lambda r: (r["pnl_r"] is None, -(r["pnl_r"] or 0)))

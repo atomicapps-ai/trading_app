@@ -8,9 +8,12 @@
 {% else %}
 <div class="open-positions">
   {% for p in positions %}
-  {% set href = "/trades/" ~ p.plan_id if p.plan_id else None %}
+  {# Always openable: plan-backed positions → full trade detail; orphan
+     positions (manual / broker-side, no plan) → the symbol-keyed detail
+     page so the card is never a dead end. #}
+  {% set href = ("/trades/" ~ p.plan_id) if p.plan_id else ("/positions/" ~ p.symbol) %}
   <div class="position-card {% if p.pnl_usd >= 0 %}pos-up{% else %}pos-down{% endif %}"
-       {% if href %}onclick="if(!event.target.closest('.pos-close'))window.location='{{ href }}'" style="cursor:pointer"{% endif %}>
+       onclick="if(!event.target.closest('.pos-close'))window.location='{{ href }}'" style="cursor:pointer">
     <div class="position-head">
       <span class="position-symbol mono">{{ p.symbol }}</span>
       <span class="badge {% if p.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ p.direction|upper }}</span>

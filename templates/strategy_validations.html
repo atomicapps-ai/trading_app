@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Validation History{% endblock %}
+{% block content %}
+<div style="max-width: 1000px;">
+  <div class="flex items-center gap-12 mb-8" style="flex-wrap:wrap;">
+    <a href="/strategies/validated" class="text-secondary text-sm" style="text-decoration:none;">← Strategies</a>
+    <h2 style="font-size:20px;font-weight:500;">{{ title }} — validation history</h2>
+    {% if running %}<span class="badge badge-blue">running…</span>{% endif %}
+  </div>
+  {% if description %}
+    <div class="text-secondary text-xs mb-16" style="max-width:820px;line-height:1.5;">{{ description }}</div>
+  {% endif %}
+
+  <div class="text-tertiary text-xs mb-16">
+    Each row is a backtest run over historical bars. Verdict is judged on
+    <strong>out-of-sample profit factor</strong> (the honest metric for
+    payoff-geometry strategies — they win 25–55% by design). The most recent
+    run drives the Validated / In-Progress bucket.
+  </div>
+
+  {% if not history %}
+    <div class="card"><div class="text-secondary">
+      No validation runs yet. Run one from the Strategies page (✓ Validate).
+    </div></div>
+  {% else %}
+    <div style="overflow-x:auto;">
+      <table class="data-table" style="width:100%;">
+        <thead>
+          <tr>
+            <th>When</th><th>Verdict</th>
+            <th class="num">OOS PF</th><th class="num">Full PF</th>
+            <th class="num">Win%</th><th class="num">n</th>
+            <th class="num">Control PF</th><th class="num">Expectancy</th>
+            <th class="num">Net%</th><th class="num">Universe</th><th>Window</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for v in history %}
+          <tr>
+            <td class="mono text-sm">{{ v.ts[:19]|replace('T',' ') }}</td>
+            <td>
+              <span class="badge {{ 'badge-green' if v.verdict == 'validated' else 'badge-amber' }}">
+                {{ '✓ validated' if v.verdict == 'validated' else '✗ failed' }}
+              </span>
+            </td>
+            <td class="num mono"><strong>{{ "%.2f"|format(v.oos_profit_factor) if v.oos_profit_factor is not none else '—' }}</strong></td>
+            <td class="num mono">{{ "%.2f"|format(v.profit_factor) if v.profit_factor is not none else '—' }}</td>
+            <td class="num mono">{{ "%.0f"|format(v.win_pct) if v.win_pct is not none else '—' }}%</td>
+            <td class="num mono">{{ v.n_trades }}</td>
+            <td class="num mono">{{ "%.2f"|format(v.control_pf) if v.control_pf is not none else '—' }}</td>
+            <td class="num mono">{{ "%.3f"|format(v.expectancy) if v.expectancy is not none else '—' }}</td>
+            <td class="num mono {% if v.net_pct is not none and v.net_pct >= 0 %}text-accent-green{% elif v.net_pct is not none %}text-accent-red{% endif %}">
+              {{ "%+.0f"|format(v.net_pct) if v.net_pct is not none else '—' }}
+            </td>
+            <td class="num mono">{{ v.universe_n }}</td>
+            <td class="text-tertiary text-xs">{{ v.window_start }} → {{ v.window_end }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="text-tertiary text-xs mt-8">
+      Bar: OOS PF ≥ {{ "%.2f"|format(history[0].threshold_pf) }}
+      {% if history[0].params_json and history[0].params_json.get('engine') %}
+        · engine: <span class="mono">{{ history[0].params_json.engine }}</span>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

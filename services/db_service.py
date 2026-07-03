@@ -331,7 +331,33 @@ _SCHEMA = [
         added_at TEXT NOT NULL
     )
     """,
+    # Strategy validation runs — earned "Validated" status + proof/history.
+    # Each row is one backtest of a strategy over historical bars, with the
+    # standardized metrics and the pass/fail verdict that drives the bucket.
+    """
+    CREATE TABLE IF NOT EXISTS strategy_validations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        strategy TEXT NOT NULL,
+        ts TEXT NOT NULL,               -- when the validation ran (UTC ISO)
+        window_start TEXT,              -- backtest since (date)
+        window_end TEXT,                -- backtest until (date)
+        universe_n INTEGER,             -- symbols tested
+        n_trades INTEGER,
+        win_pct REAL,
+        profit_factor REAL,
+        oos_profit_factor REAL,         -- out-of-sample (recent split)
+        oos_win_pct REAL,
+        expectancy REAL,                -- mean pnl per trade (% or R)
+        control_pf REAL,                -- random-direction control (NULL if n/a)
+        net_pct REAL,
+        verdict TEXT NOT NULL,          -- 'validated' | 'failed'
+        threshold_pf REAL,              -- the bar it was judged against
+        metrics_json TEXT,              -- full metrics blob
+        params_json TEXT                -- engine params used
+    )
+    """,
     # Indexes for the queries we run often
+    "CREATE INDEX IF NOT EXISTS idx_validations_strategy ON strategy_validations(strategy, ts DESC)",
     "CREATE INDEX IF NOT EXISTS idx_pending_status ON pending_approvals(status, ts_created DESC)",
     "CREATE INDEX IF NOT EXISTS idx_pending_symbol ON pending_approvals(symbol)",
     "CREATE INDEX IF NOT EXISTS idx_pipeline_ts ON pipeline_runs(ts_start DESC)",
@@ -408,6 +434,23 @@ async def _migrate_pending_approvals(db: aiosqlite.Connection) -> None:
                 logger.warning("db_service: migrate add %s failed: %s", col, e)
 
 
+async def _migrate_pipeline_runs(db: aiosqlite.Connection) -> None:
+    """Additive migration for pipeline_runs. Adds the per-symbol drill-down
+    blob column (``symbol_outcomes_json``) to DBs created before it existed."""
+    cursor = await db.execute("PRAGMA table_info(pipeline_runs)")
+    rows = await cursor.fetchall()
+    existing = {r[1] for r in rows}
+    if "symbol_outcomes_json" not in existing:
+        try:
+            await db.execute(
+                "ALTER TABLE pipeline_runs ADD COLUMN symbol_outcomes_json TEXT"
+            )
+            logger.info("db_service: added column pipeline_runs.symbol_outcomes_json")
+        except aiosqlite.OperationalError as e:
+            if "duplicate column" not in str(e).lower():
+                logger.warning("db_service: migrate pipeline_runs failed: %s", e)
+
+
 async def ensure_tables() -> None:
     """Create tables + indexes if they don't exist. Idempotent."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -417,6 +460,7 @@ async def ensure_tables() -> None:
         await _migrate_pending_approvals(db)
         await _migrate_universe_presets(db)
         await _migrate_followed_politicians(db)
+        await _migrate_pipeline_runs(db)
         await db.commit()
     logger.info("db_service: tables ensured at %s", DB_PATH)
     # Migrate legacy single-politician config into the new table (no-op if already done)
@@ -695,6 +739,26 @@ async def get_pending_plans(
     return [_row_to_ui_dict(r) for r in rows]
 
 
+async def get_latest_plan_for_symbol(symbol: str) -> dict | None:
+    """Most-recent pending_approvals row for a symbol, ANY status.
+
+    Used to give a broker position back its provenance. We don't filter by
+    status because a live position could map to a plan the app left in an
+    unexpected state (auto-approved but status not advanced, restarted
+    mid-fill, etc.) — any plan for the symbol is better than treating it as
+    an orphan. Newest first.
+    """
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM pending_approvals WHERE UPPER(symbol) = ? "
+            "ORDER BY ts_created DESC LIMIT 1",
+            (symbol.upper(),),
+        )
+        row = await cur.fetchone()
+    return _row_to_ui_dict(row) if row else None
+
+
 async def get_plan_by_id(plan_id: str) -> dict | None:
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
@@ -833,6 +897,78 @@ async def get_pending_count(status_filter: str | None = "pending") -> int:
 
 
 # ---------------------------------------------------------------------- #
+# strategy_validations — earned "Validated" status + proof/history
+# ---------------------------------------------------------------------- #
+
+
+async def insert_validation(row: dict) -> int:
+    """Persist one validation run. Returns the new row id."""
+    cols = ("strategy", "ts", "window_start", "window_end", "universe_n",
+            "n_trades", "win_pct", "profit_factor", "oos_profit_factor",
+            "oos_win_pct", "expectancy", "control_pf", "net_pct", "verdict",
+            "threshold_pf", "metrics_json", "params_json")
+    vals = []
+    for c in cols:
+        v = row.get(c)
+        if c in ("metrics_json", "params_json") and isinstance(v, (dict, list)):
+            v = json.dumps(v)
+        vals.append(v)
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute(
+            f"INSERT INTO strategy_validations ({','.join(cols)}) "
+            f"VALUES ({','.join('?' for _ in cols)})", vals,
+        )
+        await db.commit()
+        return int(cur.lastrowid)
+
+
+def _validation_row_to_dict(r) -> dict:
+    d = dict(r)
+    for k in ("metrics_json", "params_json"):
+        if d.get(k):
+            try:
+                d[k] = json.loads(d[k])
+            except (ValueError, TypeError):
+                pass
+    return d
+
+
+async def list_validations(strategy: str, limit: int = 25) -> list[dict]:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM strategy_validations WHERE strategy = ? "
+            "ORDER BY ts DESC LIMIT ?", (strategy, limit),
+        )
+        return [_validation_row_to_dict(r) for r in await cur.fetchall()]
+
+
+async def latest_validation(strategy: str) -> dict | None:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM strategy_validations WHERE strategy = ? "
+            "ORDER BY ts DESC LIMIT 1", (strategy,),
+        )
+        row = await cur.fetchone()
+    return _validation_row_to_dict(row) if row else None
+
+
+async def latest_validations_all() -> dict[str, dict]:
+    """Map strategy -> its most recent validation row (one query)."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT v.* FROM strategy_validations v "
+            "JOIN (SELECT strategy, MAX(ts) AS mts FROM strategy_validations "
+            "      GROUP BY strategy) m "
+            "ON v.strategy = m.strategy AND v.ts = m.mts",
+        )
+        return {r["strategy"]: _validation_row_to_dict(r)
+                for r in await cur.fetchall()}
+
+
+# ---------------------------------------------------------------------- #
 # pipeline_runs
 # ---------------------------------------------------------------------- #
 
@@ -853,6 +989,7 @@ async def record_pipeline_run(
     error_message: str | None = None,
     status: str = "complete",
     duration_seconds: float | None = None,
+    symbol_outcomes: dict | None = None,
 ) -> None:
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(
@@ -861,8 +998,8 @@ async def record_pipeline_run(
                 (run_id, workflow_id, ts_start, ts_end, preset_name, mode,
                  symbols_analyzed, signals_generated, plans_proposed,
                  plans_approved, plans_blocked_json, error_message, status,
-                 duration_seconds)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                 duration_seconds, symbol_outcomes_json)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             ON CONFLICT(run_id) DO UPDATE SET
                 ts_end = excluded.ts_end,
                 symbols_analyzed = excluded.symbols_analyzed,
@@ -872,7 +1009,8 @@ async def record_pipeline_run(
                 plans_blocked_json = excluded.plans_blocked_json,
                 error_message = excluded.error_message,
                 status = excluded.status,
-                duration_seconds = excluded.duration_seconds
+                duration_seconds = excluded.duration_seconds,
+                symbol_outcomes_json = excluded.symbol_outcomes_json
             """,
             (
                 run_id, workflow_id, ts_start, ts_end, preset_name, mode,
@@ -880,6 +1018,7 @@ async def record_pipeline_run(
                 plans_approved,
                 json.dumps(plans_blocked) if plans_blocked else None,
                 error_message, status, duration_seconds,
+                json.dumps(symbol_outcomes) if symbol_outcomes else None,
             ),
         )
         await db.commit()
@@ -894,6 +1033,30 @@ async def list_pipeline_runs(limit: int = 20) -> list[dict]:
         )
         rows = await cur.fetchall()
     return [dict(r) for r in rows]
+
+
+async def get_pipeline_run(run_id: str) -> dict | None:
+    """Fetch one run by id, with ``symbol_outcomes`` parsed out of JSON so
+    the drill-down page can render per-symbol processing detail."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM pipeline_runs WHERE run_id = ?", (run_id,),
+        )
+        row = await cur.fetchone()
+    if row is None:
+        return None
+    d = dict(row)
+    keys = set(d.keys())
+    d["symbol_outcomes"] = (
+        json.loads(d["symbol_outcomes_json"])
+        if "symbol_outcomes_json" in keys and d.get("symbol_outcomes_json")
+        else None
+    )
+    d["plans_blocked"] = (
+        json.loads(d["plans_blocked_json"]) if d.get("plans_blocked_json") else []
+    )
+    return d
 
 
 # ---------------------------------------------------------------------- #
@@ -988,12 +1151,15 @@ def _row_to_ui_dict(row: Any) -> dict:
             "nearest_support": piv.get("nearest_support"),
             "nearest_resistance": piv.get("nearest_resistance"),
         },
-        "risk_usd": risk.get("position_risk_usd"),
-        "rr_tp1": risk.get("r_multiple_to_tp1"),
-        "rr_tp2": risk.get("r_multiple_to_tp2"),
-        "position_size": risk.get("position_size_shares"),
-        "notional": risk.get("position_notional_usd"),
-        "risk_pct": risk.get("position_risk_pct_of_equity"),
+        # Numeric fields the pending list formats with %f — default to 0.0 so a
+        # single malformed plan (missing a risk field) can't crash the whole
+        # /pending page. Real plans always carry these.
+        "risk_usd": risk.get("position_risk_usd") or 0.0,
+        "rr_tp1": risk.get("r_multiple_to_tp1") or 0.0,
+        "rr_tp2": risk.get("r_multiple_to_tp2") or 0.0,
+        "position_size": risk.get("position_size_shares") or 0,
+        "notional": risk.get("position_notional_usd") or 0.0,
+        "risk_pct": risk.get("position_risk_pct_of_equity") or 0.0,
 
         # Gate-outcome summary (for the decision card + list badges).
         #

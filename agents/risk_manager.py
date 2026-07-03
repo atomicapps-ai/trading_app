@@ -91,14 +91,25 @@ class RiskManager:
             approved = r1_cap
 
         # ---- R2: notional cap ---------------------------------------------
+        # The notional cap (% of equity) is an EQUITY concept. FX and spot
+        # metals are margin-traded — a standard FX lot is 100k units, whose
+        # notional dwarfs equity by design — so applying an equity-notional
+        # cap crushes every FX/gold position to a stub. For those asset
+        # classes the dollar-RISK cap (R1) is the correct control, so R2 is
+        # skipped. Equities/ETFs still get the full notional cap.
+        asset_class = str((plan.instrument or {}).get("asset_class", "")).lower()
         evaluated.append("R2")
-        r2_cap = self._r2_notional_cap(account.equity, entry_price, rd)
-        if r2_cap < approved:
-            triggered.append("R2")
-            reasons.append(
-                f"R2 notional_cap: reduced from {approved} to {r2_cap} shares"
-            )
-            approved = r2_cap
+        if asset_class in ("forex", "fx", "commodity", "metal", "cash"):
+            reasons.append("R2 notional_cap: skipped for margin-traded "
+                           f"{asset_class} (R1 risk cap governs)")
+        else:
+            r2_cap = self._r2_notional_cap(account.equity, entry_price, rd)
+            if r2_cap < approved:
+                triggered.append("R2")
+                reasons.append(
+                    f"R2 notional_cap: reduced from {approved} to {r2_cap} shares"
+                )
+                approved = r2_cap
 
         # ---- R3: daily loss cap -------------------------------------------
         evaluated.append("R3")

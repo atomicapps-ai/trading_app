@@ -75,8 +75,9 @@
   {%- endif %}
 {%- endmacro %}
 
+{% block main_class %} main--split{% endblock %}
 {% block content %}
-<div class="flex items-center" style="justify-content:flex-end;gap:8px;margin-bottom:10px;">
+<div class="flex items-center" style="justify-content:flex-end;gap:8px;margin-bottom:10px;flex:0 0 auto;">
   <a href="/trades/new" class="btn btn-primary btn-sm" style="text-decoration:none;">+ New Trade</a>
 </div>
 <div class="split-layout">
@@ -212,6 +213,7 @@
 
   {# ===== Right: detail ===== #}
   <section class="split-right" id="plan-detail">
+    <div class="split-scroll">
     {% if not_found %}
       <div class="split-empty">Plan not found in queue.</div>
     {% elif not selected %}
@@ -476,25 +478,7 @@
          shows an execution summary instead (historical view). Approve is
          disabled once the plan is older than the approval window (stale);
          Reject stays available because saying No is always safe. #}
-      {% if p.status == 'pending' %}
-        <div class="approval-actions">
-          <button class="btn btn-success"
-                  id="ack-approve-btn"
-                  {% if p.is_stale %}disabled title="Approval window closed — re-run pipeline"{% endif %}
-                  onclick="ackAction('{{ p.plan_id }}', 'approve')">Approve</button>
-          <button class="btn btn-danger"
-                  onclick="ackAction('{{ p.plan_id }}', 'reject')">Reject</button>
-          <span id="ack-status" class="text-sm"></span>
-          {% if p.is_gtc %}
-          <span class="approval-countdown" id="ack-countdown" data-gtc="1">GTC · no expiry</span>
-          {% else %}
-          <span class="approval-countdown"
-                data-created="{{ p.ts_created }}"
-                data-timeout-min="{{ stale_minutes }}"
-                id="ack-countdown">--:--</span>
-          {% endif %}
-        </div>
-      {% else %}
+      {% if p.status != 'pending' %}
         <div class="card mt-24">
           <div class="card-header">
             <span class="card-title">
@@ -537,6 +521,31 @@
           {% endif %}
         </div>
       {% endif %}
+    {% endif %}
+    </div>{# /.split-scroll #}
+
+    {# Pinned action bar — a flex child OUTSIDE .split-scroll, so Approve/Reject
+       are always visible at the bottom of the pane no matter how long the
+       plan detail is. Only rendered for a selected, still-pending plan. #}
+    {% if selected and selected.status == 'pending' %}
+      {% set p = selected %}
+      <div class="approval-actions">
+        <button class="btn btn-success"
+                id="ack-approve-btn"
+                {% if p.is_stale %}disabled title="Approval window closed — re-run pipeline"{% endif %}
+                onclick="ackAction('{{ p.plan_id }}', 'approve')">Approve</button>
+        <button class="btn btn-danger"
+                onclick="ackAction('{{ p.plan_id }}', 'reject')">Reject</button>
+        <span id="ack-status" class="text-sm"></span>
+        {% if p.is_gtc %}
+        <span class="approval-countdown" id="ack-countdown" data-gtc="1">GTC · no expiry</span>
+        {% else %}
+        <span class="approval-countdown"
+              data-created="{{ p.ts_created }}"
+              data-timeout-min="{{ stale_minutes }}"
+              id="ack-countdown">--:--</span>
+        {% endif %}
+      </div>
     {% endif %}
   </section>
 </div>

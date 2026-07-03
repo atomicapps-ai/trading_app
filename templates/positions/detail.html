@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}{{ symbol }} position — TradeAgent{% endblock %}
+{% block content %}
+<div style="max-width: 760px;">
+
+  <div class="flex items-center gap-12 mb-8">
+    <a href="/" class="text-secondary text-sm" style="text-decoration:none;">← Dashboard</a>
+  </div>
+
+  <div class="flex items-center gap-12 mb-16" style="flex-wrap:wrap;">
+    <h2 style="font-size:22px;font-weight:600;" class="mono">{{ symbol }}</h2>
+    <span class="badge badge-gray" title="No originating strategy plan found for this position">orphan / manual</span>
+  </div>
+
+  {# Provenance banner — this is the core message: why the row had no details #}
+  <div class="card mb-16" style="border-left:3px solid var(--accent-amber, #e0a458);">
+    <div style="font-weight:500;margin-bottom:6px;">No linked strategy plan</div>
+    <div class="text-secondary text-sm" style="line-height:1.6;">
+      This position exists at the broker but has <strong>no matching TradePlan</strong>
+      in the approval queue — so there's no strategy, stop, take-profit, or thesis
+      attached to it. That happens when a position is opened outside the agent
+      pipeline: a manual buy, a leftover from a smoke/round-trip script, or a
+      fill that arrived broker-side. The dashboard's <em>Stop</em>, <em>Strategy</em>,
+      and <em>R</em> columns are blank for exactly this reason.
+      <br><br>
+      You can still manage it below (flatten or take profit). To trade a symbol
+      <em>through</em> a strategy — with a stop, TP and gates — run a strategy scan
+      from the <a href="/strategies">Strategies</a> page.
+    </div>
+  </div>
+
+  {% if position %}
+    <div class="card mb-16">
+      <div class="card-header"><span class="card-title">Broker position</span></div>
+      <table class="data-table">
+        <tbody>
+          <tr><td class="text-secondary">Direction</td>
+              <td><span class="badge {% if position.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ position.direction|upper }}</span></td></tr>
+          <tr><td class="text-secondary">Shares</td><td class="mono">{{ position.shares }}</td></tr>
+          <tr><td class="text-secondary">Avg entry</td><td class="mono">${{ "%.4f"|format(position.entry) }}</td></tr>
+          <tr><td class="text-secondary">Current</td><td class="mono">${{ "%.4f"|format(position.current) }}</td></tr>
+          <tr><td class="text-secondary">Unrealized P&amp;L</td>
+              <td class="mono {% if position.pnl_usd >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">
+                {{ "%+.2f"|format(position.pnl_usd) }} ({{ "%+.2f"|format(position.pnl_pct) }}%)</td></tr>
+          <tr><td class="text-secondary">Entered</td>
+              <td class="mono">{% if position.entry_ts %}{{ position.entry_ts[:16]|replace('T',' ') }}
+                <span class="text-tertiary text-sm">(from broker fill history)</span>
+                {% else %}<span class="text-tertiary">— not in broker fill history</span>{% endif %}</td></tr>
+          <tr><td class="text-secondary">Held</td><td class="mono">{{ position.held }}</td></tr>
+          {% if position.sector %}<tr><td class="text-secondary">Sector</td><td>{{ position.sector }}</td></tr>{% endif %}
+          {# These only exist on a strategy plan — spell out that they're absent, and why. #}
+          <tr><td class="text-secondary">Strategy</td>
+              <td><span class="text-accent-red">not set</span>
+                <span class="text-tertiary text-sm">— no originating strategy plan</span></td></tr>
+          <tr><td class="text-secondary">Stop</td>
+              <td><span class="text-accent-red">none</span>
+                <span class="text-tertiary text-sm">— no plan, so no protective stop is tracked</span></td></tr>
+          <tr><td class="text-secondary">Take-profit</td>
+              <td><span class="text-tertiary">— not set (no plan)</span></td></tr>
+        </tbody>
+      </table>
+
+      <div class="flex gap-8 mt-16">
+        <button type="button" class="btn btn-sm"
+                onclick="posAction('take-profit')"
+                style="color: var(--accent-green); border-color: rgba(16,185,129,0.4);">Take profit (flatten)</button>
+        <button type="button" class="btn btn-sm btn-danger"
+                onclick="posAction('close')">Close position</button>
+        <span id="pos-action-status" class="text-secondary text-sm" style="align-self:center;"></span>
+      </div>
+    </div>
+  {% else %}
+    <div class="card">
+      <div class="text-secondary">
+        {% if fetch_error %}Could not read a live position for {{ symbol }}: {{ fetch_error }}.
+        {% else %}No open position in {{ symbol }} at the broker (it may have been closed).{% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+
+<script>
+async function posAction(intent) {
+  const status = document.getElementById('pos-action-status');
+  if (!confirm(`${intent === 'close' ? 'Close' : 'Take profit on'} {{ symbol }} at market?`)) return;
+  status.textContent = 'submitting…';
+  try {
+    const r = await fetch(`/api/positions/{{ symbol }}/${intent}`, {method: 'POST'});
+    const j = await r.json();
+    if (r.ok && j.ok) {
+      status.textContent = `done — ${j.shares_closed} sh, order ${j.broker_order_id || 'pending'}`;
+      setTimeout(() => location.href = '/', 1200);
+    } else {
+      status.textContent = 'error: ' + (j.detail || j.reject_reason || r.status);
+    }
+  } catch (e) {
+    status.textContent = 'request failed: ' + e.message;
+  }
+}
+</script>
+{% endblock %}

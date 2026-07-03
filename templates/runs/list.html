@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Scan history — TradeAgent{% endblock %}
+{% block content %}
+<div style="max-width: 1000px;">
+
+  <div class="flex items-center gap-12 mb-16" style="justify-content:space-between;flex-wrap:wrap;">
+    <div class="flex items-center gap-12">
+      <h2 style="font-size:20px;font-weight:500;">Scan history</h2>
+      <span class="text-secondary text-sm">{{ runs|length }} run{% if runs|length != 1 %}s{% endif %}</span>
+    </div>
+    <a href="/strategies" class="text-sm text-secondary" style="text-decoration:none;">Run a scan →</a>
+  </div>
+
+  <div class="text-secondary text-xs mb-16" style="line-height:1.6;">
+    Every strategy scan is recorded here. Click a run to drill into
+    <strong>exactly which stocks were processed and how each was resolved</strong>
+    — setup / no-setup / blocked / queued.
+  </div>
+
+  {% if runs %}
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>When</th><th>Workflow</th><th>Mode</th>
+          <th class="num">Shortlist</th><th class="num">Signals</th>
+          <th class="num">Plans</th><th class="num">Queued</th>
+          <th>Status</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in runs %}
+          <tr style="cursor:pointer;" onclick="location.href='/runs/{{ r.run_id }}'">
+            <td class="mono text-sm">{{ (r.ts_start or '')[:19]|replace('T',' ') }}</td>
+            <td class="mono text-sm">{{ r.workflow_id }}</td>
+            <td><span class="badge badge-gray">{{ r.mode }}</span></td>
+            <td class="num mono">{{ r.symbols_analyzed }}</td>
+            <td class="num mono">{{ r.signals_generated }}</td>
+            <td class="num mono">{{ r.plans_proposed }}</td>
+            <td class="num mono {% if r.plans_approved %}text-accent-green{% endif %}">{{ r.plans_approved }}</td>
+            <td>
+              {% if r.status == 'error' %}<span class="badge badge-red">error</span>
+              {% else %}<span class="badge badge-green">{{ r.status }}</span>{% endif %}
+            </td>
+            <td><a href="/runs/{{ r.run_id }}" style="text-decoration:none;color:var(--accent-blue);">Drill down →</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="card"><div class="text-secondary">No scan runs recorded yet. Run a scan from the
+      <a href="/strategies">Strategies</a> page.</div></div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -126,7 +126,11 @@ def _view_from_plan(plan: dict[str, Any]) -> TradeView:
 
     plan_obj = {}
     raw = plan.get("plan_json")
-    if isinstance(raw, str):
+    # db_service._row_to_ui_dict already deserializes plan_json to a dict, but
+    # some callers pass the raw JSON string — accept either.
+    if isinstance(raw, dict):
+        plan_obj = raw
+    elif isinstance(raw, str):
         try:
             plan_obj = json.loads(raw)
         except json.JSONDecodeError:

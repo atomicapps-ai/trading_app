@@ -7,17 +7,21 @@
     <h1 class="page-title">Strategies</h1>
     <p class="page-subtitle">
       {% if bucket == 'validated' %}
-        Strategies that have cleared the backtest threshold (≥{{ 72 }}% point WR).
-        Auto-promoted; can be manually archived.
+        Strategies that passed a backtest run in the app (out-of-sample
+        profit factor ≥ 1.20). Earned by the ✓ Validate button; can be archived.
       {% elif bucket == 'in-progress' %}
-        Strategies under research. Default bucket for everything that hasn't
-        cleared validation yet.
+        Strategies under research, or not yet validated. Click ✓ Validate on a
+        card to backtest it and promote it to Validated.
       {% else %}
         Retired strategies. Manual move only — kept for audit trail.
       {% endif %}
     </p>
   </div>
-  <div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-ghost" id="validate-all-btn" onclick="validateAllStrategies(this)"
+            title="Backtest every strategy in this view to earn its Validated status (runs in the background; a few minutes each)">
+      ✓ Validate all
+    </button>
     <button class="btn btn-primary" id="run-all-btn" onclick="runAllStrategies(this)"
             title="Run every active strategy in this view, one after another → /pending">
       ▶ Run all active
@@ -32,8 +36,8 @@
     <p style="color:var(--text-secondary);">
       No strategies in <strong>{{ bucket_label }}</strong>.
       {% if bucket == 'validated' %}
-        Add a <code>backtest_summary.point_wr_pct ≥ 72</code> block to a
-        strategy YAML to promote it here.
+        Click <strong>✓ Validate</strong> on a strategy (In Progress tab) to
+        backtest it; if OOS profit factor ≥ 1.20 it lands here.
       {% elif bucket == 'in-progress' %}
         Drop a YAML in <code>strategy_configs/</code> to start one.
       {% else %}
@@ -74,6 +78,8 @@
                 style="background:none;border:none;cursor:pointer;font-size:16px;line-height:1;color:var(--text-tertiary);padding:2px 4px;"
                 title="Add to Favorites">☆</button>
         <button class="btn btn-sm" onclick="runStrategy('{{ s.name }}', this)">▶ Run</button>
+        <button class="btn btn-sm" onclick="validateStrategy('{{ s.name }}', this)"
+                title="Run a real backtest over historical bars and earn the Validated status">✓ Validate</button>
         <a class="btn btn-sm btn-ghost"
            href="/strategies/{{ s.name }}/history"
            title="Per-strategy history: actual + simulated trades over a date range">
@@ -100,6 +106,30 @@
     {% if s.load_error %}
       <div class="badge badge-red" style="margin-bottom:10px;">YAML load error: {{ s.load_error }}</div>
     {% endif %}
+
+    {# Earned validation status — from the latest strategy_validations run #}
+    <div class="validation-strip" id="val-strip-{{ s.name }}" style="margin:6px 0 10px;">
+      {% if s.validation %}
+        {% set v = s.validation %}
+        <span class="badge {{ 'badge-green' if v.verdict == 'validated' else 'badge-amber' }}">
+          {{ '✓ Validated' if v.verdict == 'validated' else '✗ Failed validation' }}
+        </span>
+        <span class="text-secondary text-xs">
+          OOS PF <strong>{{ "%.2f"|format(v.oos_profit_factor) if v.oos_profit_factor is not none else '—' }}</strong>
+          · full PF {{ "%.2f"|format(v.profit_factor) if v.profit_factor is not none else '—' }}
+          · win {{ "%.0f"|format(v.win_pct) if v.win_pct is not none else '—' }}%
+          · n={{ v.n_trades }}
+          {% if v.control_pf is not none %}· control PF {{ "%.2f"|format(v.control_pf) }}{% endif %}
+          · bar PF≥{{ "%.2f"|format(v.threshold_pf) }}
+          · {{ v.ts[:10] }}
+        </span>
+        <a href="/strategies/{{ s.name }}/validations" class="text-xs"
+           style="color:var(--accent-blue);text-decoration:none;">history →</a>
+      {% else %}
+        <span class="badge badge-gray">not yet validated</span>
+        <span class="text-secondary text-xs">Click ✓ Validate to backtest and earn the status.</span>
+      {% endif %}
+    </div>
 
     <table class="strategy-detail-table">
       <tr>
@@ -272,10 +302,11 @@ async function runStrategy(name, btn) {
       return;
     }
     let signals = 0, plans = 0, approved = 0, blocked = 0, errors = 0;
-    let firstErr = null;
+    let firstErr = null, runId = null;
     (j.runs || []).forEach(run => {
       if (run.error) { errors++; if (!firstErr) firstErr = run.error; }
       const res = run.result || {};
+      if (!runId && res.run_id) runId = res.run_id;
       signals  += res.signals_generated || 0;
       plans    += res.plans_proposed    || 0;
       approved += res.plans_approved    || 0;
@@ -294,6 +325,7 @@ async function runStrategy(name, btn) {
           approved + ' approved · ' +
           blocked + ' blocked' +
         '</span>' +
+        (runId ? ('<a href="/runs/' + runId + '" class="text-xs" style="color:var(--accent-blue);text-decoration:none;margin-left:8px;">drill down →</a>') : '') +
         (firstErr ? ('<span class="text-accent-red text-xs">err: ' + escapeHtml(firstErr).substring(0, 80) + '</span>') : '');
     }
   } catch (e) {
@@ -309,6 +341,74 @@ async function runStrategy(name, btn) {
     btn.disabled = false;
     btn.classList.remove('btn-running');
   }
+}
+
+async function validateAllStrategies(btn) {
+  const cards = Array.from(document.querySelectorAll('.strategy-card'));
+  const targets = cards.map(c => ({
+    name: c.dataset.strategy,
+    btn: c.querySelector('button[onclick^="validateStrategy"]'),
+  })).filter(t => t.name && t.btn);
+  if (!targets.length) return;
+  btn.disabled = true; const orig = btn.innerHTML;
+  btn.innerHTML = 'Validating ' + targets.length + '…';
+  // Fire concurrently — each is an independent background job with its own poll.
+  targets.forEach(t => { try { validateStrategy(t.name, t.btn); } catch (e) {} });
+  setTimeout(() => { btn.disabled = false; btn.innerHTML = orig; }, 4000);
+}
+
+async function validateStrategy(name, btn) {
+  const strip = document.getElementById('val-strip-' + name);
+  const orig = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = '⏳ Validating…';
+  if (strip) strip.innerHTML =
+    '<span class="badge badge-blue">running</span>' +
+    '<span class="text-secondary text-xs"> backtesting over historical bars — this takes ~3–5 min; you can leave the page and come back…</span>';
+  try {
+    const r = await fetch('/api/strategies/' + encodeURIComponent(name) + '/validate', {method:'POST'});
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    // Poll for the stored result.
+    const started = Date.now();
+    const poll = async () => {
+      const pr = await fetch('/api/strategies/' + encodeURIComponent(name) + '/validation');
+      const pj = await pr.json();
+      const v = pj.validation;
+      const fresh = v && v.ts && (new Date(v.ts).getTime() >= started - 5000);
+      if (fresh && !pj.running) {
+        renderVal(strip, v);
+        btn.disabled = false; btn.innerHTML = orig;
+        return;
+      }
+      if (Date.now() - started > 10*60*1000) {  // 10-min safety cap
+        if (strip) strip.innerHTML = '<span class="badge badge-amber">timed out</span>' +
+          '<span class="text-secondary text-xs"> still running — refresh the page shortly.</span>';
+        btn.disabled = false; btn.innerHTML = orig;
+        return;
+      }
+      setTimeout(poll, 4000);
+    };
+    setTimeout(poll, 4000);
+  } catch (e) {
+    if (strip) strip.innerHTML = '<span class="badge badge-red">error</span>' +
+      '<span class="text-secondary text-xs"> ' + escapeHtml(e.message||String(e)) + '</span>';
+    btn.disabled = false; btn.innerHTML = orig;
+  }
+}
+
+function renderVal(strip, v) {
+  if (!strip) return;
+  const ok = v.verdict === 'validated';
+  const pf = (x) => (x === null || x === undefined) ? '—' : Number(x).toFixed(2);
+  strip.innerHTML =
+    '<span class="badge ' + (ok ? 'badge-green' : 'badge-amber') + '">' +
+      (ok ? '✓ Validated' : '✗ Failed validation') + '</span>' +
+    '<span class="text-secondary text-xs"> OOS PF <strong>' + pf(v.oos_profit_factor) +
+      '</strong> · full PF ' + pf(v.profit_factor) +
+      ' · win ' + (v.win_pct ?? '—') + '% · n=' + v.n_trades +
+      (v.control_pf != null ? ' · control PF ' + pf(v.control_pf) : '') +
+      ' · bar PF≥' + pf(v.threshold_pf) + ' · ' + (v.ts||'').slice(0,10) + '</span>' +
+    ' <a href="/strategies/' + encodeURIComponent(v.strategy) + '/validations" class="text-xs" ' +
+      'style="color:var(--accent-blue);text-decoration:none;">history →</a>';
 }
 
 function escapeHtml(s) {

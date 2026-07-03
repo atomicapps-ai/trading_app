@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Run drill-down — TradeAgent{% endblock %}
+{% block content %}
+<div style="max-width: 1000px;">
+
+  <div class="flex items-center gap-12 mb-8">
+    <a href="/runs" class="text-secondary text-sm" style="text-decoration:none;">← Scan history</a>
+  </div>
+
+  <div class="flex items-center gap-12 mb-8" style="flex-wrap:wrap;">
+    <h2 style="font-size:20px;font-weight:500;" class="mono">{{ run.workflow_id }}</h2>
+    <span class="badge badge-gray">{{ run.mode }}</span>
+    {% if run.status == 'error' %}<span class="badge badge-red">error</span>
+    {% else %}<span class="badge badge-green">{{ run.status }}</span>{% endif %}
+    <span class="text-tertiary text-sm mono">{{ (run.ts_start or '')[:19]|replace('T',' ') }}</span>
+  </div>
+  {% if run.error_message %}
+    <div class="card mb-16" style="border-left:3px solid var(--accent-red);">
+      <div class="text-secondary text-sm">Error: {{ run.error_message }}</div>
+    </div>
+  {% endif %}
+
+  {# ===== Summary strip ===== #}
+  <div class="flex gap-24 mb-16" style="flex-wrap:wrap;">
+    <div><div class="mono" style="font-size:24px;font-weight:600;">{{ outcomes.total_screened or run.symbols_analyzed }}</div>
+         <div class="text-secondary text-xs">screened</div></div>
+    <div><div class="mono" style="font-size:24px;font-weight:600;">{{ outcomes.shortlist_size or run.symbols_analyzed }}</div>
+         <div class="text-secondary text-xs">shortlist (analyzed)</div></div>
+    <div><div class="mono" style="font-size:24px;font-weight:600;">{{ run.signals_generated }}</div>
+         <div class="text-secondary text-xs">signals</div></div>
+    <div><div class="mono" style="font-size:24px;font-weight:600;">{{ run.plans_proposed }}</div>
+         <div class="text-secondary text-xs">plans</div></div>
+    <div><div class="mono {% if run.plans_approved %}text-accent-green{% endif %}" style="font-size:24px;font-weight:600;">{{ run.plans_approved }}</div>
+         <div class="text-secondary text-xs">queued</div></div>
+  </div>
+
+  {# ===== Why-zero explainer ===== #}
+  {% if run.plans_proposed == 0 %}
+    {% set shortlist_n = outcomes.shortlist_size or run.symbols_analyzed or 0 %}
+    {% if shortlist_n == 0 %}
+      {# Empty shortlist = a DATA / UNIVERSE problem, not strategy logic. #}
+      <div class="card mb-16" style="border-left:3px solid var(--accent-red);">
+        <div style="font-weight:500;margin-bottom:4px;">0 symbols reached analysis — universe/data problem</div>
+        <div class="text-secondary text-sm" style="line-height:1.6;">
+          The shortlist was <strong>empty</strong>, so the detector never ran on anything — this is
+          <em>not</em> the strategy rejecting trades. It means the scan's universe resolved to no
+          tickers, or none had cached bars. Check that a
+          <a href="/universe">stock screener is active and has saved tickers</a>, then run the scan
+          again (the first run auto-downloads missing daily candles and can be slow).
+        </div>
+      </div>
+    {% else %}
+      <div class="card mb-16" style="border-left:3px solid var(--accent-amber, #e0a458);">
+        <div style="font-weight:500;margin-bottom:4px;">0 trades this run — here's why</div>
+        <div class="text-secondary text-sm" style="line-height:1.6;">
+          {{ shortlist_n }} symbols were analyzed and the detector simply didn't fire on them (see
+          the <em>No setup</em> rows below), or the few that fired didn't build a plan. This is the
+          strategy's own entry logic, not a block — e.g. a breakout strategy needs a fresh
+          multi-month high today; a fear-dip strategy only fires when the market is actually
+          fearful. Scan the table to see each symbol's fate.
+        </div>
+      </div>
+    {% endif %}
+  {% endif %}
+
+  {# ===== Outcome tally ===== #}
+  <div class="flex gap-8 mb-16" style="flex-wrap:wrap;">
+    {% for code, meta in outcome_meta.items() %}
+      {% if tally.get(code) %}
+        <span class="badge badge-{{ meta.badge }}">{{ meta.label }}: {{ tally.get(code) }}</span>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  {# ===== Pre-shortlist filter rejections ===== #}
+  {% if outcomes.filter_rejections %}
+    <div class="card mb-16">
+      <div class="card-header"><span class="card-title">Pre-shortlist filter rejections</span></div>
+      <div class="text-secondary text-xs mb-8">Symbols screened out before analysis (aggregate reasons).</div>
+      <div class="flex gap-16" style="flex-wrap:wrap;">
+        {% for reason, count in outcomes.filter_rejections.items() %}
+          <span class="mono text-sm">{{ reason }}: <strong>{{ count }}</strong></span>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  {# ===== Per-symbol table with live filter ===== #}
+  <div class="card">
+    <div class="card-header" style="justify-content:space-between;">
+      <span class="card-title">Per-symbol processing ({{ symbols|length }})</span>
+      <input id="sym-filter" placeholder="filter symbol…" oninput="filterSyms(this.value)"
+             style="background:var(--surface-2);border:1px solid var(--border);color:var(--text-primary);
+                    border-radius:6px;padding:5px 10px;font-size:13px;width:180px;">
+    </div>
+    {% if symbols %}
+      <table class="data-table" id="sym-table">
+        <thead>
+          <tr><th>Symbol</th><th>Outcome</th><th>Dir</th><th class="num">Strength</th><th>Pattern</th><th>Detail</th></tr>
+        </thead>
+        <tbody>
+          {% for row in symbols %}
+            <tr data-sym="{{ row.symbol|upper }}">
+              <td>
+                {% if row.plan_id %}
+                  <a href="/trades/{{ row.plan_id }}" class="mono" style="color:var(--accent-blue);text-decoration:none;">{{ row.symbol }}</a>
+                {% else %}
+                  <span class="mono">{{ row.symbol }}</span>
+                {% endif %}
+              </td>
+              <td><span class="badge badge-{{ row.badge }}">{{ row.label }}</span></td>
+              <td>{% if row.direction %}<span class="badge {% if row.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ row.direction|upper }}</span>{% else %}<span class="text-tertiary">—</span>{% endif %}</td>
+              <td class="num mono">{% if row.strength is not none %}{{ row.strength }}{% else %}<span class="text-tertiary">—</span>{% endif %}</td>
+              <td class="text-sm mono text-secondary">{{ row.pattern or '—' }}</td>
+              <td class="text-sm text-secondary">{{ row.detail }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="empty">No per-symbol detail recorded for this run.
+        {% if not outcomes %}(This run predates per-symbol capture — re-run the scan to populate it.){% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+function filterSyms(q) {
+  q = (q || '').trim().toUpperCase();
+  document.querySelectorAll('#sym-table tbody tr').forEach(tr => {
+    tr.style.display = (!q || tr.dataset.sym.includes(q)) ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}
