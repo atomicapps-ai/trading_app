@@ -264,7 +264,17 @@ async def _apply_active_account(slug: str) -> None:
         save_settings(s)
         logger.info("settings.app.mode aligned with active account: %s", target_mode)
     await broker_service.reset_adapter()
-    await broker_service.connect_adapter()
+    # Best-effort connect: activation = selecting which account the app points
+    # at, and that must succeed even if the broker isn't reachable right now
+    # (e.g. IBKR Gateway not started yet). If connect fails, the account is
+    # still active; the UI shows Disconnected and the operator can hit Connect
+    # once the gateway is up. Letting this raise would make Activate look like a
+    # silent no-op.
+    try:
+        await broker_service.connect_adapter()
+    except Exception as e:  # noqa: BLE001
+        logger.warning("activate: adapter connect failed for %s (%s) — "
+                       "account is active but disconnected", slug, e)
 
 
 @router.get("/api/broker/account-card", response_class=HTMLResponse)
