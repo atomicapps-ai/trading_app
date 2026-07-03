@@ -128,12 +128,15 @@ async def create_account(
     extra: dict | None = None,
     activate: bool = False,
 ) -> dict:
-    if provider not in ("alpaca", "tradestation"):
+    if provider not in ("alpaca", "tradestation", "ibkr", "oanda"):
         raise ValueError(f"unknown provider: {provider!r}")
     if account_type not in ("paper", "live"):
         raise ValueError(f"account_type must be 'paper' or 'live', got {account_type!r}")
-    if not key_id.strip() or not secret.strip():
-        raise ValueError("key_id and secret are required")
+    # IBKR auth is the local gateway login (host/port in .env), NOT API keys —
+    # so key_id/secret are optional for it. TradeStation is OAuth (refresh token
+    # in .env), so it doesn't need them here either. Alpaca/OANDA do.
+    if provider in ("alpaca", "oanda") and (not key_id.strip() or not secret.strip()):
+        raise ValueError(f"{provider} requires key_id and secret")
 
     slug = slug or _unique_slug(label, provider, account_type)
     async with aiosqlite.connect(DB_PATH) as db:

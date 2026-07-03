@@ -35,15 +35,21 @@ logger = logging.getLogger(__name__)
 
 # ib_insync (original) or ib_async (maintained fork) — import whichever is present.
 try:
-    from ib_insync import IB, Forex, Stock, Future, MarketOrder, LimitOrder, StopOrder  # type: ignore
+    from ib_insync import (IB, Contract, Forex, Stock, Future,  # type: ignore
+                           MarketOrder, LimitOrder, StopOrder)
     _IB_LIB = "ib_insync"
 except ImportError:  # pragma: no cover
     try:
-        from ib_async import IB, Forex, Stock, Future, MarketOrder, LimitOrder, StopOrder  # type: ignore
+        from ib_async import (IB, Contract, Forex, Stock, Future,  # type: ignore
+                              MarketOrder, LimitOrder, StopOrder)
         _IB_LIB = "ib_async"
     except ImportError:
         IB = None  # type: ignore
         _IB_LIB = None
+
+# Spot metals trade as CMDTY on IBKR (XAUUSD = gold), NOT forex — must be
+# routed before the 6-alpha forex rule or XAUUSD wrongly becomes a Forex pair.
+_METALS = {"XAUUSD", "XAGUSD", "XPTUSD", "XPDUSD"}
 
 
 class IbkrAdapter(BrokerAdapter):
@@ -69,6 +75,9 @@ class IbkrAdapter(BrokerAdapter):
             sym, exch, expiry = (body.split(":") + ["", ""])[:3]
             sym = sym or s.split("=")[0]
             return Future(sym, expiry, exch or "GLOBEX")
+        if s in _METALS:                                   # spot gold/silver etc.
+            return Contract(secType="CMDTY", symbol=s, exchange="SMART",
+                            currency="USD")
         if len(s) == 6 and s.isalpha():                    # FX pair
             return Forex(s)
         return Stock(s, "SMART", "USD")
@@ -102,16 +111,34 @@ class IbkrAdapter(BrokerAdapter):
     # ── account ──────────────────────────────────────────────────────
     async def get_account_state(self) -> AccountState:
         summ = {r.tag: r.value for r in await self._ib.accountSummaryAsync()}
+        # portfolio() carries marketPrice + unrealizedPNL per position; plain
+        # positions() does not. Fall back to positions() if the portfolio is
+        # empty (e.g. brand-new session before it populates).
+        portfolio = self._ib.portfolio()
         positions: list[Position] = []
-        for p in self._ib.positions():
-            if p.position == 0:
-                continue
-            sym = p.contract.symbol + (p.contract.currency if p.contract.secType == "CASH" else "")
-            positions.append(Position(
-                symbol=sym, shares=int(p.position),
-                avg_entry_price=float(p.avgCost or 0), market_price=0.0,
-                unrealized_pnl_usd=0.0,
-            ))
+        if portfolio:
+            for it in portfolio:
+                if it.position == 0:
+                    continue
+                c = it.contract
+                sym = c.symbol + (c.currency if c.secType in ("CASH", "CMDTY") else "")
+                positions.append(Position(
+                    symbol=sym, shares=int(it.position),
+                    avg_entry_price=float(it.averageCost or 0),
+                    market_price=float(it.marketPrice or 0),
+                    unrealized_pnl_usd=float(it.unrealizedPNL or 0),
+                ))
+        else:
+            for p in self._ib.positions():
+                if p.position == 0:
+                    continue
+                c = p.contract
+                sym = c.symbol + (c.currency if c.secType in ("CASH", "CMDTY") else "")
+                positions.append(Position(
+                    symbol=sym, shares=int(p.position),
+                    avg_entry_price=float(p.avgCost or 0), market_price=0.0,
+                    unrealized_pnl_usd=0.0,
+                ))
         f = lambda k: float(summ.get(k, 0) or 0)  # noqa: E731
         return AccountState(
             account_id=summ.get("AccountType", self._label), broker=self._label, type="margin",
@@ -162,7 +189,31 @@ class IbkrAdapter(BrokerAdapter):
                             accepted=False, ts=self._now(), reject_reason=str(e))
 
     async def modify_order(self, broker_order_id: str, changes: dict) -> OrderAck:
-        raise NotImplementedError("IBKR modify_order — re-place with same orderId; TODO full build")
+        """Modify a working order in place. IBKR modifies by re-transmitting the
+        SAME Order object (same orderId) with changed fields — placeOrder on an
+        existing orderId is an amend, not a new order. Supports limit_price,
+        stop_price (aux), and quantity."""
+        try:
+            trade = next((t for t in self._ib.openTrades()
+                          if str(t.order.orderId) == str(broker_order_id)), None)
+            if trade is None:
+                return OrderAck(client_order_id="", broker_order_id=broker_order_id,
+                                accepted=False, ts=self._now(),
+                                reject_reason="order not found among open trades")
+            o = trade.order
+            if changes.get("limit_price") is not None:
+                o.lmtPrice = float(changes["limit_price"])
+            if changes.get("stop_price") is not None:
+                o.auxPrice = float(changes["stop_price"])
+            if changes.get("quantity") is not None:
+                o.totalQuantity = float(changes["quantity"])
+            o.transmit = True
+            self._ib.placeOrder(trade.contract, o)   # same orderId → amend
+            return OrderAck(client_order_id=str(getattr(o, "orderRef", "") or ""),
+                            broker_order_id=str(o.orderId), accepted=True, ts=self._now())
+        except Exception as e:  # noqa: BLE001
+            return OrderAck(client_order_id="", broker_order_id=broker_order_id,
+                            accepted=False, ts=self._now(), reject_reason=str(e))
 
     async def cancel_order(self, broker_order_id: str) -> OrderAck:
         try:
