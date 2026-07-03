@@ -39,8 +39,38 @@ async def main() -> int:
 
     paper = not a.live
     adapter = IbkrAdapter(paper=paper, host=a.host, port=a.port)
-    print(f"→ connecting to {adapter._host}:{adapter._port} "
-          f"({'paper' if paper else 'LIVE'})…")
+    host, port = adapter._host, adapter._port
+
+    # Raw TCP preflight — distinguishes the failure modes BEFORE the API layer:
+    #   OPEN    → the port is reachable; any hang after this is the API
+    #             handshake (settings not applied, or a hidden accept dialog).
+    #   REFUSED → nothing is listening on this port (Gateway not bound here /
+    #             not running / wrong port / a second app grabbed it).
+    #   TIMEOUT → packets are being dropped → a firewall (e.g. TinyWall) is
+    #             blocking THIS client (.venv python.exe), not just the server.
+    import socket
+    print(f"→ TCP preflight to {host}:{port} …")
+    sk = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sk.settimeout(4)
+    try:
+        sk.connect((host, port))
+        print(f"  TCP: OPEN — the port is reachable.")
+    except socket.timeout:
+        print(f"  TCP: TIMEOUT — packets dropped → firewall is blocking this "
+              f"client. Allow {sys.executable} in TinyWall (or disable it to test).")
+        return 2
+    except ConnectionRefusedError:
+        print(f"  TCP: REFUSED — nothing is listening on {port}. Is Gateway on "
+              f"this exact port, applied + restarted? (paper Gateway = 4002)")
+        return 2
+    except Exception as e:  # noqa: BLE001
+        print(f"  TCP: error {e}")
+    finally:
+        sk.close()
+
+    print(f"→ connecting to {host}:{port} ({'paper' if paper else 'LIVE'})…")
+    print("  (if this hangs ~10s then times out with TCP OPEN above, look for a "
+          "hidden 'Accept incoming connection' popup in IB Gateway)")
     try:
         await adapter.connect()
     except Exception as e:  # noqa: BLE001
