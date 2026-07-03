@@ -58,7 +58,8 @@
                        document.getElementById('account-form-mode').value='create';
                        document.getElementById('account-form-slug').value='';
                        document.getElementById('account-form-title').textContent='Add account';
-                       document.getElementById('account-form').reset();">
+                       document.getElementById('account-form').reset();
+                       onProviderChange();">
         + Add account
       </button>
       <span id="accounts-toast" class="text-sm" style="margin-left: 12px;"></span>
@@ -85,7 +86,7 @@
           </label>
           <label style="display: flex; flex-direction: column; gap: 4px;">
             <span class="text-secondary text-xs">Provider</span>
-            <select name="provider" required class="form-input">
+            <select name="provider" required class="form-input" onchange="onProviderChange()">
               <option value="alpaca">alpaca</option>
               <option value="ibkr">ibkr (stocks + FX + gold — gateway login, no keys)</option>
               <option value="tradestation">tradestation</option>
@@ -106,14 +107,14 @@
             <span class="text-secondary text-sm">Activate after save</span>
           </label>
         </div>
-        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+        <div id="account-creds-row" class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
           <label style="display: flex; flex-direction: column; gap: 4px;">
-            <span class="text-secondary text-xs">API key ID</span>
+            <span class="text-secondary text-xs" id="account-key-label">API key ID</span>
             <input type="text" name="key_id" autocomplete="off" class="form-input mono"
                    placeholder="(leave blank on edit to keep current)">
           </label>
           <label style="display: flex; flex-direction: column; gap: 4px;">
-            <span class="text-secondary text-xs">API secret</span>
+            <span class="text-secondary text-xs" id="account-secret-label">API secret</span>
             <input type="password" name="secret" autocomplete="off" class="form-input mono"
                    placeholder="(leave blank on edit to keep current)">
           </label>
@@ -135,7 +136,7 @@
             </span>
           </label>
         </div>
-        <div class="text-tertiary text-xs" style="margin-bottom: 12px;">
+        <div id="account-provider-hint" class="text-tertiary text-xs" style="margin-bottom: 12px;">
           Stored in the local SQLite DB (gitignored). For Alpaca, get keys at
           <span class="mono">app.alpaca.markets</span> → API Keys. Live mode requires a funded account.
         </div>
@@ -342,6 +343,9 @@
       }
     } catch (_) { /* fields stay at form defaults */ }
 
+    // Reflect the pre-filled provider (show/hide creds + right hint).
+    onProviderChange();
+
     // Editable on edit: label, provider, account_type, key_id, secret.
     f.elements['provider'].disabled = false;
     f.elements['account_type'].disabled = false;
@@ -373,6 +377,73 @@
     }
   }
 
+  // Keyless providers authenticate outside this app (IBKR = local Gateway
+  // login; TradeStation = OAuth refresh token in .env), so hide the API
+  // key/secret inputs and show a provider-specific hint. Alpaca/OANDA keep
+  // the fields. Called on provider change, on create-form open, and after
+  // edit pre-fill.
+  const PROVIDER_INFO = {
+    ibkr: {
+      keyless: true,
+      hint: 'IBKR authenticates through your local <b>IB Gateway/TWS login</b> — no API keys. '
+          + 'Make sure the gateway is running with the API enabled '
+          + '(paper <span class="mono">4002</span> / live <span class="mono">4001</span>; TWS 7497/7496). '
+          + 'Host/port come from <span class="mono">.env</span> '
+          + '(<span class="mono">IBKR_HOST</span>, <span class="mono">IBKR_PORT</span>, <span class="mono">IBKR_CLIENT_ID</span>).',
+    },
+    tradestation: {
+      keyless: true,
+      hint: 'TradeStation uses <b>OAuth</b>, not keys entered here. Set '
+          + '<span class="mono">TS_CLIENT_ID</span> / <span class="mono">TS_CLIENT_SECRET</span> / '
+          + '<span class="mono">TS_REFRESH_TOKEN</span> in <span class="mono">.env</span>. '
+          + 'Live trading requires a funded account.',
+    },
+    alpaca: {
+      keyless: false,
+      keyLabel: 'API key ID', secretLabel: 'API secret',
+      hint: 'Stored in the local SQLite DB (gitignored). Get keys at '
+          + '<span class="mono">app.alpaca.markets</span> → API Keys. Live mode requires a funded account.',
+    },
+    oanda: {
+      keyless: false,
+      keyLabel: 'Account ID', secretLabel: 'API token',
+      hint: 'OANDA (cloud REST): enter your <b>account id</b> as the key ID and your '
+          + '<b>API token</b> as the secret. Practice = paper, live = real.',
+    },
+  };
+
+  // FastAPI 422s carry `detail` as an array of {loc,msg} objects; plain string
+  // concatenation renders it as "[object Object]". Flatten to readable text.
+  function fmtDetail(detail, status) {
+    if (!detail) return 'HTTP ' + status;
+    if (typeof detail === 'string') return detail;
+    if (Array.isArray(detail)) {
+      return detail.map(e => {
+        const field = Array.isArray(e.loc) ? e.loc[e.loc.length - 1] : '';
+        return (field ? field + ': ' : '') + (e.msg || JSON.stringify(e));
+      }).join('; ');
+    }
+    return JSON.stringify(detail);
+  }
+
+  function onProviderChange() {
+    const f = document.getElementById('account-form');
+    const provider = f.elements['provider'].value;
+    const info = PROVIDER_INFO[provider] || PROVIDER_INFO.alpaca;
+    const credsRow = document.getElementById('account-creds-row');
+    const hint = document.getElementById('account-provider-hint');
+    credsRow.style.display = info.keyless ? 'none' : 'grid';
+    if (!info.keyless) {
+      document.getElementById('account-key-label').textContent = info.keyLabel;
+      document.getElementById('account-secret-label').textContent = info.secretLabel;
+    } else {
+      // Keyless: clear any typed creds so we never send stale key/secret.
+      f.elements['key_id'].value = '';
+      f.elements['secret'].value = '';
+    }
+    hint.innerHTML = info.hint;
+  }
+
   async function saveAccount(ev) {
     ev.preventDefault();
     const f = ev.target;
@@ -393,7 +464,7 @@
         document.getElementById('account-form-block').style.display = 'none';
         reloadAccountsList();
       } else {
-        const detail = (await r.json().catch(() => ({}))).detail || ('HTTP ' + r.status);
+        const detail = fmtDetail((await r.json().catch(() => ({}))).detail, r.status);
         setAccountsToast('Save failed: ' + detail, false);
       }
     } else {
@@ -408,7 +479,7 @@
         f.elements['activate'].disabled = false;
         reloadAccountsList();
       } else {
-        const detail = (await r.json().catch(() => ({}))).detail || ('HTTP ' + r.status);
+        const detail = fmtDetail((await r.json().catch(() => ({}))).detail, r.status);
         setAccountsToast('Create failed: ' + detail, false);
       }
     }

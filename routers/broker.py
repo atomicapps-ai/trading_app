@@ -127,8 +127,12 @@ async def broker_accounts_create(
     label: str = Form(...),
     provider: str = Form(...),
     account_type: str = Form(...),
-    key_id: str = Form(...),
-    secret: str = Form(...),
+    # Optional: IBKR authenticates via the local gateway login and TradeStation
+    # via an OAuth refresh token in .env — neither needs keys entered here. The
+    # service layer (account_service.create_account) still enforces that
+    # alpaca/oanda DO provide them. Requiring them here 422'd every IBKR add.
+    key_id: str = Form(""),
+    secret: str = Form(""),
     activate: bool = Form(False),
 ):
     try:
