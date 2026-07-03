@@ -110,7 +110,17 @@ class IbkrAdapter(BrokerAdapter):
         if self._ib is None:
             raise BrokerConnectionError("ib_insync not installed — pip install ib_insync")
         try:
-            await self._ib.connectAsync(self._host, self._port, clientId=self._client_id, timeout=10)
+            # readonly=True tells ib_insync to SKIP the open/completed-orders
+            # sync it normally runs at connect. That sync hangs on IB Gateway
+            # 10.45.x when the account is NOT read-only (a known regression) —
+            # causing connect itself to time out. Skipping it doesn't stop us
+            # placing/cancelling orders (those are explicit calls); it only
+            # skips pre-populating historical orders at connect. timeout bumped
+            # to give a slow gateway room.
+            await self._ib.connectAsync(
+                self._host, self._port, clientId=self._client_id,
+                timeout=20, readonly=True,
+            )
             logger.info("IBKR connected (%s) %s:%s clientId=%s via %s",
                         self._label, self._host, self._port, self._client_id, _IB_LIB)
             return self._ib.isConnected()
