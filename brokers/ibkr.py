@@ -62,6 +62,18 @@ except ImportError:  # pragma: no cover
 # routed before the 6-alpha forex rule or XAUUSD wrongly becomes a Forex pair.
 _METALS = {"XAUUSD", "XAGUSD", "XPTUSD", "XPDUSD"}
 
+import math as _math  # noqa: E402
+
+
+def _num(v, default: float = 0.0) -> float:
+    """Coerce an IBKR field to a float, treating None AND NaN as the default.
+    ib_insync returns NaN (not None) for unsubscribed fields; int(NaN) raises."""
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return default
+    return default if _math.isnan(f) else f
+
 
 class IbkrAdapter(BrokerAdapter):
     def __init__(self, *, paper: bool = True, host: str | None = None,
@@ -135,9 +147,9 @@ class IbkrAdapter(BrokerAdapter):
                 sym = c.symbol + (c.currency if c.secType in ("CASH", "CMDTY") else "")
                 positions.append(Position(
                     symbol=sym, shares=int(it.position),
-                    avg_entry_price=float(it.averageCost or 0),
-                    market_price=float(it.marketPrice or 0),
-                    unrealized_pnl_usd=float(it.unrealizedPNL or 0),
+                    avg_entry_price=_num(it.averageCost),
+                    market_price=_num(it.marketPrice),
+                    unrealized_pnl_usd=_num(it.unrealizedPNL),
                 ))
         else:
             for p in self._ib.positions():
@@ -163,10 +175,28 @@ class IbkrAdapter(BrokerAdapter):
     async def get_quote(self, symbol: str) -> Quote:
         contract = self._contract(symbol)
         await self._ib.qualifyContractsAsync(contract)
+        # Fall back to delayed data when the account lacks a live subscription
+        # (paper accounts usually do for US stocks) so quotes still return
+        # instead of NaN. 3 = delayed, 4 = delayed-frozen.
+        try:
+            self._ib.reqMarketDataType(3)
+        except Exception:  # noqa: BLE001
+            pass
         t = (await self._ib.reqTickersAsync(contract))[0]
-        bid = float(t.bid or 0); ask = float(t.ask or 0)
+        bid = _num(t.bid); ask = _num(t.ask)
+        # If top-of-book is unavailable (no live/delayed sub), fall back to
+        # last/close/mark so downstream sizing still has a price to work with.
+        if bid <= 0 and ask <= 0:
+            px = _num(t.last) or _num(t.close) or _num(getattr(t, "markPrice", 0))
+            if px <= 0:
+                try:
+                    mp = t.marketPrice()  # ib_insync helper; may itself be NaN
+                    px = _num(mp)
+                except Exception:  # noqa: BLE001
+                    px = 0.0
+            bid = ask = px
         return Quote(symbol=symbol, ts=self._now(), bid=bid, ask=ask,
-                     bid_size=int(t.bidSize or 0), ask_size=int(t.askSize or 0))
+                     bid_size=int(_num(t.bidSize)), ask_size=int(_num(t.askSize)))
 
     # ── orders ───────────────────────────────────────────────────────
     async def place_order(self, order: Order) -> OrderAck:
