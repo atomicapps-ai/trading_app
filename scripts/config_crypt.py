@@ -77,11 +77,36 @@ def cmd_encrypt(files: list[str], passphrase: str | None) -> int:
     pw = _get_passphrase(passphrase, confirm=True)
     salt = os.urandom(16)
     token = Fernet(_derive_key(pw, salt)).encrypt(json.dumps(bundle).encode("utf-8"))
-    # Format: MAGIC \n b64(salt) \n token   (all committed as config.enc)
-    BLOB.write_bytes(_MAGIC + b"\n" + base64.b64encode(salt) + b"\n" + token)
+    # SINGLE-LINE base64 of MAGIC + salt(16) + token. No embedded newlines, so
+    # git's CRLF conversion on Windows can't corrupt it (only a harmless
+    # trailing newline, which decrypt strips). .gitattributes marks it binary too.
+    BLOB.write_bytes(base64.b64encode(_MAGIC + salt + token))
     print(f"Encrypted {', '.join(bundle)} -> {BLOB.name} "
           f"({BLOB.stat().st_size} bytes). Commit {BLOB.name}.")
     return 0
+
+
+def _unpack(raw: bytes) -> tuple[bytes, bytes]:
+    """Return (salt, token) from config.enc. Handles the current single-line
+    base64 format and the legacy MAGIC\\n b64(salt) \\n token format, tolerating
+    CRLF that git may have injected on Windows."""
+    s = raw.strip()
+    # Current format: base64(MAGIC + salt + token)
+    try:
+        blob = base64.b64decode(s, validate=True)
+        if blob[:len(_MAGIC)] == _MAGIC:
+            body = blob[len(_MAGIC):]
+            return body[:16], body[16:]
+    except Exception:  # noqa: BLE001
+        pass
+    # Legacy multi-line format, CRLF-normalized
+    norm = raw.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    parts = norm.split(b"\n")
+    if parts and parts[0].strip() == _MAGIC and len(parts) >= 3:
+        salt = base64.b64decode(parts[1].strip())
+        token = b"".join(parts[2:]).strip()
+        return salt, token
+    raise ValueError("unrecognized config.enc format")
 
 
 def cmd_decrypt(passphrase: str | None, force: bool) -> int:
@@ -91,9 +116,7 @@ def cmd_decrypt(passphrase: str | None, force: bool) -> int:
         return 1
     raw = BLOB.read_bytes()
     try:
-        magic, salt_b64, token = raw.split(b"\n", 2)
-        assert magic == _MAGIC
-        salt = base64.b64decode(salt_b64)
+        salt, token = _unpack(raw)
     except Exception:  # noqa: BLE001
         print(f"{BLOB.name} is malformed.", file=sys.stderr)
         return 1

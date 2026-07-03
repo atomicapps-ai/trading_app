@@ -1,0 +1,3 @@
+# The encrypted config blob must never be line-ending converted — CRLF
+# injection on Windows checkout corrupts it. Treat it as binary.
+config.enc -text -diff
