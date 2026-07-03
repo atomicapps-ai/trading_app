@@ -30,6 +30,29 @@ Then open http://127.0.0.1:5000.
 > Python, which does not have the project's dependencies — that is the single
 > most common "it worked on the other machine" failure.
 
+## Source-controlling the config (encrypted)
+
+Instead of hand-editing `.env` on every machine, you can commit it **encrypted**
+and decrypt it anywhere with one shared passphrase (kept in a password manager —
+it's the only thing not in git):
+
+```
+# after editing .env (and/or settings.yaml), bundle + encrypt -> config.enc
+python -m scripts.config_crypt encrypt        # then: git add config.enc && commit && push
+
+# on any machine, after git pull:
+python -m scripts.config_crypt decrypt         # recreates .env (+ settings.yaml)
+```
+
+- Only the encrypted `config.enc` is committed; the plaintext `.env` /
+  `settings.yaml` stay gitignored.
+- Passphrase comes from `--passphrase`, `$CONFIG_PASSPHRASE`, or a prompt.
+- Crypto: Fernet (AES-128-CBC + HMAC) with a scrypt-derived key.
+- Tradeoff: committing encrypted secrets means anyone with the repo **and** the
+  passphrase can read them — use a strong passphrase, and rotate any credential
+  if the passphrase is ever exposed. (For IBKR this is low-stakes: auth is the
+  local gateway login, not API keys.)
+
 ## What git carries vs. what each machine provides
 
 | Thing | In git? | How a fresh machine gets it |
