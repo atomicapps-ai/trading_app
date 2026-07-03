@@ -304,8 +304,16 @@ async def run_fvg_scan(settings: Settings | None = None,
     compliance = ComplianceOfficer(s)
     risk = RiskManager(s)
 
+    # Symbols the operator already holds — a setup for one of these has already
+    # been accepted (it IS the position), so we flag it and don't re-queue.
+    held_symbols = {
+        p.symbol.upper() for p in getattr(account, "open_positions", []) or []
+        if abs(getattr(p, "shares", 0) or 0) > 0
+    }
+
     proposed = 0
     approved = 0
+    seen_before = 0
     blocked: list[dict] = []
     per_symbol: list[dict] = []
     fresh_cutoff = until - timedelta(days=FRESHNESS_DAYS)
@@ -334,6 +342,35 @@ async def run_fvg_scan(settings: Settings | None = None,
                 "entry": _round_px(sym, float(trade.entry)),
                 "stop": _round_px(sym, float(trade.stop)),
                 "tp": _round_px(sym, float(trade.tp)) if trade.tp is not None else None,
+            })
+            continue
+
+        setup_px = {
+            "direction": trade.direction,
+            "entry": _round_px(sym, float(trade.entry)),
+            "stop": _round_px(sym, float(trade.stop)),
+            "tp": _round_px(sym, float(trade.tp)) if trade.tp is not None else None,
+        }
+
+        # Guard 1 — already a position. The operator accepted this instrument;
+        # don't propose another trade in it. Surface it, flagged, don't queue.
+        if sym.upper() in held_symbols:
+            seen_before += 1
+            per_symbol.append({"symbol": sym, "status": "position_open",
+                               "session": trade.date_str, **setup_px})
+            continue
+
+        # Guard 2 — same NY session already queued/seen on a prior scan. Dedup
+        # on (symbol, session) so a daily re-run never re-lists an unchanged
+        # setup. Flag it (with the prior status + plan_id) instead of inserting
+        # a duplicate row.
+        prior = await db_service.find_session_plan(sym, STRATEGY, trade.date_str)
+        if prior is not None:
+            seen_before += 1
+            per_symbol.append({
+                "symbol": sym, "status": "already_listed",
+                "session": trade.date_str, "prior_status": prior["status"],
+                "plan_id": prior["plan_id"], **setup_px,
             })
             continue
 
@@ -398,12 +435,14 @@ async def run_fvg_scan(settings: Settings | None = None,
     except Exception as e:  # noqa: BLE001
         logger.warning("fvg_scan: record_pipeline_run failed: %s", e)
 
-    logger.info("fvg_scan: %d symbols, %d setups, %d queued, %d blocked",
-                len(symbols), proposed, approved, len(blocked))
+    logger.info("fvg_scan: %d symbols, %d setups, %d queued, %d blocked, "
+                "%d already-seen (deduped)",
+                len(symbols), proposed, approved, len(blocked), seen_before)
     return {
         "strategy": STRATEGY, "run_id": run_id,
         "symbols_scanned": len(symbols),
         "setups_found": proposed, "plans_approved": approved,
+        "seen_before": seen_before,
         "plans_blocked": blocked, "per_symbol": per_symbol,
         "mode": effective_mode, "refresh": refresh_status,
         # Aliases so the Strategies "Run" result strip (which reads the equity
