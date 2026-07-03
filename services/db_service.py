@@ -739,6 +739,38 @@ async def get_pending_plans(
     return [_row_to_ui_dict(r) for r in rows]
 
 
+async def find_session_plan(
+    symbol: str, strategy: str, session_date: str,
+) -> dict | None:
+    """Most-recent pending_approvals row for this symbol+strategy whose plan
+    targets ``session_date`` (``thesis.session_date``), or None.
+
+    Session-based strategies (FVG) re-evaluate the *latest* NY session each
+    scan. If no new session fired, the latest is unchanged — without this
+    lookup a daily re-run would queue a duplicate of a setup the operator has
+    already seen, accepted, or rejected. We key on (symbol, session) because
+    that pair uniquely identifies one displacement-FVG setup. Any status counts
+    as 'already seen' (pending / approved / executed / rejected).
+    """
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT plan_id, status, plan_json FROM pending_approvals "
+            "WHERE UPPER(symbol) = ? AND strategy = ? ORDER BY ts_created DESC",
+            (symbol.upper(), strategy),
+        )
+        rows = await cur.fetchall()
+    for r in rows:
+        try:
+            pj = json.loads(r["plan_json"]) if r["plan_json"] else {}
+        except Exception:  # noqa: BLE001
+            continue
+        if (pj.get("thesis") or {}).get("session_date") == session_date:
+            return {"plan_id": r["plan_id"], "status": r["status"],
+                    "session_date": session_date}
+    return None
+
+
 async def get_latest_plan_for_symbol(symbol: str) -> dict | None:
     """Most-recent pending_approvals row for a symbol, ANY status.
 
