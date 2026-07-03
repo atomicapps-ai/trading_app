@@ -35,10 +35,14 @@ async def main() -> int:
                     help="connect to the LIVE port (4001) instead of paper")
     ap.add_argument("--order", action="store_true",
                     help="also place + cancel a 1-share AAPL paper order")
+    ap.add_argument("--client-id", type=int, default=None,
+                    help="override IBKR client id (try a fresh one if the "
+                         "handshake hangs — a stale connection may hold the default)")
     a = ap.parse_args()
 
     paper = not a.live
-    adapter = IbkrAdapter(paper=paper, host=a.host, port=a.port)
+    adapter = IbkrAdapter(paper=paper, host=a.host, port=a.port,
+                          client_id=a.client_id)
     host, port = adapter._host, adapter._port
 
     # Raw TCP preflight — distinguishes the failure modes BEFORE the API layer:
