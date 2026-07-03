@@ -12,7 +12,7 @@ turnkey and lists exactly what each machine has to provide itself.
 git clone <repo> ; cd trading_app
 .\setup.ps1                      # venv + deps + .env seed + import check
 # edit .env  (broker + ports)
-.\.venv\Scripts\python.exe run.py dev
+.\run dev                        # start the app
 ```
 
 ```bash
@@ -20,15 +20,23 @@ git clone <repo> ; cd trading_app
 git clone <repo> && cd trading_app
 ./setup.sh
 # edit .env
-.venv/bin/python run.py dev
+./run dev
 ```
 
 Then open http://127.0.0.1:5000.
 
-> **Always launch with the venv's Python** (`.\.venv\Scripts\python.exe` on
-> Windows, `.venv/bin/python` elsewhere). Bare `python` resolves to system
-> Python, which does not have the project's dependencies — that is the single
-> most common "it worked on the other machine" failure.
+> **You don't need to activate the venv or type its Python path.** The `run`
+> launcher (`run.cmd` on Windows, `run` on macOS/Linux) always uses the
+> project's venv Python. And even if you call `python run.py dev` directly with
+> the wrong (system) Python, `run.py` re-execs itself under the venv
+> automatically — so the old "it worked on the other machine" failure
+> (missing `aiosqlite`, `ib_insync`, …) can't happen anymore.
+>
+> Commands:
+> - Windows PowerShell: `.\run dev`   (the `.\` is required by PowerShell)
+> - Windows cmd:        `run dev`
+> - macOS / Linux:      `./run dev`
+> - `prod` mode + flags pass straight through: `.\run prod --port 8080`
 
 ## Source-controlling the config (encrypted)
 
