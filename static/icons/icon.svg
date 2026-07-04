@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#13151f"/>
+  <!-- upward trend line + arrow (accent blue) -->
+  <g fill="none" stroke="#4a9eff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="120,340 214,262 292,312 392,176"/>
+    <polyline points="330,168 400,164 396,236"/>
+  </g>
+  <!-- candle bodies -->
+  <g fill="#4a9eff" opacity="0.28">
+    <rect x="150" y="300" width="34" height="70" rx="6"/>
+    <rect x="258" y="278" width="34" height="92" rx="6"/>
+    <rect x="360" y="214" width="34" height="156" rx="6"/>
+  </g>
+</svg>

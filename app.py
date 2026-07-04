@@ -34,6 +34,7 @@ from routers import (
     news_detail,
     pending,
     positions as positions_router,
+    pwa as pwa_router,
     replay as replay_router,
     research as research_router,
     settings as settings_router,
@@ -163,6 +164,7 @@ else:
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 app.include_router(auth_router.router)
+app.include_router(pwa_router.router)
 app.include_router(dashboard.router)
 app.include_router(alerts.router)
 app.include_router(pending.router)
