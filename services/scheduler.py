@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 
 if TYPE_CHECKING:
     pass
@@ -56,6 +57,7 @@ def start_scheduler() -> None:
     _register_senate_diff_job(sched)
     _register_workflow_jobs(sched)
     _register_daily_digest_job(sched)
+    _register_gateway_watchdog_job(sched)
 
     sched.start()
     logger.info("Scheduler started — %d jobs registered", len(sched.get_jobs()))
@@ -77,6 +79,37 @@ def stop_scheduler() -> None:
         _scheduler.shutdown(wait=False)
         logger.info("Scheduler stopped")
     _scheduler = None
+
+
+# --------------------------------------------------------------------------- #
+# Job: broker gateway watchdog (unattended resilience)
+# --------------------------------------------------------------------------- #
+
+
+def _register_gateway_watchdog_job(sched: AsyncIOScheduler) -> None:
+    """Poll the broker connection so an IBKR gateway that dies while the
+    operator is away is detected, auto-reconnected, and — on a real outage —
+    pushed to their phone via ntfy. No-ops in research mode."""
+    from services.gateway_watchdog import CHECK_INTERVAL_MINUTES
+    sched.add_job(
+        _gateway_watchdog_job,
+        IntervalTrigger(minutes=CHECK_INTERVAL_MINUTES),
+        id="gateway_watchdog",
+        name="Broker gateway watchdog",
+        replace_existing=True,
+        misfire_grace_time=60,
+        coalesce=True,          # a backlog of missed ticks collapses to one
+        max_instances=1,        # never overlap two health checks
+    )
+    logger.info("Registered gateway watchdog (every %d min)", CHECK_INTERVAL_MINUTES)
+
+
+async def _gateway_watchdog_job() -> None:
+    from services.gateway_watchdog import check_gateway_health
+    try:
+        await check_gateway_health()
+    except Exception as exc:  # noqa: BLE001 — a watchdog must never crash the loop
+        logger.warning("gateway_watchdog job raised: %s", exc)
 
 
 # --------------------------------------------------------------------------- #
