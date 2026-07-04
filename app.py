@@ -20,6 +20,7 @@ from fastapi.staticfiles import StaticFiles
 from routers import (
     alerts,
     analysis,
+    auth as auth_router,
     bars,
     broker,
     copy_trading,
@@ -143,8 +144,25 @@ app = FastAPI(
 )
 
 ensure_directories()
+
+# Auth gate — pass-through unless APP_AUTH_PASSWORD is set (local dev unchanged).
+# Added before routers so it wraps every request. Warn loudly if it's off, since
+# an internet-exposed deployment without it would be wide open.
+from services.auth_middleware import AuthMiddleware  # noqa: E402
+from services.auth_service import auth_enabled  # noqa: E402
+
+app.add_middleware(AuthMiddleware)
+if auth_enabled():
+    logger.info("Auth: ENABLED (session password gate active)")
+else:
+    logger.warning(
+        "Auth: DISABLED — no APP_AUTH_PASSWORD set. Fine for local use; set it "
+        "before exposing the app to the internet (Cloudflare Tunnel, etc.)."
+    )
+
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
+app.include_router(auth_router.router)
 app.include_router(dashboard.router)
 app.include_router(alerts.router)
 app.include_router(pending.router)
