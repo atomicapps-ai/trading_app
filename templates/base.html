@@ -3,11 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0f1117">
+  <meta name="theme-color" content="#13151f">
   <title>{% block title %}TradeAgent{% endblock %}</title>
+  {# PWA: installable on phone/desktop home screen #}
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/static/icons/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TradeAgent">
   <link rel="stylesheet" href="/static/app.css">
   <script src="/static/htmx.min.js" defer></script>
   <script src="/static/grid_sort.js" defer></script>
+  <script>
+    // Register the service worker so the app is installable. Best-effort.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/service-worker.js').catch(function () {});
+      });
+    }
+  </script>
 </head>
 <body>
   <div class="app-shell">
