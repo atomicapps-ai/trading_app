@@ -134,12 +134,15 @@ async def record_alert(
 
         # Click URL deep-links to the right page. Armed alerts go to the
         # specific pending approval; everything else lands on the dashboard.
-        host = s.app.tailscale_hostname or "127.0.0.1"
-        port = s.app.port
+        # Prefer the public origin (e.g. https://app.tindex.ai) when deployed
+        # so tapping the push opens the real site, not an unreachable LAN host.
+        base = (s.app.public_base_url or "").rstrip("/")
+        if not base:
+            base = f"http://{s.app.tailscale_hostname or '127.0.0.1'}:{s.app.port}"
         if kind == "armed" and plan_id:
-            click_url = f"http://{host}:{port}/pending/{plan_id}"
+            click_url = f"{base}/pending/{plan_id}"
         else:
-            click_url = f"http://{host}:{port}/"
+            click_url = f"{base}/"
 
         await ntfy_service.push(
             title=title,

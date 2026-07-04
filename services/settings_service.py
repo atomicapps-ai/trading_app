@@ -51,6 +51,11 @@ class AppSettings(BaseModel):
     port: int = 5000
     tailscale_hostname: str = "my-trading-pc"
     mode: Mode = "paper"
+    # Public origin the app is reached at once deployed (e.g.
+    # "https://app.tindex.ai"). Used to build absolute links in phone-push
+    # notifications so tapping an alert opens the real site. Populated from the
+    # PUBLIC_BASE_URL env var at load time (see _load_from_disk); empty = local.
+    public_base_url: str = ""
 
 
 class NtfyPriorityMap(BaseModel):
@@ -165,10 +170,18 @@ class Settings(BaseModel):
 
 
 def _load_from_disk() -> Settings:
-    if not SETTINGS_FILE.exists():
-        return Settings()
-    raw = yaml.safe_load(SETTINGS_FILE.read_text(encoding="utf-8")) or {}
-    return Settings.model_validate(raw)
+    if SETTINGS_FILE.exists():
+        raw = yaml.safe_load(SETTINGS_FILE.read_text(encoding="utf-8")) or {}
+        s = Settings.model_validate(raw)
+    else:
+        s = Settings()
+    # Env override for the public origin — it's deployment/secret config, so it
+    # lives in .env (encrypted into config.enc), not settings.yaml.
+    import os
+    env_url = os.environ.get("PUBLIC_BASE_URL", "").strip()
+    if env_url:
+        s.app.public_base_url = env_url.rstrip("/")
+    return s
 
 
 @lru_cache(maxsize=1)
