@@ -40,26 +40,53 @@ Then open http://127.0.0.1:5000.
 
 ## Source-controlling the config (encrypted)
 
-Instead of hand-editing `.env` on every machine, you can commit it **encrypted**
-and decrypt it anywhere with one shared passphrase (kept in a password manager —
-it's the only thing not in git):
+Instead of hand-copying config to every machine, commit it **encrypted** and
+decrypt it anywhere with one shared passphrase (kept in a password manager —
+it's the only thing not in git). One `config.enc` now carries **everything a
+second laptop needs to become the host**:
+
+| Bundled file | Where it lands on decrypt | What it's for |
+|---|---|---|
+| `.env` | project root | password, IBKR ports, `PUBLIC_BASE_URL`, `BROKER_PROVIDER` |
+| `settings.yaml` | project root | app/risk/compliance settings |
+| `~/.cloudflared/config.yml` | home `.cloudflared` | the tunnel's ingress rules |
+| `~/.cloudflared/cert.pem` | home `.cloudflared` | Cloudflare account cert (manage tunnels) |
+| `~/.cloudflared/<UUID>.json` | home `.cloudflared` | tunnel credentials (run the SAME tunnel on either laptop) |
+
+### The update loop (whenever any of those change)
 
 ```
-# after editing .env (and/or settings.yaml), bundle + encrypt -> config.enc
-python -m scripts.config_crypt encrypt        # then: git add config.enc && commit && push
+# On the machine where you edited a config file:
+python -m scripts.config_crypt encrypt        # rebuilds config.enc from all of the above
+git add config.enc
+git commit -m "config: <what changed>"
+git push
 
-# on any machine, after git pull:
-python -m scripts.config_crypt decrypt         # recreates .env (+ settings.yaml)
+# On the other laptop:
+git pull
+python -m scripts.config_crypt decrypt         # recreates every file in the right place
+#   add --force to overwrite a locally-edited copy
 ```
 
-- Only the encrypted `config.enc` is committed; the plaintext `.env` /
-  `settings.yaml` stay gitignored.
+That's the whole workflow: **edit → encrypt → commit → push** on one, **pull →
+decrypt** on the other. After decrypting, restart the app (and tunnel) to pick
+up changes.
+
+- Only the encrypted `config.enc` is committed; every plaintext file stays
+  gitignored / outside the repo.
+- `~/...` paths are home-relative, so they re-resolve correctly on each machine
+  (works even if the two laptops have different usernames).
 - Passphrase comes from `--passphrase`, `$CONFIG_PASSPHRASE`, or a prompt.
 - Crypto: Fernet (AES-128-CBC + HMAC) with a scrypt-derived key.
 - Tradeoff: committing encrypted secrets means anyone with the repo **and** the
   passphrase can read them — use a strong passphrase, and rotate any credential
-  if the passphrase is ever exposed. (For IBKR this is low-stakes: auth is the
-  local gateway login, not API keys.)
+  (incl. re-creating the tunnel) if the passphrase is ever exposed. Because the
+  bundle now includes the Cloudflare tunnel credentials + account cert, treat
+  the passphrase as protecting tunnel control too.
+
+> **Two-laptop / one-host-at-a-time:** because the tunnel credentials travel in
+> `config.enc`, both laptops can run the *same* tunnel (`cloudflared tunnel run
+> tindex-app`) — just never both at once. See DEPLOY.md.
 
 ## What git carries vs. what each machine provides
 
