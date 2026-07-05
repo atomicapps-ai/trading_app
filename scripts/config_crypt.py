@@ -36,9 +36,71 @@ from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 
 ROOT = Path(__file__).resolve().parent.parent
+HOME = Path.home()
 BLOB = ROOT / "config.enc"
-DEFAULT_FILES = [".env", "settings.yaml"]
+# Everything a second machine needs to become the host. Project files are
+# root-relative; ``~/...`` entries are home-relative (portable across machines
+# even with different usernames since Path.home() resolves per machine); globs
+# are expanded. The Cloudflare tunnel files let both laptops run the SAME
+# tunnel — no manual copy after the first encrypt.
+DEFAULT_FILES = [
+    ".env",
+    "settings.yaml",
+    "~/.cloudflared/config.yml",
+    "~/.cloudflared/cert.pem",
+    "~/.cloudflared/*.json",     # tunnel credentials (<UUID>.json)
+]
 _MAGIC = b"TRADEAGENT-CONFIG-V1"
+
+
+def _resolve_key(key: str) -> Path:
+    """Map a stored bundle key back to a filesystem path on THIS machine.
+    ``~/x`` -> home-relative; absolute -> as-is; else project-root-relative."""
+    if key.startswith("~/") or key.startswith("~\\"):
+        return HOME / key[2:]
+    p = Path(key)
+    return p if p.is_absolute() else ROOT / key
+
+
+def _portable_key(path: Path) -> str:
+    """Build a portable, forward-slashed key for a resolved path: prefer
+    home- or project-relative so it re-resolves on the other machine."""
+    try:
+        return "~/" + path.relative_to(HOME).as_posix()
+    except ValueError:
+        pass
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
+def _expand(patterns: list[str]) -> list[tuple[str, Path]]:
+    """Resolve each pattern (plain / ~home / absolute / glob) to existing
+    files, returned as (portable_key, path). Skips (and reports) misses."""
+    out: list[tuple[str, Path]] = []
+    seen: set[str] = set()
+    for pat in patterns:
+        is_glob = any(c in pat for c in "*?[")
+        if is_glob:
+            base = _resolve_key(pat)  # parent + name pattern
+            matches = sorted(base.parent.glob(base.name))
+            if not matches:
+                print(f"  (skip, no match: {pat})")
+            for m in matches:
+                if m.is_file():
+                    key = _portable_key(m)
+                    if key not in seen:
+                        seen.add(key); out.append((key, m))
+        else:
+            path = _resolve_key(pat)
+            if path.exists():
+                key = _portable_key(path)
+                if key not in seen:
+                    seen.add(key); out.append((key, path))
+            else:
+                print(f"  (skip, not found: {pat})")
+    return out
 
 
 def _derive_key(passphrase: str, salt: bytes) -> bytes:
@@ -65,12 +127,11 @@ def _get_passphrase(arg: str | None, *, confirm: bool) -> str:
 
 def cmd_encrypt(files: list[str], passphrase: str | None) -> int:
     bundle: dict[str, str] = {}
-    for name in files:
-        p = ROOT / name
-        if p.exists():
-            bundle[name] = p.read_text(encoding="utf-8")
-        else:
-            print(f"  (skip, not found: {name})")
+    for key, path in _expand(files):
+        try:
+            bundle[key] = path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError) as e:
+            print(f"  (skip, unreadable: {key}: {e})")
     if not bundle:
         print("Nothing to encrypt — no config files found.", file=sys.stderr)
         return 1
@@ -127,14 +188,19 @@ def cmd_decrypt(passphrase: str | None, force: bool) -> int:
         print("Wrong passphrase (or corrupt blob).", file=sys.stderr)
         return 1
     for name, content in bundle.items():
-        dest = ROOT / name
+        dest = _resolve_key(name)
         if dest.exists() and not force:
             # Don't clobber a locally-edited config without --force.
-            if dest.read_text(encoding="utf-8") != content:
+            try:
+                unchanged = dest.read_text(encoding="utf-8") == content
+            except (UnicodeDecodeError, OSError):
+                unchanged = False
+            if not unchanged:
                 print(f"  {name} exists and differs — use --force to overwrite. Skipped.")
                 continue
+        dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(content, encoding="utf-8")
-        print(f"  wrote {name}")
+        print(f"  wrote {name}  ->  {dest}")
     print("Done.")
     return 0
 
