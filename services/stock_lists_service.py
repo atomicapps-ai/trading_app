@@ -21,6 +21,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 import aiosqlite
+from services import db as _dbmod
 import httpx
 
 from services.settings_service import LOCAL_DB_PATH as DB_PATH
@@ -172,7 +173,7 @@ def _fetch_wiki_tickers(url: str, table_idx: int, col_hint: str) -> list[str]:
 
 
 async def list_all() -> list[dict]:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute("SELECT * FROM stock_lists ORDER BY name ASC")
         rows = await cur.fetchall()
@@ -180,7 +181,7 @@ async def list_all() -> list[dict]:
 
 
 async def get(slug: str) -> dict | None:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute("SELECT * FROM stock_lists WHERE slug = ?", (slug,))
         row = await cur.fetchone()
@@ -204,7 +205,7 @@ async def upsert_list(
     refreshed: bool = True,
 ) -> None:
     now = datetime.now(timezone.utc).isoformat()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.execute(
             """
             INSERT INTO stock_lists

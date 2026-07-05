@@ -27,6 +27,7 @@ from datetime import datetime, timezone
 from typing import Any, Iterable, Literal
 
 import aiosqlite
+from services import db as _dbmod
 
 from services.db_service import DB_PATH
 
@@ -73,7 +74,7 @@ async def record_alert(
 ) -> int:
     """Append one alert row. Returns the new row id."""
     payload_json = json.dumps(payload) if payload else None
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute(
             """
             INSERT INTO dl_alerts
@@ -166,7 +167,7 @@ async def acknowledge(alert_ids: int | Iterable[int]) -> int:
     if not ids:
         return 0
     placeholders = ",".join("?" * len(ids))
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute(
             f"UPDATE dl_alerts SET acknowledged_at = ? "
             f"WHERE id IN ({placeholders}) AND acknowledged_at IS NULL",
@@ -178,7 +179,7 @@ async def acknowledge(alert_ids: int | Iterable[int]) -> int:
 
 async def acknowledge_all_unread() -> int:
     """Bulk-ack — used by the "dismiss all" affordance on the banner."""
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute(
             "UPDATE dl_alerts SET acknowledged_at = ? "
             "WHERE acknowledged_at IS NULL",
@@ -220,7 +221,7 @@ async def list_alerts(
     sql += " ORDER BY ts DESC LIMIT ?"
     params.append(limit)
 
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(sql, params)
         rows = await cur.fetchall()
@@ -228,7 +229,7 @@ async def list_alerts(
 
 
 async def unread_count() -> int:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute(
             "SELECT COUNT(*) FROM dl_alerts WHERE acknowledged_at IS NULL"
         )
