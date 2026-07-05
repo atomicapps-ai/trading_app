@@ -277,21 +277,47 @@ async function runStrategy(name, btn) {
 
   try {
     const r = await fetch('/api/strategies/' + encodeURIComponent(name) + '/run', { method: 'POST' });
-    clearInterval(interval);
-    const elapsed = ((performance.now() - t0) / 1000).toFixed(1);
-
     if (!r.ok) {
+      clearInterval(interval);
       const detail = (await r.json().catch(() => ({}))).detail || ('HTTP ' + r.status);
       if (strip) {
         strip.className = 'run-result-strip error';
         strip.innerHTML = '<span class="run-icon">✗</span>' +
-          '<span class="run-status">Failed in ' + elapsed + 's</span>' +
+          '<span class="run-status">Failed</span>' +
           '<span class="text-secondary text-xs">' + escapeHtml(detail) + '</span>';
       }
       return;
     }
-
-    const j = await r.json();
+    // Async run: the POST returns a job id immediately and the scan runs in the
+    // background, so a long scan no longer holds the request open (which used to
+    // hit Cloudflare's ~100s 524 through the tunnel). Poll until it finishes.
+    const started = await r.json();
+    let j = null, pollErr = null, attempts = 0;
+    for (;;) {
+      await new Promise(res => setTimeout(res, 2000));
+      if (++attempts > 450) { pollErr = 'timed out waiting for the run (15 min)'; break; }
+      let pr;
+      try { pr = await fetch('/api/strategies/runs/' + encodeURIComponent(started.job_id)); }
+      catch (e) { continue; }                       // transient blip — keep polling
+      if (pr.status === 404) { pollErr = 'run job expired (app restarted?)'; break; }
+      if (!pr.ok) continue;                          // transient non-200 — keep polling
+      let st;
+      try { st = await pr.json(); } catch (e) { continue; }
+      if (st.status === 'done') { j = st.result; break; }
+      if (st.status === 'error') { pollErr = st.error || 'run failed'; break; }
+      // 'running' or anything unexpected → keep polling
+    }
+    clearInterval(interval);
+    const elapsed = ((performance.now() - t0) / 1000).toFixed(1);
+    if (pollErr || !j) {
+      if (strip) {
+        strip.className = 'run-result-strip error';
+        strip.innerHTML = '<span class="run-icon">✗</span>' +
+          '<span class="run-status">Failed in ' + elapsed + 's</span>' +
+          '<span class="text-secondary text-xs">' + escapeHtml(pollErr || 'no result') + '</span>';
+      }
+      return;
+    }
     if (j.replay_only) {
       if (strip) {
         strip.className = 'run-result-strip neutral';
