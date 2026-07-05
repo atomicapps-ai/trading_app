@@ -1626,3 +1626,106 @@ input, select, textarea { font: inherit; color: inherit; }
   color: var(--accent-red);
   opacity: 0.85;
 }
+
+/* ============================================================= */
+/* Mobile / responsive (phones + small tablets)                   */
+/* This app is desktop-first: .app-shell pins a 1200px min-width  */
+/* and a fixed sidebar column, so on a phone the whole page       */
+/* renders zoomed-out with a permanent sidebar. Below we drop the */
+/* min-width and turn the sidebar into an off-canvas drawer.      */
+/* ============================================================= */
+.nav-toggle { display: none; }   /* hamburger — shown only on mobile */
+.nav-scrim  { display: none; }   /* drawer backdrop — mobile only    */
+
+@media (max-width: 768px) {
+  :root { --content-pad: 16px 14px; }
+
+  /* Single-column shell; kill the 1200px min-width that forced
+     desktop zoom-out on phones. Sidebar leaves the grid (fixed).
+     minmax(0, 1fr) (not plain 1fr) stops a wide child's min-content
+     from stretching the column past the viewport. */
+  .app-shell {
+    min-width: 0;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "livebar"
+      "topbar"
+      "main";
+  }
+  .main { min-width: 0; }
+  html, body { overflow-x: hidden; max-width: 100%; }
+
+  /* Sidebar → off-canvas drawer, slid in via body.nav-open */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 250px;
+    max-width: 84vw;
+    z-index: 300;
+    transform: translateX(-100%);
+    transition: transform .22s ease;
+    box-shadow: 0 0 24px rgba(0, 0, 0, .5);
+  }
+  body.nav-open .sidebar { transform: translateX(0); }
+
+  .nav-scrim {
+    display: block;
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, .5);
+    z-index: 250;
+    opacity: 0; pointer-events: none;
+    transition: opacity .22s ease;
+  }
+  body.nav-open .nav-scrim { opacity: 1; pointer-events: auto; }
+
+  /* Hamburger button lives in the topbar-left */
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    width: 34px; height: 34px;
+    background: none; border: 0;
+    color: var(--text-primary);
+    cursor: pointer;
+    border-radius: var(--radius-btn);
+    flex: 0 0 auto;
+  }
+  .nav-toggle:hover { background: var(--hover-bg); }
+
+  /* Topbar: tighten padding; let the right-hand status cluster scroll
+     sideways instead of overflowing (or overlapping the left cluster). */
+  .topbar { padding: 0 10px; gap: 8px; }
+  .topbar-left  { gap: 8px; flex: 0 0 auto; }
+  .topbar-app   { display: none; }   /* app name lives in the drawer */
+  .topbar-right {
+    flex: 1 1 0;
+    min-width: 0;
+    gap: 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .topbar-right::-webkit-scrollbar { display: none; }
+
+  /* Live status strip scrolls sideways rather than blowing out width */
+  .live-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Common wide layouts stack on a phone. minmax(0, …) lets cells
+     shrink below their content's min-content instead of overflowing. */
+  .stat-grid   { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .two-col     { grid-template-columns: minmax(0, 1fr); }
+  /* Grid/flex children keep their content's min-content width unless told
+     otherwise — force them to shrink so cards wrap instead of overflow. */
+  .two-col > *, .tab-pane, .card { min-width: 0; }
+  /* The dashboard's 12-col widget grid → single stacked column */
+  .widget-grid { display: block; }
+  .widget-grid > * { margin-bottom: 12px; }
+
+  /* Split pages (e.g. /pending): stack the fixed 340px queue above the
+     panes instead of forcing a two-column grid off-screen. */
+  .main--split,
+  .main:has(.split-layout) { display: block; height: auto; overflow-y: auto; }
+  .split-layout { display: block; }
+
+  /* Wide tables scroll inside their own box, not the whole page */
+  .card table, .table-wrap table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
