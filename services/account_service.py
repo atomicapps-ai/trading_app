@@ -310,59 +310,66 @@ async def ensure_seeded_from_env() -> None:
     if count > 0:
         return
 
+    # Which broker should be ACTIVE on a fresh registry. BROKER_PROVIDER lets a
+    # machine come up on the right broker without re-activating via UI — e.g.
+    # BROKER_PROVIDER=ibkr makes a fresh DB (a second laptop, a rebuild) boot
+    # IBKR-active instead of Alpaca.
+    preferred = os.getenv("BROKER_PROVIDER", "alpaca").lower()
     seeded: list[str] = []
+    created: list[str] = []          # slugs, in creation order
+    activated = False
 
-    # Alpaca paper — most common starting state. Default ALPACA_PAPER=true
-    # in the env-seed flow regardless of the env var, since seeding to
-    # paper is the safe default; the user can flip to a separate live
-    # row via UI.
+    async def _seed(provider: str, label: str, account_type: str,
+                    key_id: str = "", secret: str = "",
+                    extra: dict | None = None) -> None:
+        nonlocal activated
+        act = (provider == preferred) and not activated
+        try:
+            acct = await create_account(
+                label=label, provider=provider, account_type=account_type,
+                key_id=key_id, secret=secret, extra=extra, activate=act,
+            )
+            seeded.append(f"{provider}/{account_type}")
+            created.append(acct["slug"])
+            if act:
+                activated = True
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("seed %s from env failed: %s", provider, exc)
+
+    # IBKR — auth is the local gateway login, no keys. Seed it when it's the
+    # chosen broker so the app comes up IBKR-active out of the box.
+    if preferred == "ibkr":
+        await _seed("ibkr", "IBKR Paper (from .env)", "paper")
+
+    # Alpaca — seed if keys are present (they still power the news/data feed
+    # even when Alpaca isn't the active trade broker). Active only if preferred.
     alpaca_key = os.getenv("ALPACA_TRADING_KEY_ID") or os.getenv("ALPACA_API_KEY")
     alpaca_secret = os.getenv("ALPACA_TRADING_SECRET") or os.getenv("ALPACA_API_SECRET")
     if alpaca_key and alpaca_secret:
         is_live = os.getenv("ALPACA_PAPER", "true").lower() == "false"
-        acct_type = "live" if is_live else "paper"
-        try:
-            await create_account(
-                label=f"Alpaca {acct_type.capitalize()} (from .env)",
-                provider="alpaca",
-                account_type=acct_type,
-                key_id=alpaca_key,
-                secret=alpaca_secret,
-                activate=True,  # first row -> active
-            )
-            seeded.append(f"alpaca/{acct_type}")
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("seed alpaca from env failed: %s", exc)
+        await _seed("alpaca", f"Alpaca {'Live' if is_live else 'Paper'} (from .env)",
+                    "live" if is_live else "paper", alpaca_key, alpaca_secret)
 
-    # TradeStation — only seed if the full triple is present.
+    # TradeStation — only if the full OAuth triple is present.
     ts_id = os.getenv("TS_CLIENT_ID")
     ts_secret = os.getenv("TS_CLIENT_SECRET")
     ts_refresh = os.getenv("TS_REFRESH_TOKEN")
     if ts_id and ts_secret and ts_refresh:
         ts_sim = os.getenv("TS_SIM", "true").lower() != "false"
-        acct_type = "paper" if ts_sim else "live"
-        ts_account_id = os.getenv("TS_ACCOUNT_ID", "")
-        try:
-            await create_account(
-                label=f"TradeStation {acct_type.capitalize()} (from .env)",
-                provider="tradestation",
-                account_type=acct_type,
-                key_id=ts_id,
-                secret=ts_secret,
-                extra={
-                    "refresh_token": ts_refresh,
-                    "account_id": ts_account_id,
-                },
-                # Only activate TS if Alpaca wasn't seeded (Alpaca wins the
-                # default — it's the documented paper default).
-                activate=not seeded,
-            )
-            seeded.append(f"tradestation/{acct_type}")
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("seed tradestation from env failed: %s", exc)
+        await _seed("tradestation",
+                    f"TradeStation {'Paper' if ts_sim else 'Live'} (from .env)",
+                    "paper" if ts_sim else "live", ts_id, ts_secret,
+                    extra={"refresh_token": ts_refresh,
+                           "account_id": os.getenv("TS_ACCOUNT_ID", "")})
+
+    # If rows were seeded but the preferred provider wasn't among them, make
+    # sure SOMETHING is active (first seeded) so the app has a broker.
+    if created and not activated:
+        await set_active(created[0])
 
     if seeded:
-        logger.info("broker_accounts: seeded from .env -> %s", ", ".join(seeded))
+        logger.info("broker_accounts: seeded from .env -> %s (active: %s)",
+                    ", ".join(seeded), preferred)
     else:
         logger.info(
             "broker_accounts: no .env credentials found to seed; "
