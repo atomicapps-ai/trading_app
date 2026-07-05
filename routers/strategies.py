@@ -17,7 +17,9 @@ active flag = override if set, else YAML's value.
 """
 from __future__ import annotations
 
+import asyncio
 import logging
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -641,13 +643,61 @@ async def toggle_auto_approve(name: str) -> dict:
 async def run_strategy(name: str, mode: str | None = None,
                        as_of: str | None = None,
                        refresh: bool | None = None,
+                       wait: bool = False,
                        s: Settings = Depends(get_settings)) -> dict:
-    """Run every workflow that mentions this strategy, ad-hoc.
+    """Kick off a strategy scan. ASYNC by default: returns a job id
+    immediately and runs the scan in the background, so a long scan can't hit
+    Cloudflare's ~100s request timeout (524) through the tunnel. Poll
+    ``GET /api/strategies/runs/{job_id}`` for the result.
 
-    For multi-workflow strategies (rare today) we run them sequentially
-    and return the per-workflow result. The scheduled cron run is
-    untouched — this is just a manual fire-now.
-    """
+    ``?wait=1`` runs synchronously and returns the full result (for scripts /
+    local curl where there's no proxy timeout)."""
+    # Validate as_of up front so bad input returns 400 to the client now,
+    # rather than failing inside a background job.
+    if as_of:
+        try:
+            date.fromisoformat(as_of)
+        except ValueError:
+            raise HTTPException(400, f"bad as_of date: {as_of!r} (want YYYY-MM-DD)")
+
+    if wait:
+        return await _do_strategy_run(name, mode, as_of, refresh, s)
+
+    from services import run_jobs
+    job_id = run_jobs.create(name)
+
+    async def _bg() -> None:
+        try:
+            run_jobs.mark_done(job_id, await _do_strategy_run(name, mode, as_of, refresh, s))
+        except HTTPException as e:
+            run_jobs.mark_error(job_id, f"{e.status_code}: {e.detail}")
+        except Exception as e:  # noqa: BLE001
+            logger.exception("async strategy run failed")
+            run_jobs.mark_error(job_id, str(e))
+
+    asyncio.create_task(_bg())
+    return {"job_id": job_id, "status": "running", "strategy": name}
+
+
+@router.get("/api/strategies/runs/{job_id}", response_class=JSONResponse)
+async def strategy_run_status(job_id: str) -> dict:
+    """Poll a background strategy-run job started by POST /run."""
+    from services import run_jobs
+    j = run_jobs.get(job_id)
+    if j is None:
+        raise HTTPException(404, "unknown or expired run job")
+    out: dict = {"job_id": job_id, "strategy": j["strategy"], "status": j["status"]}
+    if j["status"] == "done":
+        out["result"] = j["result"]
+    elif j["status"] == "error":
+        out["error"] = j["error"]
+    return out
+
+
+async def _do_strategy_run(name: str, mode: str | None, as_of: str | None,
+                           refresh: bool | None, s: Settings) -> dict:
+    """The actual scan — runs every workflow that mentions this strategy (or
+    the FVG session scan). Returns the summary dict the UI renders."""
     workflows = await _load_workflows()
     matching = [
         wf for wf in workflows
