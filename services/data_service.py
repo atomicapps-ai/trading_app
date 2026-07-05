@@ -301,6 +301,65 @@ async def refresh_if_stale(
         return False
 
 
+# --------------------------------------------------------------------------- #
+# Freshness — "is the cached data current enough to trade / show?"
+# --------------------------------------------------------------------------- #
+
+# A daily bar older than this (calendar days) is treated as stale. Lenient
+# enough to allow a normal weekend + a holiday, strict enough to catch a cache
+# that's genuinely days/weeks behind (which produces late, wrong signals).
+STALE_MAX_AGE_DAYS = 5.0
+
+
+def last_bar_time(symbol: str, interval: Interval) -> "pd.Timestamp | None":
+    """UTC timestamp of the newest cached bar for (symbol, interval), or None."""
+    df = _read_sync(symbol, interval)
+    if df is None or df.empty:
+        return None
+    ts = df.index[-1]
+    return ts.tz_localize("UTC") if ts.tzinfo is None else ts
+
+
+def bar_is_stale(last_ts: "pd.Timestamp | None", *,
+                 max_age_days: float = STALE_MAX_AGE_DAYS,
+                 now: "pd.Timestamp | None" = None) -> bool:
+    """True if ``last_ts`` is missing or older than ``max_age_days``."""
+    if last_ts is None:
+        return True
+    now_ts = now if now is not None else pd.Timestamp.now(tz="UTC")
+    if last_ts.tzinfo is None:
+        last_ts = last_ts.tz_localize("UTC")
+    return (now_ts - last_ts) > pd.Timedelta(days=max_age_days)
+
+
+def market_data_freshness(symbols: list[str], interval: Interval = "1d") -> dict:
+    """Summarize how current the cached bars are across ``symbols``.
+
+    Returns ``{as_of, stale, checked, stale_count, cached}`` where ``as_of`` is
+    the NEWEST last-bar date across the set (ISO date str or None). Used by the
+    topbar badge and the pre-run gate."""
+    latest = None
+    stale_count = 0
+    cached = 0
+    for sym in symbols:
+        ts = last_bar_time(sym, interval)
+        if ts is None:
+            continue
+        cached += 1
+        if latest is None or ts > latest:
+            latest = ts
+        if bar_is_stale(ts):
+            stale_count += 1
+    return {
+        "as_of": latest.date().isoformat() if latest is not None else None,
+        "as_of_ts": latest.isoformat() if latest is not None else None,
+        "stale": bar_is_stale(latest),
+        "checked": len(symbols),
+        "cached": cached,
+        "stale_count": stale_count,
+    }
+
+
 async def get_bars_multi(
     symbols: list[str],
     interval: Interval,

@@ -21,7 +21,7 @@ from pathlib import Path
 
 import pandas as pd
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
 from services.settings_service import (
@@ -121,6 +121,39 @@ async def _broker_block() -> dict:
         }
     except Exception as e:                                            # noqa: BLE001
         return {"ok": False, "error": str(e)}
+
+
+@router.get("/api/data-freshness", response_class=JSONResponse)
+async def api_data_freshness() -> dict:
+    """Compact market-data freshness for the whole app (heartbeat symbols,
+    daily bars): {as_of, stale, ...}. Powers the topbar badge."""
+    import asyncio as _a
+    from services import data_service
+    return await _a.to_thread(
+        data_service.market_data_freshness, list(_HEARTBEAT_SYMBOLS), "1d")
+
+
+@router.get("/api/data-freshness/badge", response_class=HTMLResponse)
+async def api_data_freshness_badge() -> HTMLResponse:
+    """HTML partial for the topbar 'Data as of …' badge (HTMX-polled)."""
+    import asyncio as _a
+    from services import data_service
+    f = await _a.to_thread(
+        data_service.market_data_freshness, list(_HEARTBEAT_SYMBOLS), "1d")
+    if f["as_of"] is None:
+        return HTMLResponse(
+            '<span class="dot gray"></span>'
+            '<span title="no cached market data yet">Data —</span>')
+    stale = f["stale"]
+    cls = "red" if stale else "green"
+    label = ("⚠ Data " if stale else "Data ") + f["as_of"]
+    title = (f"Market data as of {f['as_of']} "
+             f"(heartbeat: {', '.join(_HEARTBEAT_SYMBOLS)}). "
+             + ("STALE — refresh is failing; strategies SKIP stale symbols so "
+                "no trade is created on old data."
+                if stale else "fresh."))
+    return HTMLResponse(f'<span class="dot {cls}"></span>'
+                        f'<span title="{title}">{label}</span>')
 
 
 async def _data_freshness_block() -> dict:
