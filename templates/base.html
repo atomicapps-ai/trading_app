@@ -185,6 +185,17 @@
         <span class="mode-badge {{ settings.app.mode }}">{{ settings.app.mode }}</span>
       </div>
       <div class="topbar-right">
+        {# Market-data freshness — "how current is the data driving trades".
+           Green = fresh, red = stale (strategies skip stale symbols so no trade
+           is built on old data). Polled every 60s. #}
+        <span class="topbar-status" id="data-freshness-badge"
+              hx-get="/api/data-freshness/badge"
+              hx-trigger="load, every 60s"
+              hx-swap="innerHTML"
+              style="display:flex;align-items:center;gap:6px;"
+              title="Market data freshness">
+          <span class="dot gray"></span><span>Data…</span>
+        </span>
         {# ★ Favorite this page — pins the current URL under Favorites in the sidebar #}
         <button type="button" class="topbar-status" id="fav-page-btn"
                 onclick="toggleFavPage(this)"

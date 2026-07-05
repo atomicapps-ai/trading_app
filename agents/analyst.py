@@ -38,7 +38,14 @@ import yaml
 from agents.detectors import ALL_DETECTORS, INTRADAY_DETECTORS
 from models.pattern import PatternResult
 from models.signal import Evidence, KeyLevels, Signal
-from services.data_service import DataNotAvailableError, get_bars
+from services.data_service import (
+    DataNotAvailableError, bar_is_stale, get_bars, refresh_if_stale,
+)
+
+# Live scans refresh a cache older than this before reading it, so signals +
+# entry prices reflect CURRENT bars instead of a days-old close. Repeated scans
+# within the window reuse the just-refreshed data (the tracker is per-process).
+_LIVE_BAR_MAX_AGE_S = 600.0
 from services.indicator_service import add_indicators
 from services.settings_service import STRATEGY_CONFIG_DIR, Settings
 
@@ -202,12 +209,29 @@ class Analyst:
         as_of_ts: pd.Timestamp | None = None,
     ) -> list[Signal]:
         """Run every enabled lens on one symbol. Returns qualifying signals."""
+        # LIVE only: refresh a stale cache so the MACD cross / entry price is
+        # computed on current bars, not a days-old close. Backtests pass
+        # as_of_ts and must read the cache as-of that historical time (no refresh).
+        if as_of_ts is None:
+            await refresh_if_stale(symbol, "1d", max_age_seconds=_LIVE_BAR_MAX_AGE_S)
         # Bars — daily primary, hourly confirmation (may be unavailable)
         try:
             daily = await get_bars(symbol, "1d", as_of_ts=as_of_ts, min_bars=210)
         except DataNotAvailableError as e:
             logger.info("analyst: skipping %s — %s", symbol, e)
             return []
+        # HARD GUARD (live only): never emit a signal off stale data. If the
+        # refresh above couldn't bring the cache current (yfinance down/rate-
+        # limited), skip the symbol rather than create a trade on a days-old
+        # close — that's the "entry below current price / move already ran" bug.
+        if as_of_ts is None and bar_is_stale(daily.index[-1]):
+            logger.warning(
+                "analyst: %s daily bars STALE (last %s) — skipping to avoid a "
+                "trade on old data", symbol, daily.index[-1].date(),
+            )
+            return []
+        if as_of_ts is None:
+            await refresh_if_stale(symbol, "1h", max_age_seconds=_LIVE_BAR_MAX_AGE_S)
         try:
             hourly = await get_bars(symbol, "1h", as_of_ts=as_of_ts, min_bars=50)
         except DataNotAvailableError:
@@ -259,11 +283,19 @@ class Analyst:
         portfolio_manager and UI can distinguish intraday plans from
         the swing book.
         """
+        if as_of_ts is None:
+            await refresh_if_stale(symbol, "1d", max_age_seconds=_LIVE_BAR_MAX_AGE_S)
         try:
             daily = await get_bars(symbol, "1d", as_of_ts=as_of_ts, min_bars=50)
         except DataNotAvailableError as e:
             logger.info("intraday analyst: skipping %s daily — %s", symbol, e)
             return []
+        if as_of_ts is None and bar_is_stale(daily.index[-1]):
+            logger.warning("intraday analyst: %s daily bars STALE (last %s) — "
+                           "skipping", symbol, daily.index[-1].date())
+            return []
+        if as_of_ts is None:
+            await refresh_if_stale(symbol, "30m", max_age_seconds=_LIVE_BAR_MAX_AGE_S)
         try:
             bars_30m = await get_bars(symbol, "30m", as_of_ts=as_of_ts, min_bars=2)
         except DataNotAvailableError as e:
