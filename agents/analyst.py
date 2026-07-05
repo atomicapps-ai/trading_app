@@ -213,16 +213,20 @@ class Analyst:
         except DataNotAvailableError:
             hourly = pd.DataFrame()
 
-        daily_ind = add_indicators(daily)
-        hourly_ind = add_indicators(hourly) if not hourly.empty else hourly
-
-        # Technical lens — the main signal producer
-        patterns = run_lens_technical(
-            symbol, daily_ind, hourly_ind,
-            self._strategy_config,
-            as_of_ts=as_of_ts,
-            macro_context=macro_context,
-        )
+        # Indicators + detectors are pure-pandas CPU. Run them in a worker
+        # thread so a large scan doesn't monopolize the event loop and hang the
+        # rest of the app (page loads, the run-status polls). The inputs are
+        # local frames + immutable config, so this is thread-safe.
+        def _compute() -> list:
+            daily_ind = add_indicators(daily)
+            hourly_ind = add_indicators(hourly) if not hourly.empty else hourly
+            return run_lens_technical(
+                symbol, daily_ind, hourly_ind,
+                self._strategy_config,
+                as_of_ts=as_of_ts,
+                macro_context=macro_context,
+            )
+        patterns = await asyncio.to_thread(_compute)
 
         # Other lenses — stubs for this session
         patterns.extend(await self._run_lens_sentiment_stub(symbol, as_of_ts))
@@ -274,13 +278,17 @@ class Analyst:
             bars_30m.index = bars_30m.index.tz_localize("UTC")
         bars_30m = bars_30m.tz_convert("America/New_York")
 
-        daily_ind = add_indicators(daily)
         vix_prev_close = (macro_context or {}).get("vix_level")
 
-        patterns = run_lens_intraday(
-            symbol, bars_30m, daily_ind, vix_prev_close,
-            self._strategy_config, as_of_ts,
-        )
+        # Offload the pandas CPU (indicators + detectors) to a worker thread so
+        # a scan doesn't monopolize the event loop. See run() for rationale.
+        def _compute() -> list:
+            daily_ind = add_indicators(daily)
+            return run_lens_intraday(
+                symbol, bars_30m, daily_ind, vix_prev_close,
+                self._strategy_config, as_of_ts,
+            )
+        patterns = await asyncio.to_thread(_compute)
 
         qualifying = [p for p in patterns if p.pqs_total / 100.0 >= self._min_strength]
         logger.info(
