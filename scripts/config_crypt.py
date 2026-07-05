@@ -187,6 +187,7 @@ def cmd_decrypt(passphrase: str | None, force: bool) -> int:
     except InvalidToken:
         print("Wrong passphrase (or corrupt blob).", file=sys.stderr)
         return 1
+    failures: list[tuple[str, str]] = []
     for name, content in bundle.items():
         dest = _resolve_key(name)
         if dest.exists() and not force:
@@ -198,9 +199,22 @@ def cmd_decrypt(passphrase: str | None, force: bool) -> int:
             if not unchanged:
                 print(f"  {name} exists and differs — use --force to overwrite. Skipped.")
                 continue
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(content, encoding="utf-8")
-        print(f"  wrote {name}  ->  {dest}")
+        # One unwriteable file (e.g. the tunnel creds locked by a running
+        # cloudflared) must NOT abort the rest of the decrypt.
+        try:
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_text(content, encoding="utf-8")
+            print(f"  wrote {name}  ->  {dest}")
+        except OSError as e:
+            failures.append((name, str(e)))
+            print(f"  FAILED {name} -> {dest}: {e}")
+    if failures:
+        print(f"\n{len(failures)} file(s) could not be written:")
+        for name, err in failures:
+            print(f"  - {name}: {err}")
+        print("If it's a ~/.cloudflared file, stop cloudflared (it locks its "
+              "credentials), then re-run decrypt. Everything else was written.")
+        return 1
     print("Done.")
     return 0
 
