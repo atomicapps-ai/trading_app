@@ -166,6 +166,9 @@
       </div>
     </aside>
 
+    {# Backdrop behind the mobile drawer — tap to close (mobile only) #}
+    <div class="nav-scrim" id="nav-scrim" onclick="closeSidebar()"></div>
+
     {# ===== Live status bar (topmost row, always visible) =====
        Persistent equity / day P&L / per-position chips. Polls every 5s.
        Designed as a slim strip ABOVE the existing topbar so it never
@@ -181,6 +184,15 @@
     {# ===== Topbar ===== #}
     <header class="topbar">
       <div class="topbar-left">
+        <button type="button" class="nav-toggle" id="nav-toggle"
+                aria-label="Open menu" onclick="toggleSidebar()">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
         <span class="topbar-app">TradeAgent</span>
         <span class="mode-badge {{ settings.app.mode }}">{{ settings.app.mode }}</span>
       </div>
@@ -271,6 +283,18 @@
         }
       });
     })();
+
+    // ── Mobile off-canvas sidebar drawer ────────────────────────────────
+    function toggleSidebar() { document.body.classList.toggle('nav-open'); }
+    function closeSidebar()  { document.body.classList.remove('nav-open'); }
+    // Tapping a leaf/child link navigates — close the drawer so the page shows.
+    // (Parent group headers are <button>, not <a>, so they only expand.)
+    document.querySelector('.sidebar')?.addEventListener('click', function (e) {
+      if (e.target.closest('a.nav-item')) closeSidebar();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeSidebar();
+    });
 
     function toggleNavGroup(btn) {
       const group = btn.closest('.nav-group');
