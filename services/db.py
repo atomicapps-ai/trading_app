@@ -36,12 +36,25 @@ def turso_enabled() -> bool:
     return bool(os.getenv("TURSO_DATABASE_URL", "").strip())
 
 
+def _normalize_turso_url(url: str) -> str:
+    """Force the HTTP transport for Turso. The stock ``libsql://`` (and
+    ``wss://``) scheme makes libsql-client use the WebSocket/Hrana protocol,
+    whose handshake current Turso endpoints reject with a 400. Mapping the
+    scheme to https/http selects the HTTP transport, which works. Local
+    ``file:`` URLs pass through untouched."""
+    for pre, repl in (("libsql://", "https://"), ("wss://", "https://"),
+                      ("ws://", "http://")):
+        if url.startswith(pre):
+            return repl + url[len(pre):]
+    return url
+
+
 def connect():
     """Return an async connection: aiosqlite locally, libSQL shim for Turso.
     Both are async context managers with the same execute/fetch/commit API."""
     if turso_enabled():
         return _LibsqlConn(
-            os.environ["TURSO_DATABASE_URL"].strip(),
+            _normalize_turso_url(os.environ["TURSO_DATABASE_URL"].strip()),
             os.getenv("TURSO_AUTH_TOKEN", "").strip() or None,
         )
     import aiosqlite
