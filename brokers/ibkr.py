@@ -118,8 +118,23 @@ class IbkrAdapter(BrokerAdapter):
 
     # ── connection ───────────────────────────────────────────────────
     async def connect(self) -> bool:
-        if self._ib is None:
+        if IB is None:
             raise BrokerConnectionError("ib_insync not installed — pip install ib_insync")
+        # Bind ib_insync to the loop we're ACTUALLY running on. The import-time
+        # guard (needed so eventkit imports on Python 3.14) leaves a fresh event
+        # loop as the policy's current loop, and ib_insync's util.getLoop()
+        # adopts whatever loop is current when IB() is built. An IB() created off
+        # the running loop (e.g. at adapter construction during app startup) then
+        # fails connectAsync with "Future attached to a different loop". Make the
+        # running loop current, then (re)build IB() on it if we're not connected.
+        import asyncio
+        try:
+            asyncio.set_event_loop(asyncio.get_running_loop())
+        except RuntimeError:
+            pass
+        if self._ib is not None and self._ib.isConnected():
+            return True
+        self._ib = IB()
         try:
             # readonly=True tells ib_insync to SKIP the open/completed-orders
             # sync it normally runs at connect. That sync hangs on IB Gateway

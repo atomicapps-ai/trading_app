@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -463,7 +464,11 @@ async def ensure_tables() -> None:
         await _migrate_followed_politicians(db)
         await _migrate_pipeline_runs(db)
         await db.commit()
-    logger.info("db_service: tables ensured at %s", DB_PATH)
+    if _dbmod.turso_enabled():
+        _host = os.getenv("TURSO_DATABASE_URL", "").split("//")[-1].split("/")[0]
+        logger.info("db_service: tables ensured — backend: Turso cloud (%s)", _host)
+    else:
+        logger.info("db_service: tables ensured — backend: local SQLite (%s)", DB_PATH)
     # Migrate legacy single-politician config into the new table (no-op if already done)
     await migrate_single_politician_config()
 
