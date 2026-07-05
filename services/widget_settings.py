@@ -27,6 +27,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 import aiosqlite
+from services import db as _dbmod
 
 from services.db_service import DB_PATH
 
@@ -45,7 +46,7 @@ def _now() -> str:
 
 
 async def get(user_id: str, widget_id: str, key: str) -> Any | None:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute(
             "SELECT setting_value FROM user_widget_settings "
             "WHERE user_id = ? AND widget_id = ? AND setting_key = ?",
@@ -73,7 +74,7 @@ async def get_with_default(
 
 async def get_all(user_id: str, widget_id: str) -> dict[str, Any]:
     """Return every setting saved for (user, widget) as a dict."""
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute(
             "SELECT setting_key, setting_value FROM user_widget_settings "
             "WHERE user_id = ? AND widget_id = ?",
@@ -97,7 +98,7 @@ async def get_all(user_id: str, widget_id: str) -> dict[str, Any]:
 async def set_(user_id: str, widget_id: str, key: str, value: Any) -> None:
     """Upsert a setting. Value is JSON-encoded for type fidelity."""
     payload = json.dumps(value, default=str)
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.execute(
             """
             INSERT INTO user_widget_settings
@@ -123,7 +124,7 @@ async def set_many(
         (user_id, widget_id, k, json.dumps(v, default=str), now)
         for k, v in kv.items()
     ]
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.executemany(
             """
             INSERT INTO user_widget_settings
@@ -139,7 +140,7 @@ async def set_many(
 
 
 async def delete(user_id: str, widget_id: str, key: str) -> None:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.execute(
             "DELETE FROM user_widget_settings "
             "WHERE user_id = ? AND widget_id = ? AND setting_key = ?",
@@ -150,7 +151,7 @@ async def delete(user_id: str, widget_id: str, key: str) -> None:
 
 async def reset_widget(user_id: str, widget_id: str) -> None:
     """Drop every saved setting for this widget — falls back to defaults."""
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.execute(
             "DELETE FROM user_widget_settings "
             "WHERE user_id = ? AND widget_id = ?",

@@ -30,6 +30,7 @@ import sqlite3
 from datetime import datetime, timezone
 
 import aiosqlite
+from services import db as _dbmod
 
 from services.db_service import DB_PATH
 
@@ -84,7 +85,7 @@ def _redact(d: dict) -> dict:
 
 
 async def list_accounts() -> list[dict]:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             "SELECT * FROM broker_accounts "
@@ -99,7 +100,7 @@ async def list_accounts_redacted() -> list[dict]:
 
 
 async def get_account(slug: str) -> dict | None:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             "SELECT * FROM broker_accounts WHERE slug = ?", (slug,),
@@ -109,7 +110,7 @@ async def get_account(slug: str) -> dict | None:
 
 
 async def get_active_account() -> dict | None:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             "SELECT * FROM broker_accounts WHERE is_active = 1 LIMIT 1"
@@ -142,7 +143,7 @@ async def create_account(
     slug = slug or _unique_slug(label, provider, account_type)
     base = slug
     ts = _now()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         # Find a free slug from what's currently in the table, then INSERT with
         # a retry loop. The in-memory check alone is racy: two near-simultaneous
         # creates (e.g. a double-clicked Save) both pass it before either
@@ -218,7 +219,7 @@ async def update_account(
     fields.append(("updated_at", _now()))
     sql = ", ".join(f"{k} = ?" for k, _ in fields)
     params = [v for _, v in fields] + [slug]
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute(
             f"UPDATE broker_accounts SET {sql} WHERE slug = ?", params,
         )
@@ -227,7 +228,7 @@ async def update_account(
 
 
 async def delete_account(slug: str) -> bool:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         # Refuse if this is the last active row — leave the user with at
         # least one account so the broker layer doesn't end up unconfigured.
         cur = await db.execute(
@@ -253,7 +254,7 @@ async def delete_account(slug: str) -> bool:
 
 async def set_active(slug: str) -> bool:
     """Atomically: clear is_active on every other row, set on the target."""
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         # Verify target exists first
         cur = await db.execute(
             "SELECT id FROM broker_accounts WHERE slug = ?", (slug,),
@@ -276,7 +277,7 @@ async def set_active(slug: str) -> bool:
 
 
 async def record_connect(slug: str, *, error: str | None = None) -> None:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         if error is None:
             await db.execute(
                 "UPDATE broker_accounts SET last_connected_at = ?, "
@@ -303,7 +304,7 @@ async def ensure_seeded_from_env() -> None:
     Doesn't touch the registry once any row exists — letting the user own
     the registry via UI from that point on.
     """
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute("SELECT COUNT(*) FROM broker_accounts")
         row = await cur.fetchone()
         count = int(row[0]) if row else 0

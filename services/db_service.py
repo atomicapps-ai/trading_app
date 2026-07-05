@@ -31,6 +31,7 @@ from pathlib import Path
 from typing import Any
 
 import aiosqlite
+from services import db as _dbmod
 
 from services.settings_service import LOCAL_DB_PATH
 
@@ -454,7 +455,7 @@ async def _migrate_pipeline_runs(db: aiosqlite.Connection) -> None:
 async def ensure_tables() -> None:
     """Create tables + indexes if they don't exist. Idempotent."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         for stmt in _SCHEMA:
             await db.execute(stmt)
         await _migrate_pending_approvals(db)
@@ -473,7 +474,7 @@ async def ensure_tables() -> None:
 
 
 async def list_universe_presets() -> list[dict]:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             "SELECT * FROM universe_presets ORDER BY is_active DESC, name ASC"
@@ -483,7 +484,7 @@ async def list_universe_presets() -> list[dict]:
 
 
 async def get_universe_preset(name: str) -> dict | None:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             "SELECT * FROM universe_presets WHERE name = ?", (name,)
@@ -493,7 +494,7 @@ async def get_universe_preset(name: str) -> dict | None:
 
 
 async def get_active_universe_preset() -> dict | None:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             "SELECT * FROM universe_presets WHERE is_active = 1 LIMIT 1"
@@ -512,7 +513,7 @@ async def create_universe_preset(
     notes: str = "",
 ) -> int:
     now = datetime.now(timezone.utc).isoformat()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute(
             """
             INSERT INTO universe_presets
@@ -544,7 +545,7 @@ async def update_universe_preset(
     if not existing:
         return False
     now = datetime.now(timezone.utc).isoformat()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute(
             """
             UPDATE universe_presets SET
@@ -570,7 +571,7 @@ async def update_universe_preset(
 
 
 async def delete_universe_preset(name: str) -> bool:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute(
             "DELETE FROM universe_presets WHERE name = ?", (name,)
         )
@@ -580,7 +581,7 @@ async def delete_universe_preset(name: str) -> bool:
 
 async def set_active_universe_preset(name: str) -> bool:
     """Make one preset active; clear active flag on all others."""
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.execute("UPDATE universe_presets SET is_active = 0")
         cur = await db.execute(
             "UPDATE universe_presets SET is_active = 1 WHERE name = ?", (name,)
@@ -595,7 +596,7 @@ async def save_universe_preset_tickers(
     source: str,
 ) -> bool:
     now = datetime.now(timezone.utc).isoformat()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute(
             """
             UPDATE universe_presets SET
@@ -613,7 +614,7 @@ async def save_universe_preset_tickers(
 
 async def seed_universe_presets_from_yaml(yaml_presets: list[dict]) -> int:
     """One-time migration: import YAML presets into SQLite if table is empty."""
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute("SELECT COUNT(*) FROM universe_presets")
         count = (await cur.fetchone())[0]
         if count > 0:
@@ -693,7 +694,7 @@ async def upsert_pending_plan(
     ts_created = plan.get("ts_created") or datetime.now(timezone.utc).isoformat()
     mode = plan.get("mode", "paper")
 
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.execute(
             """
             INSERT INTO pending_approvals
@@ -731,7 +732,7 @@ async def get_pending_plans(
     sql += " ORDER BY ts_created DESC LIMIT ?"
     params = params + (limit,)
 
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(sql, params)
         rows = await cur.fetchall()
@@ -752,7 +753,7 @@ async def find_session_plan(
     that pair uniquely identifies one displacement-FVG setup. Any status counts
     as 'already seen' (pending / approved / executed / rejected).
     """
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             "SELECT plan_id, status, plan_json FROM pending_approvals "
@@ -780,7 +781,7 @@ async def get_latest_plan_for_symbol(symbol: str) -> dict | None:
     mid-fill, etc.) — any plan for the symbol is better than treating it as
     an orphan. Newest first.
     """
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             "SELECT * FROM pending_approvals WHERE UPPER(symbol) = ? "
@@ -792,7 +793,7 @@ async def get_latest_plan_for_symbol(symbol: str) -> dict | None:
 
 
 async def get_plan_by_id(plan_id: str) -> dict | None:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             "SELECT * FROM pending_approvals WHERE plan_id = ?", (plan_id,),
@@ -819,7 +820,7 @@ async def ack_plan(
     }.get(action, "pending")
     ack_ts = (ack_record or {}).get("ts") or datetime.now(timezone.utc).isoformat()
     ack_json = json.dumps(ack_record) if ack_record else None
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute(
             """
             UPDATE pending_approvals
@@ -839,7 +840,7 @@ async def record_execution(plan_id: str, execution: dict) -> bool:
     """
     placed = bool(execution.get("placed"))
     status = "executed" if placed else "order_rejected"
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute(
             """
             UPDATE pending_approvals
@@ -870,7 +871,7 @@ async def update_plan_json(plan_id: str, plan: dict) -> bool:
     (entry / stop / TP / time-stop deadline). The status column is left
     alone — edits don't change lifecycle stage.
     """
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute(
             "UPDATE pending_approvals SET plan_json = ? WHERE plan_id = ?",
             (json.dumps(plan), plan_id),
@@ -890,7 +891,7 @@ async def expire_stale_plans(timeout_minutes: int = 30) -> int:
     Returns the number of rows expired.
     """
     cutoff = (datetime.now(timezone.utc) - timedelta(minutes=timeout_minutes)).isoformat()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             "SELECT plan_id, plan_json FROM pending_approvals "
@@ -916,7 +917,7 @@ async def expire_stale_plans(timeout_minutes: int = 30) -> int:
 
 
 async def get_pending_count(status_filter: str | None = "pending") -> int:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         if status_filter:
             cur = await db.execute(
                 "SELECT COUNT(*) FROM pending_approvals WHERE status = ?",
@@ -945,7 +946,7 @@ async def insert_validation(row: dict) -> int:
         if c in ("metrics_json", "params_json") and isinstance(v, (dict, list)):
             v = json.dumps(v)
         vals.append(v)
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute(
             f"INSERT INTO strategy_validations ({','.join(cols)}) "
             f"VALUES ({','.join('?' for _ in cols)})", vals,
@@ -966,7 +967,7 @@ def _validation_row_to_dict(r) -> dict:
 
 
 async def list_validations(strategy: str, limit: int = 25) -> list[dict]:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             "SELECT * FROM strategy_validations WHERE strategy = ? "
@@ -976,7 +977,7 @@ async def list_validations(strategy: str, limit: int = 25) -> list[dict]:
 
 
 async def latest_validation(strategy: str) -> dict | None:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             "SELECT * FROM strategy_validations WHERE strategy = ? "
@@ -988,7 +989,7 @@ async def latest_validation(strategy: str) -> dict | None:
 
 async def latest_validations_all() -> dict[str, dict]:
     """Map strategy -> its most recent validation row (one query)."""
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             "SELECT v.* FROM strategy_validations v "
@@ -1023,7 +1024,7 @@ async def record_pipeline_run(
     duration_seconds: float | None = None,
     symbol_outcomes: dict | None = None,
 ) -> None:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.execute(
             """
             INSERT INTO pipeline_runs
@@ -1057,7 +1058,7 @@ async def record_pipeline_run(
 
 
 async def list_pipeline_runs(limit: int = 20) -> list[dict]:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             "SELECT * FROM pipeline_runs ORDER BY ts_start DESC LIMIT ?",
@@ -1070,7 +1071,7 @@ async def list_pipeline_runs(limit: int = 20) -> list[dict]:
 async def get_pipeline_run(run_id: str) -> dict | None:
     """Fetch one run by id, with ``symbol_outcomes`` parsed out of JSON so
     the drill-down page can render per-symbol processing detail."""
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             "SELECT * FROM pipeline_runs WHERE run_id = ?", (run_id,),
@@ -1267,7 +1268,7 @@ async def upsert_politician_trade(
     Returns True if the row was newly inserted, False if it was a duplicate.
     """
     now = datetime.now(timezone.utc).isoformat()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute(
             """
             INSERT OR IGNORE INTO politician_trades
@@ -1295,7 +1296,7 @@ async def update_politician_trade_copy(
     skip_reason: str | None = None,
 ) -> None:
     now = datetime.now(timezone.utc).isoformat()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.execute(
             """
             UPDATE politician_trades
@@ -1311,7 +1312,7 @@ async def list_politician_trades(
     politician_slug: str | None = None,
     limit: int = 100,
 ) -> list[dict]:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         if politician_slug:
             cur = await db.execute(
@@ -1331,7 +1332,7 @@ async def list_politician_trades(
 
 async def get_known_trade_ids() -> set[str]:
     """Return all ct_trade_ids we've already seen (for dedup)."""
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute("SELECT ct_trade_id FROM politician_trades")
         rows = await cur.fetchall()
     return {r[0] for r in rows}
@@ -1343,7 +1344,7 @@ async def get_known_trade_ids() -> set[str]:
 
 
 async def get_copy_config(key: str) -> str | None:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute(
             "SELECT value FROM copy_trading_config WHERE key = ?", (key,)
         )
@@ -1353,7 +1354,7 @@ async def get_copy_config(key: str) -> str | None:
 
 async def set_copy_config(key: str, value: str) -> None:
     now = datetime.now(timezone.utc).isoformat()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.execute(
             """
             INSERT INTO copy_trading_config (key, value, updated_at)
@@ -1372,7 +1373,7 @@ async def set_copy_config(key: str, value: str) -> None:
 
 async def list_favorites() -> list[dict]:
     """All favorites, most-recent first."""
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             "SELECT id, kind, label, href, ref_key, added_at "
@@ -1382,7 +1383,7 @@ async def list_favorites() -> list[dict]:
 
 
 async def is_favorite(href: str) -> bool:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute("SELECT 1 FROM favorites WHERE href = ?", (href,))
         return await cur.fetchone() is not None
 
@@ -1396,7 +1397,7 @@ async def toggle_favorite(
     Keyed on ``href`` so a page/item is favorited at most once.
     """
     now = datetime.now(timezone.utc).isoformat()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute("SELECT 1 FROM favorites WHERE href = ?", (href,))
         exists = await cur.fetchone() is not None
         if exists:
@@ -1413,13 +1414,13 @@ async def toggle_favorite(
 
 
 async def remove_favorite(href: str) -> None:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.execute("DELETE FROM favorites WHERE href = ?", (href,))
         await db.commit()
 
 
 async def get_all_copy_config() -> dict[str, str]:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute("SELECT key, value FROM copy_trading_config")
         rows = await cur.fetchall()
@@ -1432,7 +1433,7 @@ async def get_all_copy_config() -> dict[str, str]:
 
 
 async def list_followed_politicians() -> list[dict]:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             # Favorites pinned to top, then by score desc
@@ -1443,7 +1444,7 @@ async def list_followed_politicians() -> list[dict]:
 
 
 async def toggle_followed_politician_favorite(slug: str, is_favorite: bool) -> None:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.execute(
             "UPDATE followed_politicians SET is_favorite = ? WHERE slug = ?",
             (1 if is_favorite else 0, slug),
@@ -1463,7 +1464,7 @@ async def add_followed_politician(
     last_trade_date: str = "",
 ) -> None:
     now = datetime.now(timezone.utc).isoformat()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.execute(
             """
             INSERT INTO followed_politicians
@@ -1485,13 +1486,13 @@ async def add_followed_politician(
 
 
 async def remove_followed_politician(slug: str) -> None:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.execute("DELETE FROM followed_politicians WHERE slug = ?", (slug,))
         await db.commit()
 
 
 async def toggle_followed_politician(slug: str, enabled: bool) -> None:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.execute(
             "UPDATE followed_politicians SET enabled = ? WHERE slug = ?",
             (1 if enabled else 0, slug),
@@ -1520,7 +1521,7 @@ async def update_followed_politician_stats(
     if not fields:
         return
     vals.append(slug)
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.execute(
             f"UPDATE followed_politicians SET {', '.join(fields)} WHERE slug = ?",
             vals,
@@ -1531,7 +1532,7 @@ async def update_followed_politician_stats(
 async def get_member_performance_cache_map() -> dict[str, dict]:
     """Return {slug: {win_rate_30d, avg_return_30d, perf_trade_count, computed_at}}
     for all cached members. Used to enrich the add-politician dropdown."""
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute("SELECT * FROM member_performance_cache")
         rows = await cur.fetchall()
@@ -1548,7 +1549,7 @@ async def upsert_member_performance(
     perf_trade_count: int,
 ) -> None:
     now = datetime.now(timezone.utc).isoformat()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.execute(
             """
             INSERT INTO member_performance_cache
@@ -1579,7 +1580,7 @@ async def update_followed_politician_performance(
 ) -> None:
     """Persist computed performance metrics for a followed politician."""
     now = datetime.now(timezone.utc).isoformat()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         await db.execute(
             """
             UPDATE followed_politicians
@@ -1598,7 +1599,7 @@ async def update_followed_politician_performance(
 
 
 async def list_senate_filings(senator_slug: str | None = None, limit: int = 1000) -> list[dict]:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         if senator_slug:
             cur = await db.execute(
@@ -1617,7 +1618,7 @@ async def list_senate_filings(senator_slug: str | None = None, limit: int = 1000
 
 
 async def get_known_senate_ptr_ids() -> set[str]:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute("SELECT ptr_id FROM senate_filings")
         rows = await cur.fetchall()
     return {r[0] for r in rows}
@@ -1633,7 +1634,7 @@ async def upsert_senate_filings(filings: list[dict]) -> dict[str, int]:
         return {"new": 0, "updated": 0}
     now = datetime.now(timezone.utc).isoformat()
     new = updated = 0
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         for f in filings:
             cur = await db.execute(
                 """
@@ -1660,7 +1661,7 @@ async def upsert_senate_filings(filings: list[dict]) -> dict[str, int]:
 
 
 async def count_senate_filings() -> int:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute("SELECT COUNT(*) FROM senate_filings")
         return (await cur.fetchone())[0]
 
@@ -1673,7 +1674,7 @@ async def count_senate_filings() -> int:
 async def list_senate_trades(
     senator_slug: str | None = None, limit: int = 1000
 ) -> list[dict]:
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         if senator_slug:
             cur = await db.execute(
@@ -1700,7 +1701,7 @@ async def upsert_senate_trades(trades: list[dict]) -> int:
     if not trades:
         return 0
     now = datetime.now(timezone.utc).isoformat()
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         for t in trades:
             await db.execute(
                 """
@@ -1736,7 +1737,7 @@ async def upsert_senate_trades(trades: list[dict]) -> int:
 
 async def get_parsed_ptr_ids() -> set[str]:
     """Return set of ptr_ids that already have parsed trades cached."""
-    async with aiosqlite.connect(DB_PATH) as db:
+    async with _dbmod.connect() as db:
         cur = await db.execute("SELECT DISTINCT ptr_id FROM senate_trades")
         rows = await cur.fetchall()
     return {r[0] for r in rows}
