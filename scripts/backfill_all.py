@@ -106,8 +106,12 @@ async def main() -> int:
     ap.add_argument("--no-equities", dest="equities", action="store_false", default=True,
                     help="Skip equities (FX only)")
     ap.add_argument("--force", action="store_true", help="Re-fetch even cached files")
+    ap.add_argument("--workers", type=int, default=6,
+                    help="Concurrent equity fetches (Alpaca/HF/yfinance). "
+                         "Alpaca free tier is ~200 req/min; 6-10 is safe. "
+                         "FX/IBKR always runs sequentially. (default: 6)")
     ap.add_argument("--pace", type=float, default=0.4,
-                    help="Seconds to sleep between symbols (rate-limit courtesy)")
+                    help="Seconds between sequential FX/IBKR fetches (default: 0.4)")
     args = ap.parse_args()
 
     intervals = [iv.strip() for iv in args.intervals.split(",") if iv.strip()]
@@ -134,15 +138,40 @@ async def main() -> int:
                 continue
             work.append((sym, interval, _source_for(sym, interval, args.equity_daily_source)))
 
+    # IBKR (FX) must stay sequential — one gateway connection + IBKR pacing.
+    # Everything else (Alpaca/HF/yfinance) runs concurrently.
+    ibkr_work = [w for w in work if w[2] == "ibkr"]
+    par_work = [w for w in work if w[2] != "ibkr"]
+
     print(f"universe: {len(equities)} equities + {len(fx)} FX = {len(all_syms)} symbols")
     print(f"intervals: {intervals}")
     print(f"already cached (skipped): {cached}    to fetch: {len(work)}")
+    print(f"concurrency: {args.workers} workers (equities)  |  FX sequential: {len(ibkr_work)}")
     print("-" * 78)
 
-    ok = fail = 0
+    total = len(work)
+    counter = {"done": 0, "ok": 0, "fail": 0}
     by_source: dict[str, int] = {}
     t0 = time.time()
-    for i, (sym, interval, source) in enumerate(work, 1):
+
+    def _record(sym: str, interval: str, source: str, res: dict, dur: float) -> None:
+        counter["done"] += 1
+        i = counter["done"]
+        if res.get("ok"):
+            counter["ok"] += 1
+            by_source[source] = by_source.get(source, 0) + 1
+            elapsed = time.time() - t0
+            rate = elapsed / max(i, 1)
+            eta = rate * (total - i)
+            print(f"[{i:>4d}/{total}] {sym:<8s} {interval:<4s} {source:<8s} "
+                  f"ok {res.get('rows', 0):>6d} rows ({dur:.1f}s)  "
+                  f"ETA {eta/60:.0f}m")
+        else:
+            counter["fail"] += 1
+            print(f"[{i:>4d}/{total}] {sym:<8s} {interval:<4s} {source:<8s} "
+                  f"FAIL {str(res.get('error', '?'))[:50]} ({dur:.1f}s)")
+
+    async def _one(sym: str, interval: str, source: str) -> None:
         ts = time.time()
         try:
             res = await hf_data_service.fetch_and_save(
@@ -150,23 +179,29 @@ async def main() -> int:
             )
         except Exception as exc:  # noqa: BLE001
             res = {"ok": False, "error": f"{type(exc).__name__}: {exc}", "rows": 0}
-        dur = time.time() - ts
-        if res.get("ok"):
-            ok += 1
-            by_source[source] = by_source.get(source, 0) + 1
-            print(f"[{i:>4d}/{len(work)}] {sym:<8s} {interval:<4s} {source:<8s} "
-                  f"ok {res.get('rows', 0):>6d} rows ({dur:.1f}s)")
-        else:
-            fail += 1
-            print(f"[{i:>4d}/{len(work)}] {sym:<8s} {interval:<4s} {source:<8s} "
-                  f"FAIL {str(res.get('error', '?'))[:50]} ({dur:.1f}s)")
+        _record(sym, interval, source, res, time.time() - ts)
+
+    # Concurrent equity lane — bounded by a semaphore.
+    sem = asyncio.Semaphore(max(1, args.workers))
+
+    async def _guarded(w: tuple[str, str, str]) -> None:
+        async with sem:
+            await _one(*w)
+
+    if par_work:
+        await asyncio.gather(*[_guarded(w) for w in par_work])
+
+    # Sequential FX lane.
+    for w in ibkr_work:
+        await _one(*w)
         if args.pace:
             await asyncio.sleep(args.pace)
 
     elapsed = time.time() - t0
     print("-" * 78)
-    print(f"DONE — {ok} ok, {fail} failed in {elapsed:.0f}s   by source: {by_source}")
-    return 0 if fail == 0 else 2
+    print(f"DONE — {counter['ok']} ok, {counter['fail']} failed in {elapsed:.0f}s "
+          f"({elapsed/60:.1f}m)   by source: {by_source}")
+    return 0 if counter["fail"] == 0 else 2
 
 
 if __name__ == "__main__":
