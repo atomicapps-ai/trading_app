@@ -389,13 +389,22 @@ class PortfolioManager:
         # can't tell a "just qualified" setup from a textbook one).
         _raws = [s.pqs_raw for s in all_signals if s.pqs_raw is not None]
         setup_quality = max(_raws) if _raws else None
+        # Conviction now reflects the uncapped setup quality on a spread scale
+        # instead of signal.strength (which is pinned at the 100 PQS cap, so
+        # every setup that merely cleared the cap showed 100%). Map the
+        # meaningful raw-PQS band [50,120] → [0,1]. Fall back to avg strength
+        # only when no raw PQS is available (older signals).
+        if setup_quality is not None:
+            conviction = round(max(0.0, min(1.0, (setup_quality - 50) / 70.0)), 2)
+        else:
+            conviction = round(avg_strength, 2)
         summary_patterns = ", ".join(unique_patterns) if unique_patterns else "multi-lens"
         thesis = {
             "summary": f"{direction.upper()} {symbol} — {summary_patterns} "
                        f"({len(all_signals)} signals across {len(unique_lenses)} lens(es))",
             "lenses_contributing": unique_lenses,
             "signal_ids": [s.signal_id for s in all_signals],
-            "conviction": round(avg_strength, 2),
+            "conviction": conviction,
             "setup_quality": setup_quality,
             "expected_holding_period": holding_period,
             "similar_past_setups": [],  # Phase 7 memory lookup

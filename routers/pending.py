@@ -147,11 +147,9 @@ async def pending_page(
     await db_service.expire_stale_plans(timeout_minutes=stale_minutes)
     status = _normalize_status(status)
     rows = await _filter_rows(status)
-    # In the default queue, append recent rejected/expired plans (greyed) so a
-    # just-rejected or old trade stays visible + re-buyable instead of vanishing.
-    if status == "pending":
-        seen = {r.get("plan_id") for r in rows}
-        rows = rows + [h for h in await _recent_historical() if h.get("plan_id") not in seen]
+    # The default queue shows ONLY live pending plans. Rejected/expired
+    # (greyed) trades appear only when the operator explicitly filters to
+    # "all" or "rejected" — not mixed into the default view.
     counts = await _status_counts()
     return templates.TemplateResponse(
         request=request,
