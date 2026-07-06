@@ -12,9 +12,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="TradeAgent">
-  <link rel="stylesheet" href="/static/app.css">
-  <script src="/static/htmx.min.js" defer></script>
-  <script src="/static/grid_sort.js" defer></script>
+  <link rel="stylesheet" href="/static/app.css?v={{ asset_v }}">
+  <script src="/static/htmx.min.js?v={{ asset_v }}" defer></script>
+  <script src="/static/grid_sort.js?v={{ asset_v }}" defer></script>
   <script>
     // Register the service worker so the app is installable. Best-effort.
     if ('serviceWorker' in navigator) {

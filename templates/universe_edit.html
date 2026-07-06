@@ -633,8 +633,8 @@ window.addEventListener('DOMContentLoaded', () => bindTickerChips(document));
 // Also bind right away in case DOMContentLoaded already fired (script at end of body)
 bindTickerChips(document);
 </script>
-<script src="/static/lightweight-charts.standalone.production.js"></script>
-<script src="/static/chart_tools.js"></script>
+<script src="/static/lightweight-charts.standalone.production.js?v={{ asset_v }}"></script>
+<script src="/static/chart_tools.js?v={{ asset_v }}"></script>
 <script>
 // chart_tools.js loaded above; rebind chips now that the API is ready.
 if (window.ChartTools) bindTickerChips(document);
