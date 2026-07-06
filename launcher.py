@@ -213,6 +213,15 @@ def main() -> None:
     import tkinter as tk
     from tkinter import messagebox, scrolledtext
 
+    # Give Windows a stable app identity so the taskbar groups the window with
+    # the pinned "TradeAgent" shortcut (and shows our icon, not python's).
+    if IS_WIN:
+        try:
+            import ctypes
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("TradeAgent.Launcher")
+        except Exception:
+            pass
+
     BG, PANEL, FG, MUTED = "#13151f", "#1b1e2b", "#e6e8ef", "#8b90a0"
     GREEN, RED, AMBER, BLUE = "#3fb950", "#f85149", "#d29922", "#4493f8"
     # Mode banner colors — LIVE is deliberately alarming.
@@ -232,6 +241,13 @@ def main() -> None:
     root.title("TradeAgent Launcher")
     root.configure(bg=BG)
     root.geometry("660x560")
+    # Window / taskbar icon (best-effort — .ico only exists on Windows paths).
+    try:
+        _ico = ROOT / "static" / "icons" / "tradeagent.ico"
+        if _ico.exists():
+            root.iconbitmap(default=str(_ico))
+    except Exception:
+        pass
     root.minsize(560, 480)
 
     # ---- MODE banner ------------------------------------------------------
