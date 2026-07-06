@@ -296,12 +296,15 @@
           {% endif %}
         </div>
         {% endif %}
+        <div class="chart-legend" id="chart-legend"></div>
         <div class="dual-chart-wrap" id="dual-chart-wrap"
              data-symbol="{{ p.symbol }}"
              data-entry="{{ p.entry }}"
              data-stop="{{ p.stop }}"
              data-tp1="{{ p.tp1 }}"
              data-tp2="{{ p.tp2 }}"
+             data-direction="{{ p.direction }}"
+             data-discovery="{{ p.ts_created }}"
              data-pivots="{{ p.pivot_lines | tojson | forceescape }}">
           {% for chart_idx, default_interval in [('a', '1h'), ('b', '4h')] %}
             <div class="chart-pane">
@@ -571,6 +574,12 @@
     const stop = parseFloat(wrap.dataset.stop);
     const tp1 = parseFloat(wrap.dataset.tp1);
     const tp2 = parseFloat(wrap.dataset.tp2);
+    const direction = wrap.dataset.direction || 'long';
+    // Discovery timestamp = when the scan created this plan (epoch seconds).
+    const discIso = wrap.dataset.discovery || '';
+    const discoveryTime = discIso ? Math.floor(Date.parse(discIso) / 1000) : null;
+    const tradeMarkers = { entry, stop, tp1, tp2, direction, discoveryTime };
+    ChartTools.renderTradeLegend(document.getElementById('chart-legend'));
 
     // Plan-level price lines applied via inst.addPriceLine() so they
     // survive setData() calls inside the helper (e.g. when the user
@@ -597,6 +606,7 @@
         indicators: [],
         persistKey: `pending_${idx}`,
         limit: 500,
+        tradeMarkers,
       });
       // Apply plan levels once bars have loaded — the helper restores
       // these on every subsequent setData() / prependBars().
