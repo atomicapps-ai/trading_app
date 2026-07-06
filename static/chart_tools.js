@@ -105,6 +105,14 @@
   position:relative;}
 .ct-pane{position:relative;min-height:30px;flex:0 0 auto;}
 .ct-pane-price{flex:1 1 auto;}
+.ct-marker-tip{position:absolute;z-index:20;pointer-events:none;max-width:230px;
+  background:rgba(15,17,26,0.96);color:#e6e8ef;border:0.5px solid #2a2e3d;
+  border-radius:6px;padding:6px 9px;font-size:11px;line-height:1.4;
+  box-shadow:0 4px 12px rgba(0,0,0,0.5);}
+.chart-legend{display:flex;flex-wrap:wrap;gap:14px;align-items:center;
+  padding:6px 2px;font-size:11px;color:var(--text-secondary,#8b90a0);}
+.chart-legend .leg-item{display:inline-flex;align-items:center;gap:5px;cursor:default;}
+.chart-legend .leg-dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
 .ct-pane-sub{border-top:1px solid var(--border);}
 .ct-sub-label{position:absolute;top:4px;left:8px;z-index:5;
   font-size:10px;font-weight:600;color:var(--text-tertiary);
@@ -215,8 +223,13 @@
       // currently only re-runs setData on the same series — they
       // survive). Tracked here mainly so destroy() can remove them.
       this._extraPriceLines = [];
+      // Trade markers (discovery + EP/TP/SL hits). null = none.
+      this.tradeMarkers = this.opts.tradeMarkers || null;
+      this._markerTips = {};
+      this._tipEl = null;
       injectStyles();
       this._buildShell();
+      this._wireMarkerTooltip();
       this.loadData();
     }
 
@@ -386,6 +399,7 @@
         // Note: price lines on a series persist across setData() — no
         // need to re-create them after every reload.
         this.priceChart.timeScale().fitContent();
+        this._applyTradeMarkers();
         await this.refreshIndicators();
       } catch (err) {
         this._showError('Load failed: ' + err);
@@ -628,6 +642,7 @@
       this.priceSeries.setData(bars.map(b => ({
         time: b.time, open: b.open, high: b.high, low: b.low, close: b.close,
       })));
+      this._applyTradeMarkers();
     }
 
     prependBars(older) {
@@ -636,6 +651,107 @@
       this.priceSeries.setData(this.bars.map(b => ({
         time: b.time, open: b.open, high: b.high, low: b.low, close: b.close,
       })));
+      this._applyTradeMarkers();
+    }
+
+    // ── Trade markers: discovery point + EP/TP/SL level hits ────────────
+    // cfg: {entry, stop, tp1, tp2, direction:'long'|'short', discoveryTime:epochSec}
+    // Discovery = where the strategy found the setup (look forward from here).
+    // Hits are computed client-side from the loaded bars, so no server change
+    // is needed; they recompute on every (re)load and lazy-load.
+    setTradeMarkers(cfg) { this.tradeMarkers = cfg || null; this._applyTradeMarkers(); }
+
+    _nearestBarTime(t) {
+      const bars = this.bars;
+      if (!bars || !bars.length || !t) return null;
+      for (let i = 0; i < bars.length; i++) if (bars[i].time >= t) return bars[i].time;
+      return bars[bars.length - 1].time;
+    }
+
+    _computeTradeMarkers() {
+      const cfg = this.tradeMarkers, bars = this.bars;
+      if (!cfg || !bars || !bars.length) return { markers: [], tips: {} };
+      const CC = window.CHART_COLORS || {};
+      const isLong = String(cfg.direction || 'long').toLowerCase() !== 'short';
+      const num = v => (v == null || isNaN(v)) ? null : Number(v);
+      const entry = num(cfg.entry), stop = num(cfg.stop),
+            tp1 = num(cfg.tp1), tp2 = num(cfg.tp2);
+      const markers = [], tips = {};
+      const fmt = p => '$' + Number(p).toFixed(2);
+      const dstr = t => { try { return new Date(t * 1000).toISOString().slice(0, 10); } catch (_) { return ''; } };
+      const addTip = (t, s) => { tips[t] = tips[t] ? tips[t] + ' · ' + s : s; };
+
+      // 1) Discovery marker.
+      let discT = null;
+      if (cfg.discoveryTime) {
+        discT = this._nearestBarTime(cfg.discoveryTime);
+        if (discT != null) {
+          markers.push({ time: discT, position: isLong ? 'belowBar' : 'aboveBar',
+            color: CC.discovery || '#f59e0b', shape: isLong ? 'arrowUp' : 'arrowDown',
+            text: 'Found' });
+          addTip(discT, 'Discovered here — the strategy found this setup. You are looking forward from this point.');
+        }
+      }
+      const startTime = discT != null ? discT : bars[0].time;
+
+      // 2) Entry fill, then first level touched.
+      const touch = (bar, level, side) => side === 'above' ? bar.high >= level : bar.low <= level;
+      let entryIdx = -1;
+      if (entry != null) {
+        for (let i = 0; i < bars.length; i++) {
+          if (bars[i].time < startTime) continue;
+          if (touch(bars[i], entry, isLong ? 'below' : 'above')) { entryIdx = i; break; }
+        }
+      }
+      if (entryIdx >= 0) {
+        const b = bars[entryIdx];
+        markers.push({ time: b.time, position: isLong ? 'belowBar' : 'aboveBar',
+          color: CC.entry || '#4a9eff', shape: 'circle', text: 'EP' });
+        addTip(b.time, 'Entry filled near ' + fmt(entry) + ' on ' + dstr(b.time) + '.');
+        const findFirst = (level, side, label, color, shape, note) => {
+          if (level == null) return;
+          for (let i = entryIdx; i < bars.length; i++) {
+            if (touch(bars[i], level, side)) {
+              const bb = bars[i];
+              markers.push({ time: bb.time, position: side === 'above' ? 'aboveBar' : 'belowBar',
+                color, shape, text: label });
+              addTip(bb.time, note + ' (' + fmt(level) + ') on ' + dstr(bb.time) + '.');
+              return;
+            }
+          }
+        };
+        findFirst(tp1,  isLong ? 'above' : 'below', 'TP1', CC.tp1 || '#22c55e', isLong ? 'arrowUp' : 'arrowDown', 'TP1 hit');
+        findFirst(tp2,  isLong ? 'above' : 'below', 'TP2', CC.tp2 || '#16a34a', isLong ? 'arrowUp' : 'arrowDown', 'TP2 hit');
+        findFirst(stop, isLong ? 'below' : 'above', 'SL',  CC.stop || '#ef4444', 'circle', 'Stop hit');
+      }
+      markers.sort((a, b) => a.time - b.time);
+      return { markers, tips };
+    }
+
+    _applyTradeMarkers() {
+      if (!this.tradeMarkers || !this.priceSeries) return;
+      const { markers, tips } = this._computeTradeMarkers();
+      this._markerTips = tips;
+      try { this.priceSeries.setMarkers(markers); } catch (_) {}
+    }
+
+    _wireMarkerTooltip() {
+      if (this._tipEl || !this.priceWrap || !this.priceChart) return;
+      const tip = document.createElement('div');
+      tip.className = 'ct-marker-tip';
+      tip.style.display = 'none';
+      this.priceWrap.appendChild(tip);
+      this._tipEl = tip;
+      this.priceChart.subscribeCrosshairMove(p => {
+        const tips = this._markerTips || {};
+        if (!p || p.time == null || !p.point || !(p.time in tips)) {
+          tip.style.display = 'none'; return;
+        }
+        tip.textContent = tips[p.time];
+        tip.style.display = 'block';
+        tip.style.left = Math.max(4, p.point.x + 12) + 'px';
+        tip.style.top = Math.max(4, p.point.y + 12) + 'px';
+      });
     }
 
     _showError(msg) {
@@ -959,11 +1075,29 @@
   });
 
   // ── Public API ──────────────────────────────────────────────────────
+  // Fill an element with the trade-marker legend (colors honor CHART_COLORS).
+  function renderTradeLegend(el) {
+    if (!el) return;
+    const CC = window.CHART_COLORS || {};
+    const items = [
+      ['Found',  CC.discovery || '#f59e0b', 'Where the strategy discovered the setup — look forward from here'],
+      ['EP',     CC.entry     || '#4a9eff', 'Entry filled (price reached the entry level)'],
+      ['TP1',    CC.tp1       || '#22c55e', 'First take-profit hit'],
+      ['TP2',    CC.tp2       || '#16a34a', 'Second take-profit hit'],
+      ['SL',     CC.stop      || '#ef4444', 'Stop-loss hit'],
+    ];
+    el.innerHTML = items.map(([label, color, tip]) =>
+      `<span class="leg-item" title="${tip}">` +
+      `<span class="leg-dot" style="background:${color}"></span>${label}</span>`
+    ).join('');
+  }
+
   window.ChartTools = {
     INDICATORS,
     FILTER_INDICATOR_MAP,
     filtersToIndicators,
     renderChart,
+    renderTradeLegend,
     openSourcePopover,
     bindTickerChips,
     createFloatingPanel,

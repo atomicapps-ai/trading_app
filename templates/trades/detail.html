@@ -56,6 +56,7 @@
           <span class="text-tertiary text-sm">timeframe + indicator chips · plan levels overlaid</span>
         </div>
         <div id="trade-chart-mount" class="trade-detail-chart-mount"></div>
+        <div class="chart-legend" id="trade-chart-legend"></div>
       </div>
 
       {# Postmortem renders only for closed trades — partial gates itself #}
@@ -189,13 +190,20 @@
   const TP1    = {{ trade.tp1_price|tojson   if trade.tp1_price   else "null" }};
   const TP2    = {{ trade.tp2_price|tojson   if trade.tp2_price   else "null" }};
 
+  const DIRECTION = {{ (trade.direction or 'long')|tojson }};
+  const DISC_ISO  = {{ (trade.ts_created or '')|tojson }};
+  const discoveryTime = DISC_ISO ? Math.floor(Date.parse(DISC_ISO) / 1000) : null;
+
   const inst = ChartTools.renderChart(mount, {
     symbol: SYMBOL,
     interval: '1d',
     indicators: ['sma20', 'sma50', 'vwap', 'rsi'],
     persistKey: 'trade_detail',
+    tradeMarkers: { entry: ENTRY, stop: STOP, tp1: TP1, tp2: TP2,
+                    direction: DIRECTION, discoveryTime },
   });
   if (!inst) return;
+  ChartTools.renderTradeLegend(document.getElementById('trade-chart-legend'));
 
   // Plan levels — entry/stop/TP1/TP2 as labeled price lines.
   // ChartTools.addPriceLine survives setData() so they stay through
