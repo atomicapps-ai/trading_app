@@ -656,17 +656,25 @@
     const stop = parseFloat(wrap.dataset.stop);
     const tp1 = parseFloat(wrap.dataset.tp1);
     const tp2 = parseFloat(wrap.dataset.tp2);
-    // Vertical event bars. Pending trades show ONLY "Found" (the trigger
-    // candle) — EP/TP/SL bars appear only once the trade is actually
-    // entered/closed (real times), which happens on the trade-detail view.
-    const _CC0 = (window.CHART_COLORS || {});
+    // Valid-window overlay. A pending trade is VALID from the discovery
+    // (trigger) candle and stops being valid at the first invalidation —
+    // stop hit, first target touched, entry chased away, or time-stop —
+    // whichever comes first. ChartTools computes the window from the loaded
+    // bars and draws a green "Valid" bar, a colored end bar, and a shaded
+    // band between them. EP/TP/SL event bars appear only on the trade-detail
+    // view once the trade is actually entered/closed (real times).
+    const direction = (wrap.dataset.direction || 'long').toLowerCase();
     const discIso = wrap.dataset.discovery || '';
     const discoveryTime = discIso ? Math.floor(Date.parse(discIso) / 1000) : null;
-    const events = [];
-    if (discoveryTime) events.push({ time: discoveryTime, color: _CC0.discovery || '#f59e0b',
-      label: 'Found', tip: 'Found here — the strategy fired on this candle. This is a new setup; entry has not filled yet.' });
-    const tradeMarkers = { events };
-    ChartTools.renderTradeLegend(document.getElementById('chart-legend'));
+    const tradeMarkers = {
+      direction,
+      discoveryTime,
+      entry: isNaN(entry) ? null : entry,
+      stop:  isNaN(stop)  ? null : stop,
+      tp1:   isNaN(tp1)   ? null : tp1,
+      timeStopDays: 5,
+    };
+    ChartTools.renderTradeLegend(document.getElementById('chart-legend'), 'window');
 
     // Plan-level price lines applied via inst.addPriceLine() so they
     // survive setData() calls inside the helper (e.g. when the user

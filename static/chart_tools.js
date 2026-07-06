@@ -112,6 +112,9 @@
   font-size:9px;font-weight:700;line-height:1;color:#0b0d13;
   padding:2px 6px;border-radius:4px;white-space:nowrap;
   box-shadow:0 1px 3px rgba(0,0,0,0.4);}
+/* Shaded valid window (Valid → first-invalidation). */
+.ct-vshade{position:absolute;top:0;bottom:0;z-index:3;pointer-events:none;
+  background:rgba(34,197,94,0.10);border-left:0;border-right:0;}
 .chart-legend{display:flex;flex-wrap:wrap;gap:14px;align-items:center;
   padding:6px 2px;font-size:11px;color:var(--text-secondary,#8b90a0);}
 .chart-legend .leg-item{display:inline-flex;align-items:center;gap:5px;cursor:default;}
@@ -230,6 +233,7 @@
       this.tradeMarkers = this.opts.tradeMarkers || null;
       this._vlineWrap = null;   // overlay holding the vertical event bars
       this._vlines = [];
+      this._vshade = null;      // shaded valid-window rectangle (window mode)
       injectStyles();
       this._buildShell();
       this.loadData();
@@ -689,39 +693,133 @@
       return idx;
     }
 
+    // Add one vertical bar + top label chip at time t (snapped to the
+    // candle that contains t). Pushes into this._vlines for positioning.
+    _addVline(t, color, label, tip) {
+      const idx = this._containingBarIndex(t);
+      const bt = idx >= 0 ? this.bars[idx].time : t;
+      const line = document.createElement('div');
+      line.className = 'ct-vline';
+      line.style.background = color;
+      const mark = document.createElement('div');
+      mark.className = 'ct-vmark';
+      mark.style.background = color;
+      mark.textContent = label || '';
+      if (tip) { line.title = tip; mark.title = tip; }
+      this._vlineWrap.appendChild(line);
+      this._vlineWrap.appendChild(mark);
+      this._vlines.push({ t: bt, line, mark });
+    }
+
+    // Compute the valid window for a fresh/pending trade from the loaded bars.
+    // Rule (operator-chosen): the setup is VALID from the discovery candle
+    // and stops being valid at the FIRST invalidation, whichever comes first:
+    //   • stop hit (after fill)              → 'stop'
+    //   • first take-profit touched (after fill; setup no longer fresh) → 'tp1'
+    //   • price ran away before the entry filled (missed / chased) → 'chased'
+    //   • time-stop deadline reached          → 'expired'
+    // cfg: {direction, discoveryTime:epochSec, entry, stop, tp1, timeStopDays}
+    _computeValidWindow() {
+      const cfg = this.tradeMarkers;
+      if (!cfg || cfg.discoveryTime == null || cfg.entry == null) return null;
+      const bars = this.bars;
+      if (!bars || !bars.length) return null;
+
+      const isLong = (cfg.direction || 'long') !== 'short';
+      const E = cfg.entry;
+      const S = (cfg.stop != null) ? cfg.stop : null;
+      const T = (cfg.tp1 != null) ? cfg.tp1 : null;
+      const risk = (S != null) ? Math.abs(E - S) : null;
+      const buf = Math.max(risk != null ? risk * 0.25 : 0, Math.abs(E) * 0.001);
+      const days = cfg.timeStopDays || 5;
+
+      const discIdx = this._containingBarIndex(cfg.discoveryTime);
+      if (discIdx < 0) return null;
+      const validTime = bars[discIdx].time;
+      const deadline = validTime + days * 86400;
+
+      let filled = false;
+      let end = null;   // { time, reason }
+      for (let i = discIdx + 1; i < bars.length; i++) {
+        const b = bars[i];
+        if (!filled) {
+          const hitEntry = isLong ? (b.low <= E) : (b.high >= E);
+          if (hitEntry) filled = true;
+        }
+        if (filled) {
+          if (S != null) {
+            const hitStop = isLong ? (b.low <= S) : (b.high >= S);
+            if (hitStop) { end = { time: b.time, reason: 'stop' }; break; }
+          }
+          if (T != null) {
+            const hitTp = isLong ? (b.high >= T) : (b.low <= T);
+            if (hitTp) { end = { time: b.time, reason: 'tp1' }; break; }
+          }
+        } else {
+          // Never filled and price gapped/ran away from the entry → chased.
+          const chased = isLong ? (b.low >= E + buf) : (b.high <= E - buf);
+          if (chased) { end = { time: b.time, reason: 'chased' }; break; }
+        }
+        if (b.time >= deadline) { end = { time: b.time, reason: 'expired' }; break; }
+      }
+      return { validTime, filled, end };
+    }
+
     _applyTradeMarkers() {
       if (!this._vlineWrap) return;
       this._vlineWrap.innerHTML = '';
       this._vlines = [];
-      const evs = (this.tradeMarkers && this.tradeMarkers.events) || [];
+      this._vshade = null;
+      const cfg = this.tradeMarkers;
+      if (!cfg) { this._positionVlines(); return; }
       const CC = window.CHART_COLORS || {};
-      evs.forEach(e => {
-        if (e.time == null) return;
-        // Snap to the candle that contains the event time so the bar aligns.
-        const idx = this._containingBarIndex(e.time);
-        const t = idx >= 0 ? this.bars[idx].time : e.time;
-        const color = e.color || CC.discovery || '#f59e0b';
-        const line = document.createElement('div');
-        line.className = 'ct-vline';
-        line.style.background = color;
-        const mark = document.createElement('div');
-        mark.className = 'ct-vmark';
-        mark.style.background = color;
-        mark.textContent = e.label || '';
-        if (e.tip) { line.title = e.tip; mark.title = e.tip; }
-        this._vlineWrap.appendChild(line);
-        this._vlineWrap.appendChild(mark);
-        this._vlines.push({ t, line, mark });
-      });
+
+      // Mode A — explicit real events (detail page: actual fill / exit stamps).
+      if (cfg.events && cfg.events.length) {
+        cfg.events.forEach(e => {
+          if (e.time == null) return;
+          this._addVline(e.time, e.color || CC.discovery || '#f59e0b',
+                         e.label || '', e.tip);
+        });
+        this._positionVlines();
+        return;
+      }
+
+      // Mode B — valid window (fresh / pending trades): Valid bar + End bar
+      // + shaded window between them.
+      const win = this._computeValidWindow();
+      if (!win) { this._positionVlines(); return; }
+
+      const lastBar = this.bars[this.bars.length - 1];
+      const shadeEnd = win.end ? win.end.time : (lastBar && lastBar.time);
+      if (shadeEnd != null) {
+        const shade = document.createElement('div');
+        shade.className = 'ct-vshade';
+        this._vlineWrap.appendChild(shade);
+        this._vshade = { a: win.validTime, b: shadeEnd, el: shade };
+      }
+
+      this._addVline(win.validTime, CC.tp1 || '#22c55e', 'Valid',
+        'Setup valid from this candle — entry can be placed.');
+
+      if (win.end) {
+        const meta = {
+          stop:    [CC.stop      || '#ef4444', 'Stopped', 'Stop hit — setup invalidated.'],
+          tp1:     [CC.tp1       || '#22c55e', 'TP1',     'First target touched — setup no longer fresh.'],
+          chased:  [CC.discovery || '#f59e0b', 'Chased',  'Price ran away before entry filled — missed.'],
+          expired: ['#8b90a0',                 'Expired', 'Time-stop reached — setup no longer valid.'],
+        }[win.end.reason] || ['#8b90a0', 'End', ''];
+        this._addVline(win.end.time, meta[0], meta[1], meta[2]);
+      }
       this._positionVlines();
     }
 
-    // Place each vertical bar at its candle's x-coordinate; hide when the
-    // candle is scrolled out of view.
+    // Place each vertical bar (and the shaded window) at its candle's
+    // x-coordinate; hide/clamp when scrolled out of view.
     _positionVlines() {
-      if (!this._vlines || !this._vlines.length || !this.priceChart) return;
+      if (!this.priceChart) return;
       const ts = this.priceChart.timeScale();
-      this._vlines.forEach(v => {
+      (this._vlines || []).forEach(v => {
         let x = null;
         try { x = ts.timeToCoordinate(v.t); } catch (_) {}
         if (x == null) {
@@ -731,6 +829,23 @@
         v.line.style.left = x + 'px';
         v.mark.style.left = x + 'px';
       });
+      if (this._vshade) {
+        let xa = null, xb = null;
+        try { xa = ts.timeToCoordinate(this._vshade.a); } catch (_) {}
+        try { xb = ts.timeToCoordinate(this._vshade.b); } catch (_) {}
+        if (xa == null && xb == null) {
+          this._vshade.el.style.display = 'none';
+        } else {
+          // Clamp a missing edge to the chart bounds so the band still shows
+          // when one end is scrolled off-screen.
+          const w = this.priceWrap ? this.priceWrap.clientWidth : 0;
+          if (xa == null) xa = 0;
+          if (xb == null) xb = w;
+          this._vshade.el.style.display = '';
+          this._vshade.el.style.left = Math.min(xa, xb) + 'px';
+          this._vshade.el.style.width = Math.abs(xb - xa) + 'px';
+        }
+      }
     }
 
     _showError(msg) {
@@ -1055,10 +1170,19 @@
 
   // ── Public API ──────────────────────────────────────────────────────
   // Fill an element with the trade-marker legend (colors honor CHART_COLORS).
-  function renderTradeLegend(el) {
+  // mode: 'window' (pending — Valid→invalidation band) or 'events' (detail —
+  // real fill/exit stamps). Defaults to 'events'.
+  function renderTradeLegend(el, mode) {
     if (!el) return;
     const CC = window.CHART_COLORS || {};
-    const items = [
+    const items = (mode === 'window') ? [
+      ['Valid',   CC.tp1       || '#22c55e', 'Setup is valid from here — entry can be placed'],
+      ['window',  'rgba(34,197,94,0.35)',    'Shaded band = the window during which the setup stays valid'],
+      ['Stopped', CC.stop      || '#ef4444', 'Stop hit — setup invalidated'],
+      ['TP1',     CC.tp1       || '#22c55e', 'First target touched — setup no longer fresh'],
+      ['Chased',  CC.discovery || '#f59e0b', 'Price ran away before entry filled — missed'],
+      ['Expired', '#8b90a0',                 'Time-stop reached — setup no longer valid'],
+    ] : [
       ['Found',  CC.discovery || '#f59e0b', 'Where the strategy discovered the setup — look forward from here'],
       ['EP',     CC.entry     || '#4a9eff', 'Entry filled (price reached the entry level)'],
       ['TP1',    CC.tp1       || '#22c55e', 'First take-profit hit'],
