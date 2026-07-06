@@ -81,6 +81,11 @@ def _popen(cmd: list[str]) -> subprocess.Popen:
     kwargs: dict = dict(
         cwd=str(ROOT),
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        # Give the child a real (empty) stdin. Launched from a windowless
+        # pythonw launcher the child would otherwise inherit an invalid stdin
+        # handle — uvicorn's --reload watcher reads stdin and EOF-exits (clean
+        # code 0) right after start. DEVNULL keeps the reloader alive.
+        stdin=subprocess.DEVNULL,
         bufsize=1, text=True,
     )
     if IS_WIN:
