@@ -11,6 +11,13 @@
     <a href="/strategies" class="text-sm text-secondary" style="text-decoration:none;">Run a scan →</a>
   </div>
 
+  {% if filter_workflow %}
+    <div class="flex items-center gap-12 mb-16" style="flex-wrap:wrap;">
+      <span class="badge badge-blue">filtered: {{ filter_workflow }}</span>
+      <a href="/runs" class="text-sm text-secondary" style="text-decoration:none;">✕ clear filter (show all runs)</a>
+    </div>
+  {% endif %}
+
   <div class="text-secondary text-xs mb-16" style="line-height:1.6;">
     Every strategy scan is recorded here. Click a run to drill into
     <strong>exactly which stocks were processed and how each was resolved</strong>
