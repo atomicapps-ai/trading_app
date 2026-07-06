@@ -1637,6 +1637,14 @@ input, select, textarea { font: inherit; color: inherit; }
 .nav-toggle { display: none; }   /* hamburger — shown only on mobile */
 .nav-scrim  { display: none; }   /* drawer backdrop — mobile only    */
 
+/* Setup-strength 1–5 stars (pending card + detail) */
+.strength-badge { display: inline-flex; align-items: center; gap: 1px; cursor: help; line-height: 1; }
+.strength-badge .star { font-size: 11px; }
+.strength-badge.big .star { font-size: 14px; }
+.strength-badge .star.on  { color: var(--accent-amber, #d29922); }
+.strength-badge .star.off { color: var(--border, #2a2e3d); }
+.strength-badge .strength-num { margin-left: 5px; font-size: 11px; color: var(--text-secondary); }
+
 /* Native color-swatch input (Settings → Chart colors) */
 .color-swatch {
   width: 40px; height: 30px; padding: 0;
