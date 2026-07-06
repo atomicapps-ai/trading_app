@@ -105,10 +105,13 @@
   position:relative;}
 .ct-pane{position:relative;min-height:30px;flex:0 0 auto;}
 .ct-pane-price{flex:1 1 auto;}
-.ct-marker-tip{position:absolute;z-index:20;pointer-events:none;max-width:230px;
-  background:rgba(15,17,26,0.96);color:#e6e8ef;border:0.5px solid #2a2e3d;
-  border-radius:6px;padding:6px 9px;font-size:11px;line-height:1.4;
-  box-shadow:0 4px 12px rgba(0,0,0,0.5);}
+/* Vertical event bars (Found / EP / exit) + top label chip. */
+.ct-vlines{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:4;}
+.ct-vline{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;opacity:0.5;}
+.ct-vmark{position:absolute;top:3px;transform:translateX(-50%);z-index:5;
+  font-size:9px;font-weight:700;line-height:1;color:#0b0d13;
+  padding:2px 6px;border-radius:4px;white-space:nowrap;
+  box-shadow:0 1px 3px rgba(0,0,0,0.4);}
 .chart-legend{display:flex;flex-wrap:wrap;gap:14px;align-items:center;
   padding:6px 2px;font-size:11px;color:var(--text-secondary,#8b90a0);}
 .chart-legend .leg-item{display:inline-flex;align-items:center;gap:5px;cursor:default;}
@@ -225,12 +228,10 @@
       this._extraPriceLines = [];
       // Trade markers (discovery + EP/TP/SL hits). null = none.
       this.tradeMarkers = this.opts.tradeMarkers || null;
-      this._markerTips = {};
-      this._hitSeries = [];   // one-point line series for EP/TP/SL hit dots
-      this._tipEl = null;
+      this._vlineWrap = null;   // overlay holding the vertical event bars
+      this._vlines = [];
       injectStyles();
       this._buildShell();
-      this._wireMarkerTooltip();
       this.loadData();
     }
 
@@ -326,6 +327,14 @@
       this.priceChart = chart;
       this.priceSeries = series;
 
+      // Overlay layer for vertical event bars (Found / EP / exit). Kept in sync
+      // with the time scale so bars track their candle as you pan/zoom.
+      const vlw = document.createElement('div');
+      vlw.className = 'ct-vlines';
+      priceWrap.appendChild(vlw);
+      this._vlineWrap = vlw;
+      chart.timeScale().subscribeVisibleLogicalRangeChange(() => this._positionVlines());
+
       // Build any sub-panes for sub-pane indicators that started active
       INDICATORS.filter(i => i.kind === 'subpane' && this.activeIndicators.has(i.id))
         .forEach(i => this._buildSubPane(i.id));
@@ -371,6 +380,7 @@
         sp.wrap.style.height = subH + 'px';
         sp.chart.applyOptions({ width: w, height: subH });
       });
+      this._positionVlines();
     }
 
     async loadData() {
@@ -660,12 +670,15 @@
     // Discovery = where the strategy found the setup (look forward from here).
     // Hits are computed client-side from the loaded bars, so no server change
     // is needed; they recompute on every (re)load and lazy-load.
+    // cfg.events: [{ time:<epochSec>, kind, color, label, tip }]. Each is drawn
+    // as a VERTICAL bar at that candle with the label chip at the TOP edge
+    // (clear of the price action). Times are real: Found = the trigger candle;
+    // EP / exit only exist once the trade is actually entered / closed.
     setTradeMarkers(cfg) { this.tradeMarkers = cfg || null; this._applyTradeMarkers(); }
 
     // Index of the bar that CONTAINS time t (last bar whose start time <= t).
-    // Daily bars are timestamped at 00:00 of their day, so the discovery ts
-    // (mid-day) belongs to that day's bar — NOT the next one. Returns 0 if t
-    // predates all loaded bars, -1 if there are none.
+    // Daily bars are stamped at 00:00, so a mid-day ts belongs to that day's
+    // bar — not the next. Returns 0 if t predates all bars, -1 if none.
     _containingBarIndex(t) {
       const bars = this.bars;
       if (!bars || !bars.length || !t) return -1;
@@ -676,107 +689,47 @@
       return idx;
     }
 
-    _computeTradeMarkers() {
-      const cfg = this.tradeMarkers, bars = this.bars;
-      if (!cfg || !bars || !bars.length) return { markers: [], dots: [], tips: {} };
-      const CC = window.CHART_COLORS || {};
-      const isLong = String(cfg.direction || 'long').toLowerCase() !== 'short';
-      const num = v => (v == null || isNaN(v)) ? null : Number(v);
-      const entry = num(cfg.entry), stop = num(cfg.stop),
-            tp1 = num(cfg.tp1), tp2 = num(cfg.tp2);
-      const markers = [], dots = [], tips = {};
-      const fmt = p => '$' + Number(p).toFixed(2);
-      const dstr = t => { try { return new Date(t * 1000).toISOString().slice(0, 10); } catch (_) { return ''; } };
-      const addTip = (t, s) => { tips[t] = tips[t] ? tips[t] + ' · ' + s : s; };
-
-      // 1) Discovery marker — the candle the strategy evaluated (a PAST bar).
-      //    Everything left of it is not part of this trade's forward window.
-      let discIdx = -1;
-      if (cfg.discoveryTime) discIdx = this._containingBarIndex(cfg.discoveryTime);
-      if (discIdx >= 0) {
-        const dt = bars[discIdx].time;
-        markers.push({ time: dt, position: isLong ? 'belowBar' : 'aboveBar',
-          color: CC.discovery || '#f59e0b', shape: isLong ? 'arrowUp' : 'arrowDown',
-          text: 'Found' });
-        addTip(dt, 'Found ' + dstr(dt) + ' — the strategy discovered this setup here. Watch forward from this candle for entry/TP/SL; anything to the left is not part of this trade.');
-      }
-
-      // 2) Walk forward from AFTER the discovery bar: entry fill, then the
-      //    first touch of each level. Dots sit exactly on the level line at
-      //    the contact candle, colored to match that line.
-      const touch = (bar, level, side) => side === 'above' ? bar.high >= level : bar.low <= level;
-      const startIdx = discIdx >= 0 ? discIdx + 1 : 0;
-      let entryIdx = -1;
-      if (entry != null) {
-        for (let i = startIdx; i < bars.length; i++) {
-          if (touch(bars[i], entry, isLong ? 'below' : 'above')) { entryIdx = i; break; }
-        }
-      }
-      if (entryIdx >= 0) {
-        const bt = bars[entryIdx].time;
-        dots.push({ time: bt, price: entry, color: CC.entry || '#4a9eff', label: 'EP' });
-        addTip(bt, 'EP — entry filled at ' + fmt(entry) + ' on ' + dstr(bt) + '.');
-        const findFirst = (level, side, color, note) => {
-          if (level == null) return;
-          for (let i = entryIdx; i < bars.length; i++) {
-            if (touch(bars[i], level, side)) {
-              const t = bars[i].time;
-              dots.push({ time: t, price: level, color });
-              addTip(t, note + ' at ' + fmt(level) + ' on ' + dstr(t) + '.');
-              return;
-            }
-          }
-        };
-        findFirst(tp1,  isLong ? 'above' : 'below', CC.tp1 || '#22c55e', 'TP1 hit');
-        findFirst(tp2,  isLong ? 'above' : 'below', CC.tp2 || '#16a34a', 'TP2 hit');
-        findFirst(stop, isLong ? 'below' : 'above', CC.stop || '#ef4444', 'Stop hit');
-      }
-      markers.sort((a, b) => a.time - b.time);
-      return { markers, dots, tips };
-    }
-
     _applyTradeMarkers() {
-      if (!this.tradeMarkers || !this.priceSeries) return;
-      // Clear prior hit-dot series before recomputing.
-      (this._hitSeries || []).forEach(s => {
-        try { this.priceChart.removeSeries(s); } catch (_) {}
+      if (!this._vlineWrap) return;
+      this._vlineWrap.innerHTML = '';
+      this._vlines = [];
+      const evs = (this.tradeMarkers && this.tradeMarkers.events) || [];
+      const CC = window.CHART_COLORS || {};
+      evs.forEach(e => {
+        if (e.time == null) return;
+        // Snap to the candle that contains the event time so the bar aligns.
+        const idx = this._containingBarIndex(e.time);
+        const t = idx >= 0 ? this.bars[idx].time : e.time;
+        const color = e.color || CC.discovery || '#f59e0b';
+        const line = document.createElement('div');
+        line.className = 'ct-vline';
+        line.style.background = color;
+        const mark = document.createElement('div');
+        mark.className = 'ct-vmark';
+        mark.style.background = color;
+        mark.textContent = e.label || '';
+        if (e.tip) { line.title = e.tip; mark.title = e.tip; }
+        this._vlineWrap.appendChild(line);
+        this._vlineWrap.appendChild(mark);
+        this._vlines.push({ t, line, mark });
       });
-      this._hitSeries = [];
-      const { markers, dots, tips } = this._computeTradeMarkers();
-      this._markerTips = tips;
-      try { this.priceSeries.setMarkers(markers); } catch (_) {}
-      // Each hit = a one-point line series so the dot lands EXACTLY on the
-      // level line at the contact candle, in that level's color.
-      (dots || []).forEach(d => {
-        try {
-          const s = this.priceChart.addLineSeries({
-            color: d.color, lineVisible: false,
-            pointMarkersVisible: true, pointMarkersRadius: 5,
-            lastValueVisible: false, priceLineVisible: false,
-            crosshairMarkerVisible: false,
-          });
-          s.setData([{ time: d.time, value: d.price }]);
-          this._hitSeries.push(s);
-        } catch (_) {}
-      });
+      this._positionVlines();
     }
 
-    _wireMarkerTooltip() {
-      if (this._tipEl || !this.priceWrap || !this.priceChart) return;
-      const tip = document.createElement('div');
-      tip.className = 'ct-marker-tip';
-      tip.style.display = 'none';
-      this.priceWrap.appendChild(tip);
-      this._tipEl = tip;
-      this.priceChart.subscribeCrosshairMove(p => {
-        const tips = this._markerTips || {};
-        if (!p || p.time == null || !p.point || !(p.time in tips)) {
-          tip.style.display = 'none'; return;
+    // Place each vertical bar at its candle's x-coordinate; hide when the
+    // candle is scrolled out of view.
+    _positionVlines() {
+      if (!this._vlines || !this._vlines.length || !this.priceChart) return;
+      const ts = this.priceChart.timeScale();
+      this._vlines.forEach(v => {
+        let x = null;
+        try { x = ts.timeToCoordinate(v.t); } catch (_) {}
+        if (x == null) {
+          v.line.style.display = 'none'; v.mark.style.display = 'none'; return;
         }
-        tip.textContent = tips[p.time];
-        tip.style.display = 'block';
-        tip.style.left = Math.max(4, p.point.x + 12) + 'px';
-        tip.style.top = Math.max(4, p.point.y + 12) + 'px';
+        v.line.style.display = ''; v.mark.style.display = '';
+        v.line.style.left = x + 'px';
+        v.mark.style.left = x + 'px';
       });
     }
 

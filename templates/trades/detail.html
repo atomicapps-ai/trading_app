@@ -190,17 +190,29 @@
   const TP1    = {{ trade.tp1_price|tojson   if trade.tp1_price   else "null" }};
   const TP2    = {{ trade.tp2_price|tojson   if trade.tp2_price   else "null" }};
 
-  const DIRECTION = {{ (trade.direction or 'long')|tojson }};
-  const DISC_ISO  = {{ (trade.ts_created or '')|tojson }};
-  const discoveryTime = DISC_ISO ? Math.floor(Date.parse(DISC_ISO) / 1000) : null;
+  // Vertical event bars from REAL timestamps: Found (trigger candle),
+  // EP (actual fill), and exit (actual close, labeled TP/SL by reason).
+  const _CC = (window.CHART_COLORS || {});
+  const _ep = iso => iso ? Math.floor(Date.parse(iso) / 1000) : null;
+  const DISC = _ep({{ (trade.ts_created or '')|tojson }});
+  const ENTER = _ep({{ (trade.ts_entered or '')|tojson }});
+  const EXIT = _ep({{ (trade.ts_exited or '')|tojson }});
+  const EXIT_REASON = {{ (trade.exit_reason or '')|tojson }};
+  const events = [];
+  if (DISC)  events.push({ time: DISC,  color: _CC.discovery || '#f59e0b', label: 'Found', tip: 'Found here — signal fired on this candle.' });
+  if (ENTER) events.push({ time: ENTER, color: _CC.entry     || '#4a9eff', label: 'EP',    tip: 'Entry filled here.' });
+  if (EXIT) {
+    const isStop = /stop|sl|invalidat/i.test(EXIT_REASON);
+    events.push({ time: EXIT, color: isStop ? (_CC.stop || '#ef4444') : (_CC.tp1 || '#22c55e'),
+      label: isStop ? 'SL' : 'TP', tip: 'Exited here' + (EXIT_REASON ? ' (' + EXIT_REASON + ')' : '') + '.' });
+  }
 
   const inst = ChartTools.renderChart(mount, {
     symbol: SYMBOL,
     interval: '1d',
     indicators: ['sma20', 'sma50', 'vwap', 'rsi'],
     persistKey: 'trade_detail',
-    tradeMarkers: { entry: ENTRY, stop: STOP, tp1: TP1, tp2: TP2,
-                    direction: DIRECTION, discoveryTime },
+    tradeMarkers: { events },
   });
   if (!inst) return;
   ChartTools.renderTradeLegend(document.getElementById('trade-chart-legend'));

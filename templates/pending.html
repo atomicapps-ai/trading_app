@@ -656,11 +656,16 @@
     const stop = parseFloat(wrap.dataset.stop);
     const tp1 = parseFloat(wrap.dataset.tp1);
     const tp2 = parseFloat(wrap.dataset.tp2);
-    const direction = wrap.dataset.direction || 'long';
-    // Discovery timestamp = when the scan created this plan (epoch seconds).
+    // Vertical event bars. Pending trades show ONLY "Found" (the trigger
+    // candle) — EP/TP/SL bars appear only once the trade is actually
+    // entered/closed (real times), which happens on the trade-detail view.
+    const _CC0 = (window.CHART_COLORS || {});
     const discIso = wrap.dataset.discovery || '';
     const discoveryTime = discIso ? Math.floor(Date.parse(discIso) / 1000) : null;
-    const tradeMarkers = { entry, stop, tp1, tp2, direction, discoveryTime };
+    const events = [];
+    if (discoveryTime) events.push({ time: discoveryTime, color: _CC0.discovery || '#f59e0b',
+      label: 'Found', tip: 'Found here — the strategy fired on this candle. This is a new setup; entry has not filled yet.' });
+    const tradeMarkers = { events };
     ChartTools.renderTradeLegend(document.getElementById('chart-legend'));
 
     // Plan-level price lines applied via inst.addPriceLine() so they
