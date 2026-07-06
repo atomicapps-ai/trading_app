@@ -418,6 +418,29 @@ def _mark_outcome(outcomes: dict, symbol: str, outcome: str, detail: str,
         row["plan_id"] = plan_id
 
 
+def _data_freshness(run_result) -> dict[str, Any]:
+    """How current are the daily bars for this run's shortlist? Surfaced in the
+    summary so a 0-signal run explains itself: the analyst silently skips any
+    symbol whose daily bar is >5 days old, so a stale cache looks identical to
+    'no setups' without this."""
+    fu = next((sr for sr in run_result.step_results
+               if sr.step_id == "filter_universe"), None)
+    shortlist = list(((fu.output.get("shortlist") if (fu and fu.output) else None)) or [])
+    if not shortlist:
+        return {}
+    try:
+        from services.data_service import market_data_freshness
+        f = market_data_freshness(shortlist, "1d")
+        return {
+            "as_of": f.get("as_of"),
+            "stale_count": f.get("stale_count"),
+            "checked": f.get("checked"),
+            "cached": f.get("cached"),
+        }
+    except Exception:  # noqa: BLE001 — freshness is advisory, never fail the run
+        return {}
+
+
 def _summary(run_result, *, plans_proposed: int, plans_approved: int,
              plans_blocked: list) -> dict[str, Any]:
     return {
@@ -429,6 +452,10 @@ def _summary(run_result, *, plans_proposed: int, plans_approved: int,
         "duration_seconds": run_result.duration_seconds,
         "symbols_in_shortlist": run_result.symbols_in_shortlist,
         "signals_generated": run_result.signals_generated,
+        # When 0 signals: check this first. stale_count == checked means every
+        # symbol was skipped for stale daily bars — refresh, don't debug the
+        # strategy.
+        "data_freshness": _data_freshness(run_result),
         "plans_proposed": plans_proposed,
         "plans_approved": plans_approved,
         "plans_blocked": plans_blocked,

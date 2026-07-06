@@ -128,7 +128,7 @@ def _register_candle_refresh_jobs(sched: AsyncIOScheduler) -> None:
 
     Disable with CANDLE_REFRESH_ENABLED=0. Tunables:
         CANDLE_REFRESH_INTRADAY_MIN   (default 20)
-        CANDLE_REFRESH_DAILY_CRON     (default "35 16 * * 1-5", ET)
+        CANDLE_REFRESH_DAILY_CRON     (default "5 16 * * 1-5", ET — before scans)
         CANDLE_REFRESH_DAILY_SOURCE   (default "yfinance")
     """
     import os
@@ -136,7 +136,10 @@ def _register_candle_refresh_jobs(sched: AsyncIOScheduler) -> None:
         logger.info("Candle refresh disabled (CANDLE_REFRESH_ENABLED=0)")
         return
 
-    daily_cron = os.getenv("CANDLE_REFRESH_DAILY_CRON", "35 16 * * 1-5")
+    # 16:05 ET — AFTER the 16:00 close, BEFORE the strategy scans (16:15+).
+    # If this ran after the scans, they'd always analyze stale daily bars and
+    # the analyst would skip every symbol (0 signals).
+    daily_cron = os.getenv("CANDLE_REFRESH_DAILY_CRON", "5 16 * * 1-5")
     intraday_min = int(os.getenv("CANDLE_REFRESH_INTRADAY_MIN", "20"))
 
     sched.add_job(
