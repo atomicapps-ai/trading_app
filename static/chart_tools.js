@@ -32,6 +32,18 @@
   'use strict';
   if (window.ChartTools) return;  // idempotent
 
+  // ── Timeframe display labels (TradingView convention: lower-case for
+  // minutes, upper-case for hour/day/week/month). Also the source of the
+  // "is this a sub-daily interval?" test used to toggle the time axis.
+  const TF_LABELS = {
+    '5m': '5m', '10m': '10m', '15m': '15m', '30m': '30m',
+    '1h': '1H', '2h': '2H', '4h': '4H',
+    '1d': '1D', '1w': '1W', '1mo': '1M',
+  };
+  // Daily-and-up intervals: no intraday time on the axis.
+  const DAILY_PLUS = new Set(['1d', '1w', '1mo']);
+  const isIntraday = iv => !DAILY_PLUS.has(iv);
+
   // ── Indicator catalog ───────────────────────────────────────────────
   // Each indicator has a stable `id` (sent to /api/indicators), a
   // human label (chip text), a kind ('overlay' = on price chart;
@@ -274,14 +286,16 @@
       if (this.opts.showTimeframes !== false) {
         const tfWrap = document.createElement('div');
         tfWrap.className = 'ct-tfs';
-        // Intraday (5m–30m, ~60-day yfinance cap) + hourly + daily. Lets
+        // Intraday (5m–30m, ~60-day yfinance cap) + hourly + daily + weekly
+        // + monthly (the last two resampled from the 20y daily cache). Lets
         // the operator zoom into the price action around entry/stop on a
-        // fresh setup, not just daily candles.
-        const frames = this.opts.timeframes || ['5m', '10m', '15m', '30m', '1h', '4h', '1d'];
+        // fresh setup, or zoom out for higher-timeframe structure.
+        const frames = this.opts.timeframes ||
+          ['5m', '10m', '15m', '30m', '1h', '4h', '1d', '1w', '1mo'];
         frames.forEach(iv => {
           const b = document.createElement('button');
           b.className = 'ct-tf' + (iv === this.interval ? ' active' : '');
-          b.textContent = iv.toUpperCase();
+          b.textContent = TF_LABELS[iv] || iv.toUpperCase();
           b.dataset.iv = iv;
           b.addEventListener('click', () => this.setInterval(iv));
           tfWrap.appendChild(b);
@@ -355,7 +369,7 @@
     }
 
     _chartOpts(isPrice) {
-      const intraday = this.interval !== '1d';
+      const intraday = isIntraday(this.interval);
       return {
         layout:           { background: { color: '#0f1117' }, textColor: '#8b8fa8' },
         grid:             { vertLines: { color: '#1a1d27' }, horzLines: { color: '#1a1d27' } },
@@ -640,7 +654,7 @@
       this.container.querySelectorAll('.ct-tf').forEach(b => {
         b.classList.toggle('active', b.dataset.iv === iv);
       });
-      const intraday = iv !== '1d';
+      const intraday = isIntraday(iv);
       this.priceChart.applyOptions({ timeScale: { timeVisible: intraday } });
       Object.values(this.subPanes).forEach(sp => {
         sp.chart.applyOptions({ timeScale: { timeVisible: intraday } });

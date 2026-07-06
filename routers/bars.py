@@ -10,6 +10,8 @@ Everything else is resampled here so we don't store extra CSVs:
 
     ``2h`` / ``4h``  ← resampled from the ``1h`` cache
     ``10m``          ← resampled from the ``5m`` cache
+    ``1w`` / ``1mo`` ← resampled from the ``1d`` cache (20y deep, so
+                       weekly/monthly get full history with no new download)
 
 ``1d`` / ``1h`` / ``30m`` / ``15m`` / ``5m`` are served directly.
 
@@ -38,13 +40,18 @@ from services.data_service import DataNotAvailableError, get_bars
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-SupportedInterval = Literal["5m", "10m", "15m", "30m", "1h", "2h", "4h", "1d"]
+SupportedInterval = Literal[
+    "5m", "10m", "15m", "30m", "1h", "2h", "4h", "1d", "1w", "1mo",
+]
 _RESAMPLE_RULE = {
     "5m": "5min", "10m": "10min", "15m": "15min", "30m": "30min",
     "1h": "1h", "2h": "2h", "4h": "4h", "1d": "1D",
+    # Weekly bars end Friday (equity trading week); monthly = calendar
+    # month-end. pandas 3.0 requires "ME" (not the old "M").
+    "1w": "W-FRI", "1mo": "ME",
 }
 # Intervals we resample on the fly (target → source cache to pull).
-_RESAMPLE_FROM = {"2h": "1h", "4h": "1h", "10m": "5m"}
+_RESAMPLE_FROM = {"2h": "1h", "4h": "1h", "10m": "5m", "1w": "1d", "1mo": "1d"}
 
 
 @router.get("/api/bars/{symbol}")
