@@ -120,15 +120,26 @@ async def pipeline_runs(limit: int = 20) -> dict:
 
 @router.get("/runs", response_class=HTMLResponse)
 async def runs_history(request: Request, limit: int = 50,
+                       workflow: str | None = None,
                        s: Settings = Depends(get_settings)):
     """Researchable run history — one row per scan, newest first, each
-    linking to its per-symbol drill-down."""
-    runs = await pipeline_service.list_runs(limit=limit)
+    linking to its per-symbol drill-down.
+
+    ``?workflow=<id>`` narrows to a single workflow's runs — used by the
+    'run history →' link on each strategy card.
+    """
+    # When filtering, pull a deeper window so we don't miss older runs of
+    # this one workflow behind newer runs of others.
+    fetch = 400 if workflow else limit
+    runs = await pipeline_service.list_runs(limit=fetch)
+    if workflow:
+        runs = [r for r in runs if r.get("workflow_id") == workflow][:limit]
     return templates.TemplateResponse(
         request=request,
         name="runs/list.html",
         context={"settings": s, "app_version": "0.1.0",
-                 "active_page": "runs", "runs": runs},
+                 "active_page": "runs", "runs": runs,
+                 "filter_workflow": workflow},
     )
 
 

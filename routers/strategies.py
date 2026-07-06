@@ -153,6 +153,44 @@ async def _load_workflows() -> list[dict[str, Any]]:
     return out
 
 
+def _fmt_run(run: dict | None) -> dict | None:
+    """Preformat a pipeline_run row for the card's 'Last run' line.
+
+    Renders the timestamp in ET (the market timezone the operator thinks in
+    and the timezone the scheduler fires on) and pulls out the result counts.
+    """
+    if not run:
+        return None
+    from datetime import datetime, timezone as _tz
+    from zoneinfo import ZoneInfo
+    import json as _json
+    ts = run.get("ts_end") or run.get("ts_start") or ""
+    when_et = "—"
+    try:
+        dt = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=_tz.utc)
+        when_et = dt.astimezone(ZoneInfo("America/New_York")).strftime("%Y-%m-%d %H:%M ET")
+    except (ValueError, TypeError):
+        pass
+    try:
+        blocked = len(_json.loads(run.get("plans_blocked_json") or "[]"))
+    except Exception:                                             # noqa: BLE001
+        blocked = 0
+    return {
+        "run_id": run.get("run_id"),
+        "workflow_id": run.get("workflow_id"),
+        "when_et": when_et,
+        "status": run.get("status") or "?",
+        "error": run.get("error_message"),
+        "symbols": run.get("symbols_analyzed") or 0,
+        "signals": run.get("signals_generated") or 0,
+        "plans": run.get("plans_proposed") or 0,
+        "approved": run.get("plans_approved") or 0,
+        "blocked": blocked,
+    }
+
+
 def _job_for_workflow(workflow_id: str) -> dict[str, Any] | None:
     """Look up the live APScheduler job for this workflow id, if any."""
     try:
@@ -228,7 +266,7 @@ async def _strategies_bucket_page(request: Request, s: Settings, bucket: str):
 
     # Latest pipeline runs from SQLite — anchored to workflow_id so we
     # can show "last run / status" per strategy.
-    runs = await db_service.list_pipeline_runs(limit=50)
+    runs = await db_service.list_pipeline_runs(limit=120)
     latest_by_workflow: dict[str, dict] = {}
     for r in runs:
         wf = r.get("workflow_id")
@@ -252,9 +290,17 @@ async def _strategies_bucket_page(request: Request, s: Settings, bucket: str):
         if bucket_for_row != bucket:
             continue
         wfs = by_strategy.get(c.get("strategy_name", name)) or []
+        strat_runs = []
         for wf in wfs:
             wf["job"] = _job_for_workflow(wf["workflow_id"])
-            wf["latest_run"] = latest_by_workflow.get(wf["workflow_id"])
+            lr = latest_by_workflow.get(wf["workflow_id"])
+            wf["latest_run"] = lr
+            if lr:
+                strat_runs.append(lr)
+        # Most recent run across all workflows that use this strategy.
+        last_run = _fmt_run(
+            max(strat_runs, key=lambda r: r.get("ts_start") or "")
+        ) if strat_runs else None
         rows.append({
             "name": name,
             "title": c.get("strategy_name", name),
@@ -275,6 +321,7 @@ async def _strategies_bucket_page(request: Request, s: Settings, bucket: str):
             "archived": archived,
             "auto_approve": auto_approve,
             "validation": validation,
+            "last_run": last_run,
         })
 
     counts = await _bucket_counts()

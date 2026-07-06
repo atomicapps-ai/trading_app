@@ -133,6 +133,39 @@
 
     <table class="strategy-detail-table">
       <tr>
+        <th>Last run</th>
+        <td>
+          {% if s.last_run %}
+            <strong>{{ s.last_run.when_et }}</strong>
+            {% if s.last_run.status == 'error' %}
+              <span class="badge badge-red">error</span>
+            {% elif s.last_run.status == 'running' %}
+              <span class="badge badge-amber">running</span>
+            {% else %}
+              <span class="badge {{ 'badge-green' if s.last_run.plans else 'badge-gray' }}">
+                {{ s.last_run.plans }} trade{{ '' if s.last_run.plans == 1 else 's' }}
+              </span>
+            {% endif %}
+            <span class="text-secondary text-sm">
+              · {{ s.last_run.symbols }} symbols
+              · {{ s.last_run.signals }} signal{{ '' if s.last_run.signals == 1 else 's' }}
+              · {{ s.last_run.approved }} approved{% if s.last_run.blocked %}
+              · {{ s.last_run.blocked }} blocked{% endif %}
+            </span>
+            {% if s.last_run.error %}
+              <div class="text-accent-red text-xs" style="margin-top:2px;">{{ s.last_run.error }}</div>
+            {% endif %}
+            <span style="margin-left:8px;white-space:nowrap;">
+              <a href="/runs/{{ s.last_run.run_id }}" style="color:var(--accent-blue);text-decoration:none;">details →</a>
+              &nbsp;·&nbsp;
+              <a href="/runs?workflow={{ s.last_run.workflow_id }}" style="color:var(--accent-blue);text-decoration:none;">run history →</a>
+            </span>
+          {% else %}
+            <span class="text-secondary">never run in this app yet — press ▶ Run</span>
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
         <th>Backtest WR</th>
         <td>
           {% if s.backtest_summary.get('point_wr_pct') is not none %}
