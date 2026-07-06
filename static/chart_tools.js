@@ -226,6 +226,7 @@
       // Trade markers (discovery + EP/TP/SL hits). null = none.
       this.tradeMarkers = this.opts.tradeMarkers || null;
       this._markerTips = {};
+      this._hitSeries = [];   // one-point line series for EP/TP/SL hit dots
       this._tipEl = null;
       injectStyles();
       this._buildShell();
@@ -661,78 +662,103 @@
     // is needed; they recompute on every (re)load and lazy-load.
     setTradeMarkers(cfg) { this.tradeMarkers = cfg || null; this._applyTradeMarkers(); }
 
-    _nearestBarTime(t) {
+    // Index of the bar that CONTAINS time t (last bar whose start time <= t).
+    // Daily bars are timestamped at 00:00 of their day, so the discovery ts
+    // (mid-day) belongs to that day's bar — NOT the next one. Returns 0 if t
+    // predates all loaded bars, -1 if there are none.
+    _containingBarIndex(t) {
       const bars = this.bars;
-      if (!bars || !bars.length || !t) return null;
-      for (let i = 0; i < bars.length; i++) if (bars[i].time >= t) return bars[i].time;
-      return bars[bars.length - 1].time;
+      if (!bars || !bars.length || !t) return -1;
+      let idx = 0;
+      for (let i = 0; i < bars.length; i++) {
+        if (bars[i].time <= t) idx = i; else break;
+      }
+      return idx;
     }
 
     _computeTradeMarkers() {
       const cfg = this.tradeMarkers, bars = this.bars;
-      if (!cfg || !bars || !bars.length) return { markers: [], tips: {} };
+      if (!cfg || !bars || !bars.length) return { markers: [], dots: [], tips: {} };
       const CC = window.CHART_COLORS || {};
       const isLong = String(cfg.direction || 'long').toLowerCase() !== 'short';
       const num = v => (v == null || isNaN(v)) ? null : Number(v);
       const entry = num(cfg.entry), stop = num(cfg.stop),
             tp1 = num(cfg.tp1), tp2 = num(cfg.tp2);
-      const markers = [], tips = {};
+      const markers = [], dots = [], tips = {};
       const fmt = p => '$' + Number(p).toFixed(2);
       const dstr = t => { try { return new Date(t * 1000).toISOString().slice(0, 10); } catch (_) { return ''; } };
       const addTip = (t, s) => { tips[t] = tips[t] ? tips[t] + ' · ' + s : s; };
 
-      // 1) Discovery marker.
-      let discT = null;
-      if (cfg.discoveryTime) {
-        discT = this._nearestBarTime(cfg.discoveryTime);
-        if (discT != null) {
-          markers.push({ time: discT, position: isLong ? 'belowBar' : 'aboveBar',
-            color: CC.discovery || '#f59e0b', shape: isLong ? 'arrowUp' : 'arrowDown',
-            text: 'Found' });
-          addTip(discT, 'Discovered here — the strategy found this setup. You are looking forward from this point.');
-        }
+      // 1) Discovery marker — the candle the strategy evaluated (a PAST bar).
+      //    Everything left of it is not part of this trade's forward window.
+      let discIdx = -1;
+      if (cfg.discoveryTime) discIdx = this._containingBarIndex(cfg.discoveryTime);
+      if (discIdx >= 0) {
+        const dt = bars[discIdx].time;
+        markers.push({ time: dt, position: isLong ? 'belowBar' : 'aboveBar',
+          color: CC.discovery || '#f59e0b', shape: isLong ? 'arrowUp' : 'arrowDown',
+          text: 'Found' });
+        addTip(dt, 'Found ' + dstr(dt) + ' — the strategy discovered this setup here. Watch forward from this candle for entry/TP/SL; anything to the left is not part of this trade.');
       }
-      const startTime = discT != null ? discT : bars[0].time;
 
-      // 2) Entry fill, then first level touched.
+      // 2) Walk forward from AFTER the discovery bar: entry fill, then the
+      //    first touch of each level. Dots sit exactly on the level line at
+      //    the contact candle, colored to match that line.
       const touch = (bar, level, side) => side === 'above' ? bar.high >= level : bar.low <= level;
+      const startIdx = discIdx >= 0 ? discIdx + 1 : 0;
       let entryIdx = -1;
       if (entry != null) {
-        for (let i = 0; i < bars.length; i++) {
-          if (bars[i].time < startTime) continue;
+        for (let i = startIdx; i < bars.length; i++) {
           if (touch(bars[i], entry, isLong ? 'below' : 'above')) { entryIdx = i; break; }
         }
       }
       if (entryIdx >= 0) {
-        const b = bars[entryIdx];
-        markers.push({ time: b.time, position: isLong ? 'belowBar' : 'aboveBar',
-          color: CC.entry || '#4a9eff', shape: 'circle', text: 'EP' });
-        addTip(b.time, 'Entry filled near ' + fmt(entry) + ' on ' + dstr(b.time) + '.');
-        const findFirst = (level, side, label, color, shape, note) => {
+        const bt = bars[entryIdx].time;
+        dots.push({ time: bt, price: entry, color: CC.entry || '#4a9eff', label: 'EP' });
+        addTip(bt, 'EP — entry filled at ' + fmt(entry) + ' on ' + dstr(bt) + '.');
+        const findFirst = (level, side, color, note) => {
           if (level == null) return;
           for (let i = entryIdx; i < bars.length; i++) {
             if (touch(bars[i], level, side)) {
-              const bb = bars[i];
-              markers.push({ time: bb.time, position: side === 'above' ? 'aboveBar' : 'belowBar',
-                color, shape, text: label });
-              addTip(bb.time, note + ' (' + fmt(level) + ') on ' + dstr(bb.time) + '.');
+              const t = bars[i].time;
+              dots.push({ time: t, price: level, color });
+              addTip(t, note + ' at ' + fmt(level) + ' on ' + dstr(t) + '.');
               return;
             }
           }
         };
-        findFirst(tp1,  isLong ? 'above' : 'below', 'TP1', CC.tp1 || '#22c55e', isLong ? 'arrowUp' : 'arrowDown', 'TP1 hit');
-        findFirst(tp2,  isLong ? 'above' : 'below', 'TP2', CC.tp2 || '#16a34a', isLong ? 'arrowUp' : 'arrowDown', 'TP2 hit');
-        findFirst(stop, isLong ? 'below' : 'above', 'SL',  CC.stop || '#ef4444', 'circle', 'Stop hit');
+        findFirst(tp1,  isLong ? 'above' : 'below', CC.tp1 || '#22c55e', 'TP1 hit');
+        findFirst(tp2,  isLong ? 'above' : 'below', CC.tp2 || '#16a34a', 'TP2 hit');
+        findFirst(stop, isLong ? 'below' : 'above', CC.stop || '#ef4444', 'Stop hit');
       }
       markers.sort((a, b) => a.time - b.time);
-      return { markers, tips };
+      return { markers, dots, tips };
     }
 
     _applyTradeMarkers() {
       if (!this.tradeMarkers || !this.priceSeries) return;
-      const { markers, tips } = this._computeTradeMarkers();
+      // Clear prior hit-dot series before recomputing.
+      (this._hitSeries || []).forEach(s => {
+        try { this.priceChart.removeSeries(s); } catch (_) {}
+      });
+      this._hitSeries = [];
+      const { markers, dots, tips } = this._computeTradeMarkers();
       this._markerTips = tips;
       try { this.priceSeries.setMarkers(markers); } catch (_) {}
+      // Each hit = a one-point line series so the dot lands EXACTLY on the
+      // level line at the contact candle, in that level's color.
+      (dots || []).forEach(d => {
+        try {
+          const s = this.priceChart.addLineSeries({
+            color: d.color, lineVisible: false,
+            pointMarkersVisible: true, pointMarkersRadius: 5,
+            lastValueVisible: false, priceLineVisible: false,
+            crosshairMarkerVisible: false,
+          });
+          s.setData([{ time: d.time, value: d.price }]);
+          this._hitSeries.push(s);
+        } catch (_) {}
+      });
     }
 
     _wireMarkerTooltip() {
