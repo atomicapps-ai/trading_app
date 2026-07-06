@@ -433,9 +433,13 @@ def main() -> None:
 
     def do_stop_app() -> None:
         port = int(port_var.get()) if port_var.get().isdigit() else DEFAULT_PORT
-        log("app", "── stopping app ──")
+        log("app", "── stopping app… ──")
         stop_proc(st["app_proc"], port=port)
         st["app_proc"] = None
+        if pid_on_port(port):
+            log("app", f"⚠ something is STILL listening on :{port} — check manually")
+        else:
+            log("app", "✓ app stopped (port free)")
 
     def do_start_tunnel() -> None:
         if st["tun_proc"] and st["tun_proc"].poll() is None:
@@ -466,10 +470,19 @@ def main() -> None:
         threading.Thread(target=_pump, args=(proc, "tun"), daemon=True).start()
 
     def do_stop_tunnel() -> None:
-        log("tun", "── stopping tunnel ──")
+        running = st["tun_proc"] and st["tun_proc"].poll() is None
+        log("tun", "── stopping tunnel… ──")
         stop_proc(st["tun_proc"])
         st["tun_proc"] = None
         st["tun_connected"] = False
+        if running:
+            log("tun", "✓ tunnel stopped")
+        else:
+            log("tun", "✓ tunnel not running (nothing to stop)")
+        # Note: if cloudflared was installed as a Windows service
+        # (`cloudflared service install`), it runs independently of this
+        # launcher — stop it with `net stop cloudflared` if the public URL
+        # stays up after this.
 
     def do_start_all() -> None:
         do_start_app()
@@ -477,6 +490,7 @@ def main() -> None:
             do_start_tunnel()
 
     def do_stop_all() -> None:
+        log("app", "── stop all ──")
         do_stop_app(); do_stop_tunnel()
 
     def do_open() -> None:
