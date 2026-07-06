@@ -253,13 +253,18 @@ def _fetch_symbol_alpaca_sync(
         else None
     )
 
+    # Dual-class tickers differ by source: yfinance/HF use a dash (BRK-B),
+    # Alpaca uses a dot (BRK.B). Translate for the request only — the caller
+    # still saves under the canonical dash name so the cache stays consistent.
+    api_symbol = symbol.upper().replace("-", ".")
+
     # Feed: "sip" (full consolidated tape) or "iex" (free tier). Alpaca now
     # serves SIP historical to free accounts, but if yours rejects it set
     # ALPACA_DATA_FEED=iex in .env to fall back without a code change.
     feed = os.getenv("ALPACA_DATA_FEED", "sip").lower()
     client = StockHistoricalDataClient(api_key=key, secret_key=secret)
     req = StockBarsRequest(
-        symbol_or_symbols=symbol.upper(),
+        symbol_or_symbols=api_symbol,
         timeframe=timeframe,
         start=start_ts,
         end=end_ts,
