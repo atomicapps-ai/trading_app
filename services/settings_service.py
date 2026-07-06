@@ -154,6 +154,22 @@ class UniverseSettings(BaseModel):
     ui: UniverseUISettings = Field(default_factory=UniverseUISettings)
 
 
+class ChartColors(BaseModel):
+    """Operator-defined colors for trade levels drawn on every chart
+    (/pending, /trades/{id}). Exposed to the frontend as ``window.CHART_COLORS``
+    so the chart code reads these instead of hardcoding hex values.
+
+    ``current_price`` defaults to a bright pink so it never gets confused with
+    the green take-profit lines.
+    """
+    entry: str = "#4a9eff"          # blue
+    stop: str = "#ef4444"           # red
+    tp1: str = "#22c55e"            # green
+    tp2: str = "#16a34a"            # darker green
+    current_price: str = "#ff2e97"  # bright pink — distinct from TP green
+    discovery: str = "#f59e0b"      # amber — "strategy found the trade here" marker
+
+
 class Settings(BaseModel):
     app: AppSettings = Field(default_factory=AppSettings)
     ntfy: NtfySettings = Field(default_factory=NtfySettings)
@@ -162,6 +178,7 @@ class Settings(BaseModel):
     data: DataPaths = Field(default_factory=DataPaths)
     execution: ExecutionSettings = Field(default_factory=ExecutionSettings)
     universe: UniverseSettings = Field(default_factory=UniverseSettings)
+    chart_colors: ChartColors = Field(default_factory=ChartColors)
 
 
 # --------------------------------------------------------------------------- #

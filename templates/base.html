@@ -392,6 +392,11 @@
       enhancedLiveSafeguards: {{ (settings.execution.enhanced_live_safeguards | tojson) | safe }},
     };
 
+    // Operator-defined chart level colors (Settings → Chart colors). Every
+    // chart reads these instead of hardcoding hex. current_price is bright
+    // pink by default so it never blends into the green TP lines.
+    window.CHART_COLORS = {{ (settings.chart_colors.model_dump() | tojson) | safe }};
+
     // confirmLiveAction(actionLabel) — call this BEFORE any action that
     // touches real money. Returns true if the operator confirmed (or
     // safeguards aren't applicable for the current mode), false to

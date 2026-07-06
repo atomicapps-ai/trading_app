@@ -12,6 +12,7 @@
     <a href="#" class="page-tab"        data-section="risk"        onclick="switchSettingsTab(event, 'risk')">Risk</a>
     <a href="#" class="page-tab"        data-section="compliance"  onclick="switchSettingsTab(event, 'compliance')">Compliance</a>
     <a href="#" class="page-tab"        data-section="notifications" onclick="switchSettingsTab(event, 'notifications')">Notifications</a>
+    <a href="#" class="page-tab"        data-section="chart"       onclick="switchSettingsTab(event, 'chart')">Chart colors</a>
     <a href="#" class="page-tab"        data-section="data"        onclick="switchSettingsTab(event, 'data')">Data paths</a>
   </div>
 
@@ -143,7 +144,38 @@
       </div>
     </div>
 
-    {# ---- Section 5: Data paths (read-only) ---- #}
+    {# ---- Section 5: Chart colors ---- #}
+    {% set color_fields = [
+       ('color_entry',         'Entry',            settings.chart_colors.entry),
+       ('color_stop',          'Stop',             settings.chart_colors.stop),
+       ('color_tp1',           'TP1 (take-profit)', settings.chart_colors.tp1),
+       ('color_tp2',           'TP2 (take-profit)', settings.chart_colors.tp2),
+       ('color_current_price', 'Current price',    settings.chart_colors.current_price),
+       ('color_discovery',     'Discovery marker', settings.chart_colors.discovery),
+    ] %}
+    <div class="card" data-settings-section="chart" style="display:none;">
+      <div class="card-header"><span class="card-title">Chart colors</span></div>
+      <p class="text-secondary text-sm" style="margin:0 0 14px;">
+        Colors for trade levels drawn on every chart (Pending &amp; trade detail).
+        <strong>Current price</strong> defaults to bright pink so it never blends
+        into the green take-profit lines. Changes apply to every chart on save.
+      </p>
+      {% for fname, flabel, fval in color_fields %}
+      <div class="input-row" style="align-items:center;">
+        <label>{{ flabel }}</label>
+        <div class="flex items-center gap-12">
+          <input type="color" name="{{ fname }}" value="{{ fval }}"
+                 class="color-swatch"
+                 oninput="this.parentNode.querySelector('.color-hex').value=this.value;">
+          <input type="text" value="{{ fval }}" class="input mono color-hex"
+                 style="width:110px;"
+                 oninput="this.parentNode.querySelector('input[type=color]').value=this.value;">
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {# ---- Section 6: Data paths (read-only) ---- #}
     <div class="card" data-settings-section="data" style="display:none;">
       <div class="card-header">
         <span class="card-title">Data paths</span>

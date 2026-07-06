@@ -575,11 +575,12 @@
     // Plan-level price lines applied via inst.addPriceLine() so they
     // survive setData() calls inside the helper (e.g. when the user
     // changes timeframe or we prepend older bars).
+    const CC = (window.CHART_COLORS || {});
     const planLines = [];
-    if (!isNaN(entry)) planLines.push({ price: entry, color: '#4a9eff', lineStyle: 0, lineWidth: 1, axisLabelVisible: true, title: 'Entry' });
-    if (!isNaN(stop))  planLines.push({ price: stop,  color: '#e05252', lineStyle: 2, lineWidth: 1, axisLabelVisible: true, title: 'Stop' });
-    if (!isNaN(tp1))   planLines.push({ price: tp1,   color: '#1db87a', lineStyle: 2, lineWidth: 1, axisLabelVisible: true, title: 'TP1' });
-    if (!isNaN(tp2))   planLines.push({ price: tp2,   color: '#1db87a', lineStyle: 2, lineWidth: 1, axisLabelVisible: true, title: 'TP2' });
+    if (!isNaN(entry)) planLines.push({ price: entry, color: CC.entry || '#4a9eff', lineStyle: 0, lineWidth: 1, axisLabelVisible: true, title: 'Entry' });
+    if (!isNaN(stop))  planLines.push({ price: stop,  color: CC.stop  || '#e05252', lineStyle: 2, lineWidth: 1, axisLabelVisible: true, title: 'Stop' });
+    if (!isNaN(tp1))   planLines.push({ price: tp1,   color: CC.tp1   || '#1db87a', lineStyle: 2, lineWidth: 1, axisLabelVisible: true, title: 'TP1' });
+    if (!isNaN(tp2))   planLines.push({ price: tp2,   color: CC.tp2   || '#1db87a', lineStyle: 2, lineWidth: 1, axisLabelVisible: true, title: 'TP2' });
 
     // Build both panes via the shared helper. persistKey is per-pane
     // ('pending_a' / 'pending_b') so toggle preferences in the top

@@ -296,10 +296,18 @@
       this.priceWrap = priceWrap;
 
       const chart = LightweightCharts.createChart(priceWrap, this._chartOpts(true));
+      const _CC = (window.CHART_COLORS || {});
       const series = chart.addCandlestickSeries({
         upColor: '#1db87a', downColor: '#e05252',
         borderUpColor: '#1db87a', borderDownColor: '#e05252',
         wickUpColor: '#1db87a', wickDownColor: '#e05252',
+        // Current-price line — bright pink by default (Settings → Chart colors)
+        // so it never blends into the green take-profit lines.
+        priceLineVisible: true,
+        lastValueVisible: true,
+        priceLineColor: _CC.current_price || '#ff2e97',
+        priceLineStyle: 0,   // solid
+        priceLineWidth: 1,
       });
       this.priceChart = chart;
       this.priceSeries = series;

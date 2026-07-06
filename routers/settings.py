@@ -83,6 +83,13 @@ async def settings_save(
     # Notifications
     ntfy_server: str = Form(...),
     ntfy_topic: str = Form(...),
+    # Chart colors (optional — defaults preserve current values)
+    color_entry: str = Form("#4a9eff"),
+    color_stop: str = Form("#ef4444"),
+    color_tp1: str = Form("#22c55e"),
+    color_tp2: str = Form("#16a34a"),
+    color_current_price: str = Form("#ff2e97"),
+    color_discovery: str = Form("#f59e0b"),
 ):
     current = get_settings().model_copy(deep=True)
 
@@ -112,6 +119,19 @@ async def settings_save(
 
     current.ntfy.server = ntfy_server
     current.ntfy.topic = ntfy_topic
+
+    # Chart colors — sanitize to a #rrggbb hex, else keep the existing value.
+    import re as _re
+    def _hex(v: str, fallback: str) -> str:
+        v = (v or "").strip()
+        return v if _re.fullmatch(r"#[0-9a-fA-F]{6}", v) else fallback
+    cc = current.chart_colors
+    cc.entry = _hex(color_entry, cc.entry)
+    cc.stop = _hex(color_stop, cc.stop)
+    cc.tp1 = _hex(color_tp1, cc.tp1)
+    cc.tp2 = _hex(color_tp2, cc.tp2)
+    cc.current_price = _hex(color_current_price, cc.current_price)
+    cc.discovery = _hex(color_discovery, cc.discovery)
 
     save_settings(current)
     reload_settings()
