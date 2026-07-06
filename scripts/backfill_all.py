@@ -45,7 +45,9 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 try:
-    sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
+    # line_buffering so progress shows immediately (not block-buffered when
+    # piped/redirected on Windows).
+    sys.stdout.reconfigure(encoding="utf-8", line_buffering=True)  # type: ignore[attr-defined]
 except Exception:
     pass
 
@@ -106,9 +108,10 @@ async def main() -> int:
     ap.add_argument("--no-equities", dest="equities", action="store_false", default=True,
                     help="Skip equities (FX only)")
     ap.add_argument("--force", action="store_true", help="Re-fetch even cached files")
-    ap.add_argument("--batch-size", type=int, default=50,
-                    help="Symbols per Alpaca multi-symbol request (default: 50). "
-                         "One request per batch keeps us under the rate limit.")
+    ap.add_argument("--batch-size", type=int, default=25,
+                    help="Symbols per Alpaca multi-symbol request (default: 25). "
+                         "One request per batch keeps us under the rate limit; "
+                         "smaller = more frequent progress + lighter requests.")
     ap.add_argument("--intraday-years", type=int, default=3,
                     help="Cap intraday (5m/15m/30m) history to N years "
                          "(default: 3 — plenty for chart viewing; 1d/1h use --start)")
@@ -180,11 +183,11 @@ async def main() -> int:
             elapsed = time.time() - t0
             eta = (elapsed / max(i, 1)) * (total - i)
             print(f"[{i:>4d}/{total}] {sym:<8s} {interval:<4s} {source:<8s} "
-                  f"ok {res.get('rows', 0):>6d} rows  ETA {eta/60:.0f}m")
+                  f"ok {res.get('rows', 0):>6d} rows  ETA {eta/60:.0f}m", flush=True)
         else:
             counter["fail"] += 1
             print(f"[{i:>4d}/{total}] {sym:<8s} {interval:<4s} {source:<8s} "
-                  f"FAIL {str(res.get('error', '?'))[:50]}")
+                  f"FAIL {str(res.get('error', '?'))[:50]}", flush=True)
 
     # ── Alpaca lane: batch by interval, one request per chunk of symbols ──
     def _chunks(seq: list, n: int):
@@ -195,12 +198,31 @@ async def main() -> int:
     for sym, interval, _ in alpaca_work:
         alpaca_by_iv.setdefault(interval, []).append(sym)
 
+    async def _heartbeat(coro, label: str, ts: float):
+        """Await coro while printing a liveness tick every 20s so a slow
+        multi-symbol batch doesn't look frozen."""
+        task = asyncio.ensure_future(coro)
+        while True:
+            done, _pending = await asyncio.wait({task}, timeout=20)
+            if done:
+                return task.result()
+            print(f"      … still fetching {label} ({int(time.time() - ts)}s elapsed)",
+                  flush=True)
+
+    n_batches = sum(len(list(_chunks(s, max(1, args.batch_size))))
+                    for s in alpaca_by_iv.values())
+    b = 0
     for interval, syms in alpaca_by_iv.items():
         for chunk in _chunks(syms, max(1, args.batch_size)):
+            b += 1
             ts = time.time()
+            print(f"  ▶ batch {b}/{n_batches}: {interval} × {len(chunk)} symbols "
+                  f"({chunk[0]}…{chunk[-1]}) fetching…", flush=True)
             try:
-                res_map = await hf_data_service.fetch_batch_alpaca_and_save(
-                    chunk, start=_start_for(interval), interval=interval,
+                res_map = await _heartbeat(
+                    hf_data_service.fetch_batch_alpaca_and_save(
+                        chunk, start=_start_for(interval), interval=interval),
+                    f"{interval} batch {b}/{n_batches}", ts,
                 )
             except Exception as exc:  # noqa: BLE001 — whole batch failed (e.g. rate limit)
                 res_map = {s: {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
@@ -208,6 +230,7 @@ async def main() -> int:
             dur = time.time() - ts
             for s in chunk:
                 _record(s, interval, "alpaca", res_map.get(s, {"ok": False, "error": "?"}), dur)
+            print(f"    ✓ batch {b}/{n_batches} done in {dur:.0f}s", flush=True)
 
     # ── HF/yfinance lane: small concurrency ──
     async def _one(sym: str, interval: str, source: str) -> None:
