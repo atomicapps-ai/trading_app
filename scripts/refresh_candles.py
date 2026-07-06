@@ -84,5 +84,24 @@ async def main() -> int:
     return 0
 
 
+def _install_sigint_handler() -> None:
+    """Ctrl+C exits now — the fetch runs in a blocking worker thread that
+    asyncio's graceful shutdown would otherwise wait on. Safe: resumable."""
+    import os
+    import signal
+
+    def _die(*_a):
+        print("\n^C — stopping.", flush=True)
+        os._exit(130)
+
+    for sig in (getattr(signal, "SIGINT", None), getattr(signal, "SIGBREAK", None)):
+        if sig is not None:
+            try:
+                signal.signal(sig, _die)
+            except (ValueError, OSError):
+                pass
+
+
 if __name__ == "__main__":
+    _install_sigint_handler()
     raise SystemExit(asyncio.run(main()))

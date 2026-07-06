@@ -264,5 +264,27 @@ async def main() -> int:
     return 0 if counter["fail"] == 0 else 2
 
 
+def _install_sigint_handler() -> None:
+    """Ctrl+C exits *now*. The batch fetch runs in a worker thread doing a
+    blocking network call, so asyncio's graceful shutdown would otherwise
+    hang waiting for that thread to return. os._exit skips the wait — safe
+    here because the backfill is fully resumable (skip-existing on re-run)."""
+    import os
+    import signal
+
+    def _die(*_a):
+        print("\n^C — stopping now. Cached files are kept; just re-run to resume.",
+              flush=True)
+        os._exit(130)
+
+    for sig in (getattr(signal, "SIGINT", None), getattr(signal, "SIGBREAK", None)):
+        if sig is not None:
+            try:
+                signal.signal(sig, _die)
+            except (ValueError, OSError):
+                pass
+
+
 if __name__ == "__main__":
+    _install_sigint_handler()
     raise SystemExit(asyncio.run(main()))
