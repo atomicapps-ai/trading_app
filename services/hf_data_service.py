@@ -279,7 +279,12 @@ def _fetch_symbol_alpaca_sync(
         )
     if "symbol" in df.index.names:
         df = df.reset_index(level="symbol", drop=True)
+    return _normalize_alpaca_frame(df, interval)
 
+
+def _normalize_alpaca_frame(df: pd.DataFrame, interval: str) -> pd.DataFrame:
+    """tz-normalize, keep OHLCV, RTH-filter intraday. ``df`` is single-symbol
+    (any symbol index level already dropped)."""
     df.index.name = "Date"
     if df.index.tz is None:
         df.index = df.index.tz_localize("UTC")
@@ -297,6 +302,83 @@ def _fetch_symbol_alpaca_sync(
         )
         df = df[rth_mask]
     return df
+
+
+def _fetch_batch_alpaca_sync(
+    symbols: list[str],
+    start: str,
+    end: str | None,
+    interval: str,
+) -> dict[str, pd.DataFrame]:
+    """Fetch bars for MANY symbols in ONE Alpaca request (the multi-symbol
+    endpoint), returning {canonical_dash_symbol: frame}. This is the fast
+    path for bulk backfill — one request per batch instead of one per symbol,
+    so the ~200 req/min free limit stops being the bottleneck."""
+    from datetime import datetime as _dt
+    from alpaca.data.historical.stock import StockHistoricalDataClient
+    from alpaca.data.requests import StockBarsRequest
+    from alpaca.data.timeframe import TimeFrame, TimeFrameUnit
+
+    key = os.getenv("ALPACA_TRADING_KEY_ID") or os.getenv("ALPACA_API_KEY")
+    secret = os.getenv("ALPACA_TRADING_SECRET") or os.getenv("ALPACA_API_SECRET")
+    if not key or not secret:
+        raise RuntimeError("Alpaca credentials missing — set ALPACA_API_KEY + ALPACA_API_SECRET")
+    if interval not in _ALPACA_INTERVAL_TO_SDK:
+        raise ValueError(f"unsupported Alpaca interval {interval!r}")
+
+    amount, unit = _ALPACA_INTERVAL_TO_SDK[interval]
+    timeframe = TimeFrame(amount, getattr(TimeFrameUnit, unit))
+    start_ts = _dt.fromisoformat(start).replace(tzinfo=timezone.utc)
+    end_ts = _dt.fromisoformat(end).replace(tzinfo=timezone.utc) if end else None
+
+    # dash (universe/yfinance) -> dot (Alpaca), with a reverse map to save
+    # under the canonical dash name.
+    api_syms = [s.upper().replace("-", ".") for s in symbols]
+    rev = {a: s.upper() for a, s in zip(api_syms, symbols)}
+
+    feed = os.getenv("ALPACA_DATA_FEED", "sip").lower()
+    client = StockHistoricalDataClient(api_key=key, secret_key=secret)
+    req = StockBarsRequest(
+        symbol_or_symbols=api_syms, timeframe=timeframe,
+        start=start_ts, end=end_ts, adjustment="all", feed=feed,
+    )
+    bars = client.get_stock_bars(req)
+    df = bars.df
+    out: dict[str, pd.DataFrame] = {}
+    if df is None or df.empty:
+        return out
+    # Multi-index (symbol, timestamp) → per-symbol frames.
+    if "symbol" in (df.index.names or []):
+        for api_sym, sub in df.groupby(level="symbol"):
+            sub = sub.reset_index(level="symbol", drop=True)
+            out[rev.get(api_sym, api_sym)] = _normalize_alpaca_frame(sub, interval)
+    else:  # single symbol came back flat
+        only = api_syms[0]
+        out[rev.get(only, only)] = _normalize_alpaca_frame(df, interval)
+    return out
+
+
+async def fetch_batch_alpaca_and_save(
+    symbols: list[str],
+    start: str | None = "2010-01-01",
+    end: str | None = None,
+    interval: str = "1d",
+) -> dict[str, dict]:
+    """Batch-fetch + persist. Returns {symbol: {ok, rows|error}} for each
+    requested symbol (symbols Alpaca returns nothing for are marked ok=False,
+    no bars)."""
+    frames = await asyncio.to_thread(
+        _fetch_batch_alpaca_sync, symbols, start or "2010-01-01", end, interval,
+    )
+    results: dict[str, dict] = {}
+    for sym in symbols:
+        df = frames.get(sym.upper())
+        if df is None or df.empty:
+            results[sym] = {"ok": False, "error": "no bars returned", "rows": 0}
+            continue
+        await asyncio.to_thread(_save_sync_interval, sym, df, interval)
+        results[sym] = {"ok": True, "rows": len(df)}
+    return results
 
 
 async def _fetch_symbol_alpaca(

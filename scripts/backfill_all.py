@@ -106,16 +106,28 @@ async def main() -> int:
     ap.add_argument("--no-equities", dest="equities", action="store_false", default=True,
                     help="Skip equities (FX only)")
     ap.add_argument("--force", action="store_true", help="Re-fetch even cached files")
-    ap.add_argument("--workers", type=int, default=6,
-                    help="Concurrent equity fetches (Alpaca/HF/yfinance). "
-                         "Alpaca free tier is ~200 req/min; 6-10 is safe. "
-                         "FX/IBKR always runs sequentially. (default: 6)")
+    ap.add_argument("--batch-size", type=int, default=50,
+                    help="Symbols per Alpaca multi-symbol request (default: 50). "
+                         "One request per batch keeps us under the rate limit.")
+    ap.add_argument("--intraday-years", type=int, default=3,
+                    help="Cap intraday (5m/15m/30m) history to N years "
+                         "(default: 3 — plenty for chart viewing; 1d/1h use --start)")
+    ap.add_argument("--workers", type=int, default=4,
+                    help="Concurrent NON-Alpaca fetches (HF/yfinance). Alpaca "
+                         "uses batching instead. FX/IBKR is sequential. (default: 4)")
     ap.add_argument("--pace", type=float, default=0.4,
                     help="Seconds between sequential FX/IBKR fetches (default: 0.4)")
     args = ap.parse_args()
 
     intervals = [iv.strip() for iv in args.intervals.split(",") if iv.strip()]
     HIST_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Intraday history is capped to keep the pull sane; 1d/1h use --start.
+    from datetime import date, timedelta
+    _intraday_start = (date.today() - timedelta(days=365 * args.intraday_years)).isoformat()
+
+    def _start_for(interval: str) -> str:
+        return _intraday_start if interval in ("30m", "15m", "5m") else args.start
 
     equities = await _resolve_equities(args.screener, args.active) if args.equities else []
     fx = list(FX_SYMBOLS) if args.fx else []
@@ -138,15 +150,20 @@ async def main() -> int:
                 continue
             work.append((sym, interval, _source_for(sym, interval, args.equity_daily_source)))
 
-    # IBKR (FX) must stay sequential — one gateway connection + IBKR pacing.
-    # Everything else (Alpaca/HF/yfinance) runs concurrently.
+    # Three lanes:
+    #   • Alpaca (equity intraday + any alpaca 1d) → BATCHED (many symbols per
+    #     request) — the fast path that dodges the ~200 req/min rate limit.
+    #   • HF/yfinance (equity daily) → small concurrency.
+    #   • IBKR (FX) → sequential (one gateway, IBKR pacing).
+    alpaca_work = [w for w in work if w[2] == "alpaca"]
     ibkr_work = [w for w in work if w[2] == "ibkr"]
-    par_work = [w for w in work if w[2] != "ibkr"]
+    other_work = [w for w in work if w[2] not in ("alpaca", "ibkr")]
 
     print(f"universe: {len(equities)} equities + {len(fx)} FX = {len(all_syms)} symbols")
-    print(f"intervals: {intervals}")
+    print(f"intervals: {intervals}    intraday history: {args.intraday_years}y")
     print(f"already cached (skipped): {cached}    to fetch: {len(work)}")
-    print(f"concurrency: {args.workers} workers (equities)  |  FX sequential: {len(ibkr_work)}")
+    print(f"alpaca (batched x{args.batch_size}): {len(alpaca_work)}  |  "
+          f"hf/yf ({args.workers}w): {len(other_work)}  |  FX seq: {len(ibkr_work)}")
     print("-" * 78)
 
     total = len(work)
@@ -161,37 +178,57 @@ async def main() -> int:
             counter["ok"] += 1
             by_source[source] = by_source.get(source, 0) + 1
             elapsed = time.time() - t0
-            rate = elapsed / max(i, 1)
-            eta = rate * (total - i)
+            eta = (elapsed / max(i, 1)) * (total - i)
             print(f"[{i:>4d}/{total}] {sym:<8s} {interval:<4s} {source:<8s} "
-                  f"ok {res.get('rows', 0):>6d} rows ({dur:.1f}s)  "
-                  f"ETA {eta/60:.0f}m")
+                  f"ok {res.get('rows', 0):>6d} rows  ETA {eta/60:.0f}m")
         else:
             counter["fail"] += 1
             print(f"[{i:>4d}/{total}] {sym:<8s} {interval:<4s} {source:<8s} "
-                  f"FAIL {str(res.get('error', '?'))[:50]} ({dur:.1f}s)")
+                  f"FAIL {str(res.get('error', '?'))[:50]}")
 
+    # ── Alpaca lane: batch by interval, one request per chunk of symbols ──
+    def _chunks(seq: list, n: int):
+        for i in range(0, len(seq), n):
+            yield seq[i:i + n]
+
+    alpaca_by_iv: dict[str, list[str]] = {}
+    for sym, interval, _ in alpaca_work:
+        alpaca_by_iv.setdefault(interval, []).append(sym)
+
+    for interval, syms in alpaca_by_iv.items():
+        for chunk in _chunks(syms, max(1, args.batch_size)):
+            ts = time.time()
+            try:
+                res_map = await hf_data_service.fetch_batch_alpaca_and_save(
+                    chunk, start=_start_for(interval), interval=interval,
+                )
+            except Exception as exc:  # noqa: BLE001 — whole batch failed (e.g. rate limit)
+                res_map = {s: {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+                           for s in chunk}
+            dur = time.time() - ts
+            for s in chunk:
+                _record(s, interval, "alpaca", res_map.get(s, {"ok": False, "error": "?"}), dur)
+
+    # ── HF/yfinance lane: small concurrency ──
     async def _one(sym: str, interval: str, source: str) -> None:
-        ts = time.time()
         try:
             res = await hf_data_service.fetch_and_save(
-                sym, source=source, start=args.start, interval=interval,
+                sym, source=source, start=_start_for(interval), interval=interval,
             )
         except Exception as exc:  # noqa: BLE001
             res = {"ok": False, "error": f"{type(exc).__name__}: {exc}", "rows": 0}
-        _record(sym, interval, source, res, time.time() - ts)
+        _record(sym, interval, source, res, 0.0)
 
-    # Concurrent equity lane — bounded by a semaphore.
     sem = asyncio.Semaphore(max(1, args.workers))
 
     async def _guarded(w: tuple[str, str, str]) -> None:
         async with sem:
             await _one(*w)
 
-    if par_work:
-        await asyncio.gather(*[_guarded(w) for w in par_work])
+    if other_work:
+        await asyncio.gather(*[_guarded(w) for w in other_work])
 
-    # Sequential FX lane.
+    # ── FX lane: sequential ──
     for w in ibkr_work:
         await _one(*w)
         if args.pace:
