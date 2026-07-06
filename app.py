@@ -163,6 +163,22 @@ else:
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
+
+@app.middleware("http")
+async def _static_revalidate(request, call_next):
+    """Force browsers to revalidate static assets (JS/CSS/icons).
+
+    Without this the browser may serve a stale cached ``chart_tools.js`` /
+    ``app.css`` after a deploy — e.g. running new page markup against an old
+    script (``renderTradeLegend is not a function``). ``no-cache`` doesn't stop
+    caching; it requires a conditional request each load, so StaticFiles returns
+    a cheap 304 when unchanged and the fresh file the moment it changes.
+    """
+    response = await call_next(request)
+    if request.url.path.startswith("/static/"):
+        response.headers["Cache-Control"] = "no-cache"
+    return response
+
 app.include_router(auth_router.router)
 app.include_router(pwa_router.router)
 app.include_router(dashboard.router)
