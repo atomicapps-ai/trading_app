@@ -15,6 +15,12 @@ Usage
     # Warm every symbol currently in the pending queue (default):
     python -m scripts.prefetch_intraday
 
+    # Warm every symbol in a named screener's saved universe:
+    python -m scripts.prefetch_intraday --screener core_universe_100
+
+    # Warm the active screener's universe:
+    python -m scripts.prefetch_intraday --active
+
     # Warm specific symbols:
     python -m scripts.prefetch_intraday XOM NVDA AAPL
 
@@ -65,6 +71,35 @@ async def _pending_symbols() -> list[str]:
     return list(seen)
 
 
+async def _screener_symbols(name: str | None) -> list[str]:
+    """Distinct tickers from a named screener's saved universe (or the
+    active screener when ``name`` is None)."""
+    from services import universe_service
+
+    preset: dict | None = None
+    if name:
+        preset = await universe_service.get_preset_db(name)
+        if preset is None:
+            log.error("screener %r not found", name)
+            return []
+    else:
+        for p in await universe_service.list_presets_db():
+            if p.get("is_active"):
+                preset = await universe_service.get_preset_db(p["name"])
+                log.info("using active screener %r", p["name"])
+                break
+        if preset is None:
+            log.error("no active screener set; pass --screener NAME")
+            return []
+
+    seen: dict[str, None] = {}
+    for sym in preset.get("tickers", []) or []:
+        s = str(sym).upper().strip()
+        if s:
+            seen.setdefault(s, None)
+    return list(seen)
+
+
 async def _warm(symbols: list[str], intervals: tuple[str, ...]) -> None:
     ok = 0
     fail = 0
@@ -83,6 +118,9 @@ async def _warm(symbols: list[str], intervals: tuple[str, ...]) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser(description="Warm intraday bar cache (5m/15m/30m).")
     ap.add_argument("symbols", nargs="*", help="Symbols to warm (default: pending queue)")
+    ap.add_argument("--screener", help="Warm every ticker in this screener's saved universe")
+    ap.add_argument("--active", action="store_true",
+                    help="Warm the active screener's universe")
     ap.add_argument(
         "--intervals",
         default=",".join(_DEFAULT_INTERVALS),
@@ -95,8 +133,14 @@ def main() -> None:
     if bad:
         ap.error(f"unsupported interval(s) {bad}; choose from {sorted(_VALID)}")
 
-    symbols = [s.upper() for s in args.symbols]
-    if not symbols:
+    if args.symbols:
+        symbols = [s.upper() for s in args.symbols]
+    elif args.screener or args.active:
+        symbols = asyncio.run(_screener_symbols(args.screener))
+        if not symbols:
+            return
+        log.info("warming %d symbol(s) from the screener universe", len(symbols))
+    else:
         symbols = asyncio.run(_pending_symbols())
         if not symbols:
             log.info("no symbols given and pending queue is empty — nothing to do.")
