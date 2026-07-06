@@ -157,6 +157,9 @@ def pattern_to_signal(
     TradePlan's entry / stop / tp legs.
     """
     strength = max(0.0, min(1.0, pattern.pqs_total / 100.0))
+    # Uncapped quality score — base + all modifiers, NOT capped at 100. Drives
+    # the 1–5 setup-strength rating so it discriminates past the strength cap.
+    pqs_raw = int(pattern.pqs_base + sum(pattern.pqs_modifiers.values()))
     evidence_objs = [
         Evidence(type=e.get("type", "pattern"), ref=e.get("ref", ""))
         for e in pattern.evidence_items
@@ -166,6 +169,7 @@ def pattern_to_signal(
         lens=lens,  # type: ignore[arg-type]
         direction=pattern.direction,  # type: ignore[arg-type]
         strength=strength,
+        pqs_raw=pqs_raw,
         timeframe=timeframe,  # type: ignore[arg-type]
         key_levels=KeyLevels(
             support=pattern.stop_price if pattern.direction == "long" else None,

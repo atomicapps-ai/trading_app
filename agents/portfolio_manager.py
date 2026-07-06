@@ -384,6 +384,11 @@ class PortfolioManager:
         unique_patterns = sorted({s.pattern_name for s in all_signals
                                   if s.pattern_name})
         avg_strength = sum(s.strength for s in all_signals) / len(all_signals)
+        # Uncapped setup-quality = the best contributing signal's raw pqs.
+        # Drives the 1–5 rating (conviction saturates at the 100 cap, so it
+        # can't tell a "just qualified" setup from a textbook one).
+        _raws = [s.pqs_raw for s in all_signals if s.pqs_raw is not None]
+        setup_quality = max(_raws) if _raws else None
         summary_patterns = ", ".join(unique_patterns) if unique_patterns else "multi-lens"
         thesis = {
             "summary": f"{direction.upper()} {symbol} — {summary_patterns} "
@@ -391,6 +396,7 @@ class PortfolioManager:
             "lenses_contributing": unique_lenses,
             "signal_ids": [s.signal_id for s in all_signals],
             "conviction": round(avg_strength, 2),
+            "setup_quality": setup_quality,
             "expected_holding_period": holding_period,
             "similar_past_setups": [],  # Phase 7 memory lookup
             "memory_win_rate": None,

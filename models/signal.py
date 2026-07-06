@@ -50,6 +50,11 @@ class Signal(BaseModel):
     lens: Lens
     direction: Direction
     strength: float = Field(ge=0.0, le=1.0)
+    # Uncapped pattern-quality score (pqs_base + modifiers). Unlike `strength`
+    # (which is pqs_total/100 and saturates at 1.0 the moment a setup clears the
+    # 100 cap), this keeps discriminating between "just clears" and "textbook",
+    # so it drives the 1–5 setup-strength rating in the UI.
+    pqs_raw: int | None = None
     timeframe: Timeframe
     key_levels: KeyLevels
     evidence: list[Evidence] = []

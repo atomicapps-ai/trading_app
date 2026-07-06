@@ -1164,6 +1164,7 @@ def _row_to_ui_dict(row: Any) -> dict:
         "direction": row["direction"],
         "strategy": row["strategy"],
         "conviction": row["conviction"],
+        "setup_quality": thesis.get("setup_quality"),
         "status": row["status"],
         "mode": row["mode"],
         "ts_created": row["ts_created"],
