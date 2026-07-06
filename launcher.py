@@ -26,6 +26,7 @@ import signal
 import subprocess
 import sys
 import threading
+import time
 import webbrowser
 from pathlib import Path
 
@@ -38,6 +39,13 @@ TUNNEL_HOSTNAME = "app.tindex.ai"
 # Windows process-creation flags (defined here so the module imports on POSIX).
 _CREATE_NEW_PROCESS_GROUP = 0x00000200
 _CREATE_NO_WINDOW = 0x08000000
+
+# Child output is redirected to these files and tailed into the log panes.
+# (We DON'T use a pipe: on Windows the app must run under a real console —
+# see _popen — and file capture is the reliable way to read it back.)
+_LOG_DIR = ROOT / "data" / "launcher_logs"
+_APP_LOG = _LOG_DIR / "app.log"
+_TUN_LOG = _LOG_DIR / "tunnel.log"
 
 
 # --------------------------------------------------------------------------- #
@@ -76,35 +84,65 @@ def pid_on_port(port: int) -> int | None:
     return None
 
 
-def _popen(cmd: list[str]) -> subprocess.Popen:
-    """Spawn `cmd` in its own process group with piped output."""
+def _console_python(exe: str) -> str:
+    """Prefer python.exe over pythonw.exe on Windows.
+
+    The app (uvicorn + asyncio + ib_insync) is a CONSOLE program — launched
+    under the windowless pythonw.exe it has no usable std streams / console and
+    the server exits immediately with code 0. We run the console python.exe in
+    a HIDDEN window instead (see _popen), which is exactly the invocation that
+    works from a terminal.
+    """
+    if IS_WIN and exe.lower().endswith("pythonw.exe"):
+        cand = exe[:-len("pythonw.exe")] + "python.exe"
+        if os.path.exists(cand):
+            return cand
+    return exe
+
+
+def _popen(cmd: list[str], log_path: Path) -> subprocess.Popen:
+    """Spawn `cmd` in its own process group, output → `log_path` (tailed).
+
+    Windows: run the console python.exe with a HIDDEN console window (not
+    CREATE_NO_WINDOW, which gives no console at all and kills the server).
+    """
+    _LOG_DIR.mkdir(parents=True, exist_ok=True)
+    cmd = [_console_python(cmd[0]), *cmd[1:]]
+    log_fh = open(log_path, "w", buffering=1, encoding="utf-8", errors="replace")
+    # Unbuffered Python so log lines reach the file (and the pane) promptly.
+    env = {**os.environ, "PYTHONUNBUFFERED": "1"}
     kwargs: dict = dict(
-        cwd=str(ROOT),
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-        # Give the child a real (empty) stdin. Launched from a windowless
-        # pythonw launcher the child would otherwise inherit an invalid stdin
-        # handle — uvicorn's --reload watcher reads stdin and EOF-exits (clean
-        # code 0) right after start. DEVNULL keeps the reloader alive.
-        stdin=subprocess.DEVNULL,
-        bufsize=1, text=True,
+        cwd=str(ROOT), env=env,
+        stdout=log_fh, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
     )
     if IS_WIN:
-        kwargs["creationflags"] = _CREATE_NEW_PROCESS_GROUP | _CREATE_NO_WINDOW
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        si.wShowWindow = 0  # SW_HIDE — console exists but its window is hidden
+        kwargs["startupinfo"] = si
+        kwargs["creationflags"] = _CREATE_NEW_PROCESS_GROUP
     else:
         kwargs["start_new_session"] = True
-    return subprocess.Popen(cmd, **kwargs)
+    try:
+        return subprocess.Popen(cmd, **kwargs)
+    finally:
+        # Child holds its own dup of the handle; drop ours.
+        try:
+            log_fh.close()
+        except Exception:
+            pass
 
 
 def start_server(mode: str, host: str, port: int) -> subprocess.Popen:
     """Spawn run.py in its own process group so the whole tree is killable."""
     return _popen([sys.executable, str(ROOT / "run.py"), mode,
-                   "--host", host, "--port", str(port)])
+                   "--host", host, "--port", str(port)], _APP_LOG)
 
 
 def start_tunnel(name: str) -> subprocess.Popen:
     """Spawn `cloudflared tunnel run <name>` in its own process group."""
     exe = "cloudflared.exe" if IS_WIN else "cloudflared"
-    return _popen([exe, "tunnel", "run", name])
+    return _popen([exe, "tunnel", "run", name], _TUN_LOG)
 
 
 def _tree_kill(pid: int) -> None:
@@ -315,15 +353,38 @@ def main() -> None:
             msg if msg.endswith("\n") else msg + "\n")
 
     def _pump(proc: subprocess.Popen, which: str) -> None:
+        # Follow the child's log FILE (stdout/stderr are redirected there — the
+        # app must run under a real console on Windows, so we don't use a pipe).
         q = st["app_log"] if which == "app" else st["tun_log"]
+        log_path = _APP_LOG if which == "app" else _TUN_LOG
+        f = None
         try:
-            for line in iter(proc.stdout.readline, ""):
-                q.put(line)
-                if which == "tun" and ("Registered tunnel connection" in line
-                                       or "Connection " in line and "registered" in line):
-                    st["tun_connected"] = True
+            for _ in range(100):
+                if log_path.exists():
+                    break
+                time.sleep(0.1)
+            f = open(log_path, "r", encoding="utf-8", errors="replace")
+            while True:
+                line = f.readline()
+                if line:
+                    q.put(line)
+                    if which == "tun" and "Registered tunnel connection" in line:
+                        st["tun_connected"] = True
+                    continue
+                if proc.poll() is not None:
+                    rest = f.read()
+                    if rest:
+                        q.put(rest)
+                    break
+                time.sleep(0.2)
         except Exception:
             pass
+        finally:
+            if f:
+                try:
+                    f.close()
+                except Exception:
+                    pass
 
     # ---- actions ----------------------------------------------------------
     def do_start_app() -> None:
