@@ -318,6 +318,22 @@
          each instance's exposed priceChart / priceSeries / bars /
          prependBars hooks. Levels from the TradePlan (entry/stop/
          TP1/TP2) are drawn on both via inst.addPriceLine(). #}
+      {# Chart drawer — inline on desktop; on mobile it slides out from the
+         right (open via the edge tab; close via ✕ / scrim tap / swipe-right). #}
+      <button type="button" class="chart-drawer-tab" onclick="openChartDrawer()" aria-label="Open charts">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>Charts</span>
+      </button>
+      <div class="chart-drawer-scrim" onclick="closeChartDrawer()"></div>
+      <div class="chart-drawer" id="chart-drawer">
+        <div class="chart-drawer-head">
+          <span class="chart-drawer-grab" aria-hidden="true"></span>
+          <span class="chart-drawer-title">Charts · {{ p.symbol }}</span>
+          <button type="button" class="chart-drawer-close" onclick="closeChartDrawer()" aria-label="Close charts">✕</button>
+        </div>
       <div class="card mt-16" style="padding: 0;">
         <div class="chart-hint text-tertiary text-xs">
           Hover both charts to sync crosshair. Double-click a chart to
@@ -356,6 +372,7 @@
           {% endfor %}
         </div>
       </div>
+      </div>{# /.chart-drawer #}
 
       {# Trade setup table #}
       <div class="card mt-24">
@@ -597,6 +614,30 @@
 <script src="/static/lightweight-charts.standalone.production.js"></script>
 <script src="/static/chart_tools.js"></script>
 <script>
+  // ------------------------------------------------------------------
+  // Mobile chart drawer — slide the two charts out from the right.
+  // ------------------------------------------------------------------
+  function openChartDrawer() { document.body.classList.add('chart-open'); }
+  function closeChartDrawer() { document.body.classList.remove('chart-open'); }
+  (function () {
+    const d = document.getElementById('chart-drawer');
+    if (!d) return;
+    // Swipe-right-to-close. Tracked on the drawer; a clear rightward swipe
+    // closes it. (✕ and scrim tap also close — the charts capture most drags,
+    // so the grab-handle/header is the reliable swipe zone.)
+    let sx = 0, sy = 0, tracking = false;
+    d.addEventListener('touchstart', (e) => {
+      sx = e.touches[0].clientX; sy = e.touches[0].clientY; tracking = true;
+    }, { passive: true });
+    d.addEventListener('touchend', (e) => {
+      if (!tracking) return; tracking = false;
+      const dx = e.changedTouches[0].clientX - sx;
+      const dy = Math.abs(e.changedTouches[0].clientY - sy);
+      if (dx > 70 && dy < 50) closeChartDrawer();
+    }, { passive: true });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeChartDrawer(); });
+  })();
+
   // ------------------------------------------------------------------
   // Dual chart on /pending — uses ChartTools.renderChart() to build
   // each pane (price chart + indicator chips + optional sub-panes),
