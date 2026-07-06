@@ -58,6 +58,7 @@ def start_scheduler() -> None:
     _register_workflow_jobs(sched)
     _register_daily_digest_job(sched)
     _register_gateway_watchdog_job(sched)
+    _register_candle_refresh_jobs(sched)
 
     sched.start()
     logger.info("Scheduler started — %d jobs registered", len(sched.get_jobs()))
@@ -110,6 +111,141 @@ async def _gateway_watchdog_job() -> None:
         await check_gateway_health()
     except Exception as exc:  # noqa: BLE001 — a watchdog must never crash the loop
         logger.warning("gateway_watchdog job raised: %s", exc)
+
+
+# --------------------------------------------------------------------------- #
+# Job: candle-cache refresh (keep bar history current)
+# --------------------------------------------------------------------------- #
+
+def _register_candle_refresh_jobs(sched: AsyncIOScheduler) -> None:
+    """Keep the bar cache current with two cheap top-up jobs:
+
+      • daily — after the US close, refresh 1d bars for the whole active
+        universe (one pass, appends the new session's daily bar).
+      • intraday — during market hours, every N minutes, refresh the
+        intraday bars (30m/15m/5m) for just the symbols that matter now:
+        the pending queue, open positions, and the FX set.
+
+    Disable with CANDLE_REFRESH_ENABLED=0. Tunables:
+        CANDLE_REFRESH_INTRADAY_MIN   (default 20)
+        CANDLE_REFRESH_DAILY_CRON     (default "35 16 * * 1-5", ET)
+        CANDLE_REFRESH_DAILY_SOURCE   (default "yfinance")
+    """
+    import os
+    if os.getenv("CANDLE_REFRESH_ENABLED", "1") not in ("1", "true", "True"):
+        logger.info("Candle refresh disabled (CANDLE_REFRESH_ENABLED=0)")
+        return
+
+    daily_cron = os.getenv("CANDLE_REFRESH_DAILY_CRON", "35 16 * * 1-5")
+    intraday_min = int(os.getenv("CANDLE_REFRESH_INTRADAY_MIN", "20"))
+
+    sched.add_job(
+        _candle_refresh_daily_job,
+        CronTrigger.from_crontab(daily_cron, timezone="America/New_York"),
+        id="candle_refresh_daily",
+        name="Candle refresh — daily universe",
+        replace_existing=True, misfire_grace_time=3600, coalesce=True, max_instances=1,
+    )
+    sched.add_job(
+        _candle_refresh_intraday_job,
+        IntervalTrigger(minutes=intraday_min),
+        id="candle_refresh_intraday",
+        name="Candle refresh — intraday watchlist",
+        replace_existing=True, misfire_grace_time=120, coalesce=True, max_instances=1,
+    )
+    logger.info("Registered candle refresh (daily cron %r, intraday every %d min)",
+                daily_cron, intraday_min)
+
+
+def _is_market_hours_et() -> bool:
+    """True during RTH (Mon-Fri 09:30–16:00 ET). Cheap gate so the intraday
+    job doesn't hammer Alpaca/IBKR overnight and on weekends."""
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    now = datetime.now(ZoneInfo("America/New_York"))
+    if now.weekday() >= 5:
+        return False
+    hm = now.hour * 60 + now.minute
+    return 9 * 60 + 30 <= hm <= 16 * 60
+
+
+async def _active_universe_symbols() -> list[str]:
+    from services import universe_service
+    try:
+        for p in await universe_service.list_presets_db():
+            if p.get("is_active"):
+                full = await universe_service.get_preset_db(p["name"])
+                seen: dict[str, None] = {}
+                for s in (full.get("tickers", []) if full else []) or []:
+                    u = str(s).upper().strip()
+                    if u:
+                        seen.setdefault(u, None)
+                return list(seen)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("candle refresh: universe read failed: %s", exc)
+    return []
+
+
+async def _intraday_watchlist() -> list[str]:
+    """Pending-queue symbols + open positions + FX — the set worth keeping
+    fresh intraday (best-effort; a failing source just yields fewer names)."""
+    from services.candle_refresh_service import _FX_SET
+    seen: dict[str, None] = {}
+    # Pending queue
+    try:
+        from services.db_service import get_pending_plans
+        for p in await get_pending_plans(status_filter="pending", limit=500):
+            s = (p.get("symbol") or "").upper().strip()
+            if s:
+                seen.setdefault(s, None)
+    except Exception as exc:  # noqa: BLE001
+        logger.info("candle refresh: pending read failed: %s", exc)
+    # Open positions
+    try:
+        from services.broker_service import get_adapter_async
+        adapter = await get_adapter_async()
+        acct = await adapter.get_account_state()
+        for pos in getattr(acct, "open_positions", []) or []:
+            s = (getattr(pos, "symbol", "") or "").upper().strip()
+            if s:
+                seen.setdefault(s, None)
+    except Exception as exc:  # noqa: BLE001
+        logger.info("candle refresh: positions read failed: %s", exc)
+    # Always keep FX fresh (fvg_continuation is intraday)
+    for s in _FX_SET:
+        seen.setdefault(s, None)
+    return list(seen)
+
+
+async def _candle_refresh_daily_job() -> None:
+    import os
+    from services.candle_refresh_service import refresh_many
+    try:
+        symbols = await _active_universe_symbols()
+        if not symbols:
+            logger.info("candle refresh (daily): no active universe — skipping")
+            return
+        src = os.getenv("CANDLE_REFRESH_DAILY_SOURCE", "yfinance")
+        await refresh_many(symbols, ["1d"], daily_source=src)
+    except Exception as exc:  # noqa: BLE001 — must never crash the loop
+        logger.warning("candle_refresh_daily raised: %s", exc)
+
+
+async def _candle_refresh_intraday_job() -> None:
+    import os
+    from services.candle_refresh_service import refresh_many
+    try:
+        if not _is_market_hours_et():
+            return
+        symbols = await _intraday_watchlist()
+        if not symbols:
+            return
+        intervals = [iv.strip() for iv in
+                     os.getenv("CANDLE_REFRESH_INTERVALS_INTRADAY", "30m,15m,5m").split(",")
+                     if iv.strip()]
+        await refresh_many(symbols, intervals)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("candle_refresh_intraday raised: %s", exc)
 
 
 # --------------------------------------------------------------------------- #

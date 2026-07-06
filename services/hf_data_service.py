@@ -253,6 +253,10 @@ def _fetch_symbol_alpaca_sync(
         else None
     )
 
+    # Feed: "sip" (full consolidated tape) or "iex" (free tier). Alpaca now
+    # serves SIP historical to free accounts, but if yours rejects it set
+    # ALPACA_DATA_FEED=iex in .env to fall back without a code change.
+    feed = os.getenv("ALPACA_DATA_FEED", "sip").lower()
     client = StockHistoricalDataClient(api_key=key, secret_key=secret)
     req = StockBarsRequest(
         symbol_or_symbols=symbol.upper(),
@@ -260,7 +264,7 @@ def _fetch_symbol_alpaca_sync(
         start=start_ts,
         end=end_ts,
         adjustment="all",
-        feed="sip",
+        feed=feed,
     )
     bars = client.get_stock_bars(req)
     df = bars.df  # multi-index (symbol, timestamp) → tabular
