@@ -1637,6 +1637,12 @@ input, select, textarea { font: inherit; color: inherit; }
 .nav-toggle { display: none; }   /* hamburger — shown only on mobile */
 .nav-scrim  { display: none; }   /* drawer backdrop — mobile only    */
 
+/* Old / rejected pending cards — greyed & read-only, still clickable + buyable */
+.pending-card.is-muted { opacity: 0.5; filter: grayscale(0.5); }
+.pending-card.is-muted:hover { opacity: 0.85; filter: grayscale(0.2); }
+.pending-card.is-muted .buy-anyway { opacity: 1; filter: none; }
+.buy-anyway { text-decoration: none; }
+
 /* Setup-strength 1–5 stars (pending card + detail) */
 .strength-badge { display: inline-flex; align-items: center; gap: 1px; cursor: help; line-height: 1; }
 .strength-badge .star { font-size: 11px; }

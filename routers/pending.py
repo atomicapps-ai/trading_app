@@ -57,11 +57,20 @@ def _is_stale(ts_created: str, timeout_minutes: int) -> bool:
     return (datetime.now(timezone.utc) - created) > timedelta(minutes=timeout_minutes)
 
 
+# Terminal / non-actionable statuses — shown greyed & read-only, but still
+# openable and re-buyable via the manual-execute (copy_from) path.
+_MUTED_STATUSES = ("rejected", "expired", "order_rejected")
+# How far back to surface recent rejected/expired plans in the default queue.
+_HISTORICAL_WINDOW_DAYS = 3
+
+
 def _decorate(p: dict, *, stale_minutes: int) -> dict:
     """Attach UI-friendly derived fields to a pending plan dict.
 
     ``is_stale`` — true when ``ts_created`` is older than the approval
     window. The template uses this to disable the Approve button.
+    ``is_muted`` — terminal (rejected/expired/order_rejected): render greyed
+    and read-only, but keep it clickable + offer "Buy anyway".
     """
     if not p:
         return p
@@ -72,12 +81,33 @@ def _decorate(p: dict, *, stale_minutes: int) -> dict:
     # GTC plans (multi-day/swing, e.g. Kronos daily) never go stale — their entry
     # price is valid until cancelled, so the short approval window doesn't apply.
     gtc = p.get("valid_until") == "gtc"
+    status = p.get("status") or "pending"
     return {
         **p,
         "ts_ago": ts_ago,
         "is_gtc": gtc,
         "is_stale": False if gtc else _is_stale(p.get("ts_created") or "", stale_minutes),
+        "is_muted": status in _MUTED_STATUSES,
     }
+
+
+async def _recent_historical() -> list[dict]:
+    """Recent terminal plans (rejected/expired) within the historical window —
+    surfaced greyed in the default queue so a just-rejected/old trade doesn't
+    silently vanish; you can still open it and Buy anyway."""
+    rows = await db_service.get_pending_plans(status_filter=None, limit=200)
+    cutoff = datetime.now(timezone.utc) - timedelta(days=_HISTORICAL_WINDOW_DAYS)
+    out: list[dict] = []
+    for r in rows:
+        if (r.get("status") or "") not in _MUTED_STATUSES:
+            continue
+        try:
+            created = datetime.fromisoformat((r.get("ts_created") or "").replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        if created >= cutoff:
+            out.append(r)
+    return out
 
 
 async def _filter_rows(status: str) -> list[dict]:
@@ -117,6 +147,11 @@ async def pending_page(
     await db_service.expire_stale_plans(timeout_minutes=stale_minutes)
     status = _normalize_status(status)
     rows = await _filter_rows(status)
+    # In the default queue, append recent rejected/expired plans (greyed) so a
+    # just-rejected or old trade stays visible + re-buyable instead of vanishing.
+    if status == "pending":
+        seen = {r.get("plan_id") for r in rows}
+        rows = rows + [h for h in await _recent_historical() if h.get("plan_id") not in seen]
     counts = await _status_counts()
     return templates.TemplateResponse(
         request=request,
