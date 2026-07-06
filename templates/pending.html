@@ -79,11 +79,18 @@
 {% block content %}
 {# Setup strength 1–5, derived from the plan's model conviction. Defined before
    any use (Jinja doesn't hoist macros). #}
-{% macro strength_badge(conv, big=false) %}
-  {% set r0 = (conv * 5) | round | int %}
-  {% set rating = [[r0, 1] | max, 5] | min %}
-  {% set pct = (conv * 100) | round | int %}
-  {% set tip = "Setup strength " ~ rating ~ "/5 — model conviction " ~ pct ~ "%. Higher = more textbook: the portfolio manager's averaged conviction across the agreeing signals (pattern quality + lenses). 5 ≈ near-textbook for this strategy." %}
+{% macro strength_badge(conv, quality=none, big=false) %}
+  {# Prefer the uncapped setup-quality score (it varies); conviction saturates
+     at the 100 cap so it's a poor rating source. Fall back to conviction for
+     old plans persisted before setup_quality existed. #}
+  {% if quality is not none %}
+    {% set rating = 5 if quality >= 110 else (4 if quality >= 98 else (3 if quality >= 86 else (2 if quality >= 74 else 1))) %}
+    {% set tip = "Setup strength " ~ rating ~ "/5 (quality score " ~ quality ~ "). The pattern's UNCAPPED quality — base pattern points plus confirmations (volume, RSI, trend/regime alignment). Higher = more textbook. (Conviction % saturates at the 100 cap, so this is the discriminating measure.)" %}
+  {% else %}
+    {% set r0 = (conv * 5) | round | int %}
+    {% set rating = [[r0, 1] | max, 5] | min %}
+    {% set tip = "Setup strength " ~ rating ~ "/5 — model conviction " ~ (conv * 100)|round|int ~ "% (legacy plan; no quality score stored)." %}
+  {% endif %}
   <span class="strength-badge{% if big %} big{% endif %}" title="{{ tip }}">
     {% for i in range(5) %}<span class="star {% if i < rating %}on{% else %}off{% endif %}">★</span>{% endfor %}
     {% if big %}<span class="strength-num">{{ rating }}/5</span>{% endif %}
@@ -179,7 +186,7 @@
           </div>
           <div class="pending-row">
             <span class="badge badge-gray">{{ p.strategy }}</span>
-            {{ strength_badge(p.conviction) }}
+            {{ strength_badge(p.conviction, quality=p.setup_quality) }}
             <span class="text-tertiary text-xs">conv {{ (p.conviction * 100)|round|int }}%</span>
             <span class="conviction-track">
               <span class="conviction-bar" style="width: {{ (p.conviction * 100)|round|int }}%; height: 100%; display: block;"></span>
@@ -248,7 +255,7 @@
         <span style="font-size: 24px; font-weight: 500;">{{ p.symbol }}</span>
         <span class="badge {% if p.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ p.direction|upper }}</span>
         <span class="badge badge-gray">{{ p.strategy }}</span>
-        {{ strength_badge(p.conviction, big=true) }}
+        {{ strength_badge(p.conviction, quality=p.setup_quality, big=true) }}
         <span class="text-secondary text-sm">conviction {{ (p.conviction * 100)|round|int }}%</span>
         <span class="badge gate-badge
               {% if p.status == 'pending' %}badge-amber
