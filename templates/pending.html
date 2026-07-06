@@ -99,7 +99,7 @@
 <div class="flex items-center" style="justify-content:flex-end;gap:8px;margin-bottom:10px;flex:0 0 auto;">
   <a href="/trades/new" class="btn btn-primary btn-sm" style="text-decoration:none;">+ New Trade</a>
 </div>
-<div class="split-layout">
+<div class="split-layout{% if selected %} has-detail{% endif %}">
 
   {# ===== Left: queue ===== #}
   <aside class="split-left">
@@ -250,6 +250,9 @@
       <div class="split-empty">Select a trade to review.</div>
     {% else %}
       {% set p = selected %}
+
+      {# Mobile only: return to the queue instead of scrolling back past it. #}
+      <a href="/pending?status={{ filter_status }}" class="pending-back">← Queue</a>
 
       <div class="flex items-center gap-12 mb-8" style="flex-wrap: wrap;">
         <span style="font-size: 24px; font-weight: 500;">{{ p.symbol }}</span>

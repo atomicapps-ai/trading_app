@@ -1636,6 +1636,7 @@ input, select, textarea { font: inherit; color: inherit; }
 /* ============================================================= */
 .nav-toggle { display: none; }   /* hamburger — shown only on mobile */
 .nav-scrim  { display: none; }   /* drawer backdrop — mobile only    */
+.pending-back { display: none; } /* /pending back-to-queue — mobile only */
 
 /* Old / rejected pending cards — greyed & read-only, still clickable + buyable */
 .pending-card.is-muted { opacity: 0.5; filter: grayscale(0.5); }
@@ -1743,11 +1744,23 @@ input, select, textarea { font: inherit; color: inherit; }
   .widget-grid { display: block; }
   .widget-grid > * { margin-bottom: 12px; }
 
-  /* Split pages (e.g. /pending): stack the fixed 340px queue above the
-     panes instead of forcing a two-column grid off-screen. */
+  /* Split pages (e.g. /pending): mobile master→detail. Show ONE pane at a
+     time — the queue, or (when a trade is selected) the full-screen detail
+     with a "← Queue" back button — instead of stacking detail below the whole
+     list (which forced a long scroll to reach the chart/gates/approve bar). */
   .main--split,
   .main:has(.split-layout) { display: block; height: auto; overflow-y: auto; }
   .split-layout { display: block; }
+  .split-layout.has-detail .split-left  { display: none; }   /* detail shown → hide queue */
+  .split-layout:not(.has-detail) .split-right { display: none; } /* queue shown → hide empty detail */
+  .split-left, .split-right { width: auto; max-width: 100%; }
+  .pending-back {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-bottom: 10px; padding: 7px 12px;
+    background: var(--surface-2); border: 0.5px solid var(--border);
+    border-radius: var(--radius-btn); color: var(--text-primary);
+    text-decoration: none; font-size: 13px; font-weight: 500;
+  }
 
   /* Wide tables scroll inside their own box, not the whole page */
   .card table, .table-wrap table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
