@@ -208,10 +208,11 @@
       axisLabelVisible: true, title,
     });
   };
-  planLine(ENTRY, '#60a5fa', 'Entry');
-  planLine(STOP,  '#e05252', 'Stop');
-  planLine(TP1,   '#1db87a', 'TP1');
-  planLine(TP2,   '#22d3ee', 'TP2');
+  const CC = (window.CHART_COLORS || {});
+  planLine(ENTRY, CC.entry || '#60a5fa', 'Entry');
+  planLine(STOP,  CC.stop  || '#e05252', 'Stop');
+  planLine(TP1,   CC.tp1   || '#1db87a', 'TP1');
+  planLine(TP2,   CC.tp2   || '#22d3ee', 'TP2');
 })();
 </script>
 
