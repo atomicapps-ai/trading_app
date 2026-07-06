@@ -274,7 +274,11 @@
       if (this.opts.showTimeframes !== false) {
         const tfWrap = document.createElement('div');
         tfWrap.className = 'ct-tfs';
-        ['1h', '2h', '4h', '1d'].forEach(iv => {
+        // Intraday (5m–30m, ~60-day yfinance cap) + hourly + daily. Lets
+        // the operator zoom into the price action around entry/stop on a
+        // fresh setup, not just daily candles.
+        const frames = this.opts.timeframes || ['5m', '10m', '15m', '30m', '1h', '4h', '1d'];
+        frames.forEach(iv => {
           const b = document.createElement('button');
           b.className = 'ct-tf' + (iv === this.interval ? ' active' : '');
           b.textContent = iv.toUpperCase();

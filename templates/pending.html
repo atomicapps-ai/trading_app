@@ -363,7 +363,7 @@
              data-direction="{{ p.direction }}"
              data-discovery="{{ p.ts_created }}"
              data-pivots="{{ p.pivot_lines | tojson | forceescape }}">
-          {% for chart_idx, default_interval in [('a', '1h'), ('b', '4h')] %}
+          {% for chart_idx, default_interval in [('a', '1d'), ('b', '30m')] %}
             <div class="chart-pane">
               <div class="ct-mount" id="chart-{{ chart_idx }}-mount"
                    data-chart="{{ chart_idx }}" data-interval="{{ default_interval }}"

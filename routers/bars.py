@@ -4,11 +4,14 @@ One endpoint: ``GET /api/bars/{symbol}?interval=<1h|2h|4h|1d>&limit=N``.
 
 Resampling
 ----------
-``data_service`` caches two native intervals: ``1d`` and ``1h``. Any
-request for ``2h`` or ``4h`` is resampled from the 1h cache here, so we
-don't have to touch yfinance or store extra CSVs. ``1d`` is served
-directly. Sub-hourly intervals (``5m`` / ``15m`` / ``30m``) are out of
-scope until we wire Alpaca's bar endpoint — they'd need new data.
+``data_service`` caches native intervals ``1d``, ``1h``, ``30m``,
+``15m`` and ``5m`` (the sub-hourly ones from yfinance, ~60-day cap).
+Everything else is resampled here so we don't store extra CSVs:
+
+    ``2h`` / ``4h``  ← resampled from the ``1h`` cache
+    ``10m``          ← resampled from the ``5m`` cache
+
+``1d`` / ``1h`` / ``30m`` / ``15m`` / ``5m`` are served directly.
 
 Response shape matches what ``lightweight-charts`` expects:
 
@@ -35,8 +38,13 @@ from services.data_service import DataNotAvailableError, get_bars
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-SupportedInterval = Literal["30m", "1h", "2h", "4h", "1d"]
-_RESAMPLE_RULE = {"30m": "30min", "1h": "1h", "2h": "2h", "4h": "4h", "1d": "1D"}
+SupportedInterval = Literal["5m", "10m", "15m", "30m", "1h", "2h", "4h", "1d"]
+_RESAMPLE_RULE = {
+    "5m": "5min", "10m": "10min", "15m": "15min", "30m": "30min",
+    "1h": "1h", "2h": "2h", "4h": "4h", "1d": "1D",
+}
+# Intervals we resample on the fly (target → source cache to pull).
+_RESAMPLE_FROM = {"2h": "1h", "4h": "1h", "10m": "5m"}
 
 
 @router.get("/api/bars/{symbol}")
@@ -57,20 +65,16 @@ async def get_bars_json(
                    f"{list(_RESAMPLE_RULE.keys())}",
         )
 
-    # Pick source cache: native for 30m/1h/1d; for 2h/4h we pull 1h and resample.
-    if interval == "1d":
-        source_interval = "1d"
-    elif interval == "30m":
-        source_interval = "30m"
-    else:
-        source_interval = "1h"
+    # Pick source cache: native intervals map to themselves; resampled
+    # intervals (2h/4h from 1h, 10m from 5m) pull their source cache.
+    source_interval = _RESAMPLE_FROM.get(interval, interval)
 
     try:
         df = await get_bars(symbol.upper(), source_interval, min_bars=20)
     except DataNotAvailableError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-    if interval in ("2h", "4h"):
+    if interval in _RESAMPLE_FROM:
         df = _resample(df, _RESAMPLE_RULE[interval])
 
     # If the client is paginating backwards, slice to bars strictly before
