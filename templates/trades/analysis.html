@@ -293,7 +293,7 @@
 </div>
 {% endif %}
 
-<script src="/static/lightweight-charts.standalone.production.js"></script>
+<script src="/static/lightweight-charts.standalone.production.js?v={{ asset_v }}"></script>
 <script>
 (async function() {
   const r = await fetch("/api/analysis/equity_curve");

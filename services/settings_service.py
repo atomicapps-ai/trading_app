@@ -40,6 +40,47 @@ LOCAL_DB_PATH: Path = DATA_DIR / "claude_trading_app.db"
 
 
 # --------------------------------------------------------------------------- #
+# Static-asset cache-busting
+# --------------------------------------------------------------------------- #
+def _compute_asset_version() -> str:
+    """A token that changes whenever any CSS/JS on disk changes.
+
+    Appended to /static URLs as ``?v=<token>`` so a deploy (git pull, which
+    bumps the changed files' mtimes) produces new URLs and browsers fetch the
+    fresh files on a normal reload — no manual cache-clearing.
+    """
+    latest = 0
+    try:
+        for p in STATIC_DIR.rglob("*"):
+            if p.suffix in (".css", ".js") and p.is_file():
+                latest = max(latest, int(p.stat().st_mtime))
+    except Exception:
+        pass
+    return str(latest or 1)
+
+
+ASSET_VERSION: str = _compute_asset_version()
+
+# Expose ``asset_v`` as a Jinja global on EVERY Jinja2Templates instance, so
+# any template can cache-bust with ``?v={{ asset_v }}`` without per-route
+# wiring. Patch runs at import (before routers construct their templates).
+try:
+    from fastapi.templating import Jinja2Templates as _Jinja2Templates
+    _j2_orig_init = _Jinja2Templates.__init__
+
+    def _j2_init_with_asset_v(self, *args, **kwargs):  # noqa: ANN001
+        _j2_orig_init(self, *args, **kwargs)
+        try:
+            self.env.globals.setdefault("asset_v", ASSET_VERSION)
+        except Exception:
+            pass
+
+    _Jinja2Templates.__init__ = _j2_init_with_asset_v  # type: ignore[method-assign]
+except Exception:
+    pass
+
+
+# --------------------------------------------------------------------------- #
 # Settings schema (mirrors SKILL.md §9.5)
 # --------------------------------------------------------------------------- #
 
