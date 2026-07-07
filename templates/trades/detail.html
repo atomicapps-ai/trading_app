@@ -45,7 +45,7 @@
   </div>
 
   {# ===== Two-column layout ============================================ #}
-  <div class="two-col mt-16">
+  <div class="two-col mt-16" id="trade-detail-cols">
 
     {# LEFT — chart (ChartTools instance: timeframe + indicator chips +
              sub-pane built into the panel header) #}
@@ -53,7 +53,15 @@
       <div class="card trade-detail-chart-card">
         <div class="card-header">
           <span class="card-title">Chart</span>
-          <span class="text-tertiary text-sm">two synced panes · per-pane timeframe + indicators · plan levels overlaid</span>
+          <span class="text-tertiary text-sm">two synced panes · drag a pane's bottom edge to resize</span>
+          <button type="button" class="btn btn-sm" id="toggle-right-col"
+                  style="margin-left:auto;"
+                  onclick="var c=document.getElementById('trade-detail-cols');
+                           var on=c.classList.toggle('right-collapsed');
+                           this.textContent = on ? 'Show panel ▸' : 'Hide panel ◂';
+                           window.dispatchEvent(new Event('resize'));">
+            Hide panel ◂
+          </button>
         </div>
         <div id="trade-chart-a-mount" class="trade-detail-chart-mount ct-mount trade-detail-pane"
              data-chart="a" data-interval="1d"></div>

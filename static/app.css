@@ -783,10 +783,18 @@ input, select, textarea { font: inherit; color: inherit; }
   border: 1px solid var(--border, rgba(75, 85, 99, 0.3));
   border-radius: 4px;
 }
-/* Dual synced panes on the trade-detail page — shorter than the single 520px
-   mount so both fit above the fold; the second pane gets a small gap. */
-.trade-detail-pane { height: 360px; }
+/* Dual synced panes on the trade-detail page. Tall by default, and
+   drag-to-resize via the native grip (ChartTools' ResizeObserver reflows
+   the chart to the new height). */
+.trade-detail-pane {
+  height: 640px; min-height: 260px;
+  resize: vertical; overflow: hidden;
+}
 #trade-chart-b-mount.trade-detail-pane { margin-top: 10px; }
+
+/* Collapse the right-hand panel → chart goes full width (ChartTools reflows). */
+.two-col.right-collapsed { grid-template-columns: 1fr; }
+.two-col.right-collapsed > *:last-child { display: none; }
 
 /* Trade edit form (Phase 6 edit-mode) */
 .trade-edit-card { display: none; }
@@ -1752,8 +1760,9 @@ input, select, textarea { font: inherit; color: inherit; }
   /* Keep the equity total visible while chips scroll under it. */
   .live-bar-equity { position: sticky; left: 0; z-index: 2; }
 
-  /* Trade-detail dual panes: shorter on a phone so both stay usable. */
-  .trade-detail-pane { height: 300px; }
+  /* Trade-detail dual panes on a phone — taller than a single card but
+     still draggable via the resize grip. */
+  .trade-detail-pane { height: 440px; }
 
   /* Common wide layouts stack on a phone. minmax(0, …) lets cells
      shrink below their content's min-content instead of overflowing. */
