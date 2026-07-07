@@ -138,7 +138,10 @@
     "processed_at": "2026-06-29T17:18:31.135230+00:00",
     "duration_s": 787,
     "frames": 9,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "conceptual swing overview; mean-rev V = s6 (OOS PF 1.19, just below bar), continuation = live momentum_breakout; no new spec",
+    "retired_at": "2026-07-07T07:54:06.918956+00:00"
   },
   "wn3rbvZgbkM": {
     "url": "https://www.youtube.com/watch?v=wn3rbvZgbkM",
@@ -200,7 +203,10 @@
     "processed_at": "2026-06-29T20:07:22.033750+00:00",
     "duration_s": 1518,
     "frames": 17,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "intraday gap up/down day-trading (VWAP 5m entries), earnings-event driven + discretionary levels; out of scope",
+    "retired_at": "2026-07-07T07:55:54.203014+00:00"
   },
   "rf_EQvubKlk": {
     "url": "https://www.youtube.com/watch?v=rf_EQvubKlk",
@@ -214,7 +220,10 @@
     "processed_at": "2026-06-29T20:25:54.405855+00:00",
     "duration_s": 712,
     "frames": 8,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "discretionary multi-TF price-action (key level + momentum shift + BOS); 15m entries; no objective rules",
+    "retired_at": "2026-07-07T07:54:45.162066+00:00"
   },
   "8vufTzGZqiI": {
     "url": "https://www.youtube.com/watch?v=8vufTzGZqiI",
@@ -349,7 +358,10 @@
     "processed_at": "2026-06-29T21:05:43.727694+00:00",
     "duration_s": 1180,
     "frames": 13,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Fib-discount EMA50 pullback; risk-floored OOS PF 1.08-1.16 (below 1.2 bar); matches prior marginal finding",
+    "retired_at": "2026-07-07T07:52:16.440673+00:00"
   },
   "RR6l8B6VKK4": {
     "url": "https://www.youtube.com/watch?v=RR6l8B6VKK4",

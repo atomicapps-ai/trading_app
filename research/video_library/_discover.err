@@ -1,0 +1,19 @@
+searching: mechanical swing trading strategy stocks backtested rules
+Traceback (most recent call last):
+  File "C:\Projects\trading_app\scripts\video_discover.py", line 112, in <module>
+    main()
+  File "C:\Projects\trading_app\scripts\video_discover.py", line 78, in main
+    for d in search(q, args.per_query):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Projects\trading_app\scripts\video_discover.py", line 54, in search
+    out = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "C:\Python312\Lib\subprocess.py", line 1538, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [WinError 2] The system cannot find the file specified

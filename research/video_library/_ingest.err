@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "C:\Projects\trading_app\scripts\video_ingest.py", line 464, in <module>
+    main()
+  File "C:\Projects\trading_app\scripts\video_ingest.py", line 430, in main
+    do_ingest(urls, interval=args.interval, force=args.force,
+  File "C:\Projects\trading_app\scripts\video_ingest.py", line 338, in do_ingest
+    do_frames(url, vid, folder, secs, keep_video=keep_video)
+  File "C:\Projects\trading_app\scripts\video_ingest.py", line 216, in do_frames
+    r = subprocess.run(dl, stdout=subprocess.DEVNULL,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "C:\Python312\Lib\subprocess.py", line 1538, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [WinError 2] The system cannot find the file specified

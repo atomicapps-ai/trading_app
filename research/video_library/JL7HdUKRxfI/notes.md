@@ -1,30 +1,23 @@
-# JL7HdUKRxfI — "Trend Pullback to Fib Discount Zone" (swing trading)
+# JL7HdUKRxfI — "Only Swing Trading Video Beginners Need" (Trade with Pat)
 
-Source: <https://www.youtube.com/watch?v=JL7HdUKRxfI> · ~19 min.
+Source: <https://www.youtube.com/watch?v=JL7HdUKRxfI>
 
-## Rules (mechanical)
-- entry: Uptrend only — price above 50-EMA. Wait for a pullback of ≥3 consecutive sizeable
-  red candles. Draw Fibonacci from the latest swing low to swing high; only enter when price
-  retraces below the 50% ("discount") level. Enter on the close of the first green
-  confirmation candle.
-- exit/stop/target: Stop below the pullback low / nearest support; let it run, ~1% risk for
-  ~3% target (≈3R).
-- filters/params: "Look left" for a prior support/demand level near the entry (discretionary
-  confluence); confirmation candle required.
+## Rules (mechanical core)
+- **Trend:** price above the 50-EMA (uptrend → longs only).
+- **Pullback:** ≥3 red candles; wait for price to retrace into the **"discount zone"** — below the 50% Fibonacci retracement of the last swing-low→swing-high.
+- **Confluence:** "look left" for a prior support/demand level inside the discount zone.
+- **Entry:** on a green confirmation candle close. **Stop:** below the pullback low / support. **Target:** let it run (multiple R).
+- Multi-asset/forex-framed (oil, gold, Bitcoin, NASDAQ, FX pairs); timeframes 1h/4h/daily.
 
-## Backtest result: ❌ REJECT — no edge (≈ coin flip)
-Tested: close>EMA50 + price below 50% Fib of a 20-bar swing + green day → next open; stop = 5-bar low; target
-3R or close<EMA50. OOS PF 1.03, exp +0.016R, n=2249 — essentially break-even, and its control (0.76) shows the
-geometry alone is negative. Converges to the earlier marginal Fib-50 pullback (bQP6vLB7ius, +0.06R). Not deployable.
-Status: rejected, not deployed.
+## Backtest (strategy_suite rig, 955-symbol daily universe, 10bps, IS/OOS, random control)
+EMA50 uptrend + <50% Fib discount + green confirmation, stop floored at 0.5·ATR (the un-floored P3 version in `bt_video_candidates2.py` produced a risk artifact):
+| Variant | n | OOS PF | OOS avg-R | Control PF |
+|---|---|---|---|---|
+| 3R target | 51,958 | 1.08 | +0.06 | 0.89 |
+| trailing-EMA exit | 56,693 | 1.16 | +0.09 | 0.89 |
 
-## Original triage verdict (superseded by backtest)
-🔬 BACKTEST-CANDIDATE — the core (trend filter + measured pullback into Fib-50% discount + confirmation) is fully mechanizable on daily bars and is a pullback-continuation strategy, distinct from the deployed breakout/mean-reversion/MACD set.
-Drop the discretionary "look left for support" overlay and the EMA/Fib/pullback rules become
-objective. It's trend-following pullback entry (buy strength on a dip) rather than fading the
-mean (Fear-Dip) — a genuinely different family.
-Daily spec: long only when close > EMA50; after a swing high, require a pullback of ≥3 down
-days; compute Fib of last swing-low→swing-high; arm when price trades below the 50%
-retracement of that leg; enter at next daily close that is green (close>open); stop below the
-pullback low; target 3R or trail by EMA50. Universe = liquid US equities.
-Status: candidate, pending backtest
+Script: `scripts/bt_fibdiscount.py`; JSON: `data/research/strategy_results/fibdiscount_video.json`.
+
+## Verdict: REJECT — marginal, fails the bar.
+The Fib-discount pullback is faintly positive (OOS PF 1.08–1.16, avg-R +0.06 to +0.09) and beats its coin-flip control (0.89), but it stays **below the 1.2 OOS-PF threshold**. This matches the earlier independent finding for the same setup (video bQP6vLB7ius: +0.06R, PF 1.10). The "look-left support" confluence is discretionary and the framing is multi-asset/forex. Not adopted.
+Status: rejected

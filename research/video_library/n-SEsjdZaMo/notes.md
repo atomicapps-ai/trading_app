@@ -1,12 +1,12 @@
-# n-SEsjdZaMo — "Gap Up / Gap Down Strategy" (Humbled Trader)
+# n-SEsjdZaMo — "Gap Up / Gap Down strategy" (Humble Trader)
 
-Source: <https://www.youtube.com/watch?v=n-SEsjdZaMo> · ~25 min.
+Source: <https://www.youtube.com/watch?v=n-SEsjdZaMo>
 
-## Rules (mechanical)
-- entry: Large-cap stock gaps up overnight over a key daily resistance on a positive catalyst (usually earnings beat). Long at the open on a pullback to the daily key level OR on a break of pre-market highs; reclaim VWAP at the open. Mirror short version: gap down through 52-wk-low / key support on negative earnings, short the bounces toward VWAP.
-- exit/stop/target: stop = loss of 5-min VWAP (long) / reclaim of VWAP (short); targets = next daily resistance levels / scale out into resistance; intraday-to-few-days hold.
-- filters/params: pre-market scanner, daily key levels, 52-wk-high/low breakout, earnings catalyst, VWAP (5-min), pre-market high/low.
+## Rules (as described)
+- **Universe:** large-cap US stocks that gapped overnight (pre-market scanner), driven by a fundamental catalyst (earnings beat/miss + guidance).
+- **Gap-up long:** gap opens above a key daily resistance / 52-week high; buy the pullback to the level or the break of pre-market highs; **stop = 5-min VWAP**; target successive daily resistance / measured continuation; can replay for 2–3 days.
+- **Gap-down short:** mirror — gap below support / 52-week low on bad earnings, short bounces toward VWAP.
 
-## Verdict: ❌ REJECT — intraday earnings-gap execution (VWAP/pre-market levels, no intraday data)
-Entry and risk are anchored to intraday mechanics we cannot reproduce on daily bars — pre-market highs, open-pullback to key level, 5-min VWAP reclaim/stop. The conceptual core (buy a large-cap gapping over a 52-wk-high on an earnings beat) could be a daily-bar earnings-gap-momentum idea, but the specific tradable edge described is the intraday entry/stop, and the daily skeleton overlaps heavily with our deployed Momentum Breakout (52-wk-high breakout). Not a clean novel daily spec.
-Status: rejected, not deployed
+## Verdict: REJECT — intraday + event-driven + discretionary, out of scope.
+Although the universe is US stocks, execution is **intraday**: VWAP on 5-/2-minute charts for entries and stops, pre-market levels, "first five minutes of the day" scalps into resistance. The edge is explicitly an **earnings catalyst** (event-driven, not in the daily OHLCV rig) plus hand-drawn levels. A daily-only "earnings-gap continuation" would need an earnings-event feed and a custom gap detector — not a clean daily-bar setup and not built here. Not testable in the project's daily swing framework.
+Status: rejected
