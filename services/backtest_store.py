@@ -30,6 +30,7 @@ _SCHEMA = [
     CREATE TABLE IF NOT EXISTS backtest_runs (
         run_id TEXT PRIMARY KEY,
         strategy TEXT NOT NULL,
+        kind TEXT NOT NULL DEFAULT 'baseline',   -- baseline | candidate
         config_hash TEXT NOT NULL,
         universe_name TEXT,
         universe_hash TEXT NOT NULL,
@@ -70,7 +71,125 @@ _SCHEMA = [
     """,
     "CREATE INDEX IF NOT EXISTS idx_bt_scores_run ON backtest_symbol_scores(run_id)",
     "CREATE INDEX IF NOT EXISTS idx_bt_scores_sym ON backtest_symbol_scores(strategy, symbol)",
+    """
+    CREATE TABLE IF NOT EXISTS hypothesis_threads (
+        thread_id TEXT PRIMARY KEY,
+        strategy TEXT NOT NULL,
+        name TEXT NOT NULL,
+        description TEXT,
+        overrides_json TEXT NOT NULL DEFAULT '{}',   -- the param changes to test
+        status TEXT NOT NULL DEFAULT 'open',          -- open | adopted | discarded
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        adopted_at TEXT,
+        baseline_run_id TEXT,      -- run reflecting the current live config
+        candidate_run_id TEXT,     -- run with the overrides applied
+        notes TEXT
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_threads_strategy ON hypothesis_threads(strategy, created_at DESC)",
 ]
+
+
+# ── Hypothesis threads ─────────────────────────────────────────────────────
+
+def create_thread(*, thread_id: str, strategy: str, name: str, description: str,
+                  overrides: dict, created_at: str) -> None:
+    conn = _conn()
+    try:
+        conn.execute(
+            "INSERT INTO hypothesis_threads (thread_id, strategy, name, description, "
+            "overrides_json, status, created_at, updated_at) "
+            "VALUES (?,?,?,?,?,'open',?,?)",
+            (thread_id, strategy, name, description, json.dumps(overrides),
+             created_at, created_at),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def list_threads(strategy: str | None = None) -> list[dict]:
+    conn = _conn()
+    try:
+        if strategy:
+            cur = conn.execute("SELECT * FROM hypothesis_threads WHERE strategy=? "
+                               "ORDER BY created_at DESC", (strategy,))
+        else:
+            cur = conn.execute("SELECT * FROM hypothesis_threads ORDER BY created_at DESC")
+        out = []
+        for r in cur.fetchall():
+            d = dict(r)
+            d["overrides"] = json.loads(d.get("overrides_json") or "{}")
+            out.append(d)
+        return out
+    finally:
+        conn.close()
+
+
+def get_thread(thread_id: str) -> dict | None:
+    conn = _conn()
+    try:
+        r = conn.execute("SELECT * FROM hypothesis_threads WHERE thread_id=?",
+                         (thread_id,)).fetchone()
+        if not r:
+            return None
+        d = dict(r)
+        d["overrides"] = json.loads(d.get("overrides_json") or "{}")
+        return d
+    finally:
+        conn.close()
+
+
+def update_thread(thread_id: str, *, status: str | None = None,
+                  baseline_run_id: str | None = None,
+                  candidate_run_id: str | None = None,
+                  adopted_at: str | None = None, notes: str | None = None,
+                  updated_at: str | None = None) -> None:
+    sets, params = [], []
+    for col, val in (("status", status), ("baseline_run_id", baseline_run_id),
+                     ("candidate_run_id", candidate_run_id), ("adopted_at", adopted_at),
+                     ("notes", notes), ("updated_at", updated_at)):
+        if val is not None:
+            sets.append(f"{col}=?"); params.append(val)
+    if not sets:
+        return
+    params.append(thread_id)
+    conn = _conn()
+    try:
+        conn.execute(f"UPDATE hypothesis_threads SET {', '.join(sets)} WHERE thread_id=?", params)
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def run_summary(run_id: str) -> dict | None:
+    """Aggregate metrics for a run, computed from its stored trades — used to
+    compare a candidate thread against its baseline."""
+    conn = _conn()
+    try:
+        rows = conn.execute(
+            "SELECT window, pnl_r, win FROM backtest_trades WHERE run_id=?", (run_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+    if not rows:
+        return None
+
+    def _agg(rs):
+        rlist = [r["pnl_r"] for r in rs]
+        n = len(rlist)
+        if not n:
+            return {"n": 0, "wr": 0.0, "pf": 0.0, "avg_r": 0.0, "total_r": 0.0}
+        pos = sum(r for r in rlist if r > 0)
+        neg = abs(sum(r for r in rlist if r < 0))
+        wins = sum(1 for r in rs if r["win"])
+        return {"n": n, "wr": wins / n, "pf": (pos / neg if neg > 1e-9 else 99.0),
+                "avg_r": sum(rlist) / n, "total_r": sum(rlist)}
+
+    return {"all": _agg(rows),
+            "IS": _agg([r for r in rows if r["window"] == "IS"]),
+            "OOS": _agg([r for r in rows if r["window"] == "OOS"])}
 
 
 def _conn() -> sqlite3.Connection:
@@ -79,6 +198,11 @@ def _conn() -> sqlite3.Connection:
     conn.row_factory = sqlite3.Row
     for stmt in _SCHEMA:
         conn.execute(stmt)
+    # Additive migration for DBs created before the `kind` column existed.
+    try:
+        conn.execute("ALTER TABLE backtest_runs ADD COLUMN kind TEXT NOT NULL DEFAULT 'baseline'")
+    except sqlite3.OperationalError:
+        pass
     return conn
 
 
@@ -96,16 +220,19 @@ def universe_hash(tickers: list[str]) -> str:
 
 def find_cached_run(
     strategy: str, cfg_hash: str, uni_hash: str, max_age_days: float | None = None,
+    kind: str | None = None,
 ) -> dict | None:
     """Most recent run matching (strategy, config_hash, universe_hash), or None.
     If max_age_days is set, only returns a run created within that window."""
     conn = _conn()
     try:
-        cur = conn.execute(
-            "SELECT * FROM backtest_runs WHERE strategy=? AND config_hash=? "
-            "AND universe_hash=? ORDER BY created_at DESC LIMIT 1",
-            (strategy, cfg_hash, uni_hash),
-        )
+        sql = ("SELECT * FROM backtest_runs WHERE strategy=? AND config_hash=? "
+               "AND universe_hash=?")
+        params = [strategy, cfg_hash, uni_hash]
+        if kind:
+            sql += " AND kind=?"; params.append(kind)
+        sql += " ORDER BY created_at DESC LIMIT 1"
+        cur = conn.execute(sql, params)
         row = cur.fetchone()
         if not row:
             return None
@@ -122,16 +249,17 @@ def find_cached_run(
 
 def save_run(*, run_id: str, strategy: str, cfg_hash: str, universe_name: str,
              uni_hash: str, is_since: str, split: str, until: str,
-             created_at: str, agg: dict, trades: list[dict], scores: list[dict]) -> None:
+             created_at: str, agg: dict, trades: list[dict], scores: list[dict],
+             kind: str = "baseline") -> None:
     """Persist a run + all its trades + per-symbol scores in one transaction."""
     conn = _conn()
     try:
         conn.execute(
-            "INSERT OR REPLACE INTO backtest_runs (run_id, strategy, config_hash, "
+            "INSERT OR REPLACE INTO backtest_runs (run_id, strategy, kind, config_hash, "
             "universe_name, universe_hash, is_since, split, until, created_at, "
             "n_symbols, n_trades, is_pf, is_avg_r, oos_pf, oos_avg_r, summary_json) "
-            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            (run_id, strategy, cfg_hash, universe_name, uni_hash, is_since, split,
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (run_id, strategy, kind, cfg_hash, universe_name, uni_hash, is_since, split,
              until, created_at, agg.get("n_symbols"), agg.get("n_trades"),
              agg.get("is_pf"), agg.get("is_avg_r"), agg.get("oos_pf"),
              agg.get("oos_avg_r"), json.dumps(agg)),
@@ -247,16 +375,22 @@ def archive_run_to_csv(run_id: str) -> str | None:
     return str(path)
 
 
-def prune_old_runs(strategy: str, keep: int = 3) -> int:
-    """Keep the newest `keep` runs per strategy; delete older ones and their
-    trades/scores. Returns rows deleted from backtest_runs."""
+def prune_old_runs(strategy: str, keep: int = 3, kind: str | None = None,
+                   protect: set[str] | None = None) -> int:
+    """Keep the newest `keep` runs per (strategy[, kind]); delete older ones and
+    their trades/scores. `protect` run_ids are never pruned (e.g. runs a
+    hypothesis thread points at). Returns rows deleted from backtest_runs."""
     conn = _conn()
     try:
-        cur = conn.execute(
-            "SELECT run_id FROM backtest_runs WHERE strategy=? "
-            "ORDER BY created_at DESC", (strategy,),
-        )
+        sql = "SELECT run_id FROM backtest_runs WHERE strategy=?"
+        params = [strategy]
+        if kind:
+            sql += " AND kind=?"; params.append(kind)
+        sql += " ORDER BY created_at DESC"
+        cur = conn.execute(sql, params)
         ids = [r[0] for r in cur.fetchall()]
+        if protect:
+            ids = [i for i in ids if i not in protect]
         stale = ids[keep:]
         if not stale:
             return 0

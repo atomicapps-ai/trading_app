@@ -80,8 +80,8 @@ async def strategy_status(strategy: str) -> dict:
         for stmt in store._SCHEMA:
             conn.execute(stmt)
         row = conn.execute(
-            "SELECT * FROM backtest_runs WHERE strategy=? ORDER BY created_at DESC LIMIT 1",
-            (strategy,),
+            "SELECT * FROM backtest_runs WHERE strategy=? AND kind='baseline' "
+            "ORDER BY created_at DESC LIMIT 1", (strategy,),
         ).fetchone()
     finally:
         conn.close()
@@ -123,12 +123,26 @@ async def all_statuses() -> list[dict]:
     return [await strategy_status(s) for s in STRATEGIES]
 
 
+def _eff_hash(strategy: str, overrides: dict | None) -> str:
+    """Cache key for a config: the strategy YAML hash, plus the overrides so a
+    candidate run doesn't collide with the baseline."""
+    import hashlib
+    import json
+    base = store.config_hash(strategy)
+    if not overrides:
+        return base
+    return hashlib.sha256((base + json.dumps(overrides, sort_keys=True)).encode()
+                          ).hexdigest()[:16]
+
+
 async def run_strategy(
     strategy: str, *, min_trades: int = 15, pf_drop: float = 1.0,
     is_since: str = _DEFAULT_IS_SINCE, split: str = _DEFAULT_SPLIT,
     until: str | None = None, force: bool = True, progress=None,
+    overrides: dict | None = None,
 ) -> dict:
     """Replay, score, archive the superseded run, persist the new one, prune.
+    ``overrides`` runs a candidate (live YAML untouched, distinct cache key).
     Returns a summary dict. Heavy (minutes) — call from a background task."""
     from scripts.replay_swing import replay  # heavy import; local
 
@@ -136,11 +150,25 @@ async def run_strategy(
     uni_name, symbols = await _core_symbols()
     if not symbols:
         return {"ok": False, "error": "no core universe"}
-    cfg_hash = store.config_hash(strategy)
+    kind = "candidate" if overrides else "baseline"
+    cfg_hash = _eff_hash(strategy, overrides)
     uni_hash = store.universe_hash(symbols)
 
-    is_trades = await replay(symbols, is_since, split, strategy, progress=progress)
-    oos_trades = await replay(symbols, split, until, strategy, progress=progress)
+    if not force:
+        cached = store.find_cached_run(strategy, cfg_hash, uni_hash, kind=kind)
+        if cached:
+            scores = store.get_scores(cached["run_id"])
+            v = {"KEEP": 0, "DROP": 0, "THIN": 0}
+            for s in scores:
+                v[s.get("verdict", "THIN")] = v.get(s.get("verdict", "THIN"), 0) + 1
+            return {"ok": True, "run_id": cached["run_id"], "cached": True,
+                    "n_symbols": cached["n_symbols"], "n_trades": cached["n_trades"],
+                    "keep": v["KEEP"], "drop": v["DROP"], "thin": v["THIN"]}
+
+    is_trades = await replay(symbols, is_since, split, strategy,
+                             progress=progress, overrides=overrides)
+    oos_trades = await replay(symbols, split, until, strategy,
+                              progress=progress, overrides=overrides)
 
     by_is: dict[str, list] = {}
     by_oos: dict[str, list] = {}
@@ -157,9 +185,12 @@ async def run_strategy(
         rows.append({"sym": sym, "is": im, "oos": om,
                      "verdict": _classify(im, om, min_trades, pf_drop)})
 
-    # Archive the run this one supersedes (if any), then persist + prune.
-    prev = store.find_cached_run(strategy, cfg_hash, uni_hash) or _latest_run(strategy)
-    archived = store.archive_run_to_csv(prev["run_id"]) if prev else None
+    # For a baseline re-run, archive the run it supersedes to CSV first.
+    archived = None
+    if kind == "baseline":
+        prev = store.find_cached_run(strategy, cfg_hash, uni_hash, kind="baseline") \
+            or _latest_run(strategy)
+        archived = store.archive_run_to_csv(prev["run_id"]) if prev else None
 
     run_id = str(uuid.uuid4())
     trades = [_td(t, "IS") for t in is_trades] + [_td(t, "OOS") for t in oos_trades]
@@ -173,8 +204,13 @@ async def run_strategy(
                    split=split, until=until,
                    created_at=datetime.now(timezone.utc).isoformat(),
                    agg={"n_symbols": len(rows), "n_trades": len(trades)},
-                   trades=trades, scores=scores)
-    store.prune_old_runs(strategy, keep=5)
+                   trades=trades, scores=scores, kind=kind)
+    protect = set()
+    for th in store.list_threads(strategy):
+        for k in ("baseline_run_id", "candidate_run_id"):
+            if th.get(k):
+                protect.add(th[k])
+    store.prune_old_runs(strategy, keep=5, kind=kind, protect=protect)
     return {"ok": True, "run_id": run_id, "n_symbols": len(rows),
             "n_trades": len(trades), "archived": archived,
             "keep": sum(1 for r in rows if r["verdict"] == "KEEP"),
@@ -182,13 +218,103 @@ async def run_strategy(
             "thin": sum(1 for r in rows if r["verdict"] == "THIN")}
 
 
+def _delta(base: dict | None, cand: dict | None) -> dict:
+    """Candidate-minus-baseline on the headline metrics, with a verdict."""
+    if not base or not cand:
+        return {}
+    b, c = base.get("all", {}), cand.get("all", {})
+    d = {k: round((c.get(k, 0) or 0) - (b.get(k, 0) or 0), 3)
+         for k in ("n", "wr", "pf", "avg_r", "total_r")}
+    # "Better" = higher expectancy (avg_r) AND total_r — the metrics that
+    # actually mean more money (PF alone can rise while making less; see the
+    # breakeven experiment).
+    d["better"] = d["avg_r"] > 0 and d["total_r"] > 0
+    return d
+
+
+async def run_thread(thread_id: str, progress=None) -> dict:
+    """Run a hypothesis thread: (re)establish the baseline + run the candidate
+    with the thread's overrides, link both runs, return the comparison."""
+    th = store.get_thread(thread_id)
+    if not th:
+        return {"ok": False, "error": "thread not found"}
+    strategy = th["strategy"]
+    base = await run_strategy(strategy, force=False, progress=progress)      # cache-ok
+    cand = await run_strategy(strategy, force=True, progress=progress,
+                              overrides=th["overrides"])                     # always fresh
+    if not (base.get("ok") and cand.get("ok")):
+        return {"ok": False, "error": "run failed", "base": base, "cand": cand}
+    from datetime import datetime, timezone
+    store.update_thread(thread_id, baseline_run_id=base["run_id"],
+                        candidate_run_id=cand["run_id"],
+                        updated_at=datetime.now(timezone.utc).isoformat())
+    bsum, csum = store.run_summary(base["run_id"]), store.run_summary(cand["run_id"])
+    return {"ok": True, "baseline": bsum, "candidate": csum,
+            "delta": _delta(bsum, csum),
+            "baseline_run_id": base["run_id"], "candidate_run_id": cand["run_id"]}
+
+
+def _patch_config_yaml(strategy: str, overrides: dict) -> str | None:
+    """Deep-merge overrides into strategy_configs/<strategy>.yaml, archiving the
+    old file first. Returns the archive path. Changes the config hash → the
+    strategy's baseline is now stale and will re-run."""
+    import yaml
+    from datetime import datetime, timezone
+    from services.settings_service import STRATEGY_CONFIG_DIR, PROJECT_ROOT
+
+    path = STRATEGY_CONFIG_DIR / f"{strategy}.yaml"
+    if not path.exists():
+        return None
+    cfg = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+    def _merge(dst, src):
+        for k, v in src.items():
+            if isinstance(v, dict) and isinstance(dst.get(k), dict):
+                _merge(dst[k], v)
+            else:
+                dst[k] = v
+    _merge(cfg, overrides)
+
+    archive_dir = PROJECT_ROOT / "strategies" / "config_archive"
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    archive = archive_dir / f"{strategy}_{stamp}.yaml"
+    archive.write_text(path.read_text(encoding="utf-8"), encoding="utf-8")
+    path.write_text(yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
+    return str(archive)
+
+
+async def adopt_thread(thread_id: str) -> dict:
+    """Adopt a candidate as the new live config: patch the strategy YAML
+    (old archived), mark the thread adopted. The strategy's baseline then
+    shows stale (config changed) until re-run — as intended."""
+    from datetime import datetime, timezone
+    th = store.get_thread(thread_id)
+    if not th:
+        return {"ok": False, "error": "thread not found"}
+    if not th.get("candidate_run_id"):
+        return {"ok": False, "error": "run the thread before adopting"}
+    archive = _patch_config_yaml(th["strategy"], th["overrides"])
+    now = datetime.now(timezone.utc).isoformat()
+    store.update_thread(thread_id, status="adopted", adopted_at=now, updated_at=now)
+    return {"ok": True, "archived_config": archive}
+
+
+async def discard_thread(thread_id: str) -> dict:
+    from datetime import datetime, timezone
+    store.update_thread(thread_id, status="discarded",
+                        updated_at=datetime.now(timezone.utc).isoformat())
+    return {"ok": True}
+
+
 def _latest_run(strategy: str) -> dict | None:
     import sqlite3
     conn = sqlite3.connect(store.DB_PATH)
     conn.row_factory = sqlite3.Row
     try:
-        r = conn.execute("SELECT * FROM backtest_runs WHERE strategy=? "
-                         "ORDER BY created_at DESC LIMIT 1", (strategy,)).fetchone()
+        r = conn.execute("SELECT * FROM backtest_runs WHERE strategy=? AND "
+                         "kind='baseline' ORDER BY created_at DESC LIMIT 1",
+                         (strategy,)).fetchone()
         return dict(r) if r else None
     finally:
         conn.close()
