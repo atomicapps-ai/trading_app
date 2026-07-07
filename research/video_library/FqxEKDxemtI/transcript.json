@@ -1,0 +1,1852 @@
+[
+  {
+    "text": "today I'll share a 15minute chart",
+    "start": 0.08,
+    "duration": 2.319
+  },
+  {
+    "text": "strategy that picks tops and bottoms or",
+    "start": 2.399,
+    "duration": 2.3600000000000003
+  },
+  {
+    "text": "Market turns with Precision I've",
+    "start": 4.759,
+    "duration": 2.481
+  },
+  {
+    "text": "actually been teaching this strategy for",
+    "start": 7.24,
+    "duration": 2.039999999999999
+  },
+  {
+    "text": "more than a decade and it uses one of my",
+    "start": 9.28,
+    "duration": 2.359
+  },
+  {
+    "text": "favorite indicators which are Binger",
+    "start": 11.639,
+    "duration": 1.9600000000000009
+  },
+  {
+    "text": "bands Binger bands are simple to",
+    "start": 13.599,
+    "duration": 2.1999999999999993
+  },
+  {
+    "text": "understand and even easier to use by",
+    "start": 15.799,
+    "duration": 2.4800000000000004
+  },
+  {
+    "text": "keeping things clean and easy you'll be",
+    "start": 18.279,
+    "duration": 1.8399999999999999
+  },
+  {
+    "text": "more focused on finding those",
+    "start": 20.119,
+    "duration": 1.561
+  },
+  {
+    "text": "highquality trades and I seriously hope",
+    "start": 21.68,
+    "duration": 2.4800000000000004
+  },
+  {
+    "text": "this strategy will help you select the",
+    "start": 24.16,
+    "duration": 2.2399999999999984
+  },
+  {
+    "text": "best ones before we dive in make sure to",
+    "start": 26.4,
+    "duration": 2.3200000000000003
+  },
+  {
+    "text": "hit that subscribe button and turn turn",
+    "start": 28.72,
+    "duration": 1.399000000000001
+  },
+  {
+    "text": "on the notifications Bell so you don't",
+    "start": 30.119,
+    "duration": 2.0
+  },
+  {
+    "text": "miss out trading tips or strategies now",
+    "start": 32.119,
+    "duration": 2.6809999999999974
+  },
+  {
+    "text": "let's get started first let's talk about",
+    "start": 34.8,
+    "duration": 2.0400000000000063
+  },
+  {
+    "text": "why the 15-minute chart is excellent for",
+    "start": 36.84,
+    "duration": 2.238999999999997
+  },
+  {
+    "text": "day traders who are looking for a",
+    "start": 39.079,
+    "duration": 1.6809999999999974
+  },
+  {
+    "text": "slightly bigger move the 1 minute and 5",
+    "start": 40.76,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "minute time frame can be very noisy and",
+    "start": 43.32,
+    "duration": 2.520000000000003
+  },
+  {
+    "text": "while these time frames are great for",
+    "start": 45.84,
+    "duration": 1.7999999999999972
+  },
+  {
+    "text": "short-term scalps and look for a future",
+    "start": 47.64,
+    "duration": 2.519999999999996
+  },
+  {
+    "text": "video on that one pigy Thompson boms is",
+    "start": 50.16,
+    "duration": 2.3200000000000003
+  },
+  {
+    "text": "also popular because it has a great risk",
+    "start": 52.48,
+    "duration": 2.399000000000001
+  },
+  {
+    "text": "reward ratio unless of course you get",
+    "start": 54.879,
+    "duration": 2.121000000000002
+  },
+  {
+    "text": "fooled into buying or selling a pause",
+    "start": 57.0,
+    "duration": 2.238999999999997
+  },
+  {
+    "text": "instead of a turn in the market if you",
+    "start": 59.239,
+    "duration": 3.280000000000001
+  },
+  {
+    "text": "are a new Trader though or even",
+    "start": 62.519,
+    "duration": 1.9199999999999946
+  },
+  {
+    "text": "experienced one I have to take this time",
+    "start": 64.439,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "to tell you that it is always more",
+    "start": 66.4,
+    "duration": 2.1199999999999903
+  },
+  {
+    "text": "profitable and always less stressful to",
+    "start": 68.52,
+    "duration": 2.8800000000000097
+  },
+  {
+    "text": "trade with the trends rather than",
+    "start": 71.4,
+    "duration": 2.0789999999999935
+  },
+  {
+    "text": "against it with that said picking tops",
+    "start": 73.479,
+    "duration": 2.2010000000000076
+  },
+  {
+    "text": "and bottoms is tempting and so I want to",
+    "start": 75.68,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "give you a good way to do it the most",
+    "start": 77.56,
+    "duration": 1.7999999999999972
+  },
+  {
+    "text": "important advice I can give you for",
+    "start": 79.36,
+    "duration": 1.6000000000000085
+  },
+  {
+    "text": "trading reversals is look for",
+    "start": 80.96000000000001,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "confirmation doesn't matter what time",
+    "start": 82.799,
+    "duration": 2.0
+  },
+  {
+    "text": "frame you choose you never want to",
+    "start": 84.799,
+    "duration": 2.040999999999997
+  },
+  {
+    "text": "arbitrarily pick a top and bottom just",
+    "start": 86.84,
+    "duration": 1.5600000000000023
+  },
+  {
+    "text": "because it feels like it's over bought",
+    "start": 88.4,
+    "duration": 1.679000000000002
+  },
+  {
+    "text": "or oversold you want evidence you need",
+    "start": 90.07900000000001,
+    "duration": 2.359999999999985
+  },
+  {
+    "text": "evidence you need confirmation that the",
+    "start": 92.439,
+    "duration": 2.1210000000000093
+  },
+  {
+    "text": "momentum is waning that the buyers are",
+    "start": 94.56,
+    "duration": 2.0799999999999983
+  },
+  {
+    "text": "losing their appetite or the sellers are",
+    "start": 96.64,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "easing their flows only once you see",
+    "start": 98.56,
+    "duration": 2.5989999999999895
+  },
+  {
+    "text": "that evidence confirmation that turn is",
+    "start": 101.15899999999999,
+    "duration": 2.3610000000000184
+  },
+  {
+    "text": "happening should you take a trade",
+    "start": 103.52000000000001,
+    "duration": 1.799999999999983
+  },
+  {
+    "text": "because as the famous economist John",
+    "start": 105.32,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "Mayor ke once said the market can remain",
+    "start": 107.07900000000001,
+    "duration": 2.840999999999994
+  },
+  {
+    "text": "irrational longer than you can remain",
+    "start": 109.92,
+    "duration": 1.9599999999999937
+  },
+  {
+    "text": "solvid and usually it's rising and",
+    "start": 111.88,
+    "duration": 1.3200000000000074
+  },
+  {
+    "text": "falling for a good reason now the",
+    "start": 113.2,
+    "duration": 1.6799999999999926
+  },
+  {
+    "text": "question is what type of confirmation",
+    "start": 114.88,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "should you be looking for that's where",
+    "start": 116.32,
+    "duration": 1.6000000000000085
+  },
+  {
+    "text": "the bowling your bands come in if you're",
+    "start": 117.92,
+    "duration": 1.4789999999999992
+  },
+  {
+    "text": "not famili with Binger bands they were",
+    "start": 119.399,
+    "duration": 1.4410000000000025
+  },
+  {
+    "text": "developed by John Binger in the 1980s",
+    "start": 120.84,
+    "duration": 2.0799999999999983
+  },
+  {
+    "text": "and actually had the opportunity to meet",
+    "start": 122.92,
+    "duration": 1.6799999999999926
+  },
+  {
+    "text": "him in Asia they are typically used by",
+    "start": 124.6,
+    "duration": 2.4000000000000057
+  },
+  {
+    "text": "Traders to understand price and",
+    "start": 127.0,
+    "duration": 1.8789999999999907
+  },
+  {
+    "text": "volatility now the voler band indicator",
+    "start": 128.879,
+    "duration": 2.201000000000022
+  },
+  {
+    "text": "consists of three lines the middle line",
+    "start": 131.08,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "which is a simple moving average and the",
+    "start": 132.92,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "upper and lower bands which are set",
+    "start": 134.76,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "standard deviation above and below the",
+    "start": 136.68,
+    "duration": 2.198999999999984
+  },
+  {
+    "text": "middle line by default the setting is",
+    "start": 138.879,
+    "duration": 2.2009999999999934
+  },
+  {
+    "text": "typically 20 period simple moving",
+    "start": 141.07999999999998,
+    "duration": 1.7990000000000066
+  },
+  {
+    "text": "average in the middle or 20 SMA and two",
+    "start": 142.879,
+    "duration": 3.0800000000000125
+  },
+  {
+    "text": "standard deviations from that are the",
+    "start": 145.959,
+    "duration": 2.080999999999989
+  },
+  {
+    "text": "upper and lower lines when the bands are",
+    "start": 148.04,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "close together that usually tells the",
+    "start": 150.48,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "trader that the volatility is low and",
+    "start": 152.07999999999998,
+    "duration": 1.4800000000000182
+  },
+  {
+    "text": "maybe a breakout is coming if the bands",
+    "start": 153.56,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "are wide apart that means the trend is",
+    "start": 155.48,
+    "duration": 2.1189999999999998
+  },
+  {
+    "text": "strong but that is not the way we'll be",
+    "start": 157.599,
+    "duration": 2.841000000000008
+  },
+  {
+    "text": "using Binger bands to pick tops and",
+    "start": 160.44,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "bottoms we're going to be utiliz the",
+    "start": 162.12,
+    "duration": 2.0
+  },
+  {
+    "text": "standard deviation component of the",
+    "start": 164.12,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "Binger band and instead of just using",
+    "start": 166.04,
+    "duration": 2.640000000000015
+  },
+  {
+    "text": "the two standard deviation Binger bands",
+    "start": 168.68,
+    "duration": 2.359999999999985
+  },
+  {
+    "text": "we'll be adding the three standard",
+    "start": 171.04,
+    "duration": 2.039999999999992
+  },
+  {
+    "text": "deviation Binger band I call this",
+    "start": 173.07999999999998,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "strategy the extreme fate so let's go to",
+    "start": 175.8,
+    "duration": 2.759999999999991
+  },
+  {
+    "text": "the charts and see how works okay so",
+    "start": 178.56,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "let's start with a clean chart the first",
+    "start": 181.28,
+    "duration": 2.679000000000002
+  },
+  {
+    "text": "thing to do is add in Ballinger bands so",
+    "start": 183.959,
+    "duration": 3.4010000000000105
+  },
+  {
+    "text": "you type in bowl and then you get bowl",
+    "start": 187.36,
+    "duration": 1.5599999999999739
+  },
+  {
+    "text": "and your bands and by default you get",
+    "start": 188.92,
+    "duration": 1.7600000000000193
+  },
+  {
+    "text": "the 20 period two standard deviations",
+    "start": 190.68,
+    "duration": 2.478999999999985
+  },
+  {
+    "text": "now what I like to do is I like to",
+    "start": 193.159,
+    "duration": 2.0
+  },
+  {
+    "text": "change everything the same color because",
+    "start": 195.159,
+    "duration": 1.8810000000000002
+  },
+  {
+    "text": "as I said earlier when things are clean",
+    "start": 197.04,
+    "duration": 2.680000000000007
+  },
+  {
+    "text": "and they're easy to look at and they're",
+    "start": 199.72,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "easy to use it makes it faster for you",
+    "start": 202.04,
+    "duration": 2.7590000000000146
+  },
+  {
+    "text": "to make interpretations in real Market",
+    "start": 204.799,
+    "duration": 1.9609999999999843
+  },
+  {
+    "text": "environments just easier CU because it's",
+    "start": 206.76,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "not polluted by the rainbow of colors",
+    "start": 208.64,
+    "duration": 1.6400000000000148
+  },
+  {
+    "text": "that you just saw there so when you add",
+    "start": 210.28,
+    "duration": 2.0390000000000157
+  },
+  {
+    "text": "Binger bands your charts this is the",
+    "start": 212.31900000000002,
+    "duration": 1.7209999999999752
+  },
+  {
+    "text": "what you get as a default the middle",
+    "start": 214.04,
+    "duration": 2.399000000000001
+  },
+  {
+    "text": "line is the 20 period SMA the outside",
+    "start": 216.439,
+    "duration": 2.9610000000000127
+  },
+  {
+    "text": "lines are the two standard deviation",
+    "start": 219.4,
+    "duration": 3.1599999999999966
+  },
+  {
+    "text": "Binger bands actually I'm going to make",
+    "start": 222.56,
+    "duration": 1.5600000000000023
+  },
+  {
+    "text": "the middle line which is called the",
+    "start": 224.12,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "basis red just so you can see it easier",
+    "start": 225.76,
+    "duration": 3.3600000000000136
+  },
+  {
+    "text": "later so we have the outside lines which",
+    "start": 229.12,
+    "duration": 3.280000000000001
+  },
+  {
+    "text": "are two standard deviations away from",
+    "start": 232.4,
+    "duration": 1.478999999999985
+  },
+  {
+    "text": "the moving average the textbook way of",
+    "start": 233.879,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "using moving uh Binger bands is that if",
+    "start": 235.84,
+    "duration": 2.758999999999986
+  },
+  {
+    "text": "it touches a two standard deviation it's",
+    "start": 238.599,
+    "duration": 2.040999999999997
+  },
+  {
+    "text": "overbought you should sell if it touches",
+    "start": 240.64,
+    "duration": 2.280000000000001
+  },
+  {
+    "text": "the two standard deviation the bottom it",
+    "start": 242.92,
+    "duration": 1.8000000000000114
+  },
+  {
+    "text": "is oversold you should buy sometimes it",
+    "start": 244.72,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "works like here sometimes it doesn't",
+    "start": 247.04,
+    "duration": 1.960000000000008
+  },
+  {
+    "text": "with currencies in particular especially",
+    "start": 249.0,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "when you have a strong Trend I bet we",
+    "start": 250.92,
+    "duration": 1.2800000000000011
+  },
+  {
+    "text": "see that in dollar Yen that it can",
+    "start": 252.2,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "remain near the line hugging it for very",
+    "start": 254.64,
+    "duration": 2.718999999999994
+  },
+  {
+    "text": "right here is a good example for very",
+    "start": 257.359,
+    "duration": 1.521000000000015
+  },
+  {
+    "text": "long periods of time and so if you tried",
+    "start": 258.88,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "to pick the bottom during this phase",
+    "start": 261.6,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "here you would have been faced with a",
+    "start": 263.36,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "lot of fake outs so how can you look for",
+    "start": 265.0,
+    "duration": 3.519999999999982
+  },
+  {
+    "text": "confirmation how can you you trade the",
+    "start": 268.52,
+    "duration": 1.9590000000000032
+  },
+  {
+    "text": "real turn instead of the fake outs",
+    "start": 270.479,
+    "duration": 2.9610000000000127
+  },
+  {
+    "text": "that's where adding the second set of",
+    "start": 273.44,
+    "duration": 2.0
+  },
+  {
+    "text": "Ballinger bands comes into play so I'm",
+    "start": 275.44,
+    "duration": 2.2800000000000296
+  },
+  {
+    "text": "going to add in another set of Ballinger",
+    "start": 277.72,
+    "duration": 2.7999999999999545
+  },
+  {
+    "text": "bands and you can see second set of",
+    "start": 280.52,
+    "duration": 3.080000000000041
+  },
+  {
+    "text": "Ballinger bands here this time I'm going",
+    "start": 283.6,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "to remove the bases we don't need it",
+    "start": 285.72,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "we're keeping the bases from the",
+    "start": 287.36,
+    "duration": 1.1999999999999886
+  },
+  {
+    "text": "original one once again changing it all",
+    "start": 288.56,
+    "duration": 2.8000000000000114
+  },
+  {
+    "text": "the same color so that for",
+    "start": 291.36,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "interpretation that purposes it's easy",
+    "start": 293.6,
+    "duration": 3.158999999999992
+  },
+  {
+    "text": "and then I'm going to remove the",
+    "start": 296.759,
+    "duration": 1.4009999999999536
+  },
+  {
+    "text": "background so we're going to hit okay",
+    "start": 298.15999999999997,
+    "duration": 1.5990000000000464
+  },
+  {
+    "text": "okay oh I forgot one very very important",
+    "start": 299.759,
+    "duration": 2.120999999999981
+  },
+  {
+    "text": "thing we're changing the standard",
+    "start": 301.88,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "deviation from two to three standard",
+    "start": 303.8,
+    "duration": 3.6789999999999736
+  },
+  {
+    "text": "deviations and that's where we get our",
+    "start": 307.479,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "outside lines and our inside lines now",
+    "start": 310.039,
+    "duration": 2.9610000000000127
+  },
+  {
+    "text": "the outside lines are the third sdbb",
+    "start": 313.0,
+    "duration": 4.360000000000014
+  },
+  {
+    "text": "third standard deviation bands they're",
+    "start": 317.36,
+    "duration": 2.919999999999959
+  },
+  {
+    "text": "out here the inside and let me just uh",
+    "start": 320.28,
+    "duration": 3.039000000000044
+  },
+  {
+    "text": "add this onto the bottom over here the",
+    "start": 323.319,
+    "duration": 3.040999999999997
+  },
+  {
+    "text": "inside lines are what we call the second",
+    "start": 326.36,
+    "duration": 2.959000000000003
+  },
+  {
+    "text": "stand standard deviation Binger band",
+    "start": 329.319,
+    "duration": 3.159999999999968
+  },
+  {
+    "text": "second standard deviation Binger band",
+    "start": 332.479,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "and then we have that down here as",
+    "start": 334.919,
+    "duration": 6.1200000000000045
+  },
+  {
+    "text": "well okay so the whole idea and the",
+    "start": 341.039,
+    "duration": 4.081000000000017
+  },
+  {
+    "text": "rules for the trade goes as follows if",
+    "start": 345.12,
+    "duration": 3.7200000000000273
+  },
+  {
+    "text": "the currency pair and we want to first",
+    "start": 348.84000000000003,
+    "duration": 1.7989999999999782
+  },
+  {
+    "text": "thing we want to do is see the currency",
+    "start": 350.639,
+    "duration": 1.440999999999974
+  },
+  {
+    "text": "pair close at or above the third",
+    "start": 352.08,
+    "duration": 3.1999999999999886
+  },
+  {
+    "text": "standard deviation Binger band or on the",
+    "start": 355.28,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "downside close at or below the Third",
+    "start": 357.12,
+    "duration": 2.5190000000000055
+  },
+  {
+    "text": "third standard deviation Binger band",
+    "start": 359.639,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "think about what that we're looking for",
+    "start": 361.56,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "when that happens we're looking for the",
+    "start": 363.0,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "move to move three standard deviations",
+    "start": 364.68,
+    "duration": 2.63900000000001
+  },
+  {
+    "text": "away from the 20 period average so",
+    "start": 367.319,
+    "duration": 2.6409999999999627
+  },
+  {
+    "text": "you're thinking about like a rubber band",
+    "start": 369.96,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "where you get stretched to three",
+    "start": 371.8,
+    "duration": 1.7989999999999782
+  },
+  {
+    "text": "standard deviations away from the",
+    "start": 373.599,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "average and you want it to snap back but",
+    "start": 375.759,
+    "duration": 2.6409999999999627
+  },
+  {
+    "text": "it doesn't always snap back right away",
+    "start": 378.4,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "right because you can see from the",
+    "start": 380.28,
+    "duration": 2.479000000000042
+  },
+  {
+    "text": "textbook way that I showed you earlier",
+    "start": 382.759,
+    "duration": 2.4809999999999945
+  },
+  {
+    "text": "sometimes these moves can last for very",
+    "start": 385.24,
+    "duration": 2.238999999999976
+  },
+  {
+    "text": "long periods of time so the the first",
+    "start": 387.479,
+    "duration": 2.521000000000015
+  },
+  {
+    "text": "step is to look for it to touch close",
+    "start": 390.0,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "above the outside lines the third",
+    "start": 392.24,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "standard deviation Bing band you can see",
+    "start": 394.68,
+    "duration": 2.0790000000000077
+  },
+  {
+    "text": "it doesn't happen at all in this period",
+    "start": 396.759,
+    "duration": 2.0
+  },
+  {
+    "text": "here which kind of saves you from trying",
+    "start": 398.759,
+    "duration": 1.7199999999999704
+  },
+  {
+    "text": "to pick this a top in euro dollar in",
+    "start": 400.479,
+    "duration": 3.201000000000022
+  },
+  {
+    "text": "this period instead when we do see it",
+    "start": 403.68,
+    "duration": 2.4799999999999613
+  },
+  {
+    "text": "happen is over here so here is where we",
+    "start": 406.15999999999997,
+    "duration": 3.3600000000000136
+  },
+  {
+    "text": "see a close below the third standard",
+    "start": 409.52,
+    "duration": 3.6399999999999864
+  },
+  {
+    "text": "deviation bowling band so that's rule",
+    "start": 413.15999999999997,
+    "duration": 2.5200000000000387
+  },
+  {
+    "text": "number one wait for it to close below",
+    "start": 415.68,
+    "duration": 2.599999999999966
+  },
+  {
+    "text": "the third standard deviation Binger band",
+    "start": 418.28,
+    "duration": 2.479000000000042
+  },
+  {
+    "text": "but when that happens it's not time to",
+    "start": 420.759,
+    "duration": 2.040999999999997
+  },
+  {
+    "text": "trade we need to look for confirmation",
+    "start": 422.8,
+    "duration": 2.920000000000016
+  },
+  {
+    "text": "just because it's blown out you it",
+    "start": 425.72,
+    "duration": 2.1199999999999477
+  },
+  {
+    "text": "doesn't mean it's time to arbitrarily",
+    "start": 427.84,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "pick a bottom because maybe it's really",
+    "start": 430.0,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "big news and it might move further so",
+    "start": 431.759,
+    "duration": 2.36099999999999
+  },
+  {
+    "text": "instead what you want to do is you want",
+    "start": 434.12,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "to wait for it to close on a downside",
+    "start": 436.039,
+    "duration": 4.201000000000022
+  },
+  {
+    "text": "back above the second standard deviation",
+    "start": 440.24,
+    "duration": 3.599999999999966
+  },
+  {
+    "text": "Binger band the inside line and it",
+    "start": 443.84,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "basically let me flip this um Arrow over",
+    "start": 446.4,
+    "duration": 2.3590000000000373
+  },
+  {
+    "text": "here does it right over here that's when",
+    "start": 448.759,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "you go long here we go long at 109",
+    "start": 451.639,
+    "duration": 4.880999999999972
+  },
+  {
+    "text": "5960 your stop should be 20 Pips below",
+    "start": 456.52,
+    "duration": 3.920000000000016
+  },
+  {
+    "text": "the swing low so in this case 10920 this",
+    "start": 460.44,
+    "duration": 3.8000000000000114
+  },
+  {
+    "text": "is an emergency stop okay so as it",
+    "start": 464.24,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "continues to move in your favor then you",
+    "start": 467.12,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "want to Trail your stop up it's just",
+    "start": 469.36,
+    "duration": 1.4800000000000182
+  },
+  {
+    "text": "your initial emergency stop in case",
+    "start": 470.84000000000003,
+    "duration": 1.7989999999999782
+  },
+  {
+    "text": "you're wrong so where should you take",
+    "start": 472.639,
+    "duration": 2.0810000000000173
+  },
+  {
+    "text": "profit typically with these trays in my",
+    "start": 474.72,
+    "duration": 2.1989999999999554
+  },
+  {
+    "text": "experience they go about 20 Pips that's",
+    "start": 476.919,
+    "duration": 2.2800000000000296
+  },
+  {
+    "text": "pretty easily achievable now that the",
+    "start": 479.199,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "second way to exit is when it touches",
+    "start": 481.759,
+    "duration": 2.4809999999999945
+  },
+  {
+    "text": "the basis the 20 SMA which is a",
+    "start": 484.24,
+    "duration": 2.63900000000001
+  },
+  {
+    "text": "technically significant level or when it",
+    "start": 486.879,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "touches the Bing ja band on the other",
+    "start": 489.759,
+    "duration": 2.6409999999999627
+  },
+  {
+    "text": "side so in this case you go along at",
+    "start": 492.4,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "10960 you're looking to exit at 10980",
+    "start": 495.12,
+    "duration": 3.3589999999999804
+  },
+  {
+    "text": "and this one definitely um and it does",
+    "start": 498.479,
+    "duration": 2.4809999999999945
+  },
+  {
+    "text": "you actually 10980 basically you know is",
+    "start": 500.96,
+    "duration": 2.6790000000000305
+  },
+  {
+    "text": "coincides with this Zone with the basis",
+    "start": 503.639,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "as well yes that's not great risk reward",
+    "start": 505.759,
+    "duration": 3.0809999999999604
+  },
+  {
+    "text": "but once again an emergency stop if it",
+    "start": 508.84,
+    "duration": 2.63900000000001
+  },
+  {
+    "text": "kind of goes below this level you want",
+    "start": 511.479,
+    "duration": 1.8000000000000114
+  },
+  {
+    "text": "to reconsider the the trade and as it",
+    "start": 513.279,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "moves in your favor you're quickly",
+    "start": 515.519,
+    "duration": 1.9600000000000364
+  },
+  {
+    "text": "trailing the stop so that if it goes to",
+    "start": 517.479,
+    "duration": 3.0
+  },
+  {
+    "text": "10970 you should be looking at your stop",
+    "start": 520.479,
+    "duration": 2.200999999999908
+  },
+  {
+    "text": "to moving your stop up to minus 10 for",
+    "start": 522.68,
+    "duration": 3.158999999999992
+  },
+  {
+    "text": "example here's another example now this",
+    "start": 525.8389999999999,
+    "duration": 2.0810000000000173
+  },
+  {
+    "text": "is not a great example because this is",
+    "start": 527.92,
+    "duration": 2.32000000000005
+  },
+  {
+    "text": "during the Asia session before the big",
+    "start": 530.24,
+    "duration": 2.919999999999959
+  },
+  {
+    "text": "us retail sales day and typically you",
+    "start": 533.16,
+    "duration": 2.119000000000028
+  },
+  {
+    "text": "want to avoid trading ahead of data it's",
+    "start": 535.279,
+    "duration": 2.5599999999999454
+  },
+  {
+    "text": "really wonderful to trade after after",
+    "start": 537.8389999999999,
+    "duration": 1.8810000000000855
+  },
+  {
+    "text": "data which is what happens here and",
+    "start": 539.72,
+    "duration": 2.0399999999999636
+  },
+  {
+    "text": "those are the little things that you",
+    "start": 541.76,
+    "duration": 1.1200000000000045
+  },
+  {
+    "text": "want to qualify your trade with to make",
+    "start": 542.88,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "it higher accuracy don't trade a h",
+    "start": 545.6,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "forhead of big news releases that should",
+    "start": 547.76,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "be one of your Cardinal rules for any",
+    "start": 550.48,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "setup regardless of what it is but this",
+    "start": 552.76,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "one would have gone long at",
+    "start": 555.48,
+    "duration": 3.0
+  },
+  {
+    "text": "1107 and you know maybe exited would",
+    "start": 558.48,
+    "duration": 3.0
+  },
+  {
+    "text": "touched the middle line or the bll and",
+    "start": 561.48,
+    "duration": 2.199999999999932
+  },
+  {
+    "text": "your band The Other Side none of it",
+    "start": 563.68,
+    "duration": 1.3600000000000136
+  },
+  {
+    "text": "would have been consequential the better",
+    "start": 565.04,
+    "duration": 1.7989999999999782
+  },
+  {
+    "text": "trade or a nicer looking trade is",
+    "start": 566.8389999999999,
+    "duration": 1.8810000000000855
+  },
+  {
+    "text": "actually this one where we do actually",
+    "start": 568.72,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "close this candle we close above the",
+    "start": 571.36,
+    "duration": 3.5990000000000464
+  },
+  {
+    "text": "third standard deviation Bing Jaan you",
+    "start": 574.9590000000001,
+    "duration": 2.4809999999999945
+  },
+  {
+    "text": "go short over here so you go short at",
+    "start": 577.44,
+    "duration": 4.078999999999951
+  },
+  {
+    "text": "1227 the stop is at this High here 11",
+    "start": 581.519,
+    "duration": 3.841000000000008
+  },
+  {
+    "text": "1042 + 20 is 62 goes a little get",
+    "start": 585.36,
+    "duration": 3.67999999999995
+  },
+  {
+    "text": "against you five Pips not much you know",
+    "start": 589.04,
+    "duration": 2.0389999999999873
+  },
+  {
+    "text": "no big deal then it comes back down now",
+    "start": 591.079,
+    "duration": 2.759999999999991
+  },
+  {
+    "text": "you enter to 11028 so you obviously",
+    "start": 593.8389999999999,
+    "duration": 2.1200000000001182
+  },
+  {
+    "text": "can't close it here let's go for plus 20",
+    "start": 595.9590000000001,
+    "duration": 3.04099999999994
+  },
+  {
+    "text": "that's 08 and does it get there over",
+    "start": 599.0,
+    "duration": 3.4400000000000546
+  },
+  {
+    "text": "here no it takes a t it's time and",
+    "start": 602.44,
+    "duration": 2.439999999999941
+  },
+  {
+    "text": "eventually gets there over here so you",
+    "start": 604.88,
+    "duration": 3.0
+  },
+  {
+    "text": "exit the rest of the trade over here so",
+    "start": 607.88,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "that's another winner but you also win",
+    "start": 610.6,
+    "duration": 3.0399999999999636
+  },
+  {
+    "text": "when you don't take these false signals",
+    "start": 613.64,
+    "duration": 2.63900000000001
+  },
+  {
+    "text": "and they get trapped into picking tops",
+    "start": 616.279,
+    "duration": 3.161000000000058
+  },
+  {
+    "text": "in the euro dollar because at no point",
+    "start": 619.44,
+    "duration": 2.439999999999941
+  },
+  {
+    "text": "in time do we close below the first",
+    "start": 621.88,
+    "duration": 1.63900000000001
+  },
+  {
+    "text": "standard deviation Bing your band so",
+    "start": 623.519,
+    "duration": 2.120999999999981
+  },
+  {
+    "text": "saving you from Bad trades is the same",
+    "start": 625.64,
+    "duration": 2.0399999999999636
+  },
+  {
+    "text": "as making money in my opinion let's look",
+    "start": 627.68,
+    "duration": 1.9600000000000364
+  },
+  {
+    "text": "at the pound dollar so the pound dollar",
+    "start": 629.64,
+    "duration": 2.4389999999999645
+  },
+  {
+    "text": "this is the most recent chart and there",
+    "start": 632.079,
+    "duration": 2.880000000000109
+  },
+  {
+    "text": "are no setups over here this setup is",
+    "start": 634.9590000000001,
+    "duration": 2.9209999999999354
+  },
+  {
+    "text": "the same trade as the euro dollar where",
+    "start": 637.88,
+    "duration": 1.7999999999999545
+  },
+  {
+    "text": "it broke down after the US retail sales",
+    "start": 639.68,
+    "duration": 2.2000000000000455
+  },
+  {
+    "text": "report that was much stronger than",
+    "start": 641.88,
+    "duration": 1.5600000000000591
+  },
+  {
+    "text": "expected you waited for it to close",
+    "start": 643.44,
+    "duration": 1.9589999999999463
+  },
+  {
+    "text": "above the first day deviation Binger",
+    "start": 645.399,
+    "duration": 1.7609999999999673
+  },
+  {
+    "text": "band exit over here cuz this nice chunky",
+    "start": 647.16,
+    "duration": 2.2800000000000864
+  },
+  {
+    "text": "pipage here in pound dollar I think it's",
+    "start": 649.44,
+    "duration": 3.078999999999951
+  },
+  {
+    "text": "like 30 Pips uh 28 Pips so at least 20",
+    "start": 652.519,
+    "duration": 4.2409999999999854
+  },
+  {
+    "text": "Pips here maybe could Trail your stop",
+    "start": 656.76,
+    "duration": 1.5600000000000591
+  },
+  {
+    "text": "going when it com comes to profits I'll",
+    "start": 658.32,
+    "duration": 2.078999999999951
+  },
+  {
+    "text": "let you figure out how to manage that",
+    "start": 660.399,
+    "duration": 1.4400000000000546
+  },
+  {
+    "text": "yourself and then there's no trades here",
+    "start": 661.839,
+    "duration": 2.0809999999999036
+  },
+  {
+    "text": "here's a trade we close below the third",
+    "start": 663.92,
+    "duration": 2.759999999999991
+  },
+  {
+    "text": "standard deviation Binger B you go long",
+    "start": 666.68,
+    "duration": 2.3600000000000136
+  },
+  {
+    "text": "here go long at",
+    "start": 669.04,
+    "duration": 2.4400000000000546
+  },
+  {
+    "text": "12835 and never retraces the swing low",
+    "start": 671.48,
+    "duration": 3.478999999999928
+  },
+  {
+    "text": "let's if you exited plus 20 at 55 you",
+    "start": 674.959,
+    "duration": 3.4810000000001082
+  },
+  {
+    "text": "would have to wait a bit and it does",
+    "start": 678.44,
+    "duration": 1.7999999999999545
+  },
+  {
+    "text": "happen right over here during this",
+    "start": 680.24,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "period right here before the Wednesday",
+    "start": 682.36,
+    "duration": 2.5599999999999454
+  },
+  {
+    "text": "inflation report which would been a",
+    "start": 684.92,
+    "duration": 1.4400000000000546
+  },
+  {
+    "text": "really good time to exit we do have",
+    "start": 686.36,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "another setup in the pound dollar over",
+    "start": 688.48,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "here so we close above the three",
+    "start": 690.24,
+    "duration": 2.2000000000000455
+  },
+  {
+    "text": "standard deviation we don't get in the",
+    "start": 692.44,
+    "duration": 2.0
+  },
+  {
+    "text": "trade yet you wait for rule number two",
+    "start": 694.44,
+    "duration": 2.5599999999999454
+  },
+  {
+    "text": "which is a close below the second",
+    "start": 697.0,
+    "duration": 2.0
+  },
+  {
+    "text": "standard deviation Binger ban so you",
+    "start": 699.0,
+    "duration": 2.4400000000000546
+  },
+  {
+    "text": "basically sell let's just make it even",
+    "start": 701.44,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "128 your emergency stop is 12810 plus 20",
+    "start": 703.2,
+    "duration": 4.039999999999964
+  },
+  {
+    "text": "Pips or 12830 so it doesn't go anywhere",
+    "start": 707.24,
+    "duration": 2.5989999999999327
+  },
+  {
+    "text": "near there I really don't even think you",
+    "start": 709.8389999999999,
+    "duration": 1.4810000000001082
+  },
+  {
+    "text": "need 20 Pips maybe like 10 Pips above",
+    "start": 711.32,
+    "duration": 1.8399999999999181
+  },
+  {
+    "text": "the swing high is sufficient 128 Target",
+    "start": 713.16,
+    "duration": 4.399999999999977
+  },
+  {
+    "text": "12780 M boom",
+    "start": 717.56,
+    "duration": 2.2789999999999964
+  },
+  {
+    "text": "right here it ends up hitting our profit",
+    "start": 719.8389999999999,
+    "duration": 3.2810000000000628
+  },
+  {
+    "text": "Target but you know maybe exiting over",
+    "start": 723.12,
+    "duration": 1.9589999999999463
+  },
+  {
+    "text": "here taking off half the position or",
+    "start": 725.079,
+    "duration": 1.8010000000000446
+  },
+  {
+    "text": "exiting at the other Binger second",
+    "start": 726.88,
+    "duration": 2.1989999999999554
+  },
+  {
+    "text": "standard deviation Binger B the other",
+    "start": 729.079,
+    "duration": 1.32000000000005
+  },
+  {
+    "text": "side have been a wise trade here's",
+    "start": 730.399,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "another example closes above the third",
+    "start": 732.36,
+    "duration": 2.479000000000042
+  },
+  {
+    "text": "standard deviation Bing band you wait",
+    "start": 734.839,
+    "duration": 2.0809999999999036
+  },
+  {
+    "text": "you sell at this candle here you sell",
+    "start": 736.92,
+    "duration": 3.8799999999999955
+  },
+  {
+    "text": "12783 12763 is your initial Target and",
+    "start": 740.8,
+    "duration": 4.0
+  },
+  {
+    "text": "you definitely take your profits right",
+    "start": 744.8,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "here nice clean trade also works well in",
+    "start": 746.92,
+    "duration": 4.038999999999987
+  },
+  {
+    "text": "dollar Yen with the dollar Yen chart",
+    "start": 750.959,
+    "duration": 2.0810000000000173
+  },
+  {
+    "text": "here no setups over here this is the",
+    "start": 753.04,
+    "duration": 3.519999999999982
+  },
+  {
+    "text": "same trade as before let's say we would",
+    "start": 756.56,
+    "duration": 3.0790000000000646
+  },
+  {
+    "text": "have seen the close above the third",
+    "start": 759.639,
+    "duration": 3.0
+  },
+  {
+    "text": "standard deviation here here and here",
+    "start": 762.639,
+    "duration": 3.5599999999999454
+  },
+  {
+    "text": "and then you go short over here which is",
+    "start": 766.199,
+    "duration": 6.921000000000049
+  },
+  {
+    "text": "14905 stop",
+    "start": 773.12,
+    "duration": 2.6000000000000227
+  },
+  {
+    "text": "14925 this one you would have been",
+    "start": 775.72,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "stopped out yeah it would have been",
+    "start": 777.36,
+    "duration": 1.3999999999999773
+  },
+  {
+    "text": "great let's see if you hit your profit",
+    "start": 778.76,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "Target",
+    "start": 780.279,
+    "duration": 1.441000000000031
+  },
+  {
+    "text": "14905 14885 is Target so yeah actually",
+    "start": 781.72,
+    "duration": 3.6000000000000227
+  },
+  {
+    "text": "you would have hit profit Target profit",
+    "start": 785.32,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "Target would have been hit right over",
+    "start": 787.0,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "here very quick trade but you know this",
+    "start": 789.16,
+    "duration": 2.3590000000000373
+  },
+  {
+    "text": "is the same setup let's see if we have",
+    "start": 791.519,
+    "duration": 2.67999999999995
+  },
+  {
+    "text": "other examples here here's another",
+    "start": 794.199,
+    "duration": 2.2810000000000628
+  },
+  {
+    "text": "dollar Yen example really great one we",
+    "start": 796.48,
+    "duration": 2.5599999999999454
+  },
+  {
+    "text": "close at this one actually closes below",
+    "start": 799.04,
+    "duration": 2.400000000000091
+  },
+  {
+    "text": "the third standard deviation bowling",
+    "start": 801.44,
+    "duration": 1.3599999999999
+  },
+  {
+    "text": "your band it does it again over here we",
+    "start": 802.8,
+    "duration": 2.5990000000000464
+  },
+  {
+    "text": "go long over here which is at 1",
+    "start": 805.399,
+    "duration": 4.8799999999999955
+  },
+  {
+    "text": "4646 and then it doesn't go anywhere in",
+    "start": 810.279,
+    "duration": 2.4009999999999536
+  },
+  {
+    "text": "the stop you know 20 Pips easily meant",
+    "start": 812.68,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "this is 146 this is 1",
+    "start": 815.16,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "4686 but you probably would have taken",
+    "start": 817.88,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "some profits along the way it also",
+    "start": 820.04,
+    "duration": 2.158999999999992
+  },
+  {
+    "text": "protects you from any false signals cuz",
+    "start": 822.199,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "we never close below the third stand and",
+    "start": 824.16,
+    "duration": 2.0
+  },
+  {
+    "text": "deviation Binger band there also we",
+    "start": 826.16,
+    "duration": 2.6789999999999736
+  },
+  {
+    "text": "never closed above the third stand",
+    "start": 828.8389999999999,
+    "duration": 1.4810000000001082
+  },
+  {
+    "text": "deviation Binger band there the only",
+    "start": 830.32,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "other time it does it is over here where",
+    "start": 832.24,
+    "duration": 2.67999999999995
+  },
+  {
+    "text": "it closes at or above the third standard",
+    "start": 834.92,
+    "duration": 2.158999999999992
+  },
+  {
+    "text": "devation Binger band we go here at",
+    "start": 837.079,
+    "duration": 5.440000000000055
+  },
+  {
+    "text": "14792 and you know you can see that",
+    "start": 842.519,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "becomes a very nice move lower this is a",
+    "start": 844.759,
+    "duration": 2.3199999999999363
+  },
+  {
+    "text": "Forex specific trading strategy I have",
+    "start": 847.079,
+    "duration": 2.3610000000001037
+  },
+  {
+    "text": "not traded it on the other instruments I",
+    "start": 849.44,
+    "duration": 1.9589999999999463
+  },
+  {
+    "text": "invite you to put these indicators in",
+    "start": 851.399,
+    "duration": 1.7210000000000036
+  },
+  {
+    "text": "your charts and experiment and look",
+    "start": 853.12,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "yourself whether or not it works or not",
+    "start": 855.24,
+    "duration": 2.439999999999941
+  },
+  {
+    "text": "but for forx it does work quite well and",
+    "start": 857.68,
+    "duration": 3.158999999999992
+  },
+  {
+    "text": "there you have it a straightforward yet",
+    "start": 860.8389999999999,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "powerful 15-minute chart trading",
+    "start": 862.8,
+    "duration": 2.0
+  },
+  {
+    "text": "strategy that I love using to pick tops",
+    "start": 864.8,
+    "duration": 3.080000000000041
+  },
+  {
+    "text": "and bottoms with greater precision and",
+    "start": 867.88,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "accuracy so if you found the strategy",
+    "start": 869.8,
+    "duration": 1.95900000000006
+  },
+  {
+    "text": "and video helpful please like subscribe",
+    "start": 871.759,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "and hit the notifications Bell so you",
+    "start": 873.72,
+    "duration": 1.3999999999999773
+  },
+  {
+    "text": "don't miss more trading strategies and",
+    "start": 875.12,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "tips like the 15-minute one thanks for",
+    "start": 876.72,
+    "duration": 2.478999999999928
+  },
+  {
+    "text": "watching and I will see you all in the",
+    "start": 879.199,
+    "duration": 1.8010000000000446
+  },
+  {
+    "text": "next video",
+    "start": 881.0,
+    "duration": 0
+  }
+]

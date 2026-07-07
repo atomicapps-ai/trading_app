@@ -1,0 +1,1732 @@
+[
+  {
+    "text": "hey hey what's up my friends so in",
+    "start": 0.08,
+    "duration": 2.319
+  },
+  {
+    "text": "today's",
+    "start": 2.399,
+    "duration": 0.7999999999999998
+  },
+  {
+    "text": "training right i'll share with you a",
+    "start": 3.199,
+    "duration": 1.6000000000000005
+  },
+  {
+    "text": "specific trading strategy right that has",
+    "start": 4.799,
+    "duration": 2.2409999999999997
+  },
+  {
+    "text": "a 88.89",
+    "start": 7.04,
+    "duration": 2.479
+  },
+  {
+    "text": "winning rate i'll give you the exact",
+    "start": 9.519,
+    "duration": 1.8409999999999993
+  },
+  {
+    "text": "trading rules uh the performance matrix",
+    "start": 11.36,
+    "duration": 2.1590000000000007
+  },
+  {
+    "text": "of this strategy",
+    "start": 13.519,
+    "duration": 0.8010000000000002
+  },
+  {
+    "text": "examples of it and much more so with",
+    "start": 14.32,
+    "duration": 2.5599999999999987
+  },
+  {
+    "text": "that said",
+    "start": 16.88,
+    "duration": 0.8000000000000007
+  },
+  {
+    "text": "let's get started so first and foremost",
+    "start": 17.68,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "what is this",
+    "start": 20.4,
+    "duration": 0.6390000000000029
+  },
+  {
+    "text": "trading strategy about and why it works",
+    "start": 21.039,
+    "duration": 1.6809999999999974
+  },
+  {
+    "text": "right so before we get started i want to",
+    "start": 22.72,
+    "duration": 1.7600000000000016
+  },
+  {
+    "text": "say that uh larry connors right he is",
+    "start": 24.48,
+    "duration": 3.038999999999998
+  },
+  {
+    "text": "the person that i learned from so",
+    "start": 27.519,
+    "duration": 1.5200000000000031
+  },
+  {
+    "text": "credits to larry corners because without",
+    "start": 29.039,
+    "duration": 1.5209999999999972
+  },
+  {
+    "text": "him right",
+    "start": 30.56,
+    "duration": 0.47900000000000276
+  },
+  {
+    "text": "today's trading won't even be available",
+    "start": 31.039,
+    "duration": 1.841000000000001
+  },
+  {
+    "text": "for you to watch because the idea the",
+    "start": 32.88,
+    "duration": 1.3589999999999947
+  },
+  {
+    "text": "concept the strategy",
+    "start": 34.239,
+    "duration": 1.1210000000000022
+  },
+  {
+    "text": "i learned it from him okay so the the",
+    "start": 35.36,
+    "duration": 2.3999999999999986
+  },
+  {
+    "text": "core idea right behind this",
+    "start": 37.76,
+    "duration": 1.4400000000000048
+  },
+  {
+    "text": "trading strategy is that it's a pullback",
+    "start": 39.2,
+    "duration": 2.0799999999999983
+  },
+  {
+    "text": "stock trading strategy",
+    "start": 41.28,
+    "duration": 1.759999999999998
+  },
+  {
+    "text": "and here's the thing right why why is",
+    "start": 43.04,
+    "duration": 1.5189999999999984
+  },
+  {
+    "text": "that right because in the long run you",
+    "start": 44.559,
+    "duration": 2.1600000000000037
+  },
+  {
+    "text": "know that the market is the stock market",
+    "start": 46.719,
+    "duration": 1.6799999999999997
+  },
+  {
+    "text": "it's in a long-term uptrend",
+    "start": 48.399,
+    "duration": 1.360999999999997
+  },
+  {
+    "text": "why the reason is simple because the",
+    "start": 49.76,
+    "duration": 1.7600000000000051
+  },
+  {
+    "text": "stock market tracks",
+    "start": 51.52,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "what the economy is doing the reason why",
+    "start": 53.12,
+    "duration": 2.0
+  },
+  {
+    "text": "the u.s stock market has been in a",
+    "start": 55.12,
+    "duration": 1.5200000000000031
+  },
+  {
+    "text": "long-term uptrend since 1900s is because",
+    "start": 56.64,
+    "duration": 2.6400000000000006
+  },
+  {
+    "text": "the economy in the u.s in 1900s compared",
+    "start": 59.28,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "to today",
+    "start": 62.0,
+    "duration": 0.6400000000000006
+  },
+  {
+    "text": "has improved so much right over the last",
+    "start": 62.64,
+    "duration": 2.478999999999999
+  },
+  {
+    "text": "100 years or so",
+    "start": 65.119,
+    "duration": 1.5210000000000008
+  },
+  {
+    "text": "same thing for the singapore stock",
+    "start": 66.64,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "markets same thing for the china stock",
+    "start": 68.24,
+    "duration": 1.7600000000000051
+  },
+  {
+    "text": "markets right most stock markets out",
+    "start": 70.0,
+    "duration": 1.519999999999996
+  },
+  {
+    "text": "there they are in a long term uptrend",
+    "start": 71.52,
+    "duration": 1.5990000000000038
+  },
+  {
+    "text": "because",
+    "start": 73.119,
+    "duration": 0.8010000000000019
+  },
+  {
+    "text": "today's economy is much better than",
+    "start": 73.92,
+    "duration": 2.9599999999999937
+  },
+  {
+    "text": "where we were where we were like",
+    "start": 76.88,
+    "duration": 1.5200000000000102
+  },
+  {
+    "text": "50 years ago 100 years ago okay but",
+    "start": 78.4,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "here's the thing just because a",
+    "start": 80.56,
+    "duration": 1.5989999999999895
+  },
+  {
+    "text": "market is in a long term uptrend doesn't",
+    "start": 82.15899999999999,
+    "duration": 2.4810000000000088
+  },
+  {
+    "text": "mean that",
+    "start": 84.64,
+    "duration": 1.1189999999999998
+  },
+  {
+    "text": "it goes up in one straight line that",
+    "start": 85.759,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "doesn't that is how it works right",
+    "start": 87.36,
+    "duration": 1.2800000000000011
+  },
+  {
+    "text": "because as you know",
+    "start": 88.64,
+    "duration": 1.1189999999999998
+  },
+  {
+    "text": "a market could be in an uptrend but it",
+    "start": 89.759,
+    "duration": 1.840999999999994
+  },
+  {
+    "text": "has a series of you know higher highs",
+    "start": 91.6,
+    "duration": 1.3600000000000136
+  },
+  {
+    "text": "and higher lows and in the short run",
+    "start": 92.96000000000001,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "right because of panic selling because",
+    "start": 94.56,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "of profit taking because of fear in the",
+    "start": 96.4,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "market right",
+    "start": 97.84,
+    "duration": 0.7999999999999972
+  },
+  {
+    "text": "the prices right in the market could go",
+    "start": 98.64,
+    "duration": 2.7989999999999924
+  },
+  {
+    "text": "below its true valuation",
+    "start": 101.439,
+    "duration": 1.9210000000000065
+  },
+  {
+    "text": "okay so this means right that there",
+    "start": 103.36,
+    "duration": 2.6400000000000006
+  },
+  {
+    "text": "exists right",
+    "start": 106.0,
+    "duration": 0.8799999999999955
+  },
+  {
+    "text": "profitable trading opportunities right",
+    "start": 106.88,
+    "duration": 2.4000000000000057
+  },
+  {
+    "text": "for traders like us to take advantage of",
+    "start": 109.28,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "and this is what",
+    "start": 111.03999999999999,
+    "duration": 0.8800000000000097
+  },
+  {
+    "text": "uh today's trading strategy is all about",
+    "start": 111.92,
+    "duration": 1.6799999999999926
+  },
+  {
+    "text": "we are looking to identify pullback in",
+    "start": 113.6,
+    "duration": 1.6000000000000085
+  },
+  {
+    "text": "the stock markets",
+    "start": 115.2,
+    "duration": 0.8790000000000049
+  },
+  {
+    "text": "we are looking to identify fear in the",
+    "start": 116.07900000000001,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "markets we are looking for the market to",
+    "start": 117.68,
+    "duration": 1.6799999999999926
+  },
+  {
+    "text": "you know uh",
+    "start": 119.36,
+    "duration": 0.7990000000000066
+  },
+  {
+    "text": "uh to have a sell-off right then we",
+    "start": 120.159,
+    "duration": 1.840999999999994
+  },
+  {
+    "text": "enter on the pullback and hopefully we",
+    "start": 122.0,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "are able to profit right when the market",
+    "start": 123.92,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "makes the next swing up higher",
+    "start": 125.84,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "so these are the rules right of this",
+    "start": 128.56,
+    "duration": 2.3189999999999884
+  },
+  {
+    "text": "trading strategy we are trading on the s",
+    "start": 130.879,
+    "duration": 1.9210000000000207
+  },
+  {
+    "text": "p 500",
+    "start": 132.8,
+    "duration": 0.7989999999999782
+  },
+  {
+    "text": "market you can do it on the etf you can",
+    "start": 133.599,
+    "duration": 1.4410000000000025
+  },
+  {
+    "text": "do it on the futures it's up to you",
+    "start": 135.04,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "uh even if you want to you can test it",
+    "start": 136.64,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "on your own local stock markets",
+    "start": 138.07999999999998,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "you can test it on the russell 1000 you",
+    "start": 139.68,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "can test it on nasdaq i'll leave it to",
+    "start": 141.28,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "you",
+    "start": 143.04,
+    "duration": 0.3200000000000216
+  },
+  {
+    "text": "okay again first and foremost we want to",
+    "start": 143.36,
+    "duration": 3.039999999999992
+  },
+  {
+    "text": "be trading right when the overall market",
+    "start": 146.4,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "is in an uptrend so",
+    "start": 148.319,
+    "duration": 1.3610000000000184
+  },
+  {
+    "text": "our way to define the trend is that the",
+    "start": 149.68,
+    "duration": 2.0
+  },
+  {
+    "text": "s p 500",
+    "start": 151.68,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "must be above the 200-day moving average",
+    "start": 153.28,
+    "duration": 2.0
+  },
+  {
+    "text": "so you just pull out your 200-day moving",
+    "start": 155.28,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "average if the s p 500 is above it",
+    "start": 156.72,
+    "duration": 2.2390000000000043
+  },
+  {
+    "text": "great now we have permission right to to",
+    "start": 158.959,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "trade right if not",
+    "start": 161.12,
+    "duration": 1.2800000000000011
+  },
+  {
+    "text": "we will remain in cash our entry",
+    "start": 162.4,
+    "duration": 3.359999999999985
+  },
+  {
+    "text": "this is very straightforward right now",
+    "start": 165.76,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "entry is also otherwise known as the uh",
+    "start": 167.2,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "defining the depth of the pullback we",
+    "start": 169.76,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "want the 10 period",
+    "start": 172.0,
+    "duration": 1.039999999999992
+  },
+  {
+    "text": "rsi to be below 30. okay so this is",
+    "start": 173.04,
+    "duration": 3.5200000000000102
+  },
+  {
+    "text": "how we define our so-called trading",
+    "start": 176.56,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "setup right our entry point the 10",
+    "start": 178.72,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "period",
+    "start": 180.56,
+    "duration": 0.47999999999998977
+  },
+  {
+    "text": "rsi must be below 30. once it's below 30",
+    "start": 181.04,
+    "duration": 2.3200000000000216
+  },
+  {
+    "text": "what we're going to do",
+    "start": 183.36,
+    "duration": 1.039999999999992
+  },
+  {
+    "text": "is that when the market opens the next",
+    "start": 184.4,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "day we'll just simply enter",
+    "start": 186.48,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "using a market order right whatever",
+    "start": 188.08,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "price it is we'll enter on market order",
+    "start": 189.68,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "our exit very straightforward as well we",
+    "start": 192.56,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "are looking to exit right when the 10",
+    "start": 194.72,
+    "duration": 1.3599999999999852
+  },
+  {
+    "text": "period rsi",
+    "start": 196.07999999999998,
+    "duration": 1.2800000000000296
+  },
+  {
+    "text": "has crossed above 40 or after 10 trading",
+    "start": 197.36,
+    "duration": 2.9589999999999748
+  },
+  {
+    "text": "days right because sometimes",
+    "start": 200.319,
+    "duration": 1.521000000000015
+  },
+  {
+    "text": "the 10 period rsi can be re below 40 for",
+    "start": 201.84,
+    "duration": 3.1999999999999886
+  },
+  {
+    "text": "quite a number of",
+    "start": 205.04,
+    "duration": 1.2789999999999964
+  },
+  {
+    "text": "days or weeks especially during",
+    "start": 206.319,
+    "duration": 1.2800000000000011
+  },
+  {
+    "text": "recession so this is where we have a",
+    "start": 207.599,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "time stop right",
+    "start": 209.519,
+    "duration": 0.799999999999983
+  },
+  {
+    "text": "after 10 trading days uh the market or",
+    "start": 210.319,
+    "duration": 3.0410000000000252
+  },
+  {
+    "text": "rather the 10 period rsi has not crossed",
+    "start": 213.36,
+    "duration": 1.6799999999999784
+  },
+  {
+    "text": "above 40",
+    "start": 215.04,
+    "duration": 0.8000000000000114
+  },
+  {
+    "text": "will also manually exit the trade okay",
+    "start": 215.84,
+    "duration": 3.1189999999999998
+  },
+  {
+    "text": "but if the 10 period rsi has crossed",
+    "start": 218.959,
+    "duration": 1.6809999999999832
+  },
+  {
+    "text": "above 40 then we will simply sell it",
+    "start": 220.64,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "on the next days open make sense",
+    "start": 222.159,
+    "duration": 3.281000000000006
+  },
+  {
+    "text": "so let's have a look at a few examples",
+    "start": 225.44,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "shall we",
+    "start": 227.28,
+    "duration": 1.2800000000000011
+  },
+  {
+    "text": "so if you look at this chart what i've",
+    "start": 228.56,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "shared with you over here is just simply",
+    "start": 230.48,
+    "duration": 1.200000000000017
+  },
+  {
+    "text": "the chart of the s p 500 this is the",
+    "start": 231.68,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "futures market chart",
+    "start": 233.599,
+    "duration": 1.3600000000000136
+  },
+  {
+    "text": "so let's have a look at how this trading",
+    "start": 234.959,
+    "duration": 2.0
+  },
+  {
+    "text": "setup looks like",
+    "start": 236.959,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "so you can see this black line over here",
+    "start": 238.799,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "we have is the uh",
+    "start": 240.319,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "200-day moving average this black line",
+    "start": 241.92,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "here so the smb 500 is above it",
+    "start": 244.08,
+    "duration": 2.8789999999999907
+  },
+  {
+    "text": "that's uh that's the first criteria",
+    "start": 246.959,
+    "duration": 2.080999999999989
+  },
+  {
+    "text": "second criteria",
+    "start": 249.04,
+    "duration": 1.2789999999999964
+  },
+  {
+    "text": "we need is for the 10 period rsi to go",
+    "start": 250.319,
+    "duration": 3.600999999999999
+  },
+  {
+    "text": "below",
+    "start": 253.92,
+    "duration": 0.5600000000000023
+  },
+  {
+    "text": "30. so i've pulled out the 10 period rsi",
+    "start": 254.48,
+    "duration": 3.6800000000000352
+  },
+  {
+    "text": "so you can reference it easily over here",
+    "start": 258.16,
+    "duration": 2.0
+  },
+  {
+    "text": "10 period rsi",
+    "start": 260.16,
+    "duration": 1.1199999999999477
+  },
+  {
+    "text": "and you can see over here right now the",
+    "start": 261.28,
+    "duration": 1.7600000000000477
+  },
+  {
+    "text": "rsi value is 19.",
+    "start": 263.04,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "so this has met our criteria because if",
+    "start": 264.96,
+    "duration": 2.400000000000034
+  },
+  {
+    "text": "you recall",
+    "start": 267.36,
+    "duration": 0.6399999999999864
+  },
+  {
+    "text": "the 10 period rsi must be below",
+    "start": 268.0,
+    "duration": 3.0400000000000205
+  },
+  {
+    "text": "30. so when the market closes today",
+    "start": 271.04,
+    "duration": 3.359999999999957
+  },
+  {
+    "text": "right rsi now is trading at 19. so our",
+    "start": 274.4,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "entry",
+    "start": 277.12,
+    "duration": 0.63900000000001
+  },
+  {
+    "text": "i mean our setup is met we are going to",
+    "start": 277.759,
+    "duration": 2.0
+  },
+  {
+    "text": "enter on the next day's open",
+    "start": 279.759,
+    "duration": 1.6809999999999832
+  },
+  {
+    "text": "so when the market open the next day",
+    "start": 281.44,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "okay we will",
+    "start": 283.36,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "simply go long over here okay so what's",
+    "start": 284.8,
+    "duration": 3.0400000000000205
+  },
+  {
+    "text": "the exit criteria it is when the 10",
+    "start": 287.84000000000003,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "period rsi",
+    "start": 289.68,
+    "duration": 1.2799999999999727
+  },
+  {
+    "text": "crosses above 40 or after 10 trading",
+    "start": 290.96,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "days",
+    "start": 293.68,
+    "duration": 0.7199999999999704
+  },
+  {
+    "text": "so you can see on the next day rsi has",
+    "start": 294.4,
+    "duration": 2.9600000000000364
+  },
+  {
+    "text": "now crossed above",
+    "start": 297.36,
+    "duration": 1.1189999999999714
+  },
+  {
+    "text": "40. over here okay not not exactly the",
+    "start": 298.479,
+    "duration": 2.8009999999999877
+  },
+  {
+    "text": "next day but",
+    "start": 301.28,
+    "duration": 0.5600000000000023
+  },
+  {
+    "text": "two days later rsi has crossed above 40",
+    "start": 301.84,
+    "duration": 2.8800000000000523
+  },
+  {
+    "text": "close at 48. so we'll exit",
+    "start": 304.72,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "on the next day open which is on this",
+    "start": 306.56,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "candle here we exit",
+    "start": 308.96,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "on this candle open so you can imagine",
+    "start": 310.56,
+    "duration": 3.1200000000000045
+  },
+  {
+    "text": "right for this setup your entry point is",
+    "start": 313.68,
+    "duration": 1.3589999999999804
+  },
+  {
+    "text": "here you buy here",
+    "start": 315.039,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "and you sell here just capturing this",
+    "start": 316.479,
+    "duration": 1.761000000000024
+  },
+  {
+    "text": "kind of like this one swing up higher",
+    "start": 318.24,
+    "duration": 1.599999999999966
+  },
+  {
+    "text": "this one swing",
+    "start": 319.84,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "okay let's have a look at another",
+    "start": 321.44,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "trading setup",
+    "start": 323.6,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "so this time around again the rules are",
+    "start": 326.16,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "the same right looking to buy when rsi",
+    "start": 327.6,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "is below",
+    "start": 329.36,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "30. so we have it over here again look",
+    "start": 331.28,
+    "duration": 3.0400000000000205
+  },
+  {
+    "text": "at this",
+    "start": 334.32,
+    "duration": 0.4800000000000182
+  },
+  {
+    "text": "at this point on today smp is still",
+    "start": 334.8,
+    "duration": 3.1999999999999886
+  },
+  {
+    "text": "above the 200-day moving average so the",
+    "start": 338.0,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "overall trend is still towards the",
+    "start": 340.15999999999997,
+    "duration": 1.4400000000000546
+  },
+  {
+    "text": "upside",
+    "start": 341.6,
+    "duration": 1.0389999999999873
+  },
+  {
+    "text": "look at the rsi now the value is 28. so",
+    "start": 342.639,
+    "duration": 3.1200000000000045
+  },
+  {
+    "text": "we have the uh the the setup right is",
+    "start": 345.759,
+    "duration": 3.200999999999965
+  },
+  {
+    "text": "made right because the 10 period rsi is",
+    "start": 348.96,
+    "duration": 1.7600000000000477
+  },
+  {
+    "text": "below 30.",
+    "start": 350.72,
+    "duration": 0.8799999999999955
+  },
+  {
+    "text": "so what we'll do is we enter on the next",
+    "start": 351.6,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "day open so next day market open here",
+    "start": 353.36,
+    "duration": 4.480000000000018
+  },
+  {
+    "text": "so we go along on the next day open our",
+    "start": 357.84000000000003,
+    "duration": 2.478999999999985
+  },
+  {
+    "text": "exit is after 10",
+    "start": 360.319,
+    "duration": 1.0409999999999968
+  },
+  {
+    "text": "trading days or when the 10 period rsi",
+    "start": 361.36,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "has crossed above",
+    "start": 363.68,
+    "duration": 1.1999999999999886
+  },
+  {
+    "text": "40. so in this case",
+    "start": 364.88,
+    "duration": 3.2800000000000296
+  },
+  {
+    "text": "here it has now crossed above 40 so we",
+    "start": 368.16,
+    "duration": 2.158999999999992
+  },
+  {
+    "text": "exit",
+    "start": 370.319,
+    "duration": 0.8799999999999955
+  },
+  {
+    "text": "on the next day open which is somewhere",
+    "start": 371.199,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "here",
+    "start": 373.36,
+    "duration": 2.399000000000001
+  },
+  {
+    "text": "so we can see we enter here exit here so",
+    "start": 375.759,
+    "duration": 2.7199999999999704
+  },
+  {
+    "text": "thereby just capturing this uh",
+    "start": 378.479,
+    "duration": 1.36099999999999
+  },
+  {
+    "text": "this uh again this small swing up higher",
+    "start": 379.84,
+    "duration": 1.9190000000000396
+  },
+  {
+    "text": "so this is pretty much how this",
+    "start": 381.759,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "trading strategy works right and again i",
+    "start": 383.199,
+    "duration": 2.9610000000000127
+  },
+  {
+    "text": "know this is",
+    "start": 386.16,
+    "duration": 0.5600000000000023
+  },
+  {
+    "text": "just some simple chart examples but so",
+    "start": 386.72,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "let me share with you the the matrix",
+    "start": 388.4,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "right",
+    "start": 390.24,
+    "duration": 0.4800000000000182
+  },
+  {
+    "text": "of how this uh trading strategy has",
+    "start": 390.72,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "performed so many of you have asked me",
+    "start": 392.56,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "right what platform i used to do the",
+    "start": 394.479,
+    "duration": 1.2800000000000296
+  },
+  {
+    "text": "back testing so this one is uh",
+    "start": 395.759,
+    "duration": 1.5209999999999582
+  },
+  {
+    "text": "this platform is called army broker",
+    "start": 397.28,
+    "duration": 1.5200000000000387
+  },
+  {
+    "text": "right you can see that these are the",
+    "start": 398.8,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "results right from 1996 right all the",
+    "start": 400.319,
+    "duration": 2.2409999999999854
+  },
+  {
+    "text": "way to",
+    "start": 402.56,
+    "duration": 0.478999999999985
+  },
+  {
+    "text": "2019 which is the duration of the back",
+    "start": 403.039,
+    "duration": 2.0
+  },
+  {
+    "text": "test from 1996 to 2019 about 14 years of",
+    "start": 405.039,
+    "duration": 2.4809999999999945
+  },
+  {
+    "text": "data",
+    "start": 407.52,
+    "duration": 0.8799999999999955
+  },
+  {
+    "text": "these are the result right of every",
+    "start": 408.4,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "trade right that the",
+    "start": 410.24,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "trading strategy has taken so you can",
+    "start": 411.84000000000003,
+    "duration": 2.7199999999999704
+  },
+  {
+    "text": "look at the",
+    "start": 414.56,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "numbers which you can digest easily okay",
+    "start": 416.08,
+    "duration": 2.399000000000001
+  },
+  {
+    "text": "this is the excel spreadsheet table that",
+    "start": 418.479,
+    "duration": 1.68100000000004
+  },
+  {
+    "text": "i've exported",
+    "start": 420.16,
+    "duration": 0.9599999999999795
+  },
+  {
+    "text": "you can see that over the 14 years we",
+    "start": 421.12,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "have about 36 trades",
+    "start": 422.56,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "our winning rate over here is 88.89 as i",
+    "start": 424.72,
+    "duration": 3.359999999999957
+  },
+  {
+    "text": "mentioned earlier and uh",
+    "start": 428.08,
+    "duration": 3.3600000000000136
+  },
+  {
+    "text": "the average gain right per trade right",
+    "start": 431.44,
+    "duration": 2.319000000000017
+  },
+  {
+    "text": "average",
+    "start": 433.759,
+    "duration": 1.0809999999999604
+  },
+  {
+    "text": "profit per trade is about 1.43",
+    "start": 434.84,
+    "duration": 3.0
+  },
+  {
+    "text": "and your average loss right on each",
+    "start": 437.84,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "trade is about negative",
+    "start": 439.68,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "0.87 percent so overall right this is a",
+    "start": 441.36,
+    "duration": 3.1189999999999714
+  },
+  {
+    "text": "uh it seems like you know something that",
+    "start": 444.479,
+    "duration": 1.68100000000004
+  },
+  {
+    "text": "will give you an edge in the markets",
+    "start": 446.16,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "okay",
+    "start": 448.0,
+    "duration": 0.3190000000000168
+  },
+  {
+    "text": "however there is a downside to this and",
+    "start": 448.319,
+    "duration": 2.0809999999999604
+  },
+  {
+    "text": "i'll explain this shortly",
+    "start": 450.4,
+    "duration": 2.0
+  },
+  {
+    "text": "so moving on right how can you apply",
+    "start": 452.4,
+    "duration": 2.9600000000000364
+  },
+  {
+    "text": "this to your trading right so first",
+    "start": 455.36,
+    "duration": 1.3600000000000136
+  },
+  {
+    "text": "lesson is this right you want to look",
+    "start": 456.72,
+    "duration": 1.1200000000000045
+  },
+  {
+    "text": "for buying",
+    "start": 457.84000000000003,
+    "duration": 1.0399999999999636
+  },
+  {
+    "text": "opportunities right after a strong",
+    "start": 458.88,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "quebec in the stock market so when you",
+    "start": 460.72,
+    "duration": 1.7589999999999577
+  },
+  {
+    "text": "see",
+    "start": 462.479,
+    "duration": 0.7200000000000273
+  },
+  {
+    "text": "the stock market makes a strong pullback",
+    "start": 463.199,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "right the",
+    "start": 464.879,
+    "duration": 2.4809999999999945
+  },
+  {
+    "text": "top process that you have right",
+    "start": 467.36,
+    "duration": 1.1999999999999886
+  },
+  {
+    "text": "especially if it's still above the",
+    "start": 468.56,
+    "duration": 0.9599999999999795
+  },
+  {
+    "text": "200-day moving average is that",
+    "start": 469.52,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "where can i look for buying",
+    "start": 471.36,
+    "duration": 1.1999999999999886
+  },
+  {
+    "text": "opportunities maybe a pullback towards",
+    "start": 472.56,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "uh like for example the time period rsi",
+    "start": 474.4,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "is below 30",
+    "start": 475.919,
+    "duration": 0.9600000000000364
+  },
+  {
+    "text": "if you're a discretionary trader you can",
+    "start": 476.879,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "use tools like you know candlestick",
+    "start": 478.319,
+    "duration": 1.36099999999999
+  },
+  {
+    "text": "patterns",
+    "start": 479.68,
+    "duration": 0.7989999999999782
+  },
+  {
+    "text": "uh support trendline right to help you",
+    "start": 480.479,
+    "duration": 3.201000000000022
+  },
+  {
+    "text": "better time your entry right that's one",
+    "start": 483.68,
+    "duration": 1.3589999999999804
+  },
+  {
+    "text": "way you can go about doing it",
+    "start": 485.039,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "and one thing to point out is that you",
+    "start": 486.879,
+    "duration": 2.0
+  },
+  {
+    "text": "want to avoid shorting the stock market",
+    "start": 488.879,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "especially you know i know it's tempting",
+    "start": 490.8,
+    "duration": 1.0399999999999636
+  },
+  {
+    "text": "no",
+    "start": 491.84,
+    "duration": 0.32000000000005
+  },
+  {
+    "text": "well strong bearish momentum in the",
+    "start": 492.16,
+    "duration": 2.2399999999999523
+  },
+  {
+    "text": "stock markets right you know it's time",
+    "start": 494.4,
+    "duration": 1.1990000000000123
+  },
+  {
+    "text": "to sell something to shut the market",
+    "start": 495.599,
+    "duration": 1.2010000000000218
+  },
+  {
+    "text": "market is going to collapse",
+    "start": 496.8,
+    "duration": 1.2799999999999727
+  },
+  {
+    "text": "but here's the thing right based on",
+    "start": 498.08,
+    "duration": 1.1999999999999886
+  },
+  {
+    "text": "historical testing right more often than",
+    "start": 499.28,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "not",
+    "start": 501.12,
+    "duration": 1.0400000000000205
+  },
+  {
+    "text": "the price right tends to reverse back up",
+    "start": 502.16,
+    "duration": 2.2399999999999523
+  },
+  {
+    "text": "higher so as much as possible right you",
+    "start": 504.4,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "want to avoid shorting",
+    "start": 505.84,
+    "duration": 1.1200000000000045
+  },
+  {
+    "text": "the stock markets especially right if",
+    "start": 506.96,
+    "duration": 1.7600000000000477
+  },
+  {
+    "text": "it's still above the 200-day moving",
+    "start": 508.72,
+    "duration": 1.3599999999999568
+  },
+  {
+    "text": "average",
+    "start": 510.08,
+    "duration": 0.6400000000000432
+  },
+  {
+    "text": "makes sense and the second thing is this",
+    "start": 510.72,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "right so as mentioned earlier i",
+    "start": 512.64,
+    "duration": 1.2789999999999964
+  },
+  {
+    "text": "i said that you know the so-called",
+    "start": 513.919,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "downside to this trading system is that",
+    "start": 515.8389999999999,
+    "duration": 1.5210000000000719
+  },
+  {
+    "text": "there are",
+    "start": 517.36,
+    "duration": 0.6399999999999864
+  },
+  {
+    "text": "not many trading opportunities right so",
+    "start": 518.0,
+    "duration": 1.8389999999999418
+  },
+  {
+    "text": "as you've seen over the last 14 years we",
+    "start": 519.8389999999999,
+    "duration": 1.6010000000001128
+  },
+  {
+    "text": "have about 36",
+    "start": 521.44,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "trading opportunities on the smb 500 so",
+    "start": 522.9590000000001,
+    "duration": 2.3199999999999363
+  },
+  {
+    "text": "what you can do right to have more",
+    "start": 525.279,
+    "duration": 1.441000000000031
+  },
+  {
+    "text": "trading opportunities is to",
+    "start": 526.72,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "for example you can trade uh more etf",
+    "start": 528.16,
+    "duration": 2.9600000000000364
+  },
+  {
+    "text": "like for example you can trade the s p",
+    "start": 531.12,
+    "duration": 1.2789999999999964
+  },
+  {
+    "text": "500 the russell 1000",
+    "start": 532.399,
+    "duration": 2.0
+  },
+  {
+    "text": "russell 3000 nasdaq right all this",
+    "start": 534.399,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "together to get more trading",
+    "start": 536.24,
+    "duration": 1.0389999999999873
+  },
+  {
+    "text": "opportunities",
+    "start": 537.279,
+    "duration": 1.0410000000000537
+  },
+  {
+    "text": "or you can also you know trade",
+    "start": 538.32,
+    "duration": 1.1989999999999554
+  },
+  {
+    "text": "individual stocks right individual",
+    "start": 539.519,
+    "duration": 1.5209999999999582
+  },
+  {
+    "text": "stocks in let's say the s p 500",
+    "start": 541.04,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "this will give you more trading",
+    "start": 542.959,
+    "duration": 1.5210000000000719
+  },
+  {
+    "text": "opportunities right to exploit",
+    "start": 544.48,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "this uh this is called inefficiency or",
+    "start": 546.08,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "pattern",
+    "start": 548.48,
+    "duration": 0.6399999999999864
+  },
+  {
+    "text": "in the stock market and if you want to",
+    "start": 549.12,
+    "duration": 1.2789999999999964
+  },
+  {
+    "text": "learn more about how you can actually",
+    "start": 550.399,
+    "duration": 1.5209999999999582
+  },
+  {
+    "text": "apply this concept to trade individual",
+    "start": 551.92,
+    "duration": 2.0
+  },
+  {
+    "text": "stocks in the market then i recommend",
+    "start": 553.92,
+    "duration": 1.4400000000000546
+  },
+  {
+    "text": "you to get this a copy of this uh this",
+    "start": 555.36,
+    "duration": 2.3199999999999363
+  },
+  {
+    "text": "booklet over here called the pullback",
+    "start": 557.68,
+    "duration": 1.5200000000000955
+  },
+  {
+    "text": "stock trading system so this booklet",
+    "start": 559.2,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "will share with you are the exact",
+    "start": 561.12,
+    "duration": 1.3600000000000136
+  },
+  {
+    "text": "trading rules right on how you can",
+    "start": 562.48,
+    "duration": 1.3589999999999236
+  },
+  {
+    "text": "actually",
+    "start": 563.8389999999999,
+    "duration": 0.5600000000000591
+  },
+  {
+    "text": "trade individual stocks in the market so",
+    "start": 564.399,
+    "duration": 2.7210000000000036
+  },
+  {
+    "text": "if you want to learn more",
+    "start": 567.12,
+    "duration": 1.0399999999999636
+  },
+  {
+    "text": "you can just go down to my this site",
+    "start": 568.16,
+    "duration": 2.160000000000082
+  },
+  {
+    "text": "over here it's called",
+    "start": 570.32,
+    "duration": 1.3199999999999363
+  },
+  {
+    "text": "pullbackstocktradingsystem.com",
+    "start": 571.64,
+    "duration": 1.240000000000009
+  },
+  {
+    "text": "okay i'll ship you this uh a copy of",
+    "start": 572.88,
+    "duration": 2.0
+  },
+  {
+    "text": "this booklet",
+    "start": 574.88,
+    "duration": 1.2000000000000455
+  },
+  {
+    "text": "uh anywhere in the world in the us it",
+    "start": 576.08,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "will be 990 uh if you are",
+    "start": 578.48,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "international right you will be 12.90",
+    "start": 580.08,
+    "duration": 2.0799999999999272
+  },
+  {
+    "text": "and again it comes with a 30 day money",
+    "start": 582.16,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "back guarantee if you read the booklet",
+    "start": 583.92,
+    "duration": 1.2000000000000455
+  },
+  {
+    "text": "you find that you know",
+    "start": 585.12,
+    "duration": 0.7189999999999372
+  },
+  {
+    "text": "it's not really for you just email us",
+    "start": 585.8389999999999,
+    "duration": 1.6010000000001128
+  },
+  {
+    "text": "and we'll refund you in full right so",
+    "start": 587.44,
+    "duration": 2.0
+  },
+  {
+    "text": "again the booklet this trading system",
+    "start": 589.44,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "right uh the exact rules is in the",
+    "start": 591.12,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "booklet you can see the performance over",
+    "start": 593.04,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "the last uh",
+    "start": 594.56,
+    "duration": 1.2000000000000455
+  },
+  {
+    "text": "about 19 20 years it's all here on this",
+    "start": 595.76,
+    "duration": 1.6800000000000637
+  },
+  {
+    "text": "website so again right you can just head",
+    "start": 597.44,
+    "duration": 1.3599999999999
+  },
+  {
+    "text": "down to the website",
+    "start": 598.8,
+    "duration": 1.32000000000005
+  },
+  {
+    "text": "pullbackstocktradingsystem.com",
+    "start": 600.12,
+    "duration": 1.32000000000005
+  },
+  {
+    "text": "get your copy and with that said right i",
+    "start": 601.44,
+    "duration": 1.599999999999909
+  },
+  {
+    "text": "hope you know you found this",
+    "start": 603.04,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "training useful i wish you good luck and",
+    "start": 604.56,
+    "duration": 1.7600000000001046
+  },
+  {
+    "text": "good trading i will",
+    "start": 606.32,
+    "duration": 1.3599999999999
+  },
+  {
+    "text": "talk to you soon",
+    "start": 607.68,
+    "duration": 0
+  }
+]

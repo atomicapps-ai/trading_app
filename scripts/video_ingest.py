@@ -35,6 +35,14 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 LIB = PROJECT_ROOT / "research" / "video_library"
 
+# Optional Netscape cookies.txt (exported from a signed-in browser) to bypass
+# YouTube's "confirm you're not a bot" gate + caption IP-blocks. Set via --cookies.
+_COOKIES: str | None = None
+
+
+def _cookie_args() -> list[str]:
+    return ["--cookies", _COOKIES] if _COOKIES else []
+
 
 def video_id(url: str) -> str:
     url = url.strip()
@@ -120,16 +128,18 @@ def ytdlp_subs(url: str, folder: Path) -> list[dict]:
     (a different endpoint YouTube blocks far less), parse the .vtt into rows."""
     folder.mkdir(parents=True, exist_ok=True)
     tmpl = str(folder / "_sub.%(ext)s")
-    cmd = ["yt-dlp", "--remote-components", "ejs:github", "--skip-download",
-           "--write-auto-subs", "--write-subs", "--sub-langs", "en.*",
+    cmd = ["yt-dlp", "--remote-components", "ejs:github", *_cookie_args(),
+           "--skip-download",
+           "--write-auto-subs", "--write-subs", "--sub-langs", "en,en-US,en-orig",
            "--sub-format", "vtt", "--no-playlist", "-o", tmpl, url]
     try:
         subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=180)
     except subprocess.TimeoutExpired:
         return []
-    vtts = sorted(folder.glob("_sub*.vtt"))
+    vtts = sorted(folder.glob("_sub*.vtt"), key=lambda p: p.stat().st_size, reverse=True)
     if not vtts:
         return []
+    # largest file = the fullest English track (translations come back smaller)
     rows: list[dict] = []
     seen_last = None
     import re as _re
@@ -150,17 +160,28 @@ def ytdlp_subs(url: str, folder: Path) -> list[dict]:
         seen_last = text
     for k in range(len(rows) - 1):
         rows[k]["duration"] = max(0.0, rows[k + 1]["start"] - rows[k]["start"])
-    try:
-        vtts[0].unlink()
-    except OSError:
-        pass
+    for _v in folder.glob("_sub*.vtt"):
+        try:
+            _v.unlink()
+        except OSError:
+            pass
     return rows
 
 
 def do_transcript(url: str, vid: str, folder: Path) -> None:
-    try:
+    # With cookies, the yt-dlp caption path is authenticated (bypasses the
+    # timedtext IP-block), so prefer it over the cookieless transcript API.
+    if _COOKIES:
+        rows = ytdlp_subs(url, folder)
+        if not rows:
+            try:
+                rows = fetch_transcript(vid)
+            except Exception as e:  # noqa: BLE001
+                raise RuntimeError(f"cookie caption + API both failed: {e}")
+    else:
+      try:
         rows = fetch_transcript(vid)
-    except Exception as e:  # noqa: BLE001 — API blocked/unavailable -> try yt-dlp captions
+      except Exception as e:  # noqa: BLE001 — API blocked/unavailable -> try yt-dlp captions
         print(f"  transcript API failed ({e}); trying yt-dlp captions ...")
         rows = ytdlp_subs(url, folder)
         if not rows:
@@ -184,7 +205,7 @@ def do_transcript(url: str, vid: str, folder: Path) -> None:
 
 def stream_url(url: str) -> str:
     out = subprocess.check_output(
-        ["yt-dlp", "--remote-components", "ejs:github",
+        ["yt-dlp", "--remote-components", "ejs:github", *_cookie_args(),
          "-f", "bestvideo[height<=720][ext=mp4]/best[height<=720]/best",
          "-g", url], text=True, timeout=120)
     return out.strip().splitlines()[0]
@@ -209,7 +230,7 @@ def do_frames(url: str, vid: str, folder: Path, seconds: list[int],
     mp4 = folder / "_video.mp4"
     if not mp4.exists():
         print("Downloading video (one-time) for local frame extraction ...")
-        dl = ["yt-dlp", "--remote-components", "ejs:github",
+        dl = ["yt-dlp", "--remote-components", "ejs:github", *_cookie_args(),
               "-f", "best[height<=720][ext=mp4]/best[height<=720]/best",
               "--no-playlist", "-o", str(mp4), url]
         try:
@@ -412,12 +433,19 @@ def main() -> None:
                     help="keep the downloaded _video.mp4 instead of deleting it after frames")
     ap.add_argument("--sleep", type=float, default=0.0,
                     help="seconds to pause between processed videos (rate-limit safety)")
+    ap.add_argument("--cookies", default=None,
+                    help="path to a Netscape cookies.txt (bypasses bot-check + caption IP-block)")
     ap.add_argument("--backfill", action="store_true",
                     help="re-extract frames for every library video that has a transcript but no frames")
     ap.add_argument("--frames", help="single video: comma-separated seconds, e.g. 120,355,610")
     ap.add_argument("--frames-file", help="single video: text file, one timestamp (seconds) per line")
     ap.add_argument("--frames-manifest", help="JSON {video: [seconds,...]} — batch frames for many videos")
     args = ap.parse_args()
+
+    global _COOKIES
+    if getattr(args, "cookies", None):
+        _COOKIES = args.cookies
+        print(f"Using cookies file: {_COOKIES}")
 
     # Phase 2 (batch): grab frames for many videos from a manifest I write for you.
     if args.frames_manifest:

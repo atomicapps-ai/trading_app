@@ -1,0 +1,927 @@
+[
+  {
+    "text": "Imagine entering and exiting a trade",
+    "start": 0.0,
+    "duration": 2.24
+  },
+  {
+    "text": "within 10 minutes and just being done",
+    "start": 2.24,
+    "duration": 1.7599999999999998
+  },
+  {
+    "text": "trading for the day. No indicators, no",
+    "start": 4.0,
+    "duration": 2.6399999999999997
+  },
+  {
+    "text": "guessing, just price action and a",
+    "start": 6.64,
+    "duration": 2.160000000000001
+  },
+  {
+    "text": "Fibonacci tool on the 1 minute chart.",
+    "start": 8.8,
+    "duration": 2.7989999999999995
+  },
+  {
+    "text": "This strategy is fast, clean, and highly",
+    "start": 11.599,
+    "duration": 3.440999999999999
+  },
+  {
+    "text": "accurate if you follow these rules. IFS,",
+    "start": 15.04,
+    "duration": 3.5199999999999996
+  },
+  {
+    "text": "this video is for you. And for those of",
+    "start": 18.56,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "you that don't know, every single week I",
+    "start": 20.48,
+    "duration": 2.0
+  },
+  {
+    "text": "make a personalized video response to",
+    "start": 22.48,
+    "duration": 2.3999999999999986
+  },
+  {
+    "text": "one of your questions in the comment",
+    "start": 24.88,
+    "duration": 1.6799999999999997
+  },
+  {
+    "text": "section down below. IFS asked, \"Thank",
+    "start": 26.56,
+    "duration": 2.16
+  },
+  {
+    "text": "you. Could you please make a video on",
+    "start": 28.72,
+    "duration": 1.4400000000000013
+  },
+  {
+    "text": "trading the 1 minute time frame? I",
+    "start": 30.16,
+    "duration": 1.6799999999999997
+  },
+  {
+    "text": "frequently get stopped out. Absolutely,",
+    "start": 31.84,
+    "duration": 2.080000000000002
+  },
+  {
+    "text": "bro. Let's get into it. Most traders",
+    "start": 33.92,
+    "duration": 2.0
+  },
+  {
+    "text": "think scalping means predicting the",
+    "start": 35.92,
+    "duration": 1.8399999999999963
+  },
+  {
+    "text": "start of a big move. That is a recipe",
+    "start": 37.76,
+    "duration": 2.8800000000000026
+  },
+  {
+    "text": "for frustration. The truth, scalping",
+    "start": 40.64,
+    "duration": 3.039999999999999
+  },
+  {
+    "text": "should be about catching a tiny",
+    "start": 43.68,
+    "duration": 2.399000000000001
+  },
+  {
+    "text": "predictable part of a move based on",
+    "start": 46.079,
+    "duration": 2.3200000000000003
+  },
+  {
+    "text": "structure and momentum. Here's what you",
+    "start": 48.399,
+    "duration": 2.561
+  },
+  {
+    "text": "need for this strategy. the one minute",
+    "start": 50.96,
+    "duration": 2.3999999999999986
+  },
+  {
+    "text": "chart, a basic understanding of trend",
+    "start": 53.36,
+    "duration": 2.6400000000000006
+  },
+  {
+    "text": "structure, and a simple Fibonacci",
+    "start": 56.0,
+    "duration": 2.479999999999997
+  },
+  {
+    "text": "retracement tool. That's it. No",
+    "start": 58.48,
+    "duration": 2.3200000000000003
+  },
+  {
+    "text": "indicators, no magic settings. So, why",
+    "start": 60.8,
+    "duration": 3.1200000000000045
+  },
+  {
+    "text": "does the Fibonacci retracement tool work",
+    "start": 63.92,
+    "duration": 2.5589999999999975
+  },
+  {
+    "text": "so well, especially for scalping?",
+    "start": 66.479,
+    "duration": 2.4810000000000088
+  },
+  {
+    "text": "Fibonacci levels are based on ratios",
+    "start": 68.96000000000001,
+    "duration": 2.559999999999988
+  },
+  {
+    "text": "found in nature, like the 382, the 0.5,",
+    "start": 71.52,
+    "duration": 5.200000000000003
+  },
+  {
+    "text": "and the 618. And for whatever reason,",
+    "start": 76.72,
+    "duration": 3.200000000000003
+  },
+  {
+    "text": "markets tend to respect these zones.",
+    "start": 79.92,
+    "duration": 2.3999999999999915
+  },
+  {
+    "text": "They act like invisible magnets. Price",
+    "start": 82.32,
+    "duration": 2.960000000000008
+  },
+  {
+    "text": "often pulls back to them before",
+    "start": 85.28,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "continuing the trend. In this strategy,",
+    "start": 87.6,
+    "duration": 2.480000000000004
+  },
+  {
+    "text": "we focus on the 0.5 to 618 retracement",
+    "start": 90.08,
+    "duration": 3.760000000000005
+  },
+  {
+    "text": "range, also called the gold zone because",
+    "start": 93.84,
+    "duration": 3.039999999999992
+  },
+  {
+    "text": "we are trading the markets and nature",
+    "start": 96.88,
+    "duration": 2.4000000000000057
+  },
+  {
+    "text": "prevails in all aspects of life. And",
+    "start": 99.28,
+    "duration": 2.6400000000000006
+  },
+  {
+    "text": "through all of my back testing, these",
+    "start": 101.92,
+    "duration": 2.0
+  },
+  {
+    "text": "are the most consistent levels which",
+    "start": 103.92,
+    "duration": 2.23899999999999
+  },
+  {
+    "text": "give you the best risk-to-reward ratio.",
+    "start": 106.15899999999999,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "Now, here is the strategy. First,",
+    "start": 108.399,
+    "duration": 2.4000000000000057
+  },
+  {
+    "text": "identify a short-term trend. In a",
+    "start": 110.799,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "downtrend, you're looking for lower",
+    "start": 112.96000000000001,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "highs forming, and in an uptrend, you're",
+    "start": 114.799,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "looking for higher lows forming. Then,",
+    "start": 117.119,
+    "duration": 2.4010000000000105
+  },
+  {
+    "text": "wait for a break of structure. That's",
+    "start": 119.52000000000001,
+    "duration": 1.8399999999999892
+  },
+  {
+    "text": "your signal that price may retrace",
+    "start": 121.36,
+    "duration": 2.239999999999995
+  },
+  {
+    "text": "before continuing. Now take your",
+    "start": 123.6,
+    "duration": 2.159000000000006
+  },
+  {
+    "text": "Fibonacci tool and draw from the last",
+    "start": 125.759,
+    "duration": 2.6400000000000006
+  },
+  {
+    "text": "lower high in a downtrend past the break",
+    "start": 128.399,
+    "duration": 3.1999999999999886
+  },
+  {
+    "text": "to the start of the retracement. Wait",
+    "start": 131.599,
+    "duration": 2.0
+  },
+  {
+    "text": "for price to return to the 0.5 or 618",
+    "start": 133.599,
+    "duration": 3.600999999999999
+  },
+  {
+    "text": "zone, the golden zone. Enter a trade in",
+    "start": 137.2,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "the direction of the trend and exit at",
+    "start": 140.07999999999998,
+    "duration": 2.3200000000000216
+  },
+  {
+    "text": "the previous low or a high in an",
+    "start": 142.4,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "uptrend. The strategy is super simple",
+    "start": 145.12,
+    "duration": 2.9599999999999795
+  },
+  {
+    "text": "and if you need a quick cheat sheet,",
+    "start": 148.07999999999998,
+    "duration": 1.7600000000000193
+  },
+  {
+    "text": "it's right here. Only trade on the one",
+    "start": 149.84,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "minute chart. Trade with the current",
+    "start": 152.16,
+    "duration": 1.7600000000000193
+  },
+  {
+    "text": "micro trend. Wait for a break of",
+    "start": 153.92000000000002,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "structure. Only enter on the 0.5 or 618",
+    "start": 156.0,
+    "duration": 3.680000000000007
+  },
+  {
+    "text": "retracement. Exit at the previous swing",
+    "start": 159.68,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "low in a downtrend and swing high in an",
+    "start": 161.84,
+    "duration": 2.399000000000001
+  },
+  {
+    "text": "uptrend. And most importantly, if the",
+    "start": 164.239,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "momentum stalls or you're trading the",
+    "start": 166.31900000000002,
+    "duration": 2.160999999999973
+  },
+  {
+    "text": "wrong time, get out. All right. So, here",
+    "start": 168.48,
+    "duration": 2.4790000000000134
+  },
+  {
+    "text": "you can see EuroUSD, the most",
+    "start": 170.959,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "manipulated pair of all time, still",
+    "start": 172.879,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "holding a trend on the 1 minute time",
+    "start": 175.599,
+    "duration": 1.6810000000000116
+  },
+  {
+    "text": "frame. This is the setup. Make sure that",
+    "start": 177.28,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "your charts on the one minute time frame",
+    "start": 179.36,
+    "duration": 1.5989999999999895
+  },
+  {
+    "text": "by selecting 1M on the top menu. Once",
+    "start": 180.959,
+    "duration": 2.7210000000000036
+  },
+  {
+    "text": "price starts a trend and rejects at a",
+    "start": 183.68,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "specific level, you can already start",
+    "start": 185.84,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "drawing your trend line. Once price",
+    "start": 187.76,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "rejects the trend line, that's where you",
+    "start": 189.44,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "want to start. This right here is known",
+    "start": 191.76,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "as a break of structure. You take your",
+    "start": 193.68,
+    "duration": 2.6389999999999816
+  },
+  {
+    "text": "Fibonacci retracement tool from the top",
+    "start": 196.319,
+    "duration": 2.481000000000023
+  },
+  {
+    "text": "of that move to the bottom of the move",
+    "start": 198.8,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "and you wait for price to get into the",
+    "start": 201.2,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "Fibonacci gold zone and you enter a",
+    "start": 203.68,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "short position. You can even split the",
+    "start": 206.07999999999998,
+    "duration": 2.2390000000000043
+  },
+  {
+    "text": "difference and put a limit order. Your",
+    "start": 208.319,
+    "duration": 1.7609999999999957
+  },
+  {
+    "text": "stop loss is at the one level and your",
+    "start": 210.07999999999998,
+    "duration": 2.0
+  },
+  {
+    "text": "take-profit is at the previous swing",
+    "start": 212.07999999999998,
+    "duration": 2.0
+  },
+  {
+    "text": "low. This will always give you above a",
+    "start": 214.07999999999998,
+    "duration": 2.7190000000000225
+  },
+  {
+    "text": "1:1 risk-to-reward and it'll usually end",
+    "start": 216.799,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "up being a 1:1.5.",
+    "start": 219.519,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "Ideally, you want to enter in on the 618",
+    "start": 221.599,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "because it's going to give you the best",
+    "start": 224.31900000000002,
+    "duration": 1.5209999999999866
+  },
+  {
+    "text": "risk-to-reward ratio. The reason why my",
+    "start": 225.84,
+    "duration": 2.3189999999999884
+  },
+  {
+    "text": "price target is so low is because I'm",
+    "start": 228.159,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "skeptical and I'm always assuming a",
+    "start": 230.879,
+    "duration": 2.4010000000000105
+  },
+  {
+    "text": "double bottom will form. So, we'll get a",
+    "start": 233.28,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "bottom and a double bottom and price",
+    "start": 235.2,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "will reverse. This is my safe bet. And",
+    "start": 237.28,
+    "duration": 2.8789999999999907
+  },
+  {
+    "text": "as you can see, this trade played out in",
+    "start": 240.159,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "seven minutes. And sometimes all you",
+    "start": 242.239,
+    "duration": 2.0
+  },
+  {
+    "text": "need is one good trade for the day and",
+    "start": 244.239,
+    "duration": 1.7609999999999957
+  },
+  {
+    "text": "you're done. But if you want to keep",
+    "start": 246.0,
+    "duration": 1.438999999999993
+  },
+  {
+    "text": "scalping all day, you can continue on.",
+    "start": 247.439,
+    "duration": 2.4809999999999945
+  },
+  {
+    "text": "As long as price is holding the trend,",
+    "start": 249.92,
+    "duration": 2.2390000000000043
+  },
+  {
+    "text": "you keep trading it. You take your",
+    "start": 252.159,
+    "duration": 1.6810000000000116
+  },
+  {
+    "text": "Fibonacci retracement tool from every",
+    "start": 253.84,
+    "duration": 2.7990000000000066
+  },
+  {
+    "text": "single swing that broke structure. Look",
+    "start": 256.639,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "for retracements to the Fibonacci gold",
+    "start": 259.199,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "zone. Again, I really like entering on",
+    "start": 261.04,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "the 618, even with a limit order, and",
+    "start": 263.12,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "you're getting 1 to 1.5 risk-to-rewards.",
+    "start": 265.6,
+    "duration": 2.7999999999999545
+  },
+  {
+    "text": "The trades close usually within 10 to 15",
+    "start": 268.4,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "minutes. And you're going to mark this",
+    "start": 271.12,
+    "duration": 2.0
+  },
+  {
+    "text": "up for every single break of structure,",
+    "start": 273.12,
+    "duration": 3.1200000000000045
+  },
+  {
+    "text": "and you're going to try to take every",
+    "start": 276.24,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "single one of them. Sometimes momentum",
+    "start": 278.08,
+    "duration": 2.399000000000001
+  },
+  {
+    "text": "carries and it won't retrace to a fib",
+    "start": 280.479,
+    "duration": 2.8810000000000286
+  },
+  {
+    "text": "level. That's fine. If price continues,",
+    "start": 283.36,
+    "duration": 3.3600000000000136
+  },
+  {
+    "text": "you just mark the next break of",
+    "start": 286.72,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "structure. You get into your short",
+    "start": 289.04,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "positions at the 618 and you target the",
+    "start": 290.96,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "previous swing low. And you keep doing",
+    "start": 293.68,
+    "duration": 2.4799999999999613
+  },
+  {
+    "text": "this until you get into a trade where",
+    "start": 296.15999999999997,
+    "duration": 2.8800000000000523
+  },
+  {
+    "text": "the price retraces to the 618 and you",
+    "start": 299.04,
+    "duration": 2.7999999999999545
+  },
+  {
+    "text": "get into a short position and you end up",
+    "start": 301.84,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "getting stopped out. In order to do this",
+    "start": 304.32,
+    "duration": 2.319000000000017
+  },
+  {
+    "text": "strategy, you will have losing trades.",
+    "start": 306.639,
+    "duration": 3.040999999999997
+  },
+  {
+    "text": "But that's a good thing because it is",
+    "start": 309.68,
+    "duration": 2.0790000000000077
+  },
+  {
+    "text": "your signal to let you know that you",
+    "start": 311.759,
+    "duration": 2.2409999999999854
+  },
+  {
+    "text": "should be looking for the opposite",
+    "start": 314.0,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "positions. Now, if you are going short",
+    "start": 315.919,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "in a downtrend, you are now looking for",
+    "start": 318.08,
+    "duration": 2.080000000000041
+  },
+  {
+    "text": "long positions. And that's okay because",
+    "start": 320.16,
+    "duration": 2.2399999999999523
+  },
+  {
+    "text": "if you took all of these trades in this",
+    "start": 322.4,
+    "duration": 2.0
+  },
+  {
+    "text": "downtrend, you were up 6%, losing one,",
+    "start": 324.4,
+    "duration": 3.2000000000000455
+  },
+  {
+    "text": "taking you down 1% with a total profit",
+    "start": 327.6,
+    "duration": 2.31899999999996
+  },
+  {
+    "text": "of 5%. Each one of these trades less",
+    "start": 329.919,
+    "duration": 2.4010000000000105
+  },
+  {
+    "text": "than 10 minutes, some of them so rapid",
+    "start": 332.32,
+    "duration": 2.400000000000034
+  },
+  {
+    "text": "that they closed in 2 minutes. This is",
+    "start": 334.72,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "scalping at its finest, and it's",
+    "start": 336.88,
+    "duration": 1.5989999999999895
+  },
+  {
+    "text": "something that I've been using for",
+    "start": 338.479,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "years. This is my goto Fibonacci",
+    "start": 339.919,
+    "duration": 3.1200000000000045
+  },
+  {
+    "text": "retracement one minute scalping",
+    "start": 343.039,
+    "duration": 1.761000000000024
+  },
+  {
+    "text": "strategy. And just so that you guys can",
+    "start": 344.8,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "see, once you've gotten your stop-loss",
+    "start": 346.56,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "hit on that losing trade, you start",
+    "start": 348.8,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "going long. You start looking for those",
+    "start": 351.12,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "breaks of structures and retracements to",
+    "start": 352.96,
+    "duration": 2.2390000000000327
+  },
+  {
+    "text": "the Fibonacci gold zone. You enter in",
+    "start": 355.199,
+    "duration": 2.0
+  },
+  {
+    "text": "your long positions and you start",
+    "start": 357.199,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "following the new uptrend. And if you",
+    "start": 359.12,
+    "duration": 2.0790000000000077
+  },
+  {
+    "text": "guys are curious about my Fibonacci",
+    "start": 361.199,
+    "duration": 2.3209999999999695
+  },
+  {
+    "text": "retracement tool and the settings, you",
+    "start": 363.52,
+    "duration": 2.2390000000000327
+  },
+  {
+    "text": "have the start and the end as well as",
+    "start": 365.759,
+    "duration": 2.7199999999999704
+  },
+  {
+    "text": "the Fibonacci gold zone and Fibonacci",
+    "start": 368.479,
+    "duration": 2.8810000000000286
+  },
+  {
+    "text": "extensions if you want to trailing",
+    "start": 371.36,
+    "duration": 2.4799999999999613
+  },
+  {
+    "text": "stop-loss your trades writing the",
+    "start": 373.84,
+    "duration": 2.0
+  },
+  {
+    "text": "momentum of the trade. Here are my",
+    "start": 375.84,
+    "duration": 2.0
+  },
+  {
+    "text": "settings. All you do is draw up your",
+    "start": 377.84,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "Fibonacci tool, hit the settings icon,",
+    "start": 379.68,
+    "duration": 2.959000000000003
+  },
+  {
+    "text": "and change it to what I have here on",
+    "start": 382.639,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "screen. And if you want a full video on",
+    "start": 384.479,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "this, let me know in the comments",
+    "start": 386.639,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "section down below. And if you're still",
+    "start": 388.24,
+    "duration": 1.599999999999966
+  },
+  {
+    "text": "struggling getting into a trade because",
+    "start": 389.84,
+    "duration": 1.5200000000000387
+  },
+  {
+    "text": "you keep secondguessing yourself, go",
+    "start": 391.36,
+    "duration": 2.0
+  },
+  {
+    "text": "check out our new earn as you learn",
+    "start": 393.36,
+    "duration": 2.7199999999999704
+  },
+  {
+    "text": "program where we provide you the trade",
+    "start": 396.08,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "setups so that you can see what good",
+    "start": 398.56,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "trades look like and feel like to make",
+    "start": 401.12,
+    "duration": 3.1200000000000045
+  },
+  {
+    "text": "those profits. And while you're",
+    "start": 404.24,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "executing those trades, you can learn",
+    "start": 406.08,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "about day trading. So now you don't have",
+    "start": 408.24,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "to wait 6 months until you can start",
+    "start": 410.08,
+    "duration": 1.7600000000000477
+  },
+  {
+    "text": "trading. You can do it from day one as",
+    "start": 411.84000000000003,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "you're learning. Check out the earn as",
+    "start": 414.24,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "you learn program at trdfloor.com. I",
+    "start": 415.759,
+    "duration": 2.6409999999999627
+  },
+  {
+    "text": "hope this video helped you guys out. And",
+    "start": 418.4,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "if you have questions that you want",
+    "start": 420.0,
+    "duration": 1.3600000000000136
+  },
+  {
+    "text": "answered in a video response, put them",
+    "start": 421.36,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "in the comment section down below.",
+    "start": 423.52,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "Thanks so much for watching and we'll",
+    "start": 425.039,
+    "duration": 1.36099999999999
+  },
+  {
+    "text": "see you in the next one.",
+    "start": 426.4,
+    "duration": 0
+  }
+]

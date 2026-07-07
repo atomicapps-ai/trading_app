@@ -1,0 +1,617 @@
+[
+  {
+    "text": "in this video i'm going to show you a",
+    "start": 0.16,
+    "duration": 1.679
+  },
+  {
+    "text": "simple scalping strategy that works",
+    "start": 1.839,
+    "duration": 2.161
+  },
+  {
+    "text": "perfect for the one minute time frame it",
+    "start": 4.0,
+    "duration": 2.0
+  },
+  {
+    "text": "uses a special indicator called the",
+    "start": 6.0,
+    "duration": 1.8390000000000004
+  },
+  {
+    "text": "williams fractals indicator and we're",
+    "start": 7.839,
+    "duration": 2.0009999999999994
+  },
+  {
+    "text": "going to combine it with some other",
+    "start": 9.84,
+    "duration": 1.2799999999999994
+  },
+  {
+    "text": "indicators to make it that much more",
+    "start": 11.12,
+    "duration": 2.0
+  },
+  {
+    "text": "effective it's easy to use works in",
+    "start": 13.12,
+    "duration": 2.24
+  },
+  {
+    "text": "almost all markets and most importantly",
+    "start": 15.36,
+    "duration": 2.3200000000000003
+  },
+  {
+    "text": "it works let's dive straight into it",
+    "start": 17.68,
+    "duration": 1.8399999999999999
+  },
+  {
+    "text": "first things first get on trading view",
+    "start": 19.52,
+    "duration": 1.9190000000000005
+  },
+  {
+    "text": "or whatever trading chart platform you",
+    "start": 21.439,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "use right now i have my time frame set",
+    "start": 23.359,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "to one minute but this strategy will",
+    "start": 25.519,
+    "duration": 1.7600000000000016
+  },
+  {
+    "text": "work for almost all time frames let's",
+    "start": 27.279,
+    "duration": 2.16
+  },
+  {
+    "text": "add the williams fractals indicator",
+    "start": 29.439,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "first to do that go to the indicators",
+    "start": 31.359,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "tab type in williamsfractals and it's",
+    "start": 33.52,
+    "duration": 2.239999999999995
+  },
+  {
+    "text": "going to be the one right here the",
+    "start": 35.76,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "default settings will work perfect just",
+    "start": 37.68,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "make sure the period is set to 2 and for",
+    "start": 39.6,
+    "duration": 2.638999999999996
+  },
+  {
+    "text": "the colors it's originally red then",
+    "start": 42.239,
+    "duration": 2.081000000000003
+  },
+  {
+    "text": "green but i flipped them to green than",
+    "start": 44.32,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "red so it's easier to understand when",
+    "start": 46.48,
+    "duration": 2.3200000000000003
+  },
+  {
+    "text": "reading the chart next we're going to",
+    "start": 48.8,
+    "duration": 1.7590000000000003
+  },
+  {
+    "text": "add some moving averages go back to the",
+    "start": 50.559,
+    "duration": 2.1600000000000037
+  },
+  {
+    "text": "indicators tab and type in three moving",
+    "start": 52.719,
+    "duration": 2.7209999999999965
+  },
+  {
+    "text": "averages it should be this one by advent",
+    "start": 55.44,
+    "duration": 2.7989999999999995
+  },
+  {
+    "text": "trading once you have that added we're",
+    "start": 58.239,
+    "duration": 1.7610000000000028
+  },
+  {
+    "text": "going to change the settings a bit go up",
+    "start": 60.0,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "to the settings of that indicator change",
+    "start": 61.84,
+    "duration": 2.239999999999995
+  },
+  {
+    "text": "length 1 to 20 change length 2 to 50 and",
+    "start": 64.08,
+    "duration": 3.4399999999999977
+  },
+  {
+    "text": "length 3 to 100 then for simplicity sake",
+    "start": 67.52,
+    "duration": 2.959000000000003
+  },
+  {
+    "text": "i'm going to change the colors of the",
+    "start": 70.479,
+    "duration": 1.5210000000000008
+  },
+  {
+    "text": "lines to green yellow and red in that",
+    "start": 72.0,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "order now that we have the indicators",
+    "start": 74.72,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "added let's go on to how the strategy",
+    "start": 76.56,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "actually works the first rule of the",
+    "start": 78.88,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "strategy is you can only go long if the",
+    "start": 81.03999999999999,
+    "duration": 2.8000000000000114
+  },
+  {
+    "text": "20-day the green line is above the 50",
+    "start": 83.84,
+    "duration": 3.039999999999992
+  },
+  {
+    "text": "day the yellow line and the 50 day is",
+    "start": 86.88,
+    "duration": 2.5589999999999975
+  },
+  {
+    "text": "above the 100 day if they are crossing",
+    "start": 89.439,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "each other like this then you should not",
+    "start": 91.6,
+    "duration": 2.4000000000000057
+  },
+  {
+    "text": "enter the trade it's the complete",
+    "start": 94.0,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "opposite for a short trade so the 100",
+    "start": 95.68,
+    "duration": 2.399000000000001
+  },
+  {
+    "text": "should be on the top the 50 in the",
+    "start": 98.07900000000001,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "middle and the 20 on the bottom now that",
+    "start": 100.15899999999999,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "we know how the moving averages should",
+    "start": 102.399,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "look let's move on to know when to enter",
+    "start": 104.15899999999999,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "into a trade to enter a long trade the",
+    "start": 106.399,
+    "duration": 2.561000000000007
+  },
+  {
+    "text": "price has to pull back under the 20-day",
+    "start": 108.96000000000001,
+    "duration": 2.478999999999985
+  },
+  {
+    "text": "moving average or under the 50-day",
+    "start": 111.439,
+    "duration": 2.241000000000014
+  },
+  {
+    "text": "moving average then you also have to see",
+    "start": 113.68,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "a williams fractal green arrow this will",
+    "start": 116.24000000000001,
+    "duration": 3.039999999999992
+  },
+  {
+    "text": "be your entry signal let me show you an",
+    "start": 119.28,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "example so you can better understand",
+    "start": 121.2,
+    "duration": 2.0799999999999983
+  },
+  {
+    "text": "what i'm talking about so first things",
+    "start": 123.28,
+    "duration": 2.0799999999999983
+  },
+  {
+    "text": "first we made sure the moving averages",
+    "start": 125.36,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "are in the correct order and they are",
+    "start": 127.52,
+    "duration": 1.8400000000000176
+  },
+  {
+    "text": "not crossing each other then we wait for",
+    "start": 129.36,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "the price to cross under the 20-day",
+    "start": 131.76,
+    "duration": 2.3200000000000216
+  },
+  {
+    "text": "moving average we keep waiting till the",
+    "start": 134.08,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "williams fractal indicator gives us the",
+    "start": 136.16,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "green arrow for the go-ahead to enter",
+    "start": 138.4,
+    "duration": 2.0
+  },
+  {
+    "text": "the trade once it does we create a long",
+    "start": 140.4,
+    "duration": 2.2399999999999807
+  },
+  {
+    "text": "position put the stop loss right below",
+    "start": 142.64,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "the 50-day and then have a 1.5 profit",
+    "start": 144.72,
+    "duration": 3.039999999999992
+  },
+  {
+    "text": "ratio as you can see in this example the",
+    "start": 147.76,
+    "duration": 2.4000000000000057
+  },
+  {
+    "text": "strategy worked out perfect and we made",
+    "start": 150.16,
+    "duration": 2.1590000000000202
+  },
+  {
+    "text": "money if the price keeps moving down",
+    "start": 152.31900000000002,
+    "duration": 2.080999999999989
+  },
+  {
+    "text": "before the williams fractal gives a",
+    "start": 154.4,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "green arrow and crosses the 50-day then",
+    "start": 156.239,
+    "duration": 2.561000000000007
+  },
+  {
+    "text": "gives a green arrow you're gonna do the",
+    "start": 158.8,
+    "duration": 1.6799999999999784
+  },
+  {
+    "text": "same thing and enter the trade here but",
+    "start": 160.48,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "this time you're gonna add a stop loss",
+    "start": 162.72,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "right below the hundred day and still",
+    "start": 164.8,
+    "duration": 2.0
+  },
+  {
+    "text": "set a 1.5 ratio now there's a very",
+    "start": 166.8,
+    "duration": 3.438999999999993
+  },
+  {
+    "text": "important rule you must follow for this",
+    "start": 170.239,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "trading strategy to be profitable if the",
+    "start": 172.879,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "price moves below the 100 day moving",
+    "start": 175.04,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "average you do not enter a trade on the",
+    "start": 177.2,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "green arrow from the williams fractal",
+    "start": 179.76,
+    "duration": 2.0
+  },
+  {
+    "text": "indicator so as you can see here the",
+    "start": 181.76,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "price moves below the hundred day then",
+    "start": 183.84,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "the williams fractal gives a green arrow",
+    "start": 186.08,
+    "duration": 2.0
+  },
+  {
+    "text": "and as you can see the price drops again",
+    "start": 188.08,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "so if the price ever closes below the",
+    "start": 190.4,
+    "duration": 2.4000000000000057
+  },
+  {
+    "text": "hundred day just disregard the next",
+    "start": 192.8,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "green arrow because the chance that",
+    "start": 194.72,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "it'll drop even more is a lot higher now",
+    "start": 196.56,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "let's take an example of a short trade",
+    "start": 199.44,
+    "duration": 2.0
+  },
+  {
+    "text": "with the strategy first make sure all",
+    "start": 201.44,
+    "duration": 2.0
+  },
+  {
+    "text": "the lines are in the correct order with",
+    "start": 203.44,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "the hundred day on top and the 20 on",
+    "start": 205.12,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "bottom then we wait for the price to",
+    "start": 207.36,
+    "duration": 2.0
+  },
+  {
+    "text": "cross above the 20 day then wait for a",
+    "start": 209.36,
+    "duration": 2.7199999999999704
+  },
+  {
+    "text": "red arrow from the williams fractal",
+    "start": 212.07999999999998,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "indicator once we get the signal we",
+    "start": 213.92000000000002,
+    "duration": 2.0
+  },
+  {
+    "text": "enter the trade here add a stop loss",
+    "start": 215.92000000000002,
+    "duration": 2.3189999999999884
+  },
+  {
+    "text": "right above the 50 day and then set a",
+    "start": 218.239,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "1.5 profit ratio you should also",
+    "start": 220.4,
+    "duration": 2.960000000000008
+  },
+  {
+    "text": "understand that you have to trust this",
+    "start": 223.36,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "strategy it may take some time before",
+    "start": 225.28,
+    "duration": 2.2390000000000043
+  },
+  {
+    "text": "the price hits your profit mark you have",
+    "start": 227.519,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "to trust the strategy and stay in it as",
+    "start": 229.36,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "an important note you should also",
+    "start": 231.76,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "realize that you will get a ton of buy",
+    "start": 233.519,
+    "duration": 2.2409999999999854
+  },
+  {
+    "text": "signals especially if you're trading on",
+    "start": 235.76,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "the one minute time frame if you are",
+    "start": 237.92000000000002,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "it's extremely important you make sure",
+    "start": 240.08,
+    "duration": 2.0789999999999793
+  },
+  {
+    "text": "that your broker or exchange has very",
+    "start": 242.159,
+    "duration": 2.4809999999999945
+  },
+  {
+    "text": "low fees otherwise the fees will ruin",
+    "start": 244.64,
+    "duration": 2.319000000000017
+  },
+  {
+    "text": "the gains because of the volume of",
+    "start": 246.959,
+    "duration": 1.7609999999999957
+  },
+  {
+    "text": "trades you're taking i just showed you a",
+    "start": 248.72,
+    "duration": 2.158999999999992
+  },
+  {
+    "text": "winning strategy using moving averages",
+    "start": 250.879,
+    "duration": 2.4010000000000105
+  },
+  {
+    "text": "and williams fractal indicator all i ask",
+    "start": 253.28,
+    "duration": 2.3189999999999884
+  },
+  {
+    "text": "in return is if you take two seconds out",
+    "start": 255.599,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "of your day and like this video if you",
+    "start": 257.519,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "want to see one of my top favorite",
+    "start": 259.359,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "strategies i use on a daily basis check",
+    "start": 261.199,
+    "duration": 2.6409999999999627
+  },
+  {
+    "text": "out this video and i'll see you guys",
+    "start": 263.84,
+    "duration": 2.0
+  },
+  {
+    "text": "next time",
+    "start": 265.84,
+    "duration": 2.7900000000000205
+  },
+  {
+    "text": "[Music]",
+    "start": 268.63,
+    "duration": 0
+  }
+]

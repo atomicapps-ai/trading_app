@@ -624,45 +624,45 @@
   },
   "DAnXM7C16h0": {
     "url": "https://www.youtube.com/watch?v=DAnXM7C16h0",
-    "processed_at": "2026-07-07T17:34:35.454184+00:00",
-    "duration_s": 0,
-    "frames": 0,
-    "transcript": false
+    "processed_at": "2026-07-07T18:51:40.276033+00:00",
+    "duration_s": 6575,
+    "frames": 73,
+    "transcript": true
   },
   "FjxG1-dGzyU": {
     "url": "https://www.youtube.com/watch?v=FjxG1-dGzyU",
-    "processed_at": "2026-07-07T17:34:47.646619+00:00",
-    "duration_s": 0,
-    "frames": 0,
-    "transcript": false
+    "processed_at": "2026-07-07T18:52:27.785183+00:00",
+    "duration_s": 927,
+    "frames": 10,
+    "transcript": true
   },
   "8LQsR7B2vQ0": {
     "url": "https://www.youtube.com/watch?v=8LQsR7B2vQ0",
-    "processed_at": "2026-07-07T17:35:01.278197+00:00",
-    "duration_s": 0,
-    "frames": 0,
-    "transcript": false
+    "processed_at": "2026-07-07T18:53:12.321019+00:00",
+    "duration_s": 715,
+    "frames": 8,
+    "transcript": true
   },
   "7NM7bR2mL7U": {
     "url": "https://www.youtube.com/watch?v=7NM7bR2mL7U",
-    "processed_at": "2026-07-07T17:35:13.260486+00:00",
-    "duration_s": 0,
-    "frames": 0,
-    "transcript": false
+    "processed_at": "2026-07-07T18:53:49.773109+00:00",
+    "duration_s": 575,
+    "frames": 6,
+    "transcript": true
   },
   "FqxEKDxemtI": {
     "url": "https://www.youtube.com/watch?v=FqxEKDxemtI",
-    "processed_at": "2026-07-07T17:35:30.444704+00:00",
-    "duration_s": 0,
-    "frames": 0,
-    "transcript": false
+    "processed_at": "2026-07-07T18:54:43.454653+00:00",
+    "duration_s": 881,
+    "frames": 10,
+    "transcript": true
   },
   "VXahxp3hNQg": {
     "url": "https://www.youtube.com/watch?v=VXahxp3hNQg",
-    "processed_at": "2026-07-07T17:35:50.535732+00:00",
-    "duration_s": 0,
-    "frames": 0,
-    "transcript": false
+    "processed_at": "2026-07-07T18:55:19.961436+00:00",
+    "duration_s": 631,
+    "frames": 7,
+    "transcript": true
   },
   "0L6Rcgp6j7Y": {
     "status": "rejected",
@@ -964,5 +964,75 @@
     "duration_s": 0,
     "frames": 0,
     "transcript": false
+  },
+  "xd1N7Eb4PEs": {
+    "url": "https://www.youtube.com/watch?v=xd1N7Eb4PEs",
+    "processed_at": "2026-07-07T18:55:53.568801+00:00",
+    "duration_s": 542,
+    "frames": 6,
+    "transcript": true
+  },
+  "W8ENIXvcGlQ": {
+    "url": "https://www.youtube.com/watch?v=W8ENIXvcGlQ",
+    "processed_at": "2026-07-07T18:56:29.252123+00:00",
+    "duration_s": 607,
+    "frames": 7,
+    "transcript": true
+  },
+  "O5eC5lY7ZXY": {
+    "url": "https://www.youtube.com/watch?v=O5eC5lY7ZXY",
+    "processed_at": "2026-07-07T18:57:14.488026+00:00",
+    "duration_s": 912,
+    "frames": 10,
+    "transcript": true
+  },
+  "9AL41xON3hA": {
+    "url": "https://www.youtube.com/watch?v=9AL41xON3hA",
+    "processed_at": "2026-07-07T18:58:02.028149+00:00",
+    "duration_s": 862,
+    "frames": 10,
+    "transcript": true
+  },
+  "G29LbG1Xkvw": {
+    "url": "https://www.youtube.com/watch?v=G29LbG1Xkvw",
+    "processed_at": "2026-07-07T18:58:42.981265+00:00",
+    "duration_s": 463,
+    "frames": 5,
+    "transcript": true
+  },
+  "bKPs2aOsvsk": {
+    "url": "https://www.youtube.com/watch?v=bKPs2aOsvsk",
+    "processed_at": "2026-07-07T18:59:15.367230+00:00",
+    "duration_s": 268,
+    "frames": 3,
+    "transcript": true
+  },
+  "LlHZil_7Ueg": {
+    "url": "https://www.youtube.com/watch?v=LlHZil_7Ueg",
+    "processed_at": "2026-07-07T19:00:00.775014+00:00",
+    "duration_s": 2067,
+    "frames": 23,
+    "transcript": true
+  },
+  "qLtq73bTPBA": {
+    "url": "https://www.youtube.com/watch?v=qLtq73bTPBA",
+    "processed_at": "2026-07-07T19:01:30.671904+00:00",
+    "duration_s": 3345,
+    "frames": 37,
+    "transcript": true
+  },
+  "LD1FEbwXU4o": {
+    "url": "https://www.youtube.com/watch?v=LD1FEbwXU4o",
+    "processed_at": "2026-07-07T19:02:23.123526+00:00",
+    "duration_s": 310,
+    "frames": 3,
+    "transcript": true
+  },
+  "wZ4ea0VJnrw": {
+    "url": "https://www.youtube.com/watch?v=wZ4ea0VJnrw",
+    "processed_at": "2026-07-07T19:03:11.573510+00:00",
+    "duration_s": 654,
+    "frames": 7,
+    "transcript": true
   }
 }
