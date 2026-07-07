@@ -514,7 +514,10 @@
     "processed_at": "2026-07-07T17:28:42.169417+00:00",
     "duration_s": 602,
     "frames": 7,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "ATR indicator tutorial: low-ATR contraction -> expect breakout (predict direction). Direction discretionary; contraction-breakout = live coil_breakout; ATR stops already used. No new strategy.",
+    "retired_at": "2026-07-07T20:52:26.701111+00:00"
   },
   "k_kSCjdf8D0": {
     "url": "https://www.youtube.com/watch?v=k_kSCjdf8D0",
@@ -538,7 +541,10 @@
     "processed_at": "2026-07-07T17:30:14.349579+00:00",
     "duration_s": 1117,
     "frames": 12,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Meta-content on how to backtest (avoid hindsight bias). No strategy spec / no entry-stop-target. Out of scope.",
+    "retired_at": "2026-07-07T20:52:26.825776+00:00"
   },
   "nkMzaQqpFbw": {
     "url": "https://www.youtube.com/watch?v=nkMzaQqpFbw",
@@ -1020,7 +1026,10 @@
     "processed_at": "2026-07-07T18:57:14.488026+00:00",
     "duration_s": 912,
     "frames": 10,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "First-4H-range false-breakout fade (5m FX), 2R target. Win 9.2% -> negative even gross (~-0.72R); OOS PF 0.02, control equally dead. No directional edge. (Harness 10bps cost also punitive on tiny FX stops, but gross win rate sinks it regardless.)",
+    "retired_at": "2026-07-07T20:53:42.678846+00:00"
   },
   "9AL41xON3hA": {
     "url": "https://www.youtube.com/watch?v=9AL41xON3hA",
@@ -1054,7 +1063,10 @@
     "processed_at": "2026-07-07T19:00:00.775014+00:00",
     "duration_s": 2067,
     "frames": 23,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Break-and-retest system, hand-drawn zones + displacement entry. Discretionary levels; kernel = live momentum_breakout/coil_breakout; retest-vs-break not a separable codeable edge.",
+    "retired_at": "2026-07-07T20:52:26.568963+00:00"
   },
   "qLtq73bTPBA": {
     "url": "https://www.youtube.com/watch?v=qLtq73bTPBA",
@@ -1068,7 +1080,10 @@
     "processed_at": "2026-07-07T19:02:23.123526+00:00",
     "duration_s": 310,
     "frames": 3,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "ICT lower-TF liquidity hunts on 5m, 'do the opposite of retail stops'. Discretionary, no numeric rules; sweep-reversal cousin already marginal.",
+    "retired_at": "2026-07-07T20:52:26.445190+00:00"
   },
   "wZ4ea0VJnrw": {
     "url": "https://www.youtube.com/watch?v=wZ4ea0VJnrw",
