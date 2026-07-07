@@ -783,6 +783,10 @@ input, select, textarea { font: inherit; color: inherit; }
   border: 1px solid var(--border, rgba(75, 85, 99, 0.3));
   border-radius: 4px;
 }
+/* Dual synced panes on the trade-detail page — shorter than the single 520px
+   mount so both fit above the fold; the second pane gets a small gap. */
+.trade-detail-pane { height: 360px; }
+#trade-chart-b-mount.trade-detail-pane { margin-top: 10px; }
 
 /* Trade edit form (Phase 6 edit-mode) */
 .trade-edit-card { display: none; }
@@ -1735,6 +1739,21 @@ input, select, textarea { font: inherit; color: inherit; }
 
   /* Live status strip scrolls sideways rather than blowing out width */
   .live-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  /* Single non-wrapping scroll row so horizontal scroll works, and PIN the
+     $/% toggle to the right edge so it's always reachable (it was scrolling
+     off-screen past all the position chips). */
+  .live-bar-row { flex-wrap: nowrap; }
+  .live-bar-toggle {
+    position: sticky; right: 0; z-index: 3;
+    background: var(--bg-stat);
+    padding-left: 10px;
+    box-shadow: -10px 0 8px -6px var(--bg-stat);
+  }
+  /* Keep the equity total visible while chips scroll under it. */
+  .live-bar-equity { position: sticky; left: 0; z-index: 2; }
+
+  /* Trade-detail dual panes: shorter on a phone so both stay usable. */
+  .trade-detail-pane { height: 300px; }
 
   /* Common wide layouts stack on a phone. minmax(0, …) lets cells
      shrink below their content's min-content instead of overflowing. */

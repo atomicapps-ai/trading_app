@@ -95,11 +95,26 @@ class AccountState(BaseModel):
     open_positions: list[Position] = []
     realized_pnl_today: float = 0.0
     unrealized_pnl_today: float = 0.0
+    last_equity: float = 0.0  # prior trading day's CLOSE equity — for a TRUE Day P&L
     trades_today: int = 0
     day_trade_count_rolling_5d: int = 0
     wash_sale_window: list[str] = []  # symbols within 30-day wash-sale window
     trading_halted: bool = False
     ts_snapshot: str
+
+    @property
+    def day_pnl_usd(self) -> float:
+        """True day P&L = equity − prior-close equity (captures realized + unrealized
+        booked today). Falls back to realized+unrealized for adapters that don't
+        report last_equity, preserving their prior behavior."""
+        if self.last_equity and self.last_equity > 0:
+            return self.equity - self.last_equity
+        return self.realized_pnl_today + self.unrealized_pnl_today
+
+    @property
+    def day_pnl_pct(self) -> float:
+        base = self.last_equity if (self.last_equity and self.last_equity > 0) else self.equity
+        return (self.day_pnl_usd / base * 100.0) if base else 0.0
 
 
 class LULDBand(BaseModel):

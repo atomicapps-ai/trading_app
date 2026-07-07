@@ -266,6 +266,7 @@ class AlpacaAdapter(BrokerAdapter):
             open_positions=positions,
             realized_pnl_today=0.0,  # Alpaca computes on their side; derive in Phase 6
             unrealized_pnl_today=sum(p.unrealized_pnl_usd for p in positions),
+            last_equity=float(getattr(acct, "last_equity", 0) or 0),  # prior close → true Day P&L
             trades_today=int(getattr(acct, "daytrade_count", 0) or 0),
             day_trade_count_rolling_5d=int(getattr(acct, "daytrade_count", 0) or 0),
             wash_sale_window=[],

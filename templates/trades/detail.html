@@ -53,9 +53,12 @@
       <div class="card trade-detail-chart-card">
         <div class="card-header">
           <span class="card-title">Chart</span>
-          <span class="text-tertiary text-sm">timeframe + indicator chips · plan levels overlaid</span>
+          <span class="text-tertiary text-sm">two synced panes · per-pane timeframe + indicators · plan levels overlaid</span>
         </div>
-        <div id="trade-chart-mount" class="trade-detail-chart-mount"></div>
+        <div id="trade-chart-a-mount" class="trade-detail-chart-mount ct-mount trade-detail-pane"
+             data-chart="a" data-interval="1d"></div>
+        <div id="trade-chart-b-mount" class="trade-detail-chart-mount ct-mount trade-detail-pane"
+             data-chart="b" data-interval="30m"></div>
         <div class="chart-legend" id="trade-chart-legend"></div>
       </div>
 
@@ -181,8 +184,7 @@
 <script src="/static/chart_tools.js?v={{ asset_v }}"></script>
 <script>
 (function() {
-  const mount = document.getElementById('trade-chart-mount');
-  if (!mount || !window.ChartTools) return;
+  if (!window.ChartTools) return;
 
   const SYMBOL = {{ trade.symbol|tojson }};
   const ENTRY  = {{ trade.entry_price|tojson if trade.entry_price else "null" }};
@@ -207,32 +209,53 @@
       label: isStop ? 'SL' : 'TP', tip: 'Exited here' + (EXIT_REASON ? ' (' + EXIT_REASON + ')' : '') + '.' });
   }
 
-  const inst = ChartTools.renderChart(mount, {
-    symbol: SYMBOL,
-    interval: '1d',
-    indicators: ['sma20', 'sma50', 'vwap', 'rsi'],
-    persistKey: 'trade_detail',
-    tradeMarkers: { events },
+  // Plan levels (entry/stop/TP1/TP2). addPriceLine survives setData() so
+  // they persist across timeframe switches and older-bar prepends.
+  const CC = _CC;
+  const planLines = [];
+  const _pl = (price, color, style, title) => {
+    if (price == null) return;
+    planLines.push({ price, color, lineWidth: 1, lineStyle: style, axisLabelVisible: true, title });
+  };
+  _pl(ENTRY, CC.entry || '#60a5fa', 0, 'Entry');
+  _pl(STOP,  CC.stop  || '#e05252', 2, 'Stop');
+  _pl(TP1,   CC.tp1   || '#1db87a', 2, 'TP1');
+  _pl(TP2,   CC.tp2   || '#22d3ee', 2, 'TP2');
+
+  // FX/metals (EURUSD, XAUUSD…) only have intraday bars cached — map the
+  // default 1d/30m panes down to 30m/5m so they don't render blank.
+  const isFx = /^[A-Z]{6}$/.test(SYMBOL || '');
+  const panes = {};
+  document.querySelectorAll('#trade-chart-a-mount, #trade-chart-b-mount').forEach(mount => {
+    const idx = mount.dataset.chart;
+    let interval = mount.dataset.interval;
+    if (isFx) interval = (interval === '1d' || interval === '1h') ? '30m' : '5m';
+    const inst = ChartTools.renderChart(mount, {
+      symbol: SYMBOL, interval,
+      indicators: ['sma20', 'sma50', 'vwap'],
+      persistKey: `trade_detail_${idx}`,
+      limit: 500,
+      tradeMarkers: { events },
+    });
+    if (!inst) return;
+    planLines.forEach(pl => inst.addPriceLine(pl));
+    panes[idx] = inst;
   });
-  if (!inst) return;
   ChartTools.renderTradeLegend(document.getElementById('trade-chart-legend'));
 
-  // Plan levels — entry/stop/TP1/TP2 as labeled price lines.
-  // ChartTools.addPriceLine survives setData() so they stay through
-  // timeframe switches.
-  const planLine = (price, color, title) => {
-    if (price == null) return;
-    inst.addPriceLine({
-      price, color, lineWidth: 1,
-      lineStyle: LightweightCharts.LineStyle.Dashed,
-      axisLabelVisible: true, title,
+  // Bidirectional crosshair sync between the two panes (same mechanism as /pending).
+  function syncFrom(srcIdx, dstIdx) {
+    const A = panes[srcIdx], B = panes[dstIdx];
+    if (!A || !B || !A.priceChart || !B.priceChart) return;
+    A.priceChart.subscribeCrosshairMove(param => {
+      if (!param || !param.time || !param.seriesData) { B.priceChart.clearCrosshairPosition(); return; }
+      const bar = param.seriesData.get(A.priceSeries);
+      if (!bar || typeof bar.close !== 'number') { B.priceChart.clearCrosshairPosition(); return; }
+      B.priceChart.setCrosshairPosition(bar.close, param.time, B.priceSeries);
     });
-  };
-  const CC = (window.CHART_COLORS || {});
-  planLine(ENTRY, CC.entry || '#60a5fa', 'Entry');
-  planLine(STOP,  CC.stop  || '#e05252', 'Stop');
-  planLine(TP1,   CC.tp1   || '#1db87a', 'TP1');
-  planLine(TP2,   CC.tp2   || '#22d3ee', 'TP2');
+  }
+  syncFrom('a', 'b');
+  syncFrom('b', 'a');
 })();
 </script>
 
