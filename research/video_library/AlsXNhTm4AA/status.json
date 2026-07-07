@@ -1,0 +1,6 @@
+{
+  "video_id": "AlsXNhTm4AA",
+  "status": "rejected",
+  "reason": "1-min Fib golden-pocket (0.5-0.618) continuation after BOS. Duplicate of 2GAAK kernel tested this session (bt_fib_goldenpocket): win 11-18%, OOS PF 0.02-0.09 at/below control -> no edge.",
+  "retired_at": "2026-07-07T20:38:11.158044+00:00"
+}

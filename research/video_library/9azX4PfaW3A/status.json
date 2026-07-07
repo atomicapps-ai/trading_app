@@ -1,0 +1,6 @@
+{
+  "video_id": "9azX4PfaW3A",
+  "status": "rejected",
+  "reason": "ICT liquidity sweep + FVG false-breakout reversal. Discretionary (which equal highs=liquidity, which FVG); sweep-reversal already tested marginal (FQ8AFRyXD8A); FVG-continuation already live. No new mechanical edge.",
+  "retired_at": "2026-07-07T20:38:11.546312+00:00"
+}

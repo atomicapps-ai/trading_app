@@ -1,0 +1,6 @@
+{
+  "video_id": "9KVvwJHvcyE",
+  "status": "passed",
+  "reason": "RSI hidden divergence + 200EMA + stochastic, trend-ride exit. Faithful full-spec: OOS PF 1.21, avg-R +0.059, IS 1.10->OOS 1.21 (holds OOS), n 14.8k, beats control 0.73. Borderline PASS (candidate only).",
+  "retired_at": "2026-07-07T20:41:38.911004+00:00"
+}
