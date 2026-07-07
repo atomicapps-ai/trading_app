@@ -169,12 +169,12 @@ def _view_from_plan(plan: dict[str, Any]) -> TradeView:
 
 def _stage_from_status(status: str) -> TradeStage:
     s = (status or "").lower()
-    if s in ("pending", "awaiting_ack"):     return "pending"
-    if s in ("approved", "awaiting_fill"):   return "approved"
-    if s in ("filled", "open"):              return "open"
-    if s in ("rejected",):                   return "rejected"
-    if s in ("expired",):                    return "expired"
-    if s in ("closed",):                     return "closed"
+    if s in ("pending", "awaiting_ack"):        return "pending"
+    if s in ("approved", "awaiting_fill"):      return "approved"
+    if s in ("filled", "open", "executed"):     return "open"
+    if s in ("rejected", "order_rejected"):     return "rejected"
+    if s in ("expired",):                       return "expired"
+    if s in ("closed",):                        return "closed"
     return "unknown"
 
 
