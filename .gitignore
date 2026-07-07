@@ -129,3 +129,8 @@ data/fx_hist/
 
 # Runtime strategy-config adoption archives (local, like the backtest cache)
 strategies/config_archive/
+
+# video-mining transient acquisition artifacts
+research/video_library/_acq_*
+research/video_library/_rankcache/
+research/video_library/_picks.txt

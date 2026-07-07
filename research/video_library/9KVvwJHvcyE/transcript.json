@@ -1,0 +1,1342 @@
+[
+  {
+    "text": "in this video i'm revealing a simple",
+    "start": 0.56,
+    "duration": 2.639
+  },
+  {
+    "text": "high win rate rsi divergent strategy",
+    "start": 3.199,
+    "duration": 3.12
+  },
+  {
+    "text": "so without further ado let's get on with",
+    "start": 6.319,
+    "duration": 2.4810000000000008
+  },
+  {
+    "text": "the video",
+    "start": 8.8,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "for this strategy i'm using a",
+    "start": 10.639,
+    "duration": 2.08
+  },
+  {
+    "text": "combination of three indicators",
+    "start": 12.719,
+    "duration": 2.2410000000000014
+  },
+  {
+    "text": "the rsi 200 ema",
+    "start": 14.96,
+    "duration": 3.6799999999999997
+  },
+  {
+    "text": "and the stochastics but first",
+    "start": 18.64,
+    "duration": 3.280000000000001
+  },
+  {
+    "text": "the main indicator that i want to focus",
+    "start": 21.92,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "on is the rsi",
+    "start": 24.08,
+    "duration": 2.0
+  },
+  {
+    "text": "because that will generate our entry",
+    "start": 26.08,
+    "duration": 1.6800000000000033
+  },
+  {
+    "text": "signal for the strategy",
+    "start": 27.76,
+    "duration": 2.5599999999999987
+  },
+  {
+    "text": "instead of using the rsi as an",
+    "start": 30.32,
+    "duration": 1.918999999999997
+  },
+  {
+    "text": "overbought and oversold indicator",
+    "start": 32.239,
+    "duration": 2.1600000000000037
+  },
+  {
+    "text": "we are instead using it to find hidden",
+    "start": 34.399,
+    "duration": 1.9209999999999994
+  },
+  {
+    "text": "divergences",
+    "start": 36.32,
+    "duration": 1.6000000000000014
+  },
+  {
+    "text": "so let me give you a quick explanation",
+    "start": 37.92,
+    "duration": 2.158999999999999
+  },
+  {
+    "text": "on what a divergence is",
+    "start": 40.079,
+    "duration": 2.7209999999999965
+  },
+  {
+    "text": "during a normal setup if prices are",
+    "start": 42.8,
+    "duration": 2.2390000000000043
+  },
+  {
+    "text": "heading in a certain direction",
+    "start": 45.039,
+    "duration": 1.6799999999999997
+  },
+  {
+    "text": "usually the indicator will also follow",
+    "start": 46.719,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "that same direction",
+    "start": 48.879,
+    "duration": 1.5200000000000031
+  },
+  {
+    "text": "in this case the price made higher highs",
+    "start": 50.399,
+    "duration": 2.6400000000000006
+  },
+  {
+    "text": "and the rsi",
+    "start": 53.039,
+    "duration": 1.0399999999999991
+  },
+  {
+    "text": "also made higher highs however",
+    "start": 54.079,
+    "duration": 3.2010000000000005
+  },
+  {
+    "text": "there are instances where the indicator",
+    "start": 57.28,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "is moving in the opposite direction of",
+    "start": 59.44,
+    "duration": 1.919000000000004
+  },
+  {
+    "text": "the price instead",
+    "start": 61.359,
+    "duration": 1.2809999999999988
+  },
+  {
+    "text": "like in this example the price made",
+    "start": 62.64,
+    "duration": 2.2390000000000043
+  },
+  {
+    "text": "lower highs",
+    "start": 64.879,
+    "duration": 0.8810000000000002
+  },
+  {
+    "text": "but the rsi made higher highs this is",
+    "start": 65.76,
+    "duration": 2.718999999999994
+  },
+  {
+    "text": "called a divergence",
+    "start": 68.479,
+    "duration": 2.801000000000002
+  },
+  {
+    "text": "there are two types of divergences a",
+    "start": 71.28,
+    "duration": 2.480000000000004
+  },
+  {
+    "text": "regular divergence",
+    "start": 73.76,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "and a hidden divergence but for this",
+    "start": 75.36,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "strategy specifically",
+    "start": 77.92,
+    "duration": 1.5189999999999912
+  },
+  {
+    "text": "we are only going to be using hidden",
+    "start": 79.439,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "divergences",
+    "start": 81.28,
+    "duration": 2.0799999999999983
+  },
+  {
+    "text": "a hidden divergence is a type of",
+    "start": 83.36,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "divergence that signals a possible",
+    "start": 85.28,
+    "duration": 2.0
+  },
+  {
+    "text": "continuation of an existing trend",
+    "start": 87.28,
+    "duration": 2.9599999999999937
+  },
+  {
+    "text": "and there are two types of hidden",
+    "start": 90.24,
+    "duration": 1.7600000000000051
+  },
+  {
+    "text": "divergences",
+    "start": 92.0,
+    "duration": 1.2800000000000011
+  },
+  {
+    "text": "a bullish hidden divergence which forms",
+    "start": 93.28,
+    "duration": 2.4000000000000057
+  },
+  {
+    "text": "when prices are making higher lows",
+    "start": 95.68,
+    "duration": 2.0
+  },
+  {
+    "text": "but the rsi is making lower lows",
+    "start": 97.68,
+    "duration": 4.0789999999999935
+  },
+  {
+    "text": "and a bearish hidden divergence which",
+    "start": 101.759,
+    "duration": 2.4810000000000088
+  },
+  {
+    "text": "occurs when prices are making lower",
+    "start": 104.24000000000001,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "highs",
+    "start": 106.0,
+    "duration": 0.5600000000000023
+  },
+  {
+    "text": "but rsi is making higher highs",
+    "start": 106.56,
+    "duration": 4.47999999999999
+  },
+  {
+    "text": "so let me show you an example of what a",
+    "start": 111.03999999999999,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "bullish hidden divergence looks like",
+    "start": 113.28,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "in this chart we spotted an existing",
+    "start": 116.0,
+    "duration": 2.158999999999992
+  },
+  {
+    "text": "uptrend as prices are heading upwards",
+    "start": 118.15899999999999,
+    "duration": 2.4010000000000105
+  },
+  {
+    "text": "while the rsi is also heading upwards",
+    "start": 120.56,
+    "duration": 2.9599999999999937
+  },
+  {
+    "text": "next",
+    "start": 123.52,
+    "duration": 0.7199999999999989
+  },
+  {
+    "text": "we can see that the price made a small",
+    "start": 124.24,
+    "duration": 1.9190000000000111
+  },
+  {
+    "text": "pullback",
+    "start": 126.159,
+    "duration": 1.4409999999999883
+  },
+  {
+    "text": "now if you're looking at this chart with",
+    "start": 127.6,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "the naked eye you may think that this",
+    "start": 129.119,
+    "duration": 2.0010000000000048
+  },
+  {
+    "text": "pullback",
+    "start": 131.12,
+    "duration": 0.5600000000000023
+  },
+  {
+    "text": "is signaling a possible trend reversal",
+    "start": 131.68,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "however",
+    "start": 134.4,
+    "duration": 0.8799999999999955
+  },
+  {
+    "text": "if you look at the rsi you can actually",
+    "start": 135.28,
+    "duration": 2.4799999999999898
+  },
+  {
+    "text": "spot a bullish hidden divergence",
+    "start": 137.76,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "as prices made higher lows but the rsi",
+    "start": 139.84,
+    "duration": 2.799999999999983
+  },
+  {
+    "text": "made lower lows",
+    "start": 142.64,
+    "duration": 1.5200000000000102
+  },
+  {
+    "text": "this signals a possibility that the",
+    "start": 144.16,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "uptrend may continue instead",
+    "start": 146.0,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "and as you can see",
+    "start": 148.64,
+    "duration": 3.2800000000000296
+  },
+  {
+    "text": "the hidden divergence predicted the",
+    "start": 151.92000000000002,
+    "duration": 1.6789999999999736
+  },
+  {
+    "text": "trend continuation perfectly",
+    "start": 153.599,
+    "duration": 2.8810000000000002
+  },
+  {
+    "text": "now let's look at an example of what a",
+    "start": 156.48,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "bearish hidden divergence looks like",
+    "start": 158.64,
+    "duration": 2.2390000000000043
+  },
+  {
+    "text": "in this chart we can see that the price",
+    "start": 160.879,
+    "duration": 2.0
+  },
+  {
+    "text": "is heading downwards",
+    "start": 162.879,
+    "duration": 1.2009999999999934
+  },
+  {
+    "text": "while the rsi is also heading downwards",
+    "start": 164.07999999999998,
+    "duration": 2.7990000000000066
+  },
+  {
+    "text": "then",
+    "start": 166.879,
+    "duration": 0.8010000000000161
+  },
+  {
+    "text": "when the price made a pullback to the",
+    "start": 167.68,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "upside we spotted a bearish hidden",
+    "start": 169.36,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "divergence",
+    "start": 171.68,
+    "duration": 0.9599999999999795
+  },
+  {
+    "text": "as prices made lower highs but the rsi",
+    "start": 172.64,
+    "duration": 2.640000000000015
+  },
+  {
+    "text": "made higher highs",
+    "start": 175.28,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "this signals a possibility that the",
+    "start": 177.04,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "downtrend may continue instead",
+    "start": 178.879,
+    "duration": 2.801000000000016
+  },
+  {
+    "text": "and as you can see the hidden divergence",
+    "start": 181.68,
+    "duration": 3.9189999999999827
+  },
+  {
+    "text": "predicted the trend continuation",
+    "start": 185.599,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "perfectly",
+    "start": 187.2,
+    "duration": 1.3600000000000136
+  },
+  {
+    "text": "now of course what i just showed you are",
+    "start": 188.56,
+    "duration": 2.3189999999999884
+  },
+  {
+    "text": "just ideal examples",
+    "start": 190.879,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "when you're trading real time spotting",
+    "start": 192.72,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "these divergences may be a bit hard",
+    "start": 195.28,
+    "duration": 2.799999999999983
+  },
+  {
+    "text": "so that is why i'm going to show you a",
+    "start": 198.07999999999998,
+    "duration": 2.0
+  },
+  {
+    "text": "simple trick that you can use to",
+    "start": 200.07999999999998,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "identify",
+    "start": 201.599,
+    "duration": 0.7199999999999989
+  },
+  {
+    "text": "these hidden divergences in real time",
+    "start": 202.319,
+    "duration": 2.7210000000000036
+  },
+  {
+    "text": "but first",
+    "start": 205.04,
+    "duration": 1.039999999999992
+  },
+  {
+    "text": "to make the price easier to look at you",
+    "start": 206.07999999999998,
+    "duration": 2.4000000000000057
+  },
+  {
+    "text": "want to switch your chart to a line",
+    "start": 208.48,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "chart",
+    "start": 210.239,
+    "duration": 0.8810000000000002
+  },
+  {
+    "text": "so the first step is you want to know",
+    "start": 211.12,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "what kind of divergence are you looking",
+    "start": 213.44,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "for",
+    "start": 215.36,
+    "duration": 0.7199999999999704
+  },
+  {
+    "text": "are you looking for a bullish hidden",
+    "start": 216.07999999999998,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "divergence or a bearish one",
+    "start": 217.599,
+    "duration": 2.4809999999999945
+  },
+  {
+    "text": "and the way we determine that is by",
+    "start": 220.07999999999998,
+    "duration": 2.2390000000000327
+  },
+  {
+    "text": "using the 200 ema",
+    "start": 222.31900000000002,
+    "duration": 2.160999999999973
+  },
+  {
+    "text": "so if the price is above the 200 ema you",
+    "start": 224.48,
+    "duration": 3.200000000000017
+  },
+  {
+    "text": "only look for bullish hidden divergences",
+    "start": 227.68,
+    "duration": 2.63900000000001
+  },
+  {
+    "text": "and if the price is below the 200 ema",
+    "start": 230.31900000000002,
+    "duration": 2.720999999999975
+  },
+  {
+    "text": "you only look for bearish hidden",
+    "start": 233.04,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "divergences",
+    "start": 234.64,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "so for this example let's say that the",
+    "start": 237.12,
+    "duration": 2.3189999999999884
+  },
+  {
+    "text": "price is above the 200 ema",
+    "start": 239.439,
+    "duration": 2.561000000000007
+  },
+  {
+    "text": "meaning we only look for bullish hidden",
+    "start": 242.0,
+    "duration": 2.0
+  },
+  {
+    "text": "divergences",
+    "start": 244.0,
+    "duration": 1.438999999999993
+  },
+  {
+    "text": "and this is how you do it the first step",
+    "start": 245.439,
+    "duration": 2.561000000000007
+  },
+  {
+    "text": "is you want to look at the rsi",
+    "start": 248.0,
+    "duration": 2.0
+  },
+  {
+    "text": "and identify the latest swing low",
+    "start": 250.0,
+    "duration": 3.1999999999999886
+  },
+  {
+    "text": "then you place a horizontal line at the",
+    "start": 253.2,
+    "duration": 2.8000000000000114
+  },
+  {
+    "text": "swing low of the rsi",
+    "start": 256.0,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "and the same swing low of the price next",
+    "start": 257.6,
+    "duration": 3.519999999999982
+  },
+  {
+    "text": "you want to wait for a setup where the",
+    "start": 261.12,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "rsi crossed below the line",
+    "start": 263.68,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "but the price hasn't this shows us that",
+    "start": 265.6,
+    "duration": 2.9599999999999795
+  },
+  {
+    "text": "the price is still on a higher low",
+    "start": 268.56,
+    "duration": 2.0790000000000077
+  },
+  {
+    "text": "but the rsi made a lower low and so this",
+    "start": 270.639,
+    "duration": 3.201000000000022
+  },
+  {
+    "text": "will be our bullish hidden divergence",
+    "start": 273.84000000000003,
+    "duration": 3.519999999999982
+  },
+  {
+    "text": "now let's try to find bearish hidden",
+    "start": 277.36,
+    "duration": 2.0
+  },
+  {
+    "text": "divergences",
+    "start": 279.36,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "first you want to make sure that the",
+    "start": 280.8,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "price is below the 200 ema",
+    "start": 282.88,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "next you want to look at the rsi and",
+    "start": 285.52,
+    "duration": 3.2000000000000455
+  },
+  {
+    "text": "identify the latest swing high then",
+    "start": 288.72,
+    "duration": 3.439999999999941
+  },
+  {
+    "text": "you place a horizontal line at the swing",
+    "start": 292.15999999999997,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "high of the rsi and the same swing high",
+    "start": 294.32,
+    "duration": 2.879000000000019
+  },
+  {
+    "text": "of the price",
+    "start": 297.199,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "next you wait for a setup where the rsi",
+    "start": 298.639,
+    "duration": 3.7609999999999673
+  },
+  {
+    "text": "crosses above the line",
+    "start": 302.4,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "but the price hasn't this shows us that",
+    "start": 304.24,
+    "duration": 2.7199999999999704
+  },
+  {
+    "text": "the rsi made a higher high",
+    "start": 306.96,
+    "duration": 2.0
+  },
+  {
+    "text": "and the price made a lower high and so",
+    "start": 308.96,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "this will be our bearish hidden",
+    "start": 311.68,
+    "duration": 1.2799999999999727
+  },
+  {
+    "text": "divergence",
+    "start": 312.96,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "now an important rule that you need to",
+    "start": 315.84,
+    "duration": 1.7600000000000477
+  },
+  {
+    "text": "remember when trading divergences",
+    "start": 317.6,
+    "duration": 2.0
+  },
+  {
+    "text": "is you cannot simply take a position",
+    "start": 319.6,
+    "duration": 2.0
+  },
+  {
+    "text": "just because a divergence appears",
+    "start": 321.6,
+    "duration": 2.0
+  },
+  {
+    "text": "because it doesn't guarantee that the",
+    "start": 323.6,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "continuation pattern will form",
+    "start": 325.12,
+    "duration": 2.0
+  },
+  {
+    "text": "that is why you need to use another",
+    "start": 327.12,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "indicator to further confirm your",
+    "start": 328.72,
+    "duration": 1.599999999999966
+  },
+  {
+    "text": "analysis",
+    "start": 330.32,
+    "duration": 1.1200000000000045
+  },
+  {
+    "text": "and you can do that by using the",
+    "start": 331.44,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "stochastics",
+    "start": 333.36,
+    "duration": 1.599999999999966
+  },
+  {
+    "text": "and this brings us back to the first",
+    "start": 334.96,
+    "duration": 1.7600000000000477
+  },
+  {
+    "text": "part of the video",
+    "start": 336.72,
+    "duration": 1.2799999999999727
+  },
+  {
+    "text": "which is the 200 ema rsi",
+    "start": 338.0,
+    "duration": 3.0389999999999873
+  },
+  {
+    "text": "and stochastics combination so this is",
+    "start": 341.039,
+    "duration": 3.040999999999997
+  },
+  {
+    "text": "how the strategy works",
+    "start": 344.08,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "the first step is you want to look at",
+    "start": 345.919,
+    "duration": 2.0
+  },
+  {
+    "text": "the position of the price",
+    "start": 347.919,
+    "duration": 1.68100000000004
+  },
+  {
+    "text": "in this case it's above the 200 ema",
+    "start": 349.6,
+    "duration": 3.1200000000000045
+  },
+  {
+    "text": "meaning we're searching for bullish",
+    "start": 352.72,
+    "duration": 1.599999999999966
+  },
+  {
+    "text": "hidden divergences",
+    "start": 354.32,
+    "duration": 1.400000000000034
+  },
+  {
+    "text": "[Music]",
+    "start": 355.72,
+    "duration": 1.5599999999999454
+  },
+  {
+    "text": "however once you've spotted the",
+    "start": 357.28,
+    "duration": 2.0
+  },
+  {
+    "text": "divergence",
+    "start": 359.28,
+    "duration": 1.039000000000044
+  },
+  {
+    "text": "you don't want to take any positions yet",
+    "start": 360.319,
+    "duration": 2.6409999999999627
+  },
+  {
+    "text": "you need the stochastics to further",
+    "start": 362.96,
+    "duration": 1.7600000000000477
+  },
+  {
+    "text": "confirm the signal",
+    "start": 364.72,
+    "duration": 1.5989999999999895
+  },
+  {
+    "text": "by waiting for it to cross over upwards",
+    "start": 366.319,
+    "duration": 3.200999999999965
+  },
+  {
+    "text": "once this happens you take a buy",
+    "start": 369.52,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "position",
+    "start": 371.68,
+    "duration": 3.0400000000000205
+  },
+  {
+    "text": "let's look at another example in this",
+    "start": 374.72,
+    "duration": 2.7199999999999704
+  },
+  {
+    "text": "chart",
+    "start": 377.44,
+    "duration": 0.5600000000000023
+  },
+  {
+    "text": "we can see that the price is below the",
+    "start": 378.0,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "200 ema",
+    "start": 379.759,
+    "duration": 1.5209999999999582
+  },
+  {
+    "text": "meaning we only look for bearish hidden",
+    "start": 381.28,
+    "duration": 1.9190000000000396
+  },
+  {
+    "text": "divergences",
+    "start": 383.199,
+    "duration": 3.200999999999965
+  },
+  {
+    "text": "once you've spotted the divergence the",
+    "start": 386.4,
+    "duration": 2.2390000000000327
+  },
+  {
+    "text": "next step",
+    "start": 388.639,
+    "duration": 0.8009999999999877
+  },
+  {
+    "text": "is we want to further confirm the signal",
+    "start": 389.44,
+    "duration": 2.478999999999985
+  },
+  {
+    "text": "by waiting for the stochastics to cross",
+    "start": 391.919,
+    "duration": 1.9210000000000491
+  },
+  {
+    "text": "over downwards",
+    "start": 393.84000000000003,
+    "duration": 1.599999999999966
+  },
+  {
+    "text": "once this happens you take a sell",
+    "start": 395.44,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "position",
+    "start": 397.68,
+    "duration": 2.3899999999999864
+  },
+  {
+    "text": "[Music]",
+    "start": 400.07,
+    "duration": 2.170000000000016
+  },
+  {
+    "text": "now for your exit strategy if you took",
+    "start": 402.24,
+    "duration": 3.3600000000000136
+  },
+  {
+    "text": "by positions you want to place your stop",
+    "start": 405.6,
+    "duration": 2.5599999999999454
+  },
+  {
+    "text": "loss below the nearest swing low",
+    "start": 408.15999999999997,
+    "duration": 2.479000000000042
+  },
+  {
+    "text": "and set your profit target at 1.5 times",
+    "start": 410.639,
+    "duration": 2.6409999999999627
+  },
+  {
+    "text": "your stop loss",
+    "start": 413.28,
+    "duration": 2.8000000000000114
+  },
+  {
+    "text": "and if you took cell positions you want",
+    "start": 416.08,
+    "duration": 2.640000000000043
+  },
+  {
+    "text": "to place your stop loss",
+    "start": 418.72,
+    "duration": 1.2799999999999727
+  },
+  {
+    "text": "above the nearest swing high and set",
+    "start": 420.0,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "your profit target",
+    "start": 422.24,
+    "duration": 0.9590000000000032
+  },
+  {
+    "text": "at 1.5 times your stop loss so now",
+    "start": 423.199,
+    "duration": 4.4809999999999945
+  },
+  {
+    "text": "let's look at the full strategy in",
+    "start": 427.68,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "action and again",
+    "start": 429.36,
+    "duration": 2.0
+  },
+  {
+    "text": "i'm going to switch to a line chart to",
+    "start": 431.36,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "make the price easier to look at",
+    "start": 433.44,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "so we can see that the price is above",
+    "start": 435.68,
+    "duration": 2.0
+  },
+  {
+    "text": "the 200 ema",
+    "start": 437.68,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "meaning we're looking for bullish hidden",
+    "start": 439.199,
+    "duration": 1.7609999999999673
+  },
+  {
+    "text": "divergences",
+    "start": 440.96,
+    "duration": 1.3590000000000373
+  },
+  {
+    "text": "and to do that first we want to look at",
+    "start": 442.319,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "the rsi",
+    "start": 445.199,
+    "duration": 1.1200000000000045
+  },
+  {
+    "text": "and identify the nearest swing low next",
+    "start": 446.319,
+    "duration": 4.0
+  },
+  {
+    "text": "we place a horizontal line at the swing",
+    "start": 450.319,
+    "duration": 2.2409999999999854
+  },
+  {
+    "text": "low of the rsi",
+    "start": 452.56,
+    "duration": 1.2800000000000296
+  },
+  {
+    "text": "and the same swing low of the price then",
+    "start": 453.84000000000003,
+    "duration": 3.2799999999999727
+  },
+  {
+    "text": "we want to find a setup where the rsi",
+    "start": 457.12,
+    "duration": 3.1990000000000123
+  },
+  {
+    "text": "crosses below the line but the price",
+    "start": 460.319,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "hasn't",
+    "start": 462.479,
+    "duration": 1.2800000000000296
+  },
+  {
+    "text": "and so this will be our hidden",
+    "start": 463.759,
+    "duration": 1.200999999999965
+  },
+  {
+    "text": "divergence the next step",
+    "start": 464.96,
+    "duration": 2.400000000000034
+  },
+  {
+    "text": "is we want to further confirm the signal",
+    "start": 467.36,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "by waiting for the stochastics to cross",
+    "start": 470.0,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "over upwards",
+    "start": 471.919,
+    "duration": 1.441000000000031
+  },
+  {
+    "text": "once this happens you take a buy",
+    "start": 473.36,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "position",
+    "start": 475.68,
+    "duration": 1.2799999999999727
+  },
+  {
+    "text": "then you place your stop loss below the",
+    "start": 476.96,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "nearest swing low",
+    "start": 479.52,
+    "duration": 1.2800000000000296
+  },
+  {
+    "text": "and set your profit target at 1.5 times",
+    "start": 480.8,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "your stop loss",
+    "start": 483.44,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "and as you can see the price hits our",
+    "start": 484.96,
+    "duration": 3.6790000000000305
+  },
+  {
+    "text": "profit target",
+    "start": 488.639,
+    "duration": 0.9599999999999795
+  },
+  {
+    "text": "and so this counts as a successful trade",
+    "start": 489.599,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "let's look at another example",
+    "start": 492.479,
+    "duration": 2.9610000000000127
+  },
+  {
+    "text": "in this chart we spotted that the price",
+    "start": 495.44,
+    "duration": 2.158999999999992
+  },
+  {
+    "text": "is below the 200 ema",
+    "start": 497.599,
+    "duration": 2.2409999999999854
+  },
+  {
+    "text": "meaning we're looking for bearish hidden",
+    "start": 499.84,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "divergences",
+    "start": 501.68,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "so first we want to look at the latest",
+    "start": 503.199,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "swing high of the rsi",
+    "start": 505.759,
+    "duration": 1.7609999999999673
+  },
+  {
+    "text": "and place a horizontal line there and",
+    "start": 507.52,
+    "duration": 2.2390000000000327
+  },
+  {
+    "text": "the same swing high of the price",
+    "start": 509.759,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "then we want to wait for a setup",
+    "start": 512.159,
+    "duration": 3.4400000000000546
+  },
+  {
+    "text": "where the rsi crosses above the",
+    "start": 515.599,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "horizontal line",
+    "start": 517.44,
+    "duration": 1.3599999999999
+  },
+  {
+    "text": "but the price hasn't and so this will be",
+    "start": 518.8,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "our hidden divergence",
+    "start": 521.68,
+    "duration": 1.6800000000000637
+  },
+  {
+    "text": "and again we want to further confirm the",
+    "start": 523.36,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "signal",
+    "start": 526.08,
+    "duration": 0.7199999999999136
+  },
+  {
+    "text": "by waiting for the stochastics to cross",
+    "start": 526.8,
+    "duration": 2.0
+  },
+  {
+    "text": "over downwards",
+    "start": 528.8,
+    "duration": 1.4400000000000546
+  },
+  {
+    "text": "once this happens you take a cell",
+    "start": 530.24,
+    "duration": 2.5989999999999327
+  },
+  {
+    "text": "position",
+    "start": 532.8389999999999,
+    "duration": 1.1610000000000582
+  },
+  {
+    "text": "next you place your stop loss above the",
+    "start": 534.0,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "nearest swing high",
+    "start": 536.64,
+    "duration": 1.3600000000000136
+  },
+  {
+    "text": "and set your profit target at 1.5 times",
+    "start": 538.0,
+    "duration": 2.5599999999999454
+  },
+  {
+    "text": "your stop loss",
+    "start": 540.56,
+    "duration": 1.4400000000000546
+  },
+  {
+    "text": "and as you can see the price hits our",
+    "start": 542.0,
+    "duration": 3.6000000000000227
+  },
+  {
+    "text": "profit target",
+    "start": 545.6,
+    "duration": 0.8799999999999955
+  },
+  {
+    "text": "and so this counts as a successful trade",
+    "start": 546.48,
+    "duration": 4.478999999999928
+  },
+  {
+    "text": "so i just revealed to you a simple rsi",
+    "start": 550.959,
+    "duration": 3.1210000000000946
+  },
+  {
+    "text": "divergent strategy",
+    "start": 554.08,
+    "duration": 1.2799999999999727
+  },
+  {
+    "text": "that you can immediately use right now",
+    "start": 555.36,
+    "duration": 2.478999999999928
+  },
+  {
+    "text": "and all i ask for in return",
+    "start": 557.8389999999999,
+    "duration": 2.161000000000058
+  },
+  {
+    "text": "is for you to invest two seconds of your",
+    "start": 560.0,
+    "duration": 2.0
+  },
+  {
+    "text": "time into liking the video",
+    "start": 562.0,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "and subscribe to the channel it",
+    "start": 563.68,
+    "duration": 1.9200000000000728
+  },
+  {
+    "text": "literally takes only two clicks",
+    "start": 565.6,
+    "duration": 1.6789999999999736
+  },
+  {
+    "text": "but it means so much to me and you can",
+    "start": 567.279,
+    "duration": 2.4009999999999536
+  },
+  {
+    "text": "also check out my other videos as well",
+    "start": 569.68,
+    "duration": 2.080000000000041
+  },
+  {
+    "text": "so thank you guys for watching and i'll",
+    "start": 571.76,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "see you in the next video",
+    "start": 573.519,
+    "duration": 0
+  }
+]

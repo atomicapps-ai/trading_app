@@ -1,19 +1,17 @@
-"""video_queue — the worklist for the autonomous video-mining loop.
+"""video_queue — derive the mining worklist from the library + _history.json.
 
-Scans research/video_library/ and reports which ingested videos still need
-assessment (have transcript+frames but no pass/reject status in _history.json).
-Gives the co-work loop a deterministic "what's next" + progress toward a target.
+The mining loop is checkpointed in research/video_library/_history.json: a video is
+"assessed" once it has a status of passed|rejected. Everything ingested (has a
+transcript) but not yet assessed is "pending". This helper makes that queue
+explicit and deterministic so the loop is resumable on either computer.
 
-    python scripts/video_queue.py                 # summary + next pending id
-    python scripts/video_queue.py --next          # just the next pending video id
-    python scripts/video_queue.py --list          # all pending ids
-    python scripts/video_queue.py --stats         # counts as JSON
+  python -m scripts.video_queue --stats     # counts: assessed / pending / passed / rejected
+  python -m scripts.video_queue --next      # print the next pending id (blank if none)
+  python -m scripts.video_queue --list      # list all pending ids, one per line
 """
 from __future__ import annotations
-
 import argparse
 import json
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -21,42 +19,51 @@ LIB = ROOT / "research" / "video_library"
 HIST = LIB / "_history.json"
 
 
-def _history() -> dict:
+def load_hist() -> dict:
     try:
-        return json.loads(HIST.read_text(encoding="utf-8")) if HIST.exists() else {}
-    except Exception:
+        return json.loads(HIST.read_text()) if HIST.exists() else {}
+    except Exception:  # noqa: BLE001
         return {}
 
 
-def _has_material(d: Path) -> bool:
-    tr = (d / "transcript.md").exists() or (d / "transcript.json").exists()
-    frames = (d / "frames").is_dir() and any((d / "frames").glob("*.jpg"))
-    return tr and frames
+def _ingested(folder: Path) -> bool:
+    """A video is ingested if it has a transcript or extracted frames."""
+    if (folder / "transcript.md").exists():
+        return True
+    frames = folder / "frames"
+    return frames.is_dir() and any(frames.glob("*.jpg"))
 
 
 def scan() -> dict:
-    hist = _history()
-    passed, rejected, pending, no_material = [], [], [], []
-    for d in sorted(p for p in LIB.iterdir() if p.is_dir() and not p.name.startswith("_")):
-        vid = d.name
-        status = (hist.get(vid) or {}).get("status")
+    hist = load_hist()
+    lib_dirs = sorted(
+        p.name for p in LIB.iterdir() if p.is_dir() and not p.name.startswith("_")
+    )
+    passed, rejected, pending, not_ingested = [], [], [], []
+    for vid in lib_dirs:
+        status = hist.get(vid, {}).get("status")
         if status == "passed":
             passed.append(vid)
         elif status == "rejected":
             rejected.append(vid)
-        elif _has_material(d):
+        elif _ingested(LIB / vid):
             pending.append(vid)
         else:
-            no_material.append(vid)
-    return {"passed": passed, "rejected": rejected, "pending": pending,
-            "no_material": no_material}
+            not_ingested.append(vid)
+    return {
+        "lib": lib_dirs,
+        "passed": passed,
+        "rejected": rejected,
+        "pending": pending,
+        "not_ingested": not_ingested,
+    }
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Video-mining worklist.")
-    ap.add_argument("--next", action="store_true", help="print only the next pending id")
-    ap.add_argument("--list", action="store_true", help="print all pending ids")
-    ap.add_argument("--stats", action="store_true", help="print counts as JSON")
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--stats", action="store_true")
+    ap.add_argument("--next", action="store_true")
+    ap.add_argument("--list", action="store_true")
     args = ap.parse_args()
 
     s = scan()
@@ -66,19 +73,15 @@ def main() -> None:
     if args.list:
         print("\n".join(s["pending"]))
         return
-    if args.stats:
-        print(json.dumps({k: len(v) for k, v in s.items()}))
-        return
-
-    done = len(s["passed"]) + len(s["rejected"])
-    print(f"assessed: {done}  (passed {len(s['passed'])} · rejected {len(s['rejected'])})")
-    print(f"pending assessment: {len(s['pending'])}")
-    print(f"ingested but incomplete (no transcript/frames): {len(s['no_material'])}")
+    # default / --stats
+    assessed = len(s["passed"]) + len(s["rejected"])
+    print(f"library:      {len(s['lib'])}")
+    print(f"assessed:     {assessed}  (passed {len(s['passed'])} / rejected {len(s['rejected'])})")
+    print(f"pending:      {len(s['pending'])}")
+    if s["not_ingested"]:
+        print(f"not_ingested: {len(s['not_ingested'])}  {s['not_ingested']}")
     if s["pending"]:
-        nxt = s["pending"][0]
-        print(f"\nNEXT: {nxt}")
-        print(f"  transcript: research/video_library/{nxt}/transcript.md")
-        print(f"  frames:     research/video_library/{nxt}/frames/")
+        print(f"next:         {s['pending'][0]}")
 
 
 if __name__ == "__main__":
