@@ -1,0 +1,2542 @@
+[
+  {
+    "text": "do you ever wonder why some Traders are",
+    "start": 0.04,
+    "duration": 1.5999999999999999
+  },
+  {
+    "text": "consistently profitable and others",
+    "start": 1.64,
+    "duration": 1.68
+  },
+  {
+    "text": "aren't using trend lines the difference",
+    "start": 3.32,
+    "duration": 2.039
+  },
+  {
+    "text": "between the two is how each one uses the",
+    "start": 5.359,
+    "duration": 1.92
+  },
+  {
+    "text": "trend lines or utilizes the trend lines",
+    "start": 7.279,
+    "duration": 1.9610000000000003
+  },
+  {
+    "text": "hi Traders welcome to my channel I am",
+    "start": 9.24,
+    "duration": 1.799999999999999
+  },
+  {
+    "text": "Tory trades and I have been trading the",
+    "start": 11.04,
+    "duration": 1.559000000000001
+  },
+  {
+    "text": "markets for over a decade now I'm here",
+    "start": 12.599,
+    "duration": 3.0
+  },
+  {
+    "text": "to share valuable insights to help",
+    "start": 15.599,
+    "duration": 1.561
+  },
+  {
+    "text": "elevate your trading so in this deep",
+    "start": 17.16,
+    "duration": 1.9199999999999982
+  },
+  {
+    "text": "Dive Master Class we're going to be",
+    "start": 19.08,
+    "duration": 1.3590000000000018
+  },
+  {
+    "text": "going over understanding trend lines",
+    "start": 20.439,
+    "duration": 1.9609999999999985
+  },
+  {
+    "text": "what they are and why they're",
+    "start": 22.4,
+    "duration": 1.0
+  },
+  {
+    "text": "indispensable drawing accurate trend",
+    "start": 23.4,
+    "duration": 2.0390000000000015
+  },
+  {
+    "text": "lines step by step and then the strategy",
+    "start": 25.439,
+    "duration": 2.1209999999999987
+  },
+  {
+    "text": "how to implement these trend lines to",
+    "start": 27.56,
+    "duration": 2.0390000000000015
+  },
+  {
+    "text": "ultim Ely make decisions in the market",
+    "start": 29.599,
+    "duration": 2.2409999999999997
+  },
+  {
+    "text": "I'm also going to show real world",
+    "start": 31.84,
+    "duration": 1.2799999999999976
+  },
+  {
+    "text": "examples realtime examples with real",
+    "start": 33.12,
+    "duration": 2.4000000000000057
+  },
+  {
+    "text": "trades and real-time Market data and",
+    "start": 35.52,
+    "duration": 2.3200000000000003
+  },
+  {
+    "text": "even some Advanced",
+    "start": 37.84,
+    "duration": 5.079999999999998
+  },
+  {
+    "text": "tips so if you don't already know trend",
+    "start": 42.92,
+    "duration": 2.478999999999999
+  },
+  {
+    "text": "lines are the foundation of technical",
+    "start": 45.399,
+    "duration": 1.9609999999999985
+  },
+  {
+    "text": "analysis they represent the direction",
+    "start": 47.36,
+    "duration": 2.240000000000002
+  },
+  {
+    "text": "and speed of a specific instrument and",
+    "start": 49.6,
+    "duration": 2.1999999999999957
+  },
+  {
+    "text": "they ultimately help Traders identify",
+    "start": 51.8,
+    "duration": 1.6400000000000006
+  },
+  {
+    "text": "Trends and possible reversals so what",
+    "start": 53.44,
+    "duration": 2.520000000000003
+  },
+  {
+    "text": "types of trend lines do we have we have",
+    "start": 55.96,
+    "duration": 1.519999999999996
+  },
+  {
+    "text": "two types of trend lines we've got an",
+    "start": 57.48,
+    "duration": 1.919000000000004
+  },
+  {
+    "text": "upward trend line which connects higher",
+    "start": 59.399,
+    "duration": 2.080999999999996
+  },
+  {
+    "text": "lows indicating bullish movement and",
+    "start": 61.48,
+    "duration": 2.440000000000005
+  },
+  {
+    "text": "we've got a downward trend line which",
+    "start": 63.92,
+    "duration": 1.5589999999999975
+  },
+  {
+    "text": "connects lower highs and signals bearish",
+    "start": 65.479,
+    "duration": 2.840999999999994
+  },
+  {
+    "text": "movement bullish trend lines bearish",
+    "start": 68.32,
+    "duration": 1.7600000000000051
+  },
+  {
+    "text": "trend lines upward trend lines downward",
+    "start": 70.08,
+    "duration": 1.6000000000000085
+  },
+  {
+    "text": "trend lines now how do we draw accurate",
+    "start": 71.68,
+    "duration": 2.0789999999999935
+  },
+  {
+    "text": "trend lines this is the fun part so",
+    "start": 73.759,
+    "duration": 1.4000000000000057
+  },
+  {
+    "text": "let's get into actually drawing these",
+    "start": 75.159,
+    "duration": 1.5210000000000008
+  },
+  {
+    "text": "trend lines and how I utilize them you",
+    "start": 76.68,
+    "duration": 1.7989999999999924
+  },
+  {
+    "text": "have to start with a time frame now what",
+    "start": 78.479,
+    "duration": 1.3200000000000074
+  },
+  {
+    "text": "does that mean you could be a day trader",
+    "start": 79.799,
+    "duration": 1.5209999999999866
+  },
+  {
+    "text": "swing Trader a long-term investor how do",
+    "start": 81.32,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "the time frames come into play when",
+    "start": 83.15899999999999,
+    "duration": 1.521000000000015
+  },
+  {
+    "text": "drawing our lines and the next thing is",
+    "start": 84.68,
+    "duration": 1.7989999999999924
+  },
+  {
+    "text": "Reliable Tools what tools are we going",
+    "start": 86.479,
+    "duration": 1.6400000000000006
+  },
+  {
+    "text": "to be using to draw these trend lines",
+    "start": 88.119,
+    "duration": 1.4809999999999945
+  },
+  {
+    "text": "I'm going to be be using a platform such",
+    "start": 89.6,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "as trading View and I'll be using the",
+    "start": 91.03999999999999,
+    "duration": 1.399000000000001
+  },
+  {
+    "text": "drawing tool to help me draw these trend",
+    "start": 92.439,
+    "duration": 1.7199999999999989
+  },
+  {
+    "text": "lines now let's get into some actual",
+    "start": 94.15899999999999,
+    "duration": 1.4010000000000105
+  },
+  {
+    "text": "chart time here we go all right we are",
+    "start": 95.56,
+    "duration": 1.4000000000000057
+  },
+  {
+    "text": "opening up trading view I've got a naked",
+    "start": 96.96000000000001,
+    "duration": 2.5189999999999912
+  },
+  {
+    "text": "chart on the screen right here in front",
+    "start": 99.479,
+    "duration": 2.120999999999995
+  },
+  {
+    "text": "of your eyes I'm going to show you guys",
+    "start": 101.6,
+    "duration": 1.8790000000000049
+  },
+  {
+    "text": "how I mark up my charts how I use time",
+    "start": 103.479,
+    "duration": 2.0
+  },
+  {
+    "text": "frames and the tools and which highs and",
+    "start": 105.479,
+    "duration": 2.2010000000000076
+  },
+  {
+    "text": "lows I use to utilize my trend lines and",
+    "start": 107.68,
+    "duration": 2.0789999999999935
+  },
+  {
+    "text": "how I draw them I'm going to start by",
+    "start": 109.759,
+    "duration": 1.3599999999999994
+  },
+  {
+    "text": "prefacing anytime I mark up my chart",
+    "start": 111.119,
+    "duration": 2.5999999999999943
+  },
+  {
+    "text": "with a completely new instrument I will",
+    "start": 113.719,
+    "duration": 2.1210000000000093
+  },
+  {
+    "text": "always do a top- down analysis I am",
+    "start": 115.84,
+    "duration": 2.0799999999999983
+  },
+  {
+    "text": "always going to start on the highest",
+    "start": 117.92,
+    "duration": 1.198999999999998
+  },
+  {
+    "text": "time frame that I Poss possibly can so",
+    "start": 119.119,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "right now we are looking at the ym this",
+    "start": 120.719,
+    "duration": 2.1210000000000093
+  },
+  {
+    "text": "is actually the M ym this is the micro e",
+    "start": 122.84,
+    "duration": 3.2789999999999964
+  },
+  {
+    "text": "mini Dow Jones this is a Futures",
+    "start": 126.119,
+    "duration": 2.4799999999999898
+  },
+  {
+    "text": "instrument and this is the micro version",
+    "start": 128.599,
+    "duration": 2.481000000000023
+  },
+  {
+    "text": "of the Dow so if you guys know what the",
+    "start": 131.08,
+    "duration": 1.1999999999999886
+  },
+  {
+    "text": "Dow Jones is it's an index and through",
+    "start": 132.28,
+    "duration": 2.0389999999999873
+  },
+  {
+    "text": "the Futures Market you are able to trade",
+    "start": 134.319,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "the indexes here or the indices all",
+    "start": 135.92,
+    "duration": 1.9590000000000032
+  },
+  {
+    "text": "right so we're going to start in the",
+    "start": 137.879,
+    "duration": 0.9610000000000127
+  },
+  {
+    "text": "monthly time frame so we're going to hit",
+    "start": 138.84,
+    "duration": 1.399000000000001
+  },
+  {
+    "text": "the M up here in the top left and now",
+    "start": 140.239,
+    "duration": 1.7199999999999989
+  },
+  {
+    "text": "when drawing my trend lines the reason I",
+    "start": 141.959,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "go to the higher time frame is because I",
+    "start": 143.879,
+    "duration": 1.6810000000000116
+  },
+  {
+    "text": "want an overall view I want to know",
+    "start": 145.56,
+    "duration": 2.0389999999999873
+  },
+  {
+    "text": "overall from the far left to the far",
+    "start": 147.599,
+    "duration": 2.920000000000016
+  },
+  {
+    "text": "right the hard right Edge where the",
+    "start": 150.519,
+    "duration": 1.281000000000006
+  },
+  {
+    "text": "price is trading at right now I want to",
+    "start": 151.8,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "know overall which way is this trending",
+    "start": 153.56,
+    "duration": 2.5999999999999943
+  },
+  {
+    "text": "and I want to go ahead and mark up my",
+    "start": 156.16,
+    "duration": 1.0790000000000077
+  },
+  {
+    "text": "chart as well so we're going to start",
+    "start": 157.239,
+    "duration": 1.4809999999999945
+  },
+  {
+    "text": "from the beginning marking up our very",
+    "start": 158.72,
+    "duration": 1.7990000000000066
+  },
+  {
+    "text": "first trend line now ironically you",
+    "start": 160.519,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "would think I would use the trend line",
+    "start": 162.44,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "tool in trading view but I actually",
+    "start": 164.28,
+    "duration": 1.8789999999999907
+  },
+  {
+    "text": "don't because the trend line tool and",
+    "start": 166.159,
+    "duration": 1.281000000000006
+  },
+  {
+    "text": "trading view gives a point a and point B",
+    "start": 167.44,
+    "duration": 1.718999999999994
+  },
+  {
+    "text": "and it stops I want a point a and a",
+    "start": 169.159,
+    "duration": 1.8810000000000002
+  },
+  {
+    "text": "point B and then I want the line to go",
+    "start": 171.04,
+    "duration": 1.5589999999999975
+  },
+  {
+    "text": "indefinitely in One Direction so I",
+    "start": 172.599,
+    "duration": 2.040999999999997
+  },
+  {
+    "text": "actually use the ray tool when drawing",
+    "start": 174.64,
+    "duration": 1.4000000000000057
+  },
+  {
+    "text": "my trend lines all right when drawing",
+    "start": 176.04,
+    "duration": 1.4000000000000057
+  },
+  {
+    "text": "our very first upward trend line on a",
+    "start": 177.44,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "chart we're looking looking for the",
+    "start": 179.28,
+    "duration": 0.9590000000000032
+  },
+  {
+    "text": "lowest point we see on the screen that's",
+    "start": 180.239,
+    "duration": 1.7199999999999989
+  },
+  {
+    "text": "point a point B is going to be a higher",
+    "start": 181.959,
+    "duration": 3.040999999999997
+  },
+  {
+    "text": "low where the price has not yet",
+    "start": 185.0,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "intersected and the most recent higher",
+    "start": 186.76,
+    "duration": 2.8389999999999986
+  },
+  {
+    "text": "low so let me see if I can help you guys",
+    "start": 189.599,
+    "duration": 2.0810000000000173
+  },
+  {
+    "text": "understand this we're not going to use",
+    "start": 191.68,
+    "duration": 1.2399999999999807
+  },
+  {
+    "text": "this higher low here because price has",
+    "start": 192.92,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "already crossed the line it's already",
+    "start": 194.76,
+    "duration": 1.5200000000000102
+  },
+  {
+    "text": "intersected so I like to visualize this",
+    "start": 196.28,
+    "duration": 2.4799999999999898
+  },
+  {
+    "text": "line as though it's truly holding the",
+    "start": 198.76,
+    "duration": 1.7199999999999989
+  },
+  {
+    "text": "price up now here would be pretty",
+    "start": 200.48,
+    "duration": 1.5600000000000023
+  },
+  {
+    "text": "accurate but I like to take this point B",
+    "start": 202.04,
+    "duration": 2.0
+  },
+  {
+    "text": "and drag it to the most recent touch",
+    "start": 204.04,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "point which would be right here back in",
+    "start": 206.28,
+    "duration": 2.280000000000001
+  },
+  {
+    "text": "October 2nd 2023 so now we have our very",
+    "start": 208.56,
+    "duration": 3.4399999999999977
+  },
+  {
+    "text": "first upward trend line point a point B",
+    "start": 212.0,
+    "duration": 3.3600000000000136
+  },
+  {
+    "text": "Point c three touch points but when",
+    "start": 215.36,
+    "duration": 2.119999999999976
+  },
+  {
+    "text": "using the ray tool it only gives us two",
+    "start": 217.48,
+    "duration": 2.200000000000017
+  },
+  {
+    "text": "points to adjust all right we have drawn",
+    "start": 219.68,
+    "duration": 2.1189999999999998
+  },
+  {
+    "text": "our very first upward trend line now",
+    "start": 221.799,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "this isn't the end so we have just",
+    "start": 223.4,
+    "duration": 1.478999999999985
+  },
+  {
+    "text": "simply drawn one trend line on the",
+    "start": 224.879,
+    "duration": 1.6810000000000116
+  },
+  {
+    "text": "monthly time frame we need to continue",
+    "start": 226.56,
+    "duration": 1.8000000000000114
+  },
+  {
+    "text": "doing our top down analysis so that",
+    "start": 228.36,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "means we need to work our way down to",
+    "start": 230.76,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "lower time frames so we're at the",
+    "start": 232.519,
+    "duration": 1.5209999999999866
+  },
+  {
+    "text": "monthly let's go down to the weekly and",
+    "start": 234.04,
+    "duration": 1.960000000000008
+  },
+  {
+    "text": "essentially what I'm trying to do is",
+    "start": 236.0,
+    "duration": 2.0
+  },
+  {
+    "text": "modify my lines to make sure they're a",
+    "start": 238.0,
+    "duration": 1.4000000000000057
+  },
+  {
+    "text": "little bit more accurate as you can see",
+    "start": 239.4,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "it's a little bit off now so I need to",
+    "start": 241.04,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "adjust it to this new low and then what",
+    "start": 242.64,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "I'm doing is I am capturing as much of",
+    "start": 244.48,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "the movement of the price as I possibly",
+    "start": 246.92,
+    "duration": 1.7199999999999989
+  },
+  {
+    "text": "can so I'm going to continue to connect",
+    "start": 248.64,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "these trend lines and it will start to",
+    "start": 251.12,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "look like a fan of trend lines each new",
+    "start": 252.64,
+    "duration": 2.4000000000000057
+  },
+  {
+    "text": "line will use the previous point B as",
+    "start": 255.04,
+    "duration": 2.5200000000000102
+  },
+  {
+    "text": "its new point a and let me show you what",
+    "start": 257.56,
+    "duration": 1.9590000000000032
+  },
+  {
+    "text": "I mean so I'm going to continue to mark",
+    "start": 259.519,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "up my charts and draw steeper trend",
+    "start": 261.12,
+    "duration": 1.7989999999999782
+  },
+  {
+    "text": "lines I'm now in the weekly time frame",
+    "start": 262.919,
+    "duration": 1.8810000000000286
+  },
+  {
+    "text": "I'm going to go back to that Ray tool",
+    "start": 264.8,
+    "duration": 1.3600000000000136
+  },
+  {
+    "text": "and now my point a is going to be my",
+    "start": 266.16,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "previous point B that pre previous",
+    "start": 268.08,
+    "duration": 2.080000000000041
+  },
+  {
+    "text": "recent touch Point boom and now same",
+    "start": 270.16,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "scenario I'm looking for the next low",
+    "start": 272.0,
+    "duration": 2.680000000000007
+  },
+  {
+    "text": "the next most recent low now you'd think",
+    "start": 274.68,
+    "duration": 2.0400000000000205
+  },
+  {
+    "text": "it would be here but there's an even",
+    "start": 276.72,
+    "duration": 1.3599999999999568
+  },
+  {
+    "text": "more recent low over here so I'm going",
+    "start": 278.08,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "to take this point B and Boop move it",
+    "start": 279.52,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "right here so now we've got yet another",
+    "start": 282.0,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "one two three touch Point upward trend",
+    "start": 283.6,
+    "duration": 2.5989999999999895
+  },
+  {
+    "text": "line same as the last one that we drew",
+    "start": 286.199,
+    "duration": 1.7609999999999673
+  },
+  {
+    "text": "in the monthly time frame but now we're",
+    "start": 287.96,
+    "duration": 1.1999999999999886
+  },
+  {
+    "text": "in the weekly and now we have truly",
+    "start": 289.15999999999997,
+    "duration": 1.8000000000000114
+  },
+  {
+    "text": "capitalized or identified as much",
+    "start": 290.96,
+    "duration": 2.2390000000000327
+  },
+  {
+    "text": "movement as possible so we've got one",
+    "start": 293.199,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "trend line and we've got another trend",
+    "start": 295.36,
+    "duration": 1.240000000000009
+  },
+  {
+    "text": "line here we are truly following the",
+    "start": 296.6,
+    "duration": 2.158999999999992
+  },
+  {
+    "text": "price in this direction that it's going",
+    "start": 298.759,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "in we're we're utilizing all of the",
+    "start": 300.36,
+    "duration": 1.9599999999999795
+  },
+  {
+    "text": "movement here all right we're in the",
+    "start": 302.32,
+    "duration": 1.1999999999999886
+  },
+  {
+    "text": "weekly we got to continue to go down",
+    "start": 303.52,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "we're going to go to the Daily now",
+    "start": 305.12,
+    "duration": 1.0790000000000077
+  },
+  {
+    "text": "there's going to be some instances where",
+    "start": 306.199,
+    "duration": 1.200999999999965
+  },
+  {
+    "text": "you move down in time frame and there's",
+    "start": 307.4,
+    "duration": 1.7200000000000273
+  },
+  {
+    "text": "not anything different you can do",
+    "start": 309.12,
+    "duration": 1.240000000000009
+  },
+  {
+    "text": "there's no other trend lines that you",
+    "start": 310.36,
+    "duration": 1.1999999999999886
+  },
+  {
+    "text": "can draw so you'll continue to Simply",
+    "start": 311.56,
+    "duration": 1.3589999999999804
+  },
+  {
+    "text": "move down time frames so we're in the",
+    "start": 312.919,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "weekly let's move down to the Daily all",
+    "start": 314.52,
+    "duration": 1.5600000000000023
+  },
+  {
+    "text": "right in the daily time frame same",
+    "start": 316.08,
+    "duration": 1.7200000000000273
+  },
+  {
+    "text": "scenario here we're going to use our",
+    "start": 317.8,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "previous point B which was right here as",
+    "start": 320.24,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "our new point a and then we're looking",
+    "start": 322.36,
+    "duration": 1.9590000000000032
+  },
+  {
+    "text": "for the next most recent low Boop right",
+    "start": 324.319,
+    "duration": 2.599999999999966
+  },
+  {
+    "text": "here without price intersecting all",
+    "start": 326.919,
+    "duration": 1.761000000000024
+  },
+  {
+    "text": "right we're at the daily let's go to the",
+    "start": 328.68,
+    "duration": 1.3999999999999773
+  },
+  {
+    "text": "4-Hour time frame now as far as our",
+    "start": 330.08,
+    "duration": 1.6790000000000305
+  },
+  {
+    "text": "upward trend lines go we cannot come in",
+    "start": 331.759,
+    "duration": 2.36099999999999
+  },
+  {
+    "text": "any steeper this is an instance where",
+    "start": 334.12,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "there isn't a change or there isn't a",
+    "start": 335.8,
+    "duration": 1.5600000000000023
+  },
+  {
+    "text": "difference there's nowhere we can draw",
+    "start": 337.36,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "an additional trend line from the daily",
+    "start": 338.88,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "to the 4our but what I can see is now we",
+    "start": 340.8,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "can finally draw our very first downward",
+    "start": 343.12,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "trend line so we've got our upward trend",
+    "start": 345.24,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "lines but now we need to find our",
+    "start": 346.84000000000003,
+    "duration": 1.3589999999999804
+  },
+  {
+    "text": "downward trend lines when drawing",
+    "start": 348.199,
+    "duration": 1.4809999999999945
+  },
+  {
+    "text": "downward trend lines it's the same",
+    "start": 349.68,
+    "duration": 1.7989999999999782
+  },
+  {
+    "text": "concept that we Ed for the upwards but",
+    "start": 351.479,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "opposite so for the downward trend lines",
+    "start": 353.4,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "we're looking for the highest point we",
+    "start": 354.919,
+    "duration": 1.7200000000000273
+  },
+  {
+    "text": "see on the chart the highest point I see",
+    "start": 356.639,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "on the chart is going to be right here",
+    "start": 358.319,
+    "duration": 1.521000000000015
+  },
+  {
+    "text": "at 45 224 is so that's going to be your",
+    "start": 359.84000000000003,
+    "duration": 3.1199999999999477
+  },
+  {
+    "text": "point a now point B is going to be a",
+    "start": 362.96,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "lower high a recent lower high where",
+    "start": 364.8,
+    "duration": 2.238999999999976
+  },
+  {
+    "text": "price has not yet intersected that's as",
+    "start": 367.039,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "far as we can go with the downward trend",
+    "start": 369.0,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "lines but I can see a steeper downward",
+    "start": 370.759,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "trend line that I can draw right here in",
+    "start": 372.68,
+    "duration": 1.3589999999999804
+  },
+  {
+    "text": "the 4-Hour time frame without having to",
+    "start": 374.039,
+    "duration": 1.4809999999999945
+  },
+  {
+    "text": "go down to the 1 hour yet so I'm going",
+    "start": 375.52,
+    "duration": 1.4800000000000182
+  },
+  {
+    "text": "to come in with another trend line new",
+    "start": 377.0,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "point a is always going to be previous",
+    "start": 378.68,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "point B all right beautiful touch points",
+    "start": 380.36,
+    "duration": 1.7199999999999704
+  },
+  {
+    "text": "here now in the 4-Hour time frame that's",
+    "start": 382.08,
+    "duration": 1.8000000000000114
+  },
+  {
+    "text": "as far as I can go but now I can go down",
+    "start": 383.88,
+    "duration": 1.8000000000000114
+  },
+  {
+    "text": "to the 1H hour time frame this is where",
+    "start": 385.68,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "we're going to stay how do you know what",
+    "start": 387.44,
+    "duration": 1.5600000000000023
+  },
+  {
+    "text": "time frame you stay in or which time",
+    "start": 389.0,
+    "duration": 1.3999999999999773
+  },
+  {
+    "text": "frame you stop in and that's going to be",
+    "start": 390.4,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "which time frame you have committed to",
+    "start": 392.15999999999997,
+    "duration": 1.7200000000000273
+  },
+  {
+    "text": "or decided to trade in I don't jump time",
+    "start": 393.88,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "frames I don't go from lower back to",
+    "start": 395.96,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "higher looking for sooner entries I",
+    "start": 397.4,
+    "duration": 2.0400000000000205
+  },
+  {
+    "text": "commit to one time frame and look for my",
+    "start": 399.44,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "entries and exits in that specific time",
+    "start": 401.199,
+    "duration": 2.0809999999999604
+  },
+  {
+    "text": "frame but when marking up my charts for",
+    "start": 403.28,
+    "duration": 1.8000000000000114
+  },
+  {
+    "text": "the first time I will always do this top",
+    "start": 405.08,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "down analysis so that's how I know I'm",
+    "start": 407.28,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "going to stop in the 1 hour time frame",
+    "start": 408.88,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "but I do see some adjustments I can make",
+    "start": 410.96,
+    "duration": 1.799000000000035
+  },
+  {
+    "text": "to my lines and I can see a steeper",
+    "start": 412.759,
+    "duration": 2.0
+  },
+  {
+    "text": "trend line that I can draw so we're",
+    "start": 414.759,
+    "duration": 1.5600000000000023
+  },
+  {
+    "text": "going to continue to use our previous",
+    "start": 416.319,
+    "duration": 1.5600000000000023
+  },
+  {
+    "text": "point B as new point a and here we go",
+    "start": 417.879,
+    "duration": 2.9209999999999923
+  },
+  {
+    "text": "this is a lower high right here now I",
+    "start": 420.8,
+    "duration": 2.0
+  },
+  {
+    "text": "can even come in a little bit steeper",
+    "start": 422.8,
+    "duration": 2.0
+  },
+  {
+    "text": "previous point B new point a and here we",
+    "start": 424.8,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "go all right if the price of the ym can",
+    "start": 427.68,
+    "duration": 2.839999999999975
+  },
+  {
+    "text": "continue down right here this will be a",
+    "start": 430.52,
+    "duration": 1.7200000000000273
+  },
+  {
+    "text": "three touch Point trend line right here",
+    "start": 432.24,
+    "duration": 2.0790000000000077
+  },
+  {
+    "text": "now we've done all of our analysis we've",
+    "start": 434.319,
+    "duration": 1.8009999999999877
+  },
+  {
+    "text": "done all of our chart markups from top",
+    "start": 436.12,
+    "duration": 2.1990000000000123
+  },
+  {
+    "text": "down from the monthly to the weekly to",
+    "start": 438.319,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "the Daily to the 4our all the way down",
+    "start": 440.16,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "to the 1our time frame where I'm going",
+    "start": 441.8,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "to make my trading decisions so I have",
+    "start": 443.24,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "demonstrated how to mark up your charts",
+    "start": 445.08,
+    "duration": 1.9590000000000032
+  },
+  {
+    "text": "and how to accurately draw your trend",
+    "start": 447.039,
+    "duration": 1.7200000000000273
+  },
+  {
+    "text": "lines next how do we incorporate these",
+    "start": 448.759,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "trend lines into our trading strategy",
+    "start": 450.639,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "and how can they provide Clarity and",
+    "start": 452.479,
+    "duration": 1.5600000000000023
+  },
+  {
+    "text": "confidence we're going to go over two",
+    "start": 454.039,
+    "duration": 1.68100000000004
+  },
+  {
+    "text": "different types of examples when trading",
+    "start": 455.72,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "trend lines there are two options we can",
+    "start": 457.639,
+    "duration": 1.9599999999999795
+  },
+  {
+    "text": "trade a breakout strategy or a bounce",
+    "start": 459.599,
+    "duration": 2.201000000000022
+  },
+  {
+    "text": "strategy or a combination of the two so",
+    "start": 461.8,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "when incorporating the bounce strategy",
+    "start": 463.68,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "when price gets to one of our trend",
+    "start": 465.36,
+    "duration": 1.399000000000001
+  },
+  {
+    "text": "lines we're anticipating that the price",
+    "start": 466.759,
+    "duration": 1.4809999999999945
+  },
+  {
+    "text": "is going to bounce off of that trend",
+    "start": 468.24,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "line suggesting that this is going to be",
+    "start": 469.759,
+    "duration": 1.3209999999999695
+  },
+  {
+    "text": "a trend continuation and I'll give you",
+    "start": 471.08,
+    "duration": 1.7200000000000273
+  },
+  {
+    "text": "an example in just a moment and then the",
+    "start": 472.8,
+    "duration": 1.3199999999999932
+  },
+  {
+    "text": "breakout strategy which is my all-time",
+    "start": 474.12,
+    "duration": 2.6000000000000227
+  },
+  {
+    "text": "favorite this is when price breaks",
+    "start": 476.72,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "through a trend line in indicating a",
+    "start": 478.36,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "potential Trend reversal okay so let's",
+    "start": 480.0,
+    "duration": 2.158999999999992
+  },
+  {
+    "text": "go over the concept of trading the",
+    "start": 482.159,
+    "duration": 1.6809999999999832
+  },
+  {
+    "text": "bounce of a trend line so right here",
+    "start": 483.84,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "where the price is at now of the ym",
+    "start": 485.44,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "we're going to go ahead and take a short",
+    "start": 487.52,
+    "duration": 1.2390000000000327
+  },
+  {
+    "text": "position anticipating that this is going",
+    "start": 488.759,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "to be a trend continuation that this is",
+    "start": 490.72,
+    "duration": 2.2399999999999523
+  },
+  {
+    "text": "simply just going to be yet another",
+    "start": 492.96,
+    "duration": 1.400000000000034
+  },
+  {
+    "text": "touch point to this downward Trend and",
+    "start": 494.36,
+    "duration": 1.7199999999999704
+  },
+  {
+    "text": "it's going to continue down so this is",
+    "start": 496.08,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "where we would place a sell order we're",
+    "start": 497.599,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "in a short position now now how do we",
+    "start": 499.56,
+    "duration": 2.478999999999985
+  },
+  {
+    "text": "mitigate our risk so we are currently in",
+    "start": 502.039,
+    "duration": 2.0810000000000173
+  },
+  {
+    "text": "a short position anticipating that the",
+    "start": 504.12,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "price of the Dow is going to continue",
+    "start": 505.8,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "down and just simply bounce off of this",
+    "start": 507.44,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "trend line there's going to be many ways",
+    "start": 509.12,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "of mitigating risk understanding the",
+    "start": 510.639,
+    "duration": 1.9209999999999354
+  },
+  {
+    "text": "capital that you have to trade the",
+    "start": 512.56,
+    "duration": 1.32000000000005
+  },
+  {
+    "text": "capital that you have in your account",
+    "start": 513.88,
+    "duration": 1.3600000000000136
+  },
+  {
+    "text": "and how much percentage in conjunction",
+    "start": 515.24,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "to the capital should you be risking a",
+    "start": 517.159,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "great rule of thumb especially for",
+    "start": 518.8389999999999,
+    "duration": 1.4810000000001082
+  },
+  {
+    "text": "beginners is going to be anywhere",
+    "start": 520.32,
+    "duration": 1.1200000000000045
+  },
+  {
+    "text": "between 1 and 2% of your Capital now",
+    "start": 521.44,
+    "duration": 2.119999999999891
+  },
+  {
+    "text": "let's say you have an account size of",
+    "start": 523.56,
+    "duration": 1.8000000000000682
+  },
+  {
+    "text": "128,000 that means we could risk",
+    "start": 525.36,
+    "duration": 1.9600000000000364
+  },
+  {
+    "text": "anywhere between $1 to $2,500 in this",
+    "start": 527.32,
+    "duration": 3.0
+  },
+  {
+    "text": "specific trade so now that's a good rule",
+    "start": 530.32,
+    "duration": 1.4799999999999045
+  },
+  {
+    "text": "of thumb to know okay if this trade",
+    "start": 531.8,
+    "duration": 1.1590000000001055
+  },
+  {
+    "text": "doesn't work out we're willing to risk",
+    "start": 532.9590000000001,
+    "duration": 1.6809999999999263
+  },
+  {
+    "text": "$1,000 to",
+    "start": 534.64,
+    "duration": 1.240000000000009
+  },
+  {
+    "text": "$2,500 but now let's see if we actually",
+    "start": 535.88,
+    "duration": 2.0399999999999636
+  },
+  {
+    "text": "need to risk that much in this specific",
+    "start": 537.92,
+    "duration": 1.5200000000000955
+  },
+  {
+    "text": "F set up so where do we put our stop",
+    "start": 539.44,
+    "duration": 2.119999999999891
+  },
+  {
+    "text": "loss our stop loss is going to go on the",
+    "start": 541.56,
+    "duration": 2.160000000000082
+  },
+  {
+    "text": "other side of our downward trend line so",
+    "start": 543.72,
+    "duration": 2.0799999999999272
+  },
+  {
+    "text": "if the price doesn't bounce off of this",
+    "start": 545.8,
+    "duration": 1.8000000000000682
+  },
+  {
+    "text": "downward trend line we know okay time to",
+    "start": 547.6,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "close this trade time to take a loss now",
+    "start": 549.36,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "in this scenario we only need to risk",
+    "start": 551.04,
+    "duration": 1.9600000000000364
+  },
+  {
+    "text": "$50 if the price comes up to",
+    "start": 553.0,
+    "duration": 3.0
+  },
+  {
+    "text": "43,7 19 we know all right this wasn't a",
+    "start": 556.0,
+    "duration": 3.480000000000018
+  },
+  {
+    "text": "bounce of the downward trend line I'm",
+    "start": 559.48,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "willing to lose $50 on this trade so we",
+    "start": 560.92,
+    "duration": 2.2800000000000864
+  },
+  {
+    "text": "have our stop loss in place if the price",
+    "start": 563.2,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "comes up breaks this downward trend line",
+    "start": 565.36,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "and hits this",
+    "start": 567.2,
+    "duration": 1.1599999999999682
+  },
+  {
+    "text": "43719 $1 we have just taken a $51 loss",
+    "start": 568.36,
+    "duration": 3.9600000000000364
+  },
+  {
+    "text": "but now what happens if the price",
+    "start": 572.32,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "continues in our favor the coolest part",
+    "start": 573.76,
+    "duration": 1.7200000000000273
+  },
+  {
+    "text": "about this strategy is we don't have a",
+    "start": 575.48,
+    "duration": 2.0389999999999873
+  },
+  {
+    "text": "takeprofit set now you're more than",
+    "start": 577.519,
+    "duration": 1.4809999999999945
+  },
+  {
+    "text": "welcome to add one and to have one if",
+    "start": 579.0,
+    "duration": 1.4800000000000182
+  },
+  {
+    "text": "you don't want to hold this trade for",
+    "start": 580.48,
+    "duration": 1.1999999999999318
+  },
+  {
+    "text": "that long if you're simply just looking",
+    "start": 581.68,
+    "duration": 1.6400000000001
+  },
+  {
+    "text": "to get a quick Buck or build that",
+    "start": 583.32,
+    "duration": 1.599999999999909
+  },
+  {
+    "text": "confidence or just rack up those small",
+    "start": 584.92,
+    "duration": 1.5990000000000464
+  },
+  {
+    "text": "wins absolutely use A takeprofit and A",
+    "start": 586.519,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "good rule of thumb for take profits is",
+    "start": 588.48,
+    "duration": 1.3999999999999773
+  },
+  {
+    "text": "always to use an area of support or",
+    "start": 589.88,
+    "duration": 2.399000000000001
+  },
+  {
+    "text": "resistance where the price is likely to",
+    "start": 592.279,
+    "duration": 1.6409999999999627
+  },
+  {
+    "text": "hit and turn around multiple times so",
+    "start": 593.92,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "putting our takeprofit at",
+    "start": 596.04,
+    "duration": 1.9600000000000364
+  },
+  {
+    "text": "43,44 is an ideal takeprofit since the",
+    "start": 598.0,
+    "duration": 2.759999999999991
+  },
+  {
+    "text": "likelihood of the price getting back to",
+    "start": 600.76,
+    "duration": 1.3999999999999773
+  },
+  {
+    "text": "this area which it's done in the past",
+    "start": 602.16,
+    "duration": 1.3590000000000373
+  },
+  {
+    "text": "and then turning around is very high we",
+    "start": 603.519,
+    "duration": 1.5599999999999454
+  },
+  {
+    "text": "could simply add a take profit here",
+    "start": 605.079,
+    "duration": 1.5610000000000355
+  },
+  {
+    "text": "making $91 for this trade or my favorite",
+    "start": 606.64,
+    "duration": 2.7590000000000146
+  },
+  {
+    "text": "way to do it is allow the trend to play",
+    "start": 609.399,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "out allow the trend to move if the price",
+    "start": 611.24,
+    "duration": 2.7999999999999545
+  },
+  {
+    "text": "of the Dow continues in our favor which",
+    "start": 614.04,
+    "duration": 1.9600000000000364
+  },
+  {
+    "text": "I'll do a little path tool just to give",
+    "start": 616.0,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "you an idea if it continues down pulls",
+    "start": 617.64,
+    "duration": 2.0
+  },
+  {
+    "text": "up a little bit comes up comes down",
+    "start": 619.64,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "continues along this downward trend line",
+    "start": 621.92,
+    "duration": 1.8000000000000682
+  },
+  {
+    "text": "we're able to take our stop loss and",
+    "start": 623.72,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "Trail it into profit so it's no longer",
+    "start": 626.12,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "at that negative $51 now we Trail it and",
+    "start": 629.0,
+    "duration": 3.078999999999951
+  },
+  {
+    "text": "we move it along that trend line but as",
+    "start": 632.079,
+    "duration": 2.1210000000000946
+  },
+  {
+    "text": "soon as price breaks the downward trend",
+    "start": 634.2,
+    "duration": 1.9599999999999227
+  },
+  {
+    "text": "line that we're anticipating it to",
+    "start": 636.16,
+    "duration": 1.32000000000005
+  },
+  {
+    "text": "follow then we know it's time to take",
+    "start": 637.48,
+    "duration": 2.199999999999932
+  },
+  {
+    "text": "that profit so now let's say that price",
+    "start": 639.68,
+    "duration": 1.719000000000051
+  },
+  {
+    "text": "does finally break that means we would",
+    "start": 641.399,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "have been able to move our stop all the",
+    "start": 643.279,
+    "duration": 1.5599999999999454
+  },
+  {
+    "text": "way down to",
+    "start": 644.8389999999999,
+    "duration": 2.1200000000001182
+  },
+  {
+    "text": "43358 Knocking us out of our trade with",
+    "start": 646.9590000000001,
+    "duration": 2.280999999999949
+  },
+  {
+    "text": "a profit of $129 so just think of it",
+    "start": 649.24,
+    "duration": 2.67999999999995
+  },
+  {
+    "text": "like manually moving your stop into",
+    "start": 651.92,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "profit as price progresses as price",
+    "start": 654.16,
+    "duration": 2.0
+  },
+  {
+    "text": "moves in your favor along that trend",
+    "start": 656.16,
+    "duration": 1.7200000000000273
+  },
+  {
+    "text": "line and then you simply just wait for",
+    "start": 657.88,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "the price to break out of that trend",
+    "start": 659.48,
+    "duration": 1.1589999999999918
+  },
+  {
+    "text": "line and take your profits or if the",
+    "start": 660.639,
+    "duration": 1.9209999999999354
+  },
+  {
+    "text": "trade doesn't work out you'll know",
+    "start": 662.56,
+    "duration": 1.4800000000000182
+  },
+  {
+    "text": "pretty quickly especially when trading",
+    "start": 664.04,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "the Bounce by putting that stop on the",
+    "start": 665.56,
+    "duration": 1.8800000000001091
+  },
+  {
+    "text": "other side of your trend line where we",
+    "start": 667.44,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "originally had it here at this",
+    "start": 668.88,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "43719 now let's go over another scenario",
+    "start": 670.8,
+    "duration": 2.400000000000091
+  },
+  {
+    "text": "the breakout method so we're going to",
+    "start": 673.2,
+    "duration": 1.599999999999909
+  },
+  {
+    "text": "close this trade here and go over a",
+    "start": 674.8,
+    "duration": 1.6400000000001
+  },
+  {
+    "text": "second scenario since we don't have a",
+    "start": 676.44,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "breakout of price in this example I'm",
+    "start": 678.32,
+    "duration": 2.1989999999999554
+  },
+  {
+    "text": "going to draw an example with the path",
+    "start": 680.519,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "tool so let's say that the price of the",
+    "start": 682.12,
+    "duration": 2.2789999999999964
+  },
+  {
+    "text": "ym continues down and breaks this upward",
+    "start": 684.399,
+    "duration": 3.0410000000000537
+  },
+  {
+    "text": "trend line using the breakout strategy",
+    "start": 687.44,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "with trend lines we enter when price",
+    "start": 689.12,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "breaks a trend line instead of bouncing",
+    "start": 691.04,
+    "duration": 1.9600000000000364
+  },
+  {
+    "text": "so we are anticipating that this is",
+    "start": 693.0,
+    "duration": 1.5599999999999454
+  },
+  {
+    "text": "going to be a trend reversal so a",
+    "start": 694.56,
+    "duration": 2.3600000000000136
+  },
+  {
+    "text": "reversal of this upward trend line now",
+    "start": 696.92,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "this upward trend line was drawn in a",
+    "start": 698.76,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "higher time frame so it holds a little",
+    "start": 700.279,
+    "duration": 1.3600000000000136
+  },
+  {
+    "text": "bit more weight so we're thinking that",
+    "start": 701.639,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "this higher time frame upward trend is",
+    "start": 703.279,
+    "duration": 1.7999999999999545
+  },
+  {
+    "text": "about to get a reversal and we're going",
+    "start": 705.079,
+    "duration": 1.4400000000000546
+  },
+  {
+    "text": "to be continuing down on this new trend",
+    "start": 706.519,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "here so let's say that we consider",
+    "start": 708.36,
+    "duration": 1.7189999999999372
+  },
+  {
+    "text": "taking a short position here we would",
+    "start": 710.079,
+    "duration": 1.4010000000000673
+  },
+  {
+    "text": "think short positions because price",
+    "start": 711.48,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "broke instead of thinking short",
+    "start": 712.92,
+    "duration": 1.8000000000000682
+  },
+  {
+    "text": "positions because price bounced so we're",
+    "start": 714.72,
+    "duration": 2.0399999999999636
+  },
+  {
+    "text": "thinking short positions right here at",
+    "start": 716.76,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "43,00 47 there we go we've got our short",
+    "start": 718.519,
+    "duration": 3.1200000000000045
+  },
+  {
+    "text": "position right here now how do we",
+    "start": 721.639,
+    "duration": 1.3199999999999363
+  },
+  {
+    "text": "mitigate the risk it's going to be the",
+    "start": 722.959,
+    "duration": 1.6410000000000764
+  },
+  {
+    "text": "same exact scenario that we mitigated",
+    "start": 724.6,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "our risk using the bounce but what's",
+    "start": 726.44,
+    "duration": 1.9589999999999463
+  },
+  {
+    "text": "different about this strategy is our",
+    "start": 728.399,
+    "duration": 1.36099999999999
+  },
+  {
+    "text": "entries are based on different reasons",
+    "start": 729.76,
+    "duration": 1.7200000000000273
+  },
+  {
+    "text": "so instead of anticipating a bounce we",
+    "start": 731.48,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "are anticipating a trend reversal so",
+    "start": 733.24,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "we're still thinking short positions",
+    "start": 734.88,
+    "duration": 1.5600000000000591
+  },
+  {
+    "text": "right here at this",
+    "start": 736.44,
+    "duration": 1.1989999999999554
+  },
+  {
+    "text": "43413 is and now where does our stop go",
+    "start": 737.639,
+    "duration": 2.68100000000004
+  },
+  {
+    "text": "we're going to put as though if the",
+    "start": 740.32,
+    "duration": 1.3599999999999
+  },
+  {
+    "text": "price was to come up and break our",
+    "start": 741.68,
+    "duration": 1.1589999999999918
+  },
+  {
+    "text": "downward trend line we would put our",
+    "start": 742.8389999999999,
+    "duration": 1.3600000000000136
+  },
+  {
+    "text": "stop somewhere around this",
+    "start": 744.199,
+    "duration": 2.36099999999999
+  },
+  {
+    "text": "43592 if the price was to come up and",
+    "start": 746.56,
+    "duration": 2.0400000000000773
+  },
+  {
+    "text": "break we would think okay close me out",
+    "start": 748.6,
+    "duration": 2.0
+  },
+  {
+    "text": "take my loss at it's probably going to",
+    "start": 750.6,
+    "duration": 1.7989999999999782
+  },
+  {
+    "text": "be around if this is the same scenario",
+    "start": 752.399,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "it probably be still around that $50 and",
+    "start": 754.24,
+    "duration": 2.080000000000041
+  },
+  {
+    "text": "this is going to be same scenario so",
+    "start": 756.32,
+    "duration": 1.3599999999999
+  },
+  {
+    "text": "we're going to continue to stay in this",
+    "start": 757.68,
+    "duration": 1.4800000000000182
+  },
+  {
+    "text": "trade as long as the price continues",
+    "start": 759.16,
+    "duration": 2.080000000000041
+  },
+  {
+    "text": "along this downward trend line so same",
+    "start": 761.24,
+    "duration": 1.7999999999999545
+  },
+  {
+    "text": "exact scenario for the exits you're",
+    "start": 763.04,
+    "duration": 1.6800000000000637
+  },
+  {
+    "text": "going to trail that stop if price",
+    "start": 764.72,
+    "duration": 1.7200000000000273
+  },
+  {
+    "text": "progresses in your favor you get to move",
+    "start": 766.44,
+    "duration": 1.6389999999998963
+  },
+  {
+    "text": "that stop into profit if the price",
+    "start": 768.079,
+    "duration": 1.7210000000000036
+  },
+  {
+    "text": "doesn't work out and breaks this",
+    "start": 769.8,
+    "duration": 1.4400000000000546
+  },
+  {
+    "text": "downward trend line then we take our $50",
+    "start": 771.24,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "loss now we can increase position size I",
+    "start": 773.0,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "just used one contract as an example",
+    "start": 775.24,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "before but since this account size on",
+    "start": 777.48,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "the the paper trade is 128,000 we could",
+    "start": 779.0,
+    "duration": 3.1989999999999554
+  },
+  {
+    "text": "risk anywhere between $1,000 and $2,500",
+    "start": 782.199,
+    "duration": 3.0
+  },
+  {
+    "text": "for each trade here that 1 to 2% or",
+    "start": 785.199,
+    "duration": 2.36099999999999
+  },
+  {
+    "text": "especially for the newbies and the",
+    "start": 787.56,
+    "duration": 1.0400000000000773
+  },
+  {
+    "text": "beginners just experimenting with one",
+    "start": 788.6,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "micro is an excellent place to start",
+    "start": 790.76,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "especially in the Futures market now the",
+    "start": 792.519,
+    "duration": 1.4809999999999945
+  },
+  {
+    "text": "exit criteria is exactly the same as the",
+    "start": 794.0,
+    "duration": 1.8390000000000555
+  },
+  {
+    "text": "bounce as long as the price continues",
+    "start": 795.839,
+    "duration": 1.5209999999999582
+  },
+  {
+    "text": "along this trend line we're happy we're",
+    "start": 797.36,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "making money we get to move that stop",
+    "start": 798.8,
+    "duration": 1.5600000000000591
+  },
+  {
+    "text": "into profit if it doesn't work out we",
+    "start": 800.36,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "took that $51 loss and then we're on to",
+    "start": 802.0,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "the next trade now let's go over a real",
+    "start": 804.16,
+    "duration": 1.6789999999999736
+  },
+  {
+    "text": "world scenario where I used this method",
+    "start": 805.8389999999999,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "on a live account so we have our upward",
+    "start": 808.079,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "trend line here we've got one two three",
+    "start": 809.8389999999999,
+    "duration": 2.3210000000000264
+  },
+  {
+    "text": "touch points the price broke out of it",
+    "start": 812.16,
+    "duration": 2.080000000000041
+  },
+  {
+    "text": "that was my indication to take a short",
+    "start": 814.24,
+    "duration": 1.5599999999999454
+  },
+  {
+    "text": "position since price broke out of the",
+    "start": 815.8,
+    "duration": 1.5200000000000955
+  },
+  {
+    "text": "upward trend line and then what kept me",
+    "start": 817.32,
+    "duration": 1.5599999999999454
+  },
+  {
+    "text": "in where did my stop loss go stop loss",
+    "start": 818.88,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "went on the other side of the downward",
+    "start": 821.04,
+    "duration": 1.4790000000000418
+  },
+  {
+    "text": "trend line so I was willing to risk",
+    "start": 822.519,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "$8,900 if the price as soon as I got in",
+    "start": 824.48,
+    "duration": 2.7189999999999372
+  },
+  {
+    "text": "broke the downward trend line and then",
+    "start": 827.199,
+    "duration": 1.5210000000000719
+  },
+  {
+    "text": "how long do I stay in for so remember",
+    "start": 828.72,
+    "duration": 1.7989999999999782
+  },
+  {
+    "text": "that scenario where I said if you're",
+    "start": 830.519,
+    "duration": 1.5599999999999454
+  },
+  {
+    "text": "looking to close profits to take those",
+    "start": 832.079,
+    "duration": 2.0410000000000537
+  },
+  {
+    "text": "small wins or you're not looking to hold",
+    "start": 834.12,
+    "duration": 1.7999999999999545
+  },
+  {
+    "text": "that trade for as long as possible you",
+    "start": 835.92,
+    "duration": 1.719000000000051
+  },
+  {
+    "text": "want to look for an area of support or",
+    "start": 837.639,
+    "duration": 2.0
+  },
+  {
+    "text": "resistance as a takeprofit so we have",
+    "start": 839.639,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "our entry based on the break of a",
+    "start": 841.6,
+    "duration": 1.5599999999999454
+  },
+  {
+    "text": "downward trend line and then the price",
+    "start": 843.16,
+    "duration": 1.5600000000000591
+  },
+  {
+    "text": "got to an area of support where it's",
+    "start": 844.72,
+    "duration": 2.3589999999999236
+  },
+  {
+    "text": "very likely that the price of crude oil",
+    "start": 847.079,
+    "duration": 1.6800000000000637
+  },
+  {
+    "text": "here was to hit and turn around hit and",
+    "start": 848.759,
+    "duration": 2.04099999999994
+  },
+  {
+    "text": "turn around it hit and turned around",
+    "start": 850.8,
+    "duration": 2.2000000000000455
+  },
+  {
+    "text": "here so I closed my trade here at this",
+    "start": 853.0,
+    "duration": 1.8390000000000555
+  },
+  {
+    "text": "7226 is area and made a profit of",
+    "start": 854.839,
+    "duration": 3.3209999999999127
+  },
+  {
+    "text": "27,600 I had a 3.11 r here and this is a",
+    "start": 858.16,
+    "duration": 3.9189999999999827
+  },
+  {
+    "text": "real example of an actual trade that I",
+    "start": 862.079,
+    "duration": 1.5600000000000591
+  },
+  {
+    "text": "placed using the breakout strategy so",
+    "start": 863.639,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "here's a few Advanced tips for you",
+    "start": 865.759,
+    "duration": 1.36099999999999
+  },
+  {
+    "text": "Traders already utilizing trend lines",
+    "start": 867.12,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "when you done your top down analysis and",
+    "start": 868.72,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "you've marked up your charts and placed",
+    "start": 870.16,
+    "duration": 1.3590000000000373
+  },
+  {
+    "text": "all your trend lines as price progresses",
+    "start": 871.519,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "price will intersect and cross through",
+    "start": 873.639,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "those original trend lines so you're",
+    "start": 875.24,
+    "duration": 1.240000000000009
+  },
+  {
+    "text": "going to have to adjust your trend lines",
+    "start": 876.48,
+    "duration": 1.5599999999999454
+  },
+  {
+    "text": "on a regular basis to adapt to the",
+    "start": 878.04,
+    "duration": 1.9190000000000964
+  },
+  {
+    "text": "market that means utilizing new Point",
+    "start": 879.9590000000001,
+    "duration": 2.0
+  },
+  {
+    "text": "A's and new Point B's steeper trend",
+    "start": 881.9590000000001,
+    "duration": 2.04099999999994
+  },
+  {
+    "text": "lines or adjusting the trend lines that",
+    "start": 884.0,
+    "duration": 1.5599999999999454
+  },
+  {
+    "text": "have already been crossed to either a",
+    "start": 885.56,
+    "duration": 1.4800000000000182
+  },
+  {
+    "text": "new low or a new high making sure the",
+    "start": 887.04,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "price hasn't intersected yet and a huge",
+    "start": 888.88,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "one that I went over already is",
+    "start": 890.639,
+    "duration": 1.1999999999999318
+  },
+  {
+    "text": "incorporating the multiple time frames",
+    "start": 891.8389999999999,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "incorporating that top- down analysis",
+    "start": 893.68,
+    "duration": 1.7600000000001046
+  },
+  {
+    "text": "seeing what price has done overall in a",
+    "start": 895.44,
+    "duration": 2.439999999999941
+  },
+  {
+    "text": "much higher time frame gives you such a",
+    "start": 897.88,
+    "duration": 1.5600000000000591
+  },
+  {
+    "text": "clearer view of the overall direction of",
+    "start": 899.44,
+    "duration": 1.9589999999999463
+  },
+  {
+    "text": "a trend and then as you move from that",
+    "start": 901.399,
+    "duration": 1.9210000000000491
+  },
+  {
+    "text": "higher time frame you go into those",
+    "start": 903.32,
+    "duration": 1.31899999999996
+  },
+  {
+    "text": "lower time frames and then you stop at",
+    "start": 904.639,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "the one you've decided to trade and then",
+    "start": 906.079,
+    "duration": 1.6410000000000764
+  },
+  {
+    "text": "the last tip was utilizing those areas",
+    "start": 907.72,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "of support and resistance for take",
+    "start": 909.639,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "profits one if you're not willing to",
+    "start": 911.24,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "hold that trade for as long as possible",
+    "start": 913.12,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "and two if you're just simply looking to",
+    "start": 914.8,
+    "duration": 1.5200000000000955
+  },
+  {
+    "text": "rack up those small wins and look for a",
+    "start": 916.32,
+    "duration": 1.7199999999999136
+  },
+  {
+    "text": "sooner area to take profit so this was a",
+    "start": 918.04,
+    "duration": 2.2390000000000327
+  },
+  {
+    "text": "complete guide of how to do your top",
+    "start": 920.279,
+    "duration": 1.441000000000031
+  },
+  {
+    "text": "down analysis how to accurately draw",
+    "start": 921.72,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "your trend lines and utilize a strategy",
+    "start": 923.32,
+    "duration": 1.8399999999999181
+  },
+  {
+    "text": "to help you make decisions based on",
+    "start": 925.16,
+    "duration": 1.4400000000000546
+  },
+  {
+    "text": "these trend lines I encourage you guys",
+    "start": 926.6,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "to mark up your chart and integrate",
+    "start": 928.04,
+    "duration": 1.6800000000000637
+  },
+  {
+    "text": "these strategies into your trading as",
+    "start": 929.72,
+    "duration": 1.5989999999999327
+  },
+  {
+    "text": "always guys hit the link in the",
+    "start": 931.319,
+    "duration": 1.0410000000000537
+  },
+  {
+    "text": "description to be part of my community",
+    "start": 932.36,
+    "duration": 1.2789999999999964
+  },
+  {
+    "text": "where I teach this strategy much more in",
+    "start": 933.639,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "depth you can learn alongside my team",
+    "start": 935.399,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "and my community all right friends",
+    "start": 937.279,
+    "duration": 1.441000000000031
+  },
+  {
+    "text": "thanks for joining me today that's all I",
+    "start": 938.72,
+    "duration": 3.1189999999999145
+  },
+  {
+    "text": "have hope this was helpful",
+    "start": 941.8389999999999,
+    "duration": 0
+  }
+]

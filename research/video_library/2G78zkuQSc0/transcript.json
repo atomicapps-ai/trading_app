@@ -1,0 +1,827 @@
+[
+  {
+    "text": "in this video I'm going to show you a",
+    "start": 0.28,
+    "duration": 1.52
+  },
+  {
+    "text": "strategy using the hakashi indicator",
+    "start": 1.8,
+    "duration": 2.4400000000000004
+  },
+  {
+    "text": "it's great at finding Trends and even",
+    "start": 4.24,
+    "duration": 2.0
+  },
+  {
+    "text": "better at finding reversals I'm also",
+    "start": 6.24,
+    "duration": 2.119999999999999
+  },
+  {
+    "text": "going to be adding another indicator to",
+    "start": 8.36,
+    "duration": 2.08
+  },
+  {
+    "text": "this strategy to make it that much more",
+    "start": 10.44,
+    "duration": 2.0790000000000006
+  },
+  {
+    "text": "effective let's get straight to it for",
+    "start": 12.519,
+    "duration": 1.9209999999999994
+  },
+  {
+    "text": "all the beginners out there or for the",
+    "start": 14.44,
+    "duration": 1.9190000000000023
+  },
+  {
+    "text": "people who don't know what the hakashi",
+    "start": 16.359,
+    "duration": 2.0
+  },
+  {
+    "text": "indicator is let me give you a quick",
+    "start": 18.359,
+    "duration": 1.9609999999999985
+  },
+  {
+    "text": "overview so what we're looking at now",
+    "start": 20.32,
+    "duration": 2.16
+  },
+  {
+    "text": "looks as if it's just a normal chart",
+    "start": 22.48,
+    "duration": 2.4800000000000004
+  },
+  {
+    "text": "right well actually we're looking at the",
+    "start": 24.96,
+    "duration": 2.0
+  },
+  {
+    "text": "hakashi indicator at work hakashi",
+    "start": 26.96,
+    "duration": 2.759999999999998
+  },
+  {
+    "text": "actually means average bar in Japanese",
+    "start": 29.72,
+    "duration": 2.9200000000000017
+  },
+  {
+    "text": "so that's exactly what it's doing",
+    "start": 32.64,
+    "duration": 1.7590000000000003
+  },
+  {
+    "text": "finding the average in the candlesticks",
+    "start": 34.399,
+    "duration": 2.3200000000000003
+  },
+  {
+    "text": "so this is the real time chart and this",
+    "start": 36.719,
+    "duration": 2.3599999999999994
+  },
+  {
+    "text": "is the hakashi chart so just make sure",
+    "start": 39.079,
+    "duration": 2.3200000000000003
+  },
+  {
+    "text": "in the back of your head you know the",
+    "start": 41.399,
+    "duration": 1.6400000000000006
+  },
+  {
+    "text": "hakashi is not the real price it's the",
+    "start": 43.039,
+    "duration": 3.0
+  },
+  {
+    "text": "average price instead of just looking at",
+    "start": 46.039,
+    "duration": 2.0
+  },
+  {
+    "text": "the hakashi candles we're going to be",
+    "start": 48.039,
+    "duration": 1.8399999999999963
+  },
+  {
+    "text": "looking at both the real time and the",
+    "start": 49.879,
+    "duration": 2.2409999999999997
+  },
+  {
+    "text": "hakashi at the same time so we can read",
+    "start": 52.12,
+    "duration": 2.959000000000003
+  },
+  {
+    "text": "and understand the chart better to do",
+    "start": 55.079,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "this just go to trading view go to the",
+    "start": 57.239,
+    "duration": 1.9600000000000009
+  },
+  {
+    "text": "indicators tab and type in hakashi this",
+    "start": 59.199,
+    "duration": 2.6799999999999997
+  },
+  {
+    "text": "will show both the real-time candles",
+    "start": 61.879,
+    "duration": 1.8810000000000002
+  },
+  {
+    "text": "above and the hakashi candlesticks right",
+    "start": 63.76,
+    "duration": 2.2800000000000082
+  },
+  {
+    "text": "below it now that we have the indicator",
+    "start": 66.04,
+    "duration": 1.7590000000000003
+  },
+  {
+    "text": "added let's move on to the strategy so",
+    "start": 67.799,
+    "duration": 2.2809999999999917
+  },
+  {
+    "text": "when trading it's a lot harder to find",
+    "start": 70.08,
+    "duration": 2.200000000000003
+  },
+  {
+    "text": "Trends than you might think not all",
+    "start": 72.28,
+    "duration": 1.7199999999999989
+  },
+  {
+    "text": "Trends are going to look this simple and",
+    "start": 74.0,
+    "duration": 1.7590000000000003
+  },
+  {
+    "text": "just have all green candlesticks going",
+    "start": 75.759,
+    "duration": 2.0400000000000063
+  },
+  {
+    "text": "up most of the time they're going to",
+    "start": 77.799,
+    "duration": 1.5209999999999866
+  },
+  {
+    "text": "look like this a strong Trend going up",
+    "start": 79.32,
+    "duration": 2.680000000000007
+  },
+  {
+    "text": "but having multiple pullbacks with red",
+    "start": 82.0,
+    "duration": 2.239999999999995
+  },
+  {
+    "text": "candlesticks which also might give you",
+    "start": 84.24,
+    "duration": 2.198999999999998
+  },
+  {
+    "text": "false signals on when to sell that's",
+    "start": 86.439,
+    "duration": 2.2010000000000076
+  },
+  {
+    "text": "where the hakashi comes in instead of",
+    "start": 88.64,
+    "duration": 2.200000000000003
+  },
+  {
+    "text": "looking at this trend with a bunch of",
+    "start": 90.84,
+    "duration": 1.4799999999999898
+  },
+  {
+    "text": "false signals that may get you to panic",
+    "start": 92.32,
+    "duration": 1.7990000000000066
+  },
+  {
+    "text": "cell we're going to be looking at the",
+    "start": 94.119,
+    "duration": 1.4410000000000025
+  },
+  {
+    "text": "hakashi in most cases it'll have all the",
+    "start": 95.56,
+    "duration": 2.5989999999999895
+  },
+  {
+    "text": "same color candlesticks and a strong",
+    "start": 98.15899999999999,
+    "duration": 2.041000000000011
+  },
+  {
+    "text": "Trend this way it's easier to identify",
+    "start": 100.2,
+    "duration": 2.5990000000000038
+  },
+  {
+    "text": "the trend in real time that's exactly",
+    "start": 102.799,
+    "duration": 2.2409999999999854
+  },
+  {
+    "text": "what the hakashi is for it helps",
+    "start": 105.03999999999999,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "eliminate unwanted noise and shows a",
+    "start": 106.96000000000001,
+    "duration": 2.039999999999992
+  },
+  {
+    "text": "clearer version of the price movement",
+    "start": 109.0,
+    "duration": 1.960000000000008
+  },
+  {
+    "text": "let's move on to how to identify the",
+    "start": 110.96000000000001,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "trend there are three simple rules you",
+    "start": 112.88,
+    "duration": 2.2789999999999964
+  },
+  {
+    "text": "must follow to identify an uptrend the",
+    "start": 115.15899999999999,
+    "duration": 2.6810000000000116
+  },
+  {
+    "text": "hakashi candlesticks must be green they",
+    "start": 117.84,
+    "duration": 2.5989999999999895
+  },
+  {
+    "text": "must have large bodies and they have no",
+    "start": 120.439,
+    "duration": 2.521000000000001
+  },
+  {
+    "text": "lower wicks in this example this would",
+    "start": 122.96,
+    "duration": 2.6000000000000085
+  },
+  {
+    "text": "be a strong long Trend all the candles",
+    "start": 125.56,
+    "duration": 2.5589999999999975
+  },
+  {
+    "text": "are green they have large bodies and",
+    "start": 128.119,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "they don't have lower Wicks it's the",
+    "start": 130.08,
+    "duration": 1.8789999999999907
+  },
+  {
+    "text": "complete opposite for a downtrend all",
+    "start": 131.959,
+    "duration": 2.2009999999999934
+  },
+  {
+    "text": "the candlesticks must be red have large",
+    "start": 134.16,
+    "duration": 2.0790000000000077
+  },
+  {
+    "text": "bodies and have no upper Wicks so we all",
+    "start": 136.239,
+    "duration": 2.8409999999999798
+  },
+  {
+    "text": "know charts gain and lose momentum all",
+    "start": 139.07999999999998,
+    "duration": 2.2800000000000296
+  },
+  {
+    "text": "the time after a strong upwards Trend",
+    "start": 141.36,
+    "duration": 2.518999999999977
+  },
+  {
+    "text": "most of the time the chart will lose",
+    "start": 143.879,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "momentum and do a reversal in the",
+    "start": 145.72,
+    "duration": 2.158999999999992
+  },
+  {
+    "text": "opposite direction luckily the hocky",
+    "start": 147.879,
+    "duration": 2.0410000000000252
+  },
+  {
+    "text": "gashi is great at finding when that",
+    "start": 149.92000000000002,
+    "duration": 2.3189999999999884
+  },
+  {
+    "text": "moment is about to happen you can",
+    "start": 152.239,
+    "duration": 1.7199999999999989
+  },
+  {
+    "text": "identify when a reversal is about to",
+    "start": 153.959,
+    "duration": 2.0
+  },
+  {
+    "text": "happen by this a doge candle a dogee",
+    "start": 155.959,
+    "duration": 2.9199999999999875
+  },
+  {
+    "text": "candle is a Candlestick with Wix on both",
+    "start": 158.879,
+    "duration": 2.521000000000015
+  },
+  {
+    "text": "sides has a small body and it can be",
+    "start": 161.4,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "either color depending if you want to go",
+    "start": 163.84,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "long or short so we're going to take",
+    "start": 165.72,
+    "duration": 2.039999999999992
+  },
+  {
+    "text": "advantage of what we just learned the",
+    "start": 167.76,
+    "duration": 1.960000000000008
+  },
+  {
+    "text": "Only Rule you have to follow is you only",
+    "start": 169.72,
+    "duration": 2.680000000000007
+  },
+  {
+    "text": "enter after you see a dogee candle and",
+    "start": 172.4,
+    "duration": 2.8389999999999986
+  },
+  {
+    "text": "you wait for two candles in the opposite",
+    "start": 175.239,
+    "duration": 2.600999999999999
+  },
+  {
+    "text": "direction with opposite features let me",
+    "start": 177.84,
+    "duration": 2.3189999999999884
+  },
+  {
+    "text": "show you an example so you know what I",
+    "start": 180.159,
+    "duration": 1.521000000000015
+  },
+  {
+    "text": "mean so here you can see the price is",
+    "start": 181.68,
+    "duration": 2.039999999999992
+  },
+  {
+    "text": "making a downtrend then we see the chart",
+    "start": 183.72,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "make a dogee candle in the opposite",
+    "start": 185.84,
+    "duration": 2.1189999999999998
+  },
+  {
+    "text": "color which indicates that there's a",
+    "start": 187.959,
+    "duration": 2.040999999999997
+  },
+  {
+    "text": "very good chance the price will make a",
+    "start": 190.0,
+    "duration": 2.0
+  },
+  {
+    "text": "reversal then we wait for two green",
+    "start": 192.0,
+    "duration": 2.4799999999999898
+  },
+  {
+    "text": "candles with only Wicks on the top to",
+    "start": 194.48,
+    "duration": 2.4790000000000134
+  },
+  {
+    "text": "appear to confirm the reversal if the",
+    "start": 196.959,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "candle has a wick on the top and the",
+    "start": 199.159,
+    "duration": 2.0
+  },
+  {
+    "text": "bottom we do not count that candle once",
+    "start": 201.159,
+    "duration": 2.4809999999999945
+  },
+  {
+    "text": "the second candle with a wick only on",
+    "start": 203.64,
+    "duration": 2.2800000000000296
+  },
+  {
+    "text": "the top appears we enter the trade so",
+    "start": 205.92000000000002,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "this right here will be our entry signal",
+    "start": 208.56,
+    "duration": 2.2390000000000043
+  },
+  {
+    "text": "let me show you an example of a short",
+    "start": 210.799,
+    "duration": 1.9609999999999843
+  },
+  {
+    "text": "the market is in an uptrend we wait to",
+    "start": 212.76,
+    "duration": 2.0
+  },
+  {
+    "text": "see a dogee candle appear in the",
+    "start": 214.76,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "opposite color we then wait for two",
+    "start": 216.64,
+    "duration": 2.2390000000000043
+  },
+  {
+    "text": "large red candles to appear with only",
+    "start": 218.879,
+    "duration": 2.4010000000000105
+  },
+  {
+    "text": "Wicks on the bottom once we see the two",
+    "start": 221.28,
+    "duration": 1.9590000000000032
+  },
+  {
+    "text": "candlesticks we enter the trade so",
+    "start": 223.239,
+    "duration": 2.280000000000001
+  },
+  {
+    "text": "that's the hakashi indicator explains",
+    "start": 225.519,
+    "duration": 2.2409999999999854
+  },
+  {
+    "text": "simply in a nutshell now I'm going to",
+    "start": 227.76,
+    "duration": 1.8000000000000114
+  },
+  {
+    "text": "show you how to add another indicator to",
+    "start": 229.56,
+    "duration": 2.2390000000000043
+  },
+  {
+    "text": "this strategy to make it that much more",
+    "start": 231.799,
+    "duration": 2.280000000000001
+  },
+  {
+    "text": "effective and more importantly more",
+    "start": 234.079,
+    "duration": 2.040999999999997
+  },
+  {
+    "text": "profitable the indicator we're going to",
+    "start": 236.12,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "be adding to the strategy is the",
+    "start": 237.72,
+    "duration": 2.039999999999992
+  },
+  {
+    "text": "stastics indicator I'm not going to be",
+    "start": 239.76,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "going too in depth with this indicator",
+    "start": 241.519,
+    "duration": 2.359999999999985
+  },
+  {
+    "text": "because one it's very simple to use and",
+    "start": 243.879,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "two I don't want this video to be too",
+    "start": 246.599,
+    "duration": 2.1210000000000093
+  },
+  {
+    "text": "long to describe it simply the",
+    "start": 248.72,
+    "duration": 1.7990000000000066
+  },
+  {
+    "text": "stochastics indicator is a lot like RSI",
+    "start": 250.519,
+    "duration": 3.040999999999997
+  },
+  {
+    "text": "as in if the lines are crossing above",
+    "start": 253.56,
+    "duration": 1.9590000000000032
+  },
+  {
+    "text": "the Top Line the market is being",
+    "start": 255.519,
+    "duration": 1.8809999999999718
+  },
+  {
+    "text": "overbought if the lines are crossing",
+    "start": 257.4,
+    "duration": 1.799000000000035
+  },
+  {
+    "text": "below the bottom line the market is",
+    "start": 259.199,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "being oversold so as an example here the",
+    "start": 261.079,
+    "duration": 2.9209999999999923
+  },
+  {
+    "text": "lines are crossing below the bottom line",
+    "start": 264.0,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "indicating the market is oversold and",
+    "start": 266.16,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "it's likely to reverse up upwards just",
+    "start": 268.44,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "like most indicators though this",
+    "start": 270.68,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "indicator by itself isn't very good but",
+    "start": 272.6,
+    "duration": 2.7199999999999704
+  },
+  {
+    "text": "combined with other indicators it's",
+    "start": 275.32,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "extremely powerful to add this indicator",
+    "start": 277.4,
+    "duration": 2.759999999999991
+  },
+  {
+    "text": "go to indicators tab type in stochastics",
+    "start": 280.15999999999997,
+    "duration": 2.920000000000016
+  },
+  {
+    "text": "and click this one right here now let me",
+    "start": 283.08,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "show you how to combine these two",
+    "start": 285.28,
+    "duration": 1.400000000000034
+  },
+  {
+    "text": "indicators to make a very powerful",
+    "start": 286.68,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "strategy first things first if we want",
+    "start": 289.12,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "to go long we want to find a point in",
+    "start": 290.96,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "the chart where the Scholastics",
+    "start": 293.12,
+    "duration": 1.5600000000000023
+  },
+  {
+    "text": "indicator is crossing below the bottom",
+    "start": 294.68,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "line and there is weak downwards",
+    "start": 296.96,
+    "duration": 1.9590000000000032
+  },
+  {
+    "text": "momentum we we do not want to enter a",
+    "start": 298.919,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "trade if the Scholastics lines are",
+    "start": 301.08,
+    "duration": 2.0400000000000205
+  },
+  {
+    "text": "crossing below the bottom line and",
+    "start": 303.12,
+    "duration": 2.0790000000000077
+  },
+  {
+    "text": "there's strong downwards momentum",
+    "start": 305.199,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "because odds are the price will keep on",
+    "start": 307.36,
+    "duration": 2.1189999999999714
+  },
+  {
+    "text": "falling here's a perfect example the",
+    "start": 309.479,
+    "duration": 2.201000000000022
+  },
+  {
+    "text": "Scholastic lines are crossing below the",
+    "start": 311.68,
+    "duration": 2.0400000000000205
+  },
+  {
+    "text": "bottom line there's a downtrend but a",
+    "start": 313.72,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "very weak downtrend we then wait for a",
+    "start": 315.88,
+    "duration": 2.2800000000000296
+  },
+  {
+    "text": "dogee candle to appear once it does wait",
+    "start": 318.16,
+    "duration": 2.519999999999982
+  },
+  {
+    "text": "for two large body candlesticks with",
+    "start": 320.68,
+    "duration": 2.0790000000000077
+  },
+  {
+    "text": "only Wicks at the top then we enter the",
+    "start": 322.759,
+    "duration": 2.7199999999999704
+  },
+  {
+    "text": "trade here's one more example Scholastic",
+    "start": 325.479,
+    "duration": 2.8009999999999877
+  },
+  {
+    "text": "lines are crossing below the bottom line",
+    "start": 328.28,
+    "duration": 1.9600000000000364
+  },
+  {
+    "text": "there's a weak downtrend wait for the",
+    "start": 330.24,
+    "duration": 1.6789999999999736
+  },
+  {
+    "text": "dogee candle wait for two large green",
+    "start": 331.919,
+    "duration": 2.0810000000000173
+  },
+  {
+    "text": "candles with only Wicks on top enter the",
+    "start": 334.0,
+    "duration": 2.3600000000000136
+  },
+  {
+    "text": "trade profit I just showed you a",
+    "start": 336.36,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "profitable trading strategy using the",
+    "start": 338.84000000000003,
+    "duration": 1.9599999999999795
+  },
+  {
+    "text": "hakashi and Scholastics indicator all I",
+    "start": 340.8,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "ask in return is if you take 2 seconds",
+    "start": 343.44,
+    "duration": 1.9599999999999795
+  },
+  {
+    "text": "out of your day and like this video if",
+    "start": 345.4,
+    "duration": 2.0
+  },
+  {
+    "text": "you want to see one of the strategies I",
+    "start": 347.4,
+    "duration": 1.9190000000000396
+  },
+  {
+    "text": "use when day trading check out this",
+    "start": 349.319,
+    "duration": 1.960999999999956
+  },
+  {
+    "text": "video right here because this strategy",
+    "start": 351.28,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "works great on the one minute time frame",
+    "start": 353.15999999999997,
+    "duration": 2.3600000000000136
+  },
+  {
+    "text": "I'll see you guys next time",
+    "start": 355.52,
+    "duration": 5.150000000000034
+  },
+  {
+    "text": "[Music]",
+    "start": 360.67,
+    "duration": 0
+  }
+]
