@@ -298,10 +298,13 @@ def _duration_for(folder: Path) -> int:
 
 
 def do_ingest(urls: list[str], interval: int = 90, force: bool = False,
-              keep_video: bool = False) -> None:
+              keep_video: bool = False, sleep_s: float = 0.0) -> None:
     """End-to-end: for each NEW url, save transcript + auto-extract frames at
     even intervals. Skips any video already in the history (or with a transcript
-    on disk) unless --force. The history file is the record of what's been run."""
+    on disk) unless --force. The history file is the record of what's been run.
+
+    sleep_s: pause between processed videos to stay under YouTube rate limits."""
+    import time
     hist = load_history()
     done = skipped = 0
     for url in urls:
@@ -348,6 +351,8 @@ def do_ingest(urls: list[str], interval: int = 90, force: bool = False,
         }
         save_history(hist)
         done += 1
+        if sleep_s > 0:
+            time.sleep(sleep_s)
 
     print(f"\nIngested {done}, skipped {skipped} duplicate(s). "
           f"Library: research/video_library/  ·  history: {HISTORY_FILE.name}")
@@ -405,6 +410,8 @@ def main() -> None:
                     help="re-ingest even if the video is already in the history")
     ap.add_argument("--keep-video", action="store_true",
                     help="keep the downloaded _video.mp4 instead of deleting it after frames")
+    ap.add_argument("--sleep", type=float, default=0.0,
+                    help="seconds to pause between processed videos (rate-limit safety)")
     ap.add_argument("--backfill", action="store_true",
                     help="re-extract frames for every library video that has a transcript but no frames")
     ap.add_argument("--frames", help="single video: comma-separated seconds, e.g. 120,355,610")
@@ -428,7 +435,7 @@ def main() -> None:
         if not urls:
             raise SystemExit("Provide one or more YouTube URLs with --ingest.")
         do_ingest(urls, interval=args.interval, force=args.force,
-                  keep_video=args.keep_video)
+                  keep_video=args.keep_video, sleep_s=args.sleep)
         return
 
     urls = expand_urls(args.urls)

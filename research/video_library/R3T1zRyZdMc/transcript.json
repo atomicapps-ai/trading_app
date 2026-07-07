@@ -1,0 +1,2957 @@
+[
+  {
+    "text": "so you finally found the golden strategy",
+    "start": 0.08,
+    "duration": 4.32
+  },
+  {
+    "text": "that you think is gonna unlock your",
+    "start": 2.639,
+    "duration": 3.441
+  },
+  {
+    "text": "millionaire potential in",
+    "start": 4.4,
+    "duration": 4.32
+  },
+  {
+    "text": "forex and day trading now it's time to",
+    "start": 6.08,
+    "duration": 4.479
+  },
+  {
+    "text": "back test that strategy because",
+    "start": 8.72,
+    "duration": 4.24
+  },
+  {
+    "text": "every professional trader knows that",
+    "start": 10.559,
+    "duration": 3.361
+  },
+  {
+    "text": "back testing",
+    "start": 12.96,
+    "duration": 3.6
+  },
+  {
+    "text": "is crucial when it comes to checking if",
+    "start": 13.92,
+    "duration": 3.68
+  },
+  {
+    "text": "your strategy works",
+    "start": 16.56,
+    "duration": 2.799
+  },
+  {
+    "text": "well i'm here to tell you that you've",
+    "start": 17.6,
+    "duration": 4.08
+  },
+  {
+    "text": "probably been back testing the wrong way",
+    "start": 19.359,
+    "duration": 2.641
+  },
+  {
+    "text": "so",
+    "start": 21.68,
+    "duration": 1.92
+  },
+  {
+    "text": "in this video i'm going to show you how",
+    "start": 22.0,
+    "duration": 4.32
+  },
+  {
+    "text": "to back test the right way",
+    "start": 23.6,
+    "duration": 4.32
+  },
+  {
+    "text": "[Music]",
+    "start": 26.32,
+    "duration": 3.359
+  },
+  {
+    "text": "welcome back to the channel everybody my",
+    "start": 27.92,
+    "duration": 3.359
+  },
+  {
+    "text": "name is artie and this",
+    "start": 29.679,
+    "duration": 3.281
+  },
+  {
+    "text": "is the moving average a show where we",
+    "start": 31.279,
+    "duration": 3.601
+  },
+  {
+    "text": "discuss everything day trading to keep",
+    "start": 32.96,
+    "duration": 4.32
+  },
+  {
+    "text": "you profitable on a consistent basis",
+    "start": 34.88,
+    "duration": 3.999
+  },
+  {
+    "text": "okay so we're going to be doing some",
+    "start": 37.28,
+    "duration": 4.0
+  },
+  {
+    "text": "back testing today i've got both my",
+    "start": 38.879,
+    "duration": 4.161
+  },
+  {
+    "text": "coffees that are high octane",
+    "start": 41.28,
+    "duration": 3.279
+  },
+  {
+    "text": "and i'm going to show you what you've",
+    "start": 43.04,
+    "duration": 3.12
+  },
+  {
+    "text": "probably been doing wrong in your back",
+    "start": 44.559,
+    "duration": 3.52
+  },
+  {
+    "text": "testing strategies so let's jump into",
+    "start": 46.16,
+    "duration": 4.239
+  },
+  {
+    "text": "the charts and take a look at euro usd",
+    "start": 48.079,
+    "duration": 4.64
+  },
+  {
+    "text": "okay so when it comes to back testing",
+    "start": 50.399,
+    "duration": 4.16
+  },
+  {
+    "text": "most people just start back",
+    "start": 52.719,
+    "duration": 5.281
+  },
+  {
+    "text": "testing from today and every single time",
+    "start": 54.559,
+    "duration": 6.48
+  },
+  {
+    "text": "they get an indication of their trade",
+    "start": 58.0,
+    "duration": 4.879
+  },
+  {
+    "text": "they just do it so say for example",
+    "start": 61.039,
+    "duration": 4.241
+  },
+  {
+    "text": "you're doing a moving average crossover",
+    "start": 62.879,
+    "duration": 5.441
+  },
+  {
+    "text": "so you take your 21 and your 200 and",
+    "start": 65.28,
+    "duration": 5.12
+  },
+  {
+    "text": "you're literally just looking for every",
+    "start": 68.32,
+    "duration": 3.839
+  },
+  {
+    "text": "single time the moving average",
+    "start": 70.4,
+    "duration": 4.32
+  },
+  {
+    "text": "crosses over and so you test this one",
+    "start": 72.159,
+    "duration": 4.801
+  },
+  {
+    "text": "you test this one you test this one you",
+    "start": 74.72,
+    "duration": 3.12
+  },
+  {
+    "text": "test this one",
+    "start": 76.96,
+    "duration": 3.199
+  },
+  {
+    "text": "and the main issue with this is like",
+    "start": 77.84,
+    "duration": 4.4
+  },
+  {
+    "text": "every single time you're testing it like",
+    "start": 80.159,
+    "duration": 3.681
+  },
+  {
+    "text": "you know this one didn't work because it",
+    "start": 82.24,
+    "duration": 3.04
+  },
+  {
+    "text": "happened it consolidated and then it",
+    "start": 83.84,
+    "duration": 2.4
+  },
+  {
+    "text": "reversed like",
+    "start": 85.28,
+    "duration": 3.44
+  },
+  {
+    "text": "you're doing all of this back testing",
+    "start": 86.24,
+    "duration": 4.879
+  },
+  {
+    "text": "and you're not even looking at what time",
+    "start": 88.72,
+    "duration": 4.96
+  },
+  {
+    "text": "it is on the charts say for example this",
+    "start": 91.119,
+    "duration": 3.841
+  },
+  {
+    "text": "one you know you see",
+    "start": 93.68,
+    "duration": 2.72
+  },
+  {
+    "text": "start down trending you see the",
+    "start": 94.96,
+    "duration": 3.6
+  },
+  {
+    "text": "crossover you're back testing and you're",
+    "start": 96.4,
+    "duration": 3.759
+  },
+  {
+    "text": "getting in on this trade",
+    "start": 98.56,
+    "duration": 3.36
+  },
+  {
+    "text": "you're not even paying attention that",
+    "start": 100.159,
+    "duration": 3.761
+  },
+  {
+    "text": "for you this is 3 a.m",
+    "start": 101.92,
+    "duration": 3.6
+  },
+  {
+    "text": "there's no way you're going to be up at",
+    "start": 103.92,
+    "duration": 4.479
+  },
+  {
+    "text": "3 a.m so why are you even back testing",
+    "start": 105.52,
+    "duration": 5.279
+  },
+  {
+    "text": "on that time that's the number one",
+    "start": 108.399,
+    "duration": 3.521
+  },
+  {
+    "text": "mistake i see",
+    "start": 110.799,
+    "duration": 4.0
+  },
+  {
+    "text": "all of these back testing channels do",
+    "start": 111.92,
+    "duration": 3.44
+  },
+  {
+    "text": "they just",
+    "start": 114.799,
+    "duration": 2.481
+  },
+  {
+    "text": "back test every single time this",
+    "start": 115.36,
+    "duration": 3.359
+  },
+  {
+    "text": "occurrence happened",
+    "start": 117.28,
+    "duration": 4.4
+  },
+  {
+    "text": "and the issue with that is that during",
+    "start": 118.719,
+    "duration": 4.161
+  },
+  {
+    "text": "london session",
+    "start": 121.68,
+    "duration": 3.28
+  },
+  {
+    "text": "the indication may be different than new",
+    "start": 122.88,
+    "duration": 3.12
+  },
+  {
+    "text": "york session an",
+    "start": 124.96,
+    "duration": 3.84
+  },
+  {
+    "text": "asian session is mostly consolidation so",
+    "start": 126.0,
+    "duration": 4.959
+  },
+  {
+    "text": "there's no point in back testing your",
+    "start": 128.8,
+    "duration": 3.84
+  },
+  {
+    "text": "strategy at that time",
+    "start": 130.959,
+    "duration": 3.841
+  },
+  {
+    "text": "you should only be back testing your",
+    "start": 132.64,
+    "duration": 3.04
+  },
+  {
+    "text": "strategy",
+    "start": 134.8,
+    "duration": 3.12
+  },
+  {
+    "text": "at the time that you actually trade so",
+    "start": 135.68,
+    "duration": 4.16
+  },
+  {
+    "text": "if you're a professional day trader",
+    "start": 137.92,
+    "duration": 3.92
+  },
+  {
+    "text": "and you wake up you know 6 a.m and",
+    "start": 139.84,
+    "duration": 3.92
+  },
+  {
+    "text": "you're on the charts at 7 a.m and you're",
+    "start": 141.84,
+    "duration": 4.72
+  },
+  {
+    "text": "trading by market open in london",
+    "start": 143.76,
+    "duration": 5.04
+  },
+  {
+    "text": "that is the one time frame that you",
+    "start": 146.56,
+    "duration": 3.679
+  },
+  {
+    "text": "should be looking at",
+    "start": 148.8,
+    "duration": 4.32
+  },
+  {
+    "text": "when back testing so in order to do this",
+    "start": 150.239,
+    "duration": 4.401
+  },
+  {
+    "text": "like to have a clear visual",
+    "start": 153.12,
+    "duration": 3.119
+  },
+  {
+    "text": "representation so you don't have to",
+    "start": 154.64,
+    "duration": 2.72
+  },
+  {
+    "text": "worry about it",
+    "start": 156.239,
+    "duration": 3.921
+  },
+  {
+    "text": "what i want you to do is actually set up",
+    "start": 157.36,
+    "duration": 4.0
+  },
+  {
+    "text": "vertical lines",
+    "start": 160.16,
+    "duration": 2.48
+  },
+  {
+    "text": "at the time that you're going to be",
+    "start": 161.36,
+    "duration": 3.519
+  },
+  {
+    "text": "doing your trading so for me",
+    "start": 162.64,
+    "duration": 4.48
+  },
+  {
+    "text": "it is the london session now i don't",
+    "start": 164.879,
+    "duration": 3.841
+  },
+  {
+    "text": "like to trade all day",
+    "start": 167.12,
+    "duration": 4.8
+  },
+  {
+    "text": "so i only do from when london opens",
+    "start": 168.72,
+    "duration": 5.04
+  },
+  {
+    "text": "till about lunchtime when the market",
+    "start": 171.92,
+    "duration": 4.0
+  },
+  {
+    "text": "starts to just kind of consolidate for a",
+    "start": 173.76,
+    "duration": 3.839
+  },
+  {
+    "text": "second so what i want you to do",
+    "start": 175.92,
+    "duration": 4.88
+  },
+  {
+    "text": "is take two vertical lines and set it up",
+    "start": 177.599,
+    "duration": 5.201
+  },
+  {
+    "text": "from the point where you start looking",
+    "start": 180.8,
+    "duration": 3.76
+  },
+  {
+    "text": "at the charts to the point where you're",
+    "start": 182.8,
+    "duration": 2.64
+  },
+  {
+    "text": "done for the day",
+    "start": 184.56,
+    "duration": 2.24
+  },
+  {
+    "text": "you don't want to be trading for eight",
+    "start": 185.44,
+    "duration": 3.439
+  },
+  {
+    "text": "hours a day nobody does that somebody's",
+    "start": 186.8,
+    "duration": 4.0
+  },
+  {
+    "text": "gonna get like two successful trades and",
+    "start": 188.879,
+    "duration": 3.521
+  },
+  {
+    "text": "call it quits for the day there's no",
+    "start": 190.8,
+    "duration": 2.24
+  },
+  {
+    "text": "reason",
+    "start": 192.4,
+    "duration": 2.88
+  },
+  {
+    "text": "that you should over trade every single",
+    "start": 193.04,
+    "duration": 4.16
+  },
+  {
+    "text": "day you should have your profit goals",
+    "start": 195.28,
+    "duration": 2.879
+  },
+  {
+    "text": "like i wanna make",
+    "start": 197.2,
+    "duration": 2.72
+  },
+  {
+    "text": "you know two percent today or four",
+    "start": 198.159,
+    "duration": 3.521
+  },
+  {
+    "text": "percent today and so when you hit your",
+    "start": 199.92,
+    "duration": 2.319
+  },
+  {
+    "text": "number",
+    "start": 201.68,
+    "duration": 2.24
+  },
+  {
+    "text": "you're done for the day if you hit your",
+    "start": 202.239,
+    "duration": 3.761
+  },
+  {
+    "text": "stop loss like i'm only willing to lose",
+    "start": 203.92,
+    "duration": 3.36
+  },
+  {
+    "text": "one percent per day",
+    "start": 206.0,
+    "duration": 3.599
+  },
+  {
+    "text": "when you hit that close the charts and",
+    "start": 207.28,
+    "duration": 3.28
+  },
+  {
+    "text": "walk away so",
+    "start": 209.599,
+    "duration": 2.481
+  },
+  {
+    "text": "what i want you to do because back",
+    "start": 210.56,
+    "duration": 3.44
+  },
+  {
+    "text": "testing is extremely important and you",
+    "start": 212.08,
+    "duration": 3.519
+  },
+  {
+    "text": "need to know that this works",
+    "start": 214.0,
+    "duration": 4.239
+  },
+  {
+    "text": "over time so for every single trading",
+    "start": 215.599,
+    "duration": 4.0
+  },
+  {
+    "text": "day that you do",
+    "start": 218.239,
+    "duration": 3.521
+  },
+  {
+    "text": "you want to set up two vertical lines in",
+    "start": 219.599,
+    "duration": 4.241
+  },
+  {
+    "text": "the time range that you're actually on",
+    "start": 221.76,
+    "duration": 3.28
+  },
+  {
+    "text": "the charts trading",
+    "start": 223.84,
+    "duration": 3.679
+  },
+  {
+    "text": "and i want you to do that 100 times the",
+    "start": 225.04,
+    "duration": 4.16
+  },
+  {
+    "text": "reason you want to do 100 times is",
+    "start": 227.519,
+    "duration": 3.521
+  },
+  {
+    "text": "because that's going to give you a nice",
+    "start": 229.2,
+    "duration": 4.64
+  },
+  {
+    "text": "pool to choose from like when you're",
+    "start": 231.04,
+    "duration": 4.479
+  },
+  {
+    "text": "back testing a hundred times",
+    "start": 233.84,
+    "duration": 5.599
+  },
+  {
+    "text": "and you lose you know 15 to 22 times",
+    "start": 235.519,
+    "duration": 7.041
+  },
+  {
+    "text": "you're gonna have an absolute win loss",
+    "start": 239.439,
+    "duration": 5.36
+  },
+  {
+    "text": "rate for your strategy if you back test",
+    "start": 242.56,
+    "duration": 4.16
+  },
+  {
+    "text": "it five times and then go",
+    "start": 244.799,
+    "duration": 4.481
+  },
+  {
+    "text": "you know full cowboy on it odds are it's",
+    "start": 246.72,
+    "duration": 4.079
+  },
+  {
+    "text": "gonna be a lower percentage than you",
+    "start": 249.28,
+    "duration": 3.44
+  },
+  {
+    "text": "anticipated because you only back tested",
+    "start": 250.799,
+    "duration": 2.961
+  },
+  {
+    "text": "it three times",
+    "start": 252.72,
+    "duration": 4.0
+  },
+  {
+    "text": "another crucial part about back testing",
+    "start": 253.76,
+    "duration": 5.039
+  },
+  {
+    "text": "especially on trading view",
+    "start": 256.72,
+    "duration": 4.4
+  },
+  {
+    "text": "is to not do it on a chart that's",
+    "start": 258.799,
+    "duration": 3.28
+  },
+  {
+    "text": "already there",
+    "start": 261.12,
+    "duration": 3.359
+  },
+  {
+    "text": "you want to have the replay option",
+    "start": 262.079,
+    "duration": 4.4
+  },
+  {
+    "text": "available to you the replay",
+    "start": 264.479,
+    "duration": 4.481
+  },
+  {
+    "text": "option completely erases all of the",
+    "start": 266.479,
+    "duration": 5.121
+  },
+  {
+    "text": "candles from the time you drop that line",
+    "start": 268.96,
+    "duration": 4.48
+  },
+  {
+    "text": "forward so you can actually click the",
+    "start": 271.6,
+    "duration": 4.4
+  },
+  {
+    "text": "play button and watch the price develop",
+    "start": 273.44,
+    "duration": 5.12
+  },
+  {
+    "text": "as if you were trading it in real time",
+    "start": 276.0,
+    "duration": 3.36
+  },
+  {
+    "text": "this way you",
+    "start": 278.56,
+    "duration": 2.56
+  },
+  {
+    "text": "don't know what's coming up and you",
+    "start": 279.36,
+    "duration": 3.44
+  },
+  {
+    "text": "actually have to trade it as if",
+    "start": 281.12,
+    "duration": 3.04
+  },
+  {
+    "text": "you don't know where the price is going",
+    "start": 282.8,
+    "duration": 3.36
+  },
+  {
+    "text": "to go a lot of people see these charts",
+    "start": 284.16,
+    "duration": 2.64
+  },
+  {
+    "text": "and they're like",
+    "start": 286.16,
+    "duration": 2.16
+  },
+  {
+    "text": "see i would have won here but you",
+    "start": 286.8,
+    "duration": 4.08
+  },
+  {
+    "text": "already know that it's going up like",
+    "start": 288.32,
+    "duration": 4.159
+  },
+  {
+    "text": "if you were watching this and saw these",
+    "start": 290.88,
+    "duration": 3.599
+  },
+  {
+    "text": "fat rejections live you'd think it was",
+    "start": 292.479,
+    "duration": 3.841
+  },
+  {
+    "text": "actually going to reverse and bounce off",
+    "start": 294.479,
+    "duration": 2.881
+  },
+  {
+    "text": "of that and it didn't",
+    "start": 296.32,
+    "duration": 4.0
+  },
+  {
+    "text": "so what i want you to do is sign up for",
+    "start": 297.36,
+    "duration": 4.64
+  },
+  {
+    "text": "a trading view account",
+    "start": 300.32,
+    "duration": 4.4
+  },
+  {
+    "text": "you can actually get the premium package",
+    "start": 302.0,
+    "duration": 5.12
+  },
+  {
+    "text": "where you get the replay option",
+    "start": 304.72,
+    "duration": 5.68
+  },
+  {
+    "text": "for like free for 30 days so try that",
+    "start": 307.12,
+    "duration": 4.72
+  },
+  {
+    "text": "and you're going to do all of your back",
+    "start": 310.4,
+    "duration": 3.6
+  },
+  {
+    "text": "testing in those free 30 days",
+    "start": 311.84,
+    "duration": 4.0
+  },
+  {
+    "text": "and if you feel like that's a useful",
+    "start": 314.0,
+    "duration": 3.759
+  },
+  {
+    "text": "tool to you you can actually continue",
+    "start": 315.84,
+    "duration": 3.68
+  },
+  {
+    "text": "paying it because when you first sign up",
+    "start": 317.759,
+    "duration": 2.72
+  },
+  {
+    "text": "to trading view",
+    "start": 319.52,
+    "duration": 4.16
+  },
+  {
+    "text": "it's free but then once your",
+    "start": 320.479,
+    "duration": 6.0
+  },
+  {
+    "text": "free trial period is coming to a close",
+    "start": 323.68,
+    "duration": 4.4
+  },
+  {
+    "text": "you actually get a 60",
+    "start": 326.479,
+    "duration": 3.921
+  },
+  {
+    "text": "discount off of the normal price which",
+    "start": 328.08,
+    "duration": 4.32
+  },
+  {
+    "text": "is a slamming deal because the holy",
+    "start": 330.4,
+    "duration": 6.16
+  },
+  {
+    "text": "premium package on here is like 850",
+    "start": 332.4,
+    "duration": 5.6
+  },
+  {
+    "text": "and you could end up getting it for i",
+    "start": 336.56,
+    "duration": 3.04
+  },
+  {
+    "text": "think 245",
+    "start": 338.0,
+    "duration": 4.0
+  },
+  {
+    "text": "so that's what i did you should too all",
+    "start": 339.6,
+    "duration": 4.4
+  },
+  {
+    "text": "right so to get the replay option you",
+    "start": 342.0,
+    "duration": 4.08
+  },
+  {
+    "text": "just click the replay button right here",
+    "start": 344.0,
+    "duration": 4.0
+  },
+  {
+    "text": "and you get this big red line and you",
+    "start": 346.08,
+    "duration": 3.52
+  },
+  {
+    "text": "can drop it anywhere you want and it's",
+    "start": 348.0,
+    "duration": 2.0
+  },
+  {
+    "text": "going to",
+    "start": 349.6,
+    "duration": 2.72
+  },
+  {
+    "text": "remove all of the candlesticks to the",
+    "start": 350.0,
+    "duration": 4.639
+  },
+  {
+    "text": "right so i've dropped this right here",
+    "start": 352.32,
+    "duration": 4.24
+  },
+  {
+    "text": "right on the left hand side you're gonna",
+    "start": 354.639,
+    "duration": 4.161
+  },
+  {
+    "text": "see this like speed meter",
+    "start": 356.56,
+    "duration": 4.0
+  },
+  {
+    "text": "and it's gonna give you one update every",
+    "start": 358.8,
+    "duration": 4.16
+  },
+  {
+    "text": "two seconds it you can adjust the speed",
+    "start": 360.56,
+    "duration": 4.4
+  },
+  {
+    "text": "at which the candles populate and then",
+    "start": 362.96,
+    "duration": 3.04
+  },
+  {
+    "text": "once you're ready you can",
+    "start": 364.96,
+    "duration": 3.28
+  },
+  {
+    "text": "click the play button right here or if",
+    "start": 366.0,
+    "duration": 3.12
+  },
+  {
+    "text": "you want to do",
+    "start": 368.24,
+    "duration": 3.679
+  },
+  {
+    "text": "like step shifts forward you can just",
+    "start": 369.12,
+    "duration": 3.199
+  },
+  {
+    "text": "like",
+    "start": 371.919,
+    "duration": 3.441
+  },
+  {
+    "text": "keep clicking this button right here you",
+    "start": 372.319,
+    "duration": 4.0
+  },
+  {
+    "text": "hear the clicking",
+    "start": 375.36,
+    "duration": 2.88
+  },
+  {
+    "text": "just find a nice comfortable speed to",
+    "start": 376.319,
+    "duration": 3.041
+  },
+  {
+    "text": "where it's",
+    "start": 378.24,
+    "duration": 3.76
+  },
+  {
+    "text": "faster than normal time but it's slow",
+    "start": 379.36,
+    "duration": 4.48
+  },
+  {
+    "text": "enough to actually get you to make a",
+    "start": 382.0,
+    "duration": 2.56
+  },
+  {
+    "text": "decision",
+    "start": 383.84,
+    "duration": 3.68
+  },
+  {
+    "text": "so when analyzing when back testing you",
+    "start": 384.56,
+    "duration": 4.479
+  },
+  {
+    "text": "want to see what the price has been",
+    "start": 387.52,
+    "duration": 3.2
+  },
+  {
+    "text": "doing on the time frame that you're",
+    "start": 389.039,
+    "duration": 2.321
+  },
+  {
+    "text": "trading",
+    "start": 390.72,
+    "duration": 2.4
+  },
+  {
+    "text": "from here you can see we've been on a",
+    "start": 391.36,
+    "duration": 4.08
+  },
+  {
+    "text": "big uptrend and now we're starting to",
+    "start": 393.12,
+    "duration": 4.56
+  },
+  {
+    "text": "break market structure what do i mean by",
+    "start": 395.44,
+    "duration": 3.84
+  },
+  {
+    "text": "breaking market structure",
+    "start": 397.68,
+    "duration": 4.239
+  },
+  {
+    "text": "we had you know higher highs and higher",
+    "start": 399.28,
+    "duration": 3.28
+  },
+  {
+    "text": "lows",
+    "start": 401.919,
+    "duration": 2.801
+  },
+  {
+    "text": "consistently all the way up and now",
+    "start": 402.56,
+    "duration": 4.32
+  },
+  {
+    "text": "we're consolidating and drooping down",
+    "start": 404.72,
+    "duration": 4.56
+  },
+  {
+    "text": "trading below the moving averages this",
+    "start": 406.88,
+    "duration": 4.719
+  },
+  {
+    "text": "is a break in market structure so what",
+    "start": 409.28,
+    "duration": 4.0
+  },
+  {
+    "text": "should you be doing when you're seeing a",
+    "start": 411.599,
+    "duration": 3.361
+  },
+  {
+    "text": "break in market structure",
+    "start": 413.28,
+    "duration": 3.759
+  },
+  {
+    "text": "you should be looking for the opposite",
+    "start": 414.96,
+    "duration": 3.92
+  },
+  {
+    "text": "positions the price is probably going to",
+    "start": 417.039,
+    "duration": 2.88
+  },
+  {
+    "text": "start trending down",
+    "start": 418.88,
+    "duration": 4.159
+  },
+  {
+    "text": "so i've got it set up at one update",
+    "start": 419.919,
+    "duration": 4.4
+  },
+  {
+    "text": "every one second",
+    "start": 423.039,
+    "duration": 3.121
+  },
+  {
+    "text": "so this is how the price is looking",
+    "start": 424.319,
+    "duration": 3.841
+  },
+  {
+    "text": "right now you can see that the price is",
+    "start": 426.16,
+    "duration": 2.96
+  },
+  {
+    "text": "coming up",
+    "start": 428.16,
+    "duration": 3.12
+  },
+  {
+    "text": "to my trading window i'm only going to",
+    "start": 429.12,
+    "duration": 4.24
+  },
+  {
+    "text": "actually start placing trades",
+    "start": 431.28,
+    "duration": 4.72
+  },
+  {
+    "text": "once i cross over this line because this",
+    "start": 433.36,
+    "duration": 4.72
+  },
+  {
+    "text": "is when i'm actually on the charts",
+    "start": 436.0,
+    "duration": 4.639
+  },
+  {
+    "text": "trading but you're doing your analysis",
+    "start": 438.08,
+    "duration": 3.839
+  },
+  {
+    "text": "prior to",
+    "start": 440.639,
+    "duration": 2.721
+  },
+  {
+    "text": "making sure that you know which",
+    "start": 441.919,
+    "duration": 2.881
+  },
+  {
+    "text": "direction you're going to be trading so",
+    "start": 443.36,
+    "duration": 3.44
+  },
+  {
+    "text": "now that we're trading below the 21 day",
+    "start": 444.8,
+    "duration": 3.119
+  },
+  {
+    "text": "moving average",
+    "start": 446.8,
+    "duration": 3.36
+  },
+  {
+    "text": "i'm only pretty much looking for short",
+    "start": 447.919,
+    "duration": 3.041
+  },
+  {
+    "text": "positions",
+    "start": 450.16,
+    "duration": 3.52
+  },
+  {
+    "text": "we're coming below the 21 we're coming",
+    "start": 450.96,
+    "duration": 4.48
+  },
+  {
+    "text": "up to test it right here",
+    "start": 453.68,
+    "duration": 4.16
+  },
+  {
+    "text": "we're ejecting it we've broken through",
+    "start": 455.44,
+    "duration": 3.92
+  },
+  {
+    "text": "these are the things that you want to",
+    "start": 457.84,
+    "duration": 2.32
+  },
+  {
+    "text": "look out for",
+    "start": 459.36,
+    "duration": 3.119
+  },
+  {
+    "text": "you know say it's 7 a.m i just opened up",
+    "start": 460.16,
+    "duration": 3.84
+  },
+  {
+    "text": "the charts i'm starting to see it",
+    "start": 462.479,
+    "duration": 3.921
+  },
+  {
+    "text": "trading below the 21 day moving average",
+    "start": 464.0,
+    "duration": 4.08
+  },
+  {
+    "text": "we're kind of breaking out a little bit",
+    "start": 466.4,
+    "duration": 3.6
+  },
+  {
+    "text": "but still trending below it so let's",
+    "start": 468.08,
+    "duration": 2.959
+  },
+  {
+    "text": "pause it here",
+    "start": 470.0,
+    "duration": 3.199
+  },
+  {
+    "text": "let's really analyze what's going on i'm",
+    "start": 471.039,
+    "duration": 3.6
+  },
+  {
+    "text": "on a five-minute chart",
+    "start": 473.199,
+    "duration": 3.601
+  },
+  {
+    "text": "we're trading below the 21 getting",
+    "start": 474.639,
+    "duration": 3.441
+  },
+  {
+    "text": "closer to the 200",
+    "start": 476.8,
+    "duration": 3.839
+  },
+  {
+    "text": "moving average in my mind i'm only",
+    "start": 478.08,
+    "duration": 4.32
+  },
+  {
+    "text": "looking for short positions here",
+    "start": 480.639,
+    "duration": 4.801
+  },
+  {
+    "text": "now depending on what your strategy is",
+    "start": 482.4,
+    "duration": 4.96
+  },
+  {
+    "text": "maybe you're a moving average crossover",
+    "start": 485.44,
+    "duration": 3.92
+  },
+  {
+    "text": "person or maybe you're scalping between",
+    "start": 487.36,
+    "duration": 4.0
+  },
+  {
+    "text": "moving average like you've seen in my",
+    "start": 489.36,
+    "duration": 3.519
+  },
+  {
+    "text": "scalping video right here",
+    "start": 491.36,
+    "duration": 3.119
+  },
+  {
+    "text": "so that's what i'm going to be doing i'm",
+    "start": 492.879,
+    "duration": 3.921
+  },
+  {
+    "text": "going to be using my strategy only",
+    "start": 494.479,
+    "duration": 5.361
+  },
+  {
+    "text": "on this time frame during this back test",
+    "start": 496.8,
+    "duration": 5.36
+  },
+  {
+    "text": "on every single bracket that i've made",
+    "start": 499.84,
+    "duration": 3.919
+  },
+  {
+    "text": "the last 100 brackets",
+    "start": 502.16,
+    "duration": 3.28
+  },
+  {
+    "text": "i'm not going to be doing 100 brackets",
+    "start": 503.759,
+    "duration": 4.641
+  },
+  {
+    "text": "so it's currently 7 20 a.m on this chart",
+    "start": 505.44,
+    "duration": 5.599
+  },
+  {
+    "text": "i know the market opens at 9 00 a.m i'm",
+    "start": 508.4,
+    "duration": 4.16
+  },
+  {
+    "text": "usually doing my analysis",
+    "start": 511.039,
+    "duration": 3.841
+  },
+  {
+    "text": "for about an hour kind of just like",
+    "start": 512.56,
+    "duration": 4.88
+  },
+  {
+    "text": "seeing all of the pairs that i trade and",
+    "start": 514.88,
+    "duration": 4.56
+  },
+  {
+    "text": "like looking at where the direction is",
+    "start": 517.44,
+    "duration": 3.92
+  },
+  {
+    "text": "going i write those all down on a little",
+    "start": 519.44,
+    "duration": 3.519
+  },
+  {
+    "text": "piece of paper and i'm like only look",
+    "start": 521.36,
+    "duration": 3.68
+  },
+  {
+    "text": "for shorts on euro usd",
+    "start": 522.959,
+    "duration": 4.081
+  },
+  {
+    "text": "so let's slow it down just a little bit",
+    "start": 525.04,
+    "duration": 3.359
+  },
+  {
+    "text": "so that we can do this",
+    "start": 527.04,
+    "duration": 3.52
+  },
+  {
+    "text": "nice and easy we're seeing the price",
+    "start": 528.399,
+    "duration": 3.12
+  },
+  {
+    "text": "develop 9",
+    "start": 530.56,
+    "duration": 4.64
+  },
+  {
+    "text": "a.m is gonna be right about here",
+    "start": 531.519,
+    "duration": 6.0
+  },
+  {
+    "text": "so at this point i'm gonna start looking",
+    "start": 535.2,
+    "duration": 3.6
+  },
+  {
+    "text": "for my positions",
+    "start": 537.519,
+    "duration": 3.44
+  },
+  {
+    "text": "i don't like to trade the exact market",
+    "start": 538.8,
+    "duration": 3.599
+  },
+  {
+    "text": "open because there's a lot of",
+    "start": 540.959,
+    "duration": 3.761
+  },
+  {
+    "text": "fluctuation when the market opens even",
+    "start": 542.399,
+    "duration": 4.241
+  },
+  {
+    "text": "at eight am we start getting these long",
+    "start": 544.72,
+    "duration": 2.48
+  },
+  {
+    "text": "wicks",
+    "start": 546.64,
+    "duration": 3.52
+  },
+  {
+    "text": "so right now 8 am has shown me some",
+    "start": 547.2,
+    "duration": 4.16
+  },
+  {
+    "text": "bullish momentum",
+    "start": 550.16,
+    "duration": 3.92
+  },
+  {
+    "text": "up above now i'm always looking out for",
+    "start": 551.36,
+    "duration": 3.36
+  },
+  {
+    "text": "traps",
+    "start": 554.08,
+    "duration": 2.64
+  },
+  {
+    "text": "when it comes to looking for traps you",
+    "start": 554.72,
+    "duration": 4.32
+  },
+  {
+    "text": "want to see these like big spikes in one",
+    "start": 556.72,
+    "duration": 3.2
+  },
+  {
+    "text": "direction",
+    "start": 559.04,
+    "duration": 3.12
+  },
+  {
+    "text": "and wait do not trade those big spikes",
+    "start": 559.92,
+    "duration": 3.84
+  },
+  {
+    "text": "in one direction that is the worst thing",
+    "start": 562.16,
+    "duration": 3.04
+  },
+  {
+    "text": "that you can do you're literally setting",
+    "start": 563.76,
+    "duration": 3.199
+  },
+  {
+    "text": "yourself up for failure",
+    "start": 565.2,
+    "duration": 4.079
+  },
+  {
+    "text": "wait until you see the opposite candle",
+    "start": 566.959,
+    "duration": 4.32
+  },
+  {
+    "text": "whether their spikes down or spikes up",
+    "start": 569.279,
+    "duration": 3.761
+  },
+  {
+    "text": "you wait for the opposite candle",
+    "start": 571.279,
+    "duration": 4.481
+  },
+  {
+    "text": "if that opposite candle is engulfing",
+    "start": 573.04,
+    "duration": 4.72
+  },
+  {
+    "text": "that's a trap and you should go in the",
+    "start": 575.76,
+    "duration": 3.36
+  },
+  {
+    "text": "opposite direction",
+    "start": 577.76,
+    "duration": 4.24
+  },
+  {
+    "text": "just like that 8 a.m happened we had",
+    "start": 579.12,
+    "duration": 3.92
+  },
+  {
+    "text": "these weird wicks",
+    "start": 582.0,
+    "duration": 3.44
+  },
+  {
+    "text": "it started spiking up trading above the",
+    "start": 583.04,
+    "duration": 3.84
+  },
+  {
+    "text": "21 day moving average",
+    "start": 585.44,
+    "duration": 4.24
+  },
+  {
+    "text": "we bounced off of the 200 and this is",
+    "start": 586.88,
+    "duration": 3.2
+  },
+  {
+    "text": "what",
+    "start": 589.68,
+    "duration": 2.8
+  },
+  {
+    "text": "caught people this bounce right here",
+    "start": 590.08,
+    "duration": 4.319
+  },
+  {
+    "text": "even though we've been consolidating and",
+    "start": 592.48,
+    "duration": 3.6
+  },
+  {
+    "text": "trading below the 21",
+    "start": 594.399,
+    "duration": 4.321
+  },
+  {
+    "text": "showing a slight downtrend this bounce",
+    "start": 596.08,
+    "duration": 4.48
+  },
+  {
+    "text": "off the 200 moving average",
+    "start": 598.72,
+    "duration": 3.84
+  },
+  {
+    "text": "got people excited and they think that",
+    "start": 600.56,
+    "duration": 4.56
+  },
+  {
+    "text": "this is a rejection of a support level",
+    "start": 602.56,
+    "duration": 4.24
+  },
+  {
+    "text": "and it's going to continue up and what",
+    "start": 605.12,
+    "duration": 4.0
+  },
+  {
+    "text": "did it do it started going up like crazy",
+    "start": 606.8,
+    "duration": 3.92
+  },
+  {
+    "text": "and we had these big",
+    "start": 609.12,
+    "duration": 4.159
+  },
+  {
+    "text": "long green wicks and then if you were a",
+    "start": 610.72,
+    "duration": 4.32
+  },
+  {
+    "text": "patient trader like i've taught you to",
+    "start": 613.279,
+    "duration": 2.081
+  },
+  {
+    "text": "be",
+    "start": 615.04,
+    "duration": 2.64
+  },
+  {
+    "text": "patient you wait for the trap to be set",
+    "start": 615.36,
+    "duration": 3.84
+  },
+  {
+    "text": "and you go with the person",
+    "start": 617.68,
+    "duration": 3.36
+  },
+  {
+    "text": "setting the trap you don't fall for the",
+    "start": 619.2,
+    "duration": 4.0
+  },
+  {
+    "text": "trap you're not a rookie so we get this",
+    "start": 621.04,
+    "duration": 3.039
+  },
+  {
+    "text": "big",
+    "start": 623.2,
+    "duration": 3.52
+  },
+  {
+    "text": "fat bearish engulfing i'm looking for",
+    "start": 624.079,
+    "duration": 4.88
+  },
+  {
+    "text": "shorts at this point this is even before",
+    "start": 626.72,
+    "duration": 3.359
+  },
+  {
+    "text": "market open",
+    "start": 628.959,
+    "duration": 3.361
+  },
+  {
+    "text": "but i'm getting in on a short position",
+    "start": 630.079,
+    "duration": 4.081
+  },
+  {
+    "text": "right here i'm keeping",
+    "start": 632.32,
+    "duration": 4.56
+  },
+  {
+    "text": "my stop loss quite large at this point",
+    "start": 634.16,
+    "duration": 4.72
+  },
+  {
+    "text": "because there's a lot of volatility in",
+    "start": 636.88,
+    "duration": 3.6
+  },
+  {
+    "text": "the market in the morning and i'm not",
+    "start": 638.88,
+    "duration": 3.6
+  },
+  {
+    "text": "willing to get stopped out so you can be",
+    "start": 640.48,
+    "duration": 3.44
+  },
+  {
+    "text": "looking at this point for",
+    "start": 642.48,
+    "duration": 4.56
+  },
+  {
+    "text": "20 pips 30 pips but throughout the day",
+    "start": 643.92,
+    "duration": 5.919
+  },
+  {
+    "text": "i'm pretty sure you can get 50 pips out",
+    "start": 647.04,
+    "duration": 3.44
+  },
+  {
+    "text": "of this",
+    "start": 649.839,
+    "duration": 3.201
+  },
+  {
+    "text": "massive volatility so let's keep our",
+    "start": 650.48,
+    "duration": 3.84
+  },
+  {
+    "text": "stop loss here",
+    "start": 653.04,
+    "duration": 3.2
+  },
+  {
+    "text": "nice and comfortable above we can adjust",
+    "start": 654.32,
+    "duration": 3.44
+  },
+  {
+    "text": "it once the price starts going in our",
+    "start": 656.24,
+    "duration": 2.24
+  },
+  {
+    "text": "direction",
+    "start": 657.76,
+    "duration": 2.16
+  },
+  {
+    "text": "it's just the beginning of it that you",
+    "start": 658.48,
+    "duration": 3.52
+  },
+  {
+    "text": "want to prevent a stop out so",
+    "start": 659.92,
+    "duration": 4.08
+  },
+  {
+    "text": "we let this play out trade is going in",
+    "start": 662.0,
+    "duration": 3.04
+  },
+  {
+    "text": "our direction",
+    "start": 664.0,
+    "duration": 3.68
+  },
+  {
+    "text": "that's nice",
+    "start": 665.04,
+    "duration": 2.64
+  },
+  {
+    "text": "so at this point the trade has been",
+    "start": 669.92,
+    "duration": 3.44
+  },
+  {
+    "text": "going in your direction for",
+    "start": 671.44,
+    "duration": 4.24
+  },
+  {
+    "text": "quite a nice amount of time at one point",
+    "start": 673.36,
+    "duration": 3.2
+  },
+  {
+    "text": "you were up",
+    "start": 675.68,
+    "duration": 4.32
+  },
+  {
+    "text": "about 30 pips so depending on",
+    "start": 676.56,
+    "duration": 5.12
+  },
+  {
+    "text": "how much money you actually want to make",
+    "start": 680.0,
+    "duration": 3.519
+  },
+  {
+    "text": "like you have to have a strategy of",
+    "start": 681.68,
+    "duration": 4.88
+  },
+  {
+    "text": "i want 20 pips per trade or looking for",
+    "start": 683.519,
+    "duration": 3.44
+  },
+  {
+    "text": "a",
+    "start": 686.56,
+    "duration": 3.04
+  },
+  {
+    "text": "to one risk to reward ratio but you also",
+    "start": 686.959,
+    "duration": 3.921
+  },
+  {
+    "text": "have to keep in mind",
+    "start": 689.6,
+    "duration": 4.4
+  },
+  {
+    "text": "that once market structure is broken",
+    "start": 690.88,
+    "duration": 4.399
+  },
+  {
+    "text": "that's when you want to get out of a",
+    "start": 694.0,
+    "duration": 3.839
+  },
+  {
+    "text": "trade you want to only look for the",
+    "start": 695.279,
+    "duration": 3.841
+  },
+  {
+    "text": "moves you don't want to be",
+    "start": 697.839,
+    "duration": 3.44
+  },
+  {
+    "text": "in a trade when it's consolidating so",
+    "start": 699.12,
+    "duration": 3.52
+  },
+  {
+    "text": "i'm seeing market structure right here",
+    "start": 701.279,
+    "duration": 2.641
+  },
+  {
+    "text": "being respected",
+    "start": 702.64,
+    "duration": 3.52
+  },
+  {
+    "text": "creating you know lower highs and lower",
+    "start": 703.92,
+    "duration": 3.44
+  },
+  {
+    "text": "lows but right here",
+    "start": 706.16,
+    "duration": 2.4
+  },
+  {
+    "text": "i'm starting to see a little bit of",
+    "start": 707.36,
+    "duration": 3.2
+  },
+  {
+    "text": "consolidation so at this point",
+    "start": 708.56,
+    "duration": 3.68
+  },
+  {
+    "text": "you could close your trade there's no",
+    "start": 710.56,
+    "duration": 3.2
+  },
+  {
+    "text": "reason holding it",
+    "start": 712.24,
+    "duration": 3.52
+  },
+  {
+    "text": "if you're seeing a break in market",
+    "start": 713.76,
+    "duration": 3.759
+  },
+  {
+    "text": "structure and right now you're up 20",
+    "start": 715.76,
+    "duration": 4.079
+  },
+  {
+    "text": "25 pips you know market's been open for",
+    "start": 717.519,
+    "duration": 3.361
+  },
+  {
+    "text": "an hour and a half",
+    "start": 719.839,
+    "duration": 2.721
+  },
+  {
+    "text": "is it gonna continue in your direction",
+    "start": 720.88,
+    "duration": 3.759
+  },
+  {
+    "text": "who knows but you know that you're up 25",
+    "start": 722.56,
+    "duration": 3.92
+  },
+  {
+    "text": "pips so what i'm saying is it's okay to",
+    "start": 724.639,
+    "duration": 3.76
+  },
+  {
+    "text": "close a trade early but at this point",
+    "start": 726.48,
+    "duration": 4.72
+  },
+  {
+    "text": "what you can do is actually adjust your",
+    "start": 728.399,
+    "duration": 4.88
+  },
+  {
+    "text": "stop loss you know that it's respecting",
+    "start": 731.2,
+    "duration": 4.0
+  },
+  {
+    "text": "the 200 moving average and it's down",
+    "start": 733.279,
+    "duration": 3.201
+  },
+  {
+    "text": "trending so instead of having your",
+    "start": 735.2,
+    "duration": 3.04
+  },
+  {
+    "text": "stop-loss way up here to avoid the",
+    "start": 736.48,
+    "duration": 3.44
+  },
+  {
+    "text": "market breakout wicks",
+    "start": 738.24,
+    "duration": 4.159
+  },
+  {
+    "text": "you can now drop it closer to the 200",
+    "start": 739.92,
+    "duration": 3.359
+  },
+  {
+    "text": "moving average",
+    "start": 742.399,
+    "duration": 3.361
+  },
+  {
+    "text": "or seeing as how your trade is already",
+    "start": 743.279,
+    "duration": 4.641
+  },
+  {
+    "text": "in profit you can actually set your stop",
+    "start": 745.76,
+    "duration": 4.24
+  },
+  {
+    "text": "loss to a little bit in profit that way",
+    "start": 747.92,
+    "duration": 4.32
+  },
+  {
+    "text": "this trade is zero risk whatsoever",
+    "start": 750.0,
+    "duration": 4.16
+  },
+  {
+    "text": "even if it goes back down there you're",
+    "start": 752.24,
+    "duration": 3.52
+  },
+  {
+    "text": "still gonna make money so let's",
+    "start": 754.16,
+    "duration": 3.84
+  },
+  {
+    "text": "say we get it right there a little bit",
+    "start": 755.76,
+    "duration": 4.879
+  },
+  {
+    "text": "in profit",
+    "start": 758.0,
+    "duration": 2.639
+  },
+  {
+    "text": "our original take profit level was 50",
+    "start": 763.279,
+    "duration": 4.481
+  },
+  {
+    "text": "pips it is now the end of our trading",
+    "start": 765.519,
+    "duration": 4.161
+  },
+  {
+    "text": "day our trading window that we've set up",
+    "start": 767.76,
+    "duration": 4.079
+  },
+  {
+    "text": "for ourselves from 7 am to 12 or",
+    "start": 769.68,
+    "duration": 4.159
+  },
+  {
+    "text": "whatever your trading window is",
+    "start": 771.839,
+    "duration": 4.321
+  },
+  {
+    "text": "and right now we're up 30 pips close",
+    "start": 773.839,
+    "duration": 4.0
+  },
+  {
+    "text": "your trade take your profits",
+    "start": 776.16,
+    "duration": 2.96
+  },
+  {
+    "text": "and look for the next trade you don't",
+    "start": 777.839,
+    "duration": 3.041
+  },
+  {
+    "text": "want to be holding your trade",
+    "start": 779.12,
+    "duration": 3.92
+  },
+  {
+    "text": "like through to the next day because it",
+    "start": 780.88,
+    "duration": 4.16
+  },
+  {
+    "text": "might start consolidating here and have",
+    "start": 783.04,
+    "duration": 3.12
+  },
+  {
+    "text": "these weird spikes",
+    "start": 785.04,
+    "duration": 2.799
+  },
+  {
+    "text": "asian session might take it the opposite",
+    "start": 786.16,
+    "duration": 3.6
+  },
+  {
+    "text": "direction 100 pips and you will have no",
+    "start": 787.839,
+    "duration": 4.481
+  },
+  {
+    "text": "idea you know what's going on right now",
+    "start": 789.76,
+    "duration": 3.84
+  },
+  {
+    "text": "because you're watching the charts take",
+    "start": 792.32,
+    "duration": 2.48
+  },
+  {
+    "text": "your profits",
+    "start": 793.6,
+    "duration": 2.56
+  },
+  {
+    "text": "and then wait for the next day it's as",
+    "start": 794.8,
+    "duration": 3.12
+  },
+  {
+    "text": "simple as that so you didn't fall for",
+    "start": 796.16,
+    "duration": 2.4
+  },
+  {
+    "text": "the trap",
+    "start": 797.92,
+    "duration": 2.719
+  },
+  {
+    "text": "you got your profits you adjusted your",
+    "start": 798.56,
+    "duration": 3.92
+  },
+  {
+    "text": "stop loss so it's no risk trade",
+    "start": 800.639,
+    "duration": 3.521
+  },
+  {
+    "text": "and that's how you back tested this one",
+    "start": 802.48,
+    "duration": 3.2
+  },
+  {
+    "text": "trade you did full",
+    "start": 804.16,
+    "duration": 4.239
+  },
+  {
+    "text": "analyzing on price action and you",
+    "start": 805.68,
+    "duration": 4.08
+  },
+  {
+    "text": "focused on one",
+    "start": 808.399,
+    "duration": 3.921
+  },
+  {
+    "text": "pair now we crank up the speed and we go",
+    "start": 809.76,
+    "duration": 6.079
+  },
+  {
+    "text": "to the next day",
+    "start": 812.32,
+    "duration": 3.519
+  },
+  {
+    "text": "okay so this is the next trading day we",
+    "start": 816.0,
+    "duration": 3.519
+  },
+  {
+    "text": "can see our brackets showing up now",
+    "start": 817.92,
+    "duration": 2.719
+  },
+  {
+    "text": "we're going to be looking for our",
+    "start": 819.519,
+    "duration": 1.68
+  },
+  {
+    "text": "entries",
+    "start": 820.639,
+    "duration": 2.161
+  },
+  {
+    "text": "and look at what has been happening here",
+    "start": 821.199,
+    "duration": 3.76
+  },
+  {
+    "text": "we've been dancing along the 21 moving",
+    "start": 822.8,
+    "duration": 2.64
+  },
+  {
+    "text": "average",
+    "start": 824.959,
+    "duration": 2.801
+  },
+  {
+    "text": "still trading below the 200 but it is",
+    "start": 825.44,
+    "duration": 3.519
+  },
+  {
+    "text": "consolidating like",
+    "start": 827.76,
+    "duration": 4.319
+  },
+  {
+    "text": "crazy when it's consolidating like this",
+    "start": 828.959,
+    "duration": 5.041
+  },
+  {
+    "text": "i tend to not trade it because i don't",
+    "start": 832.079,
+    "duration": 3.601
+  },
+  {
+    "text": "know if it's gonna spike up or spike",
+    "start": 834.0,
+    "duration": 3.68
+  },
+  {
+    "text": "down so i wait until i see that",
+    "start": 835.68,
+    "duration": 3.519
+  },
+  {
+    "text": "rejection and spike",
+    "start": 837.68,
+    "duration": 3.2
+  },
+  {
+    "text": "in that direction sometimes it won't",
+    "start": 839.199,
+    "duration": 2.88
+  },
+  {
+    "text": "even happen throughout the day and",
+    "start": 840.88,
+    "duration": 2.72
+  },
+  {
+    "text": "that's a no trade day for me",
+    "start": 842.079,
+    "duration": 3.521
+  },
+  {
+    "text": "because i only trade that pair okay so",
+    "start": 843.6,
+    "duration": 4.0
+  },
+  {
+    "text": "we've broken away from that 21 moving",
+    "start": 845.6,
+    "duration": 2.479
+  },
+  {
+    "text": "average",
+    "start": 847.6,
+    "duration": 3.039
+  },
+  {
+    "text": "we've seen this nice bearish movement",
+    "start": 848.079,
+    "duration": 4.56
+  },
+  {
+    "text": "but again you don't want to fall for a",
+    "start": 850.639,
+    "duration": 2.56
+  },
+  {
+    "text": "trap",
+    "start": 852.639,
+    "duration": 2.32
+  },
+  {
+    "text": "so what you want to be doing is waiting",
+    "start": 853.199,
+    "duration": 3.2
+  },
+  {
+    "text": "for a confirmation of this",
+    "start": 854.959,
+    "duration": 3.361
+  },
+  {
+    "text": "it might actually come back up and test",
+    "start": 856.399,
+    "duration": 3.761
+  },
+  {
+    "text": "the 21 day moving average if we have",
+    "start": 858.32,
+    "duration": 2.56
+  },
+  {
+    "text": "that break",
+    "start": 860.16,
+    "duration": 3.119
+  },
+  {
+    "text": "and retest and then a continuation on",
+    "start": 860.88,
+    "duration": 4.0
+  },
+  {
+    "text": "the downside then we can get in on a",
+    "start": 863.279,
+    "duration": 3.601
+  },
+  {
+    "text": "short position if not you do not trade",
+    "start": 864.88,
+    "duration": 2.56
+  },
+  {
+    "text": "that day",
+    "start": 866.88,
+    "duration": 2.88
+  },
+  {
+    "text": "you have specific rules that you set up",
+    "start": 867.44,
+    "duration": 3.92
+  },
+  {
+    "text": "and you do not get into a trade unless",
+    "start": 869.76,
+    "duration": 3.439
+  },
+  {
+    "text": "that trade meets all of your rules",
+    "start": 871.36,
+    "duration": 4.159
+  },
+  {
+    "text": "okay so we are now testing the 21 moving",
+    "start": 873.199,
+    "duration": 3.281
+  },
+  {
+    "text": "average again",
+    "start": 875.519,
+    "duration": 3.201
+  },
+  {
+    "text": "but what it's doing is actually breaking",
+    "start": 876.48,
+    "duration": 3.28
+  },
+  {
+    "text": "market structure",
+    "start": 878.72,
+    "duration": 3.04
+  },
+  {
+    "text": "so you can see market structure was",
+    "start": 879.76,
+    "duration": 3.519
+  },
+  {
+    "text": "higher highs higher lows",
+    "start": 881.76,
+    "duration": 3.439
+  },
+  {
+    "text": "and now we're spiking above that and",
+    "start": 883.279,
+    "duration": 3.92
+  },
+  {
+    "text": "this high has broken this high so we've",
+    "start": 885.199,
+    "duration": 3.681
+  },
+  {
+    "text": "broken market structure so we may",
+    "start": 887.199,
+    "duration": 3.681
+  },
+  {
+    "text": "actually be looking for a break of this",
+    "start": 888.88,
+    "duration": 3.44
+  },
+  {
+    "text": "21 moving average",
+    "start": 890.88,
+    "duration": 3.84
+  },
+  {
+    "text": "up to the 200. so this is the trade that",
+    "start": 892.32,
+    "duration": 3.44
+  },
+  {
+    "text": "i'm looking for",
+    "start": 894.72,
+    "duration": 3.04
+  },
+  {
+    "text": "i'm going to scalp between these moving",
+    "start": 895.76,
+    "duration": 3.92
+  },
+  {
+    "text": "averages and boom like",
+    "start": 897.76,
+    "duration": 3.92
+  },
+  {
+    "text": "nothing happened here nothing that i",
+    "start": 899.68,
+    "duration": 4.0
+  },
+  {
+    "text": "liked happened here so i did not trade",
+    "start": 901.68,
+    "duration": 4.399
+  },
+  {
+    "text": "this day",
+    "start": 903.68,
+    "duration": 2.399
+  },
+  {
+    "text": "okay so we're at the next day we're",
+    "start": 907.68,
+    "duration": 3.839
+  },
+  {
+    "text": "still consolidating like crazy i'm not",
+    "start": 909.6,
+    "duration": 3.599
+  },
+  {
+    "text": "really liking what i'm seeing here i",
+    "start": 911.519,
+    "duration": 3.281
+  },
+  {
+    "text": "might not even trade this one as well",
+    "start": 913.199,
+    "duration": 3.2
+  },
+  {
+    "text": "and you need to keep that in mind that",
+    "start": 914.8,
+    "duration": 2.8
+  },
+  {
+    "text": "not every day",
+    "start": 916.399,
+    "duration": 2.88
+  },
+  {
+    "text": "is gonna have a trading opportunity for",
+    "start": 917.6,
+    "duration": 3.76
+  },
+  {
+    "text": "you do not force a trade because when",
+    "start": 919.279,
+    "duration": 4.0
+  },
+  {
+    "text": "you force a trade you fall for a trap",
+    "start": 921.36,
+    "duration": 3.44
+  },
+  {
+    "text": "because you're you're just hoping at",
+    "start": 923.279,
+    "duration": 3.281
+  },
+  {
+    "text": "that point you're not analyzing i mean",
+    "start": 924.8,
+    "duration": 3.039
+  },
+  {
+    "text": "look at how close",
+    "start": 926.56,
+    "duration": 3.68
+  },
+  {
+    "text": "this 21 moving average is to the 200",
+    "start": 927.839,
+    "duration": 3.521
+  },
+  {
+    "text": "moving average",
+    "start": 930.24,
+    "duration": 4.08
+  },
+  {
+    "text": "this is a clear sign of consolidation",
+    "start": 931.36,
+    "duration": 4.08
+  },
+  {
+    "text": "you want to see a nice",
+    "start": 934.32,
+    "duration": 4.4
+  },
+  {
+    "text": "fan out in a direction",
+    "start": 935.44,
+    "duration": 3.28
+  },
+  {
+    "text": "now you can see the entire trading",
+    "start": 939.36,
+    "duration": 5.279
+  },
+  {
+    "text": "window that i have that 7 a.m to 12 p.m",
+    "start": 941.519,
+    "duration": 5.921
+  },
+  {
+    "text": "that whole window was a consolidation",
+    "start": 944.639,
+    "duration": 5.041
+  },
+  {
+    "text": "basically of 19 pips",
+    "start": 947.44,
+    "duration": 3.92
+  },
+  {
+    "text": "i'm not getting into a market that's",
+    "start": 949.68,
+    "duration": 3.159
+  },
+  {
+    "text": "moving that slow",
+    "start": 951.36,
+    "duration": 5.279
+  },
+  {
+    "text": "whatsoever okay so this back test is",
+    "start": 952.839,
+    "duration": 4.92
+  },
+  {
+    "text": "gonna be a little bit different because",
+    "start": 956.639,
+    "duration": 3.281
+  },
+  {
+    "text": "my camera died while i was recording but",
+    "start": 957.759,
+    "duration": 3.841
+  },
+  {
+    "text": "essentially what we're seeing here is",
+    "start": 959.92,
+    "duration": 4.159
+  },
+  {
+    "text": "this i've already played it out so",
+    "start": 961.6,
+    "duration": 5.28
+  },
+  {
+    "text": "we started to see this nice drop in",
+    "start": 964.079,
+    "duration": 4.401
+  },
+  {
+    "text": "price over the new york session a little",
+    "start": 966.88,
+    "duration": 3.28
+  },
+  {
+    "text": "bit of consolidation over asian session",
+    "start": 968.48,
+    "duration": 3.44
+  },
+  {
+    "text": "but now we are trading above the 21",
+    "start": 970.16,
+    "duration": 2.72
+  },
+  {
+    "text": "moving average",
+    "start": 971.92,
+    "duration": 2.8
+  },
+  {
+    "text": "so we're starting to see a trend",
+    "start": 972.88,
+    "duration": 3.68
+  },
+  {
+    "text": "reversal we're starting to see the price",
+    "start": 974.72,
+    "duration": 2.96
+  },
+  {
+    "text": "go in that direction",
+    "start": 976.56,
+    "duration": 2.32
+  },
+  {
+    "text": "i don't know if it's gonna have a huge",
+    "start": 977.68,
+    "duration": 3.04
+  },
+  {
+    "text": "continuation up but i don't care",
+    "start": 978.88,
+    "duration": 4.56
+  },
+  {
+    "text": "what i'm looking for now that my trading",
+    "start": 980.72,
+    "duration": 4.239
+  },
+  {
+    "text": "day has started right here",
+    "start": 983.44,
+    "duration": 3.44
+  },
+  {
+    "text": "i'm looking for rejections off of the",
+    "start": 984.959,
+    "duration": 3.041
+  },
+  {
+    "text": "21. so",
+    "start": 986.88,
+    "duration": 2.959
+  },
+  {
+    "text": "i see these rejections start to happen",
+    "start": 988.0,
+    "duration": 3.6
+  },
+  {
+    "text": "right here here and here",
+    "start": 989.839,
+    "duration": 3.68
+  },
+  {
+    "text": "so i'm placing a trade right here on the",
+    "start": 991.6,
+    "duration": 3.2
+  },
+  {
+    "text": "21 moving average",
+    "start": 993.519,
+    "duration": 3.76
+  },
+  {
+    "text": "targeting the 200 moving average i'm",
+    "start": 994.8,
+    "duration": 4.159
+  },
+  {
+    "text": "keeping my stop losses",
+    "start": 997.279,
+    "duration": 4.161
+  },
+  {
+    "text": "at a nice distance away from previous",
+    "start": 998.959,
+    "duration": 3.12
+  },
+  {
+    "text": "lows",
+    "start": 1001.44,
+    "duration": 2.72
+  },
+  {
+    "text": "because i don't want to get wicked out",
+    "start": 1002.079,
+    "duration": 4.081
+  },
+  {
+    "text": "so keep your stop you don't put your",
+    "start": 1004.16,
+    "duration": 3.28
+  },
+  {
+    "text": "stop loss here",
+    "start": 1006.16,
+    "duration": 3.359
+  },
+  {
+    "text": "you put it a nice comfortable distance",
+    "start": 1007.44,
+    "duration": 4.24
+  },
+  {
+    "text": "below this is gonna be a one-to-one risk",
+    "start": 1009.519,
+    "duration": 3.76
+  },
+  {
+    "text": "toward ratio because",
+    "start": 1011.68,
+    "duration": 4.48
+  },
+  {
+    "text": "the 200 moving average is so close so",
+    "start": 1013.279,
+    "duration": 4.0
+  },
+  {
+    "text": "i'm targeting this",
+    "start": 1016.16,
+    "duration": 3.679
+  },
+  {
+    "text": "i let it play out and boom sure enough",
+    "start": 1017.279,
+    "duration": 4.8
+  },
+  {
+    "text": "it goes up to that 200 moving average",
+    "start": 1019.839,
+    "duration": 4.0
+  },
+  {
+    "text": "i close my trade and i walk away i don't",
+    "start": 1022.079,
+    "duration": 3.36
+  },
+  {
+    "text": "care what the price is gonna do after it",
+    "start": 1023.839,
+    "duration": 2.161
+  },
+  {
+    "text": "because",
+    "start": 1025.439,
+    "duration": 1.841
+  },
+  {
+    "text": "you don't wanna have like buyers or",
+    "start": 1026.0,
+    "duration": 3.679
+  },
+  {
+    "text": "sellers remorse so of those last",
+    "start": 1027.28,
+    "duration": 4.559
+  },
+  {
+    "text": "few back tests that i did two of them i",
+    "start": 1029.679,
+    "duration": 3.841
+  },
+  {
+    "text": "did not trade at all and two of them",
+    "start": 1031.839,
+    "duration": 2.48
+  },
+  {
+    "text": "were winners",
+    "start": 1033.52,
+    "duration": 2.319
+  },
+  {
+    "text": "so as you can see you're not going to be",
+    "start": 1034.319,
+    "duration": 3.441
+  },
+  {
+    "text": "trading every single day and when you're",
+    "start": 1035.839,
+    "duration": 2.24
+  },
+  {
+    "text": "back",
+    "start": 1037.76,
+    "duration": 2.48
+  },
+  {
+    "text": "testing you should be doing it according",
+    "start": 1038.079,
+    "duration": 3.201
+  },
+  {
+    "text": "to your rules",
+    "start": 1040.24,
+    "duration": 4.079
+  },
+  {
+    "text": "so a recap make brackets around every",
+    "start": 1041.28,
+    "duration": 4.88
+  },
+  {
+    "text": "single trading window for the last",
+    "start": 1044.319,
+    "duration": 4.48
+  },
+  {
+    "text": "100 days have a rules-based strategy",
+    "start": 1046.16,
+    "duration": 4.48
+  },
+  {
+    "text": "where you do not get into a trade",
+    "start": 1048.799,
+    "duration": 3.841
+  },
+  {
+    "text": "unless you see these things happen you",
+    "start": 1050.64,
+    "duration": 4.0
+  },
+  {
+    "text": "need to be systematic about it then",
+    "start": 1052.64,
+    "duration": 4.24
+  },
+  {
+    "text": "do not force a trade do not trade on",
+    "start": 1054.64,
+    "duration": 3.919
+  },
+  {
+    "text": "times where you do not see",
+    "start": 1056.88,
+    "duration": 3.2
+  },
+  {
+    "text": "all of your things line up for your",
+    "start": 1058.559,
+    "duration": 3.201
+  },
+  {
+    "text": "rules-based trading then once you've",
+    "start": 1060.08,
+    "duration": 3.28
+  },
+  {
+    "text": "back-tested your strategy a hundred",
+    "start": 1061.76,
+    "duration": 2.159
+  },
+  {
+    "text": "times",
+    "start": 1063.36,
+    "duration": 3.28
+  },
+  {
+    "text": "you have a specific win to loss ratio if",
+    "start": 1063.919,
+    "duration": 4.401
+  },
+  {
+    "text": "that number is good for you",
+    "start": 1066.64,
+    "duration": 3.2
+  },
+  {
+    "text": "and you have proper risk management with",
+    "start": 1068.32,
+    "duration": 3.599
+  },
+  {
+    "text": "your risk to rewards on your trades",
+    "start": 1069.84,
+    "duration": 4.079
+  },
+  {
+    "text": "then you can start forward testing it on",
+    "start": 1071.919,
+    "duration": 3.76
+  },
+  {
+    "text": "demo you want to forward test your",
+    "start": 1073.919,
+    "duration": 2.481
+  },
+  {
+    "text": "strategy",
+    "start": 1075.679,
+    "duration": 3.521
+  },
+  {
+    "text": "for a week two weeks or whatever on demo",
+    "start": 1076.4,
+    "duration": 3.68
+  },
+  {
+    "text": "be consistent",
+    "start": 1079.2,
+    "duration": 2.64
+  },
+  {
+    "text": "trade only during those times and see",
+    "start": 1080.08,
+    "duration": 3.44
+  },
+  {
+    "text": "what your results are on demo",
+    "start": 1081.84,
+    "duration": 4.0
+  },
+  {
+    "text": "if you're in the blue put in real money",
+    "start": 1083.52,
+    "duration": 3.92
+  },
+  {
+    "text": "and start doing it for real",
+    "start": 1085.84,
+    "duration": 4.0
+  },
+  {
+    "text": "stop watching those stupid back testing",
+    "start": 1087.44,
+    "duration": 3.04
+  },
+  {
+    "text": "videos",
+    "start": 1089.84,
+    "duration": 2.959
+  },
+  {
+    "text": "on youtube where they're testing every",
+    "start": 1090.48,
+    "duration": 4.0
+  },
+  {
+    "text": "single occurrence when it doesn't even",
+    "start": 1092.799,
+    "duration": 3.12
+  },
+  {
+    "text": "relate to the time frame that they're",
+    "start": 1094.48,
+    "duration": 2.0
+  },
+  {
+    "text": "trading",
+    "start": 1095.919,
+    "duration": 2.321
+  },
+  {
+    "text": "they just want to show you results i'm",
+    "start": 1096.48,
+    "duration": 3.76
+  },
+  {
+    "text": "showing you the practical way of",
+    "start": 1098.24,
+    "duration": 3.52
+  },
+  {
+    "text": "back testing and this is what you should",
+    "start": 1100.24,
+    "duration": 3.36
+  },
+  {
+    "text": "be doing if you guys are still watching",
+    "start": 1101.76,
+    "duration": 2.799
+  },
+  {
+    "text": "this video",
+    "start": 1103.6,
+    "duration": 2.88
+  },
+  {
+    "text": "that means that you like the videos so",
+    "start": 1104.559,
+    "duration": 4.161
+  },
+  {
+    "text": "if you don't mind smash the like button",
+    "start": 1106.48,
+    "duration": 4.72
+  },
+  {
+    "text": "just below my face consider subscribing",
+    "start": 1108.72,
+    "duration": 4.079
+  },
+  {
+    "text": "if you have not already",
+    "start": 1111.2,
+    "duration": 5.839
+  },
+  {
+    "text": "and we will see you in the next video",
+    "start": 1112.799,
+    "duration": 4.24
+  }
+]
