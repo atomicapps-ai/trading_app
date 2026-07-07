@@ -1,12 +1,13 @@
-# 9JEmsSItdt4 — "LW Volatility Breakout / $1.1M" (TradingLab)
+# 9JEmsSItdt4 — "LW Volatility Breakout" (Larry Williams / Donchian channels)
 
-Source: <https://www.youtube.com/watch?v=9JEmsSItdt4> · ~8 min.
+Source: <https://www.youtube.com/watch?v=9JEmsSItdt4>
 
 ## Rules (mechanical)
-- entry: Long when price touches/breaks the upper Donchian band AND the LWTI (Larry Williams Large Trade Index, period 25, smoothing 20) is green AND volume bar is above its 30-period MA and green. Short = mirror image on the lower band.
-- exit/stop/target: Stop just below the Donchian midline (or recent swing low if the gap is large); take-profit at 2:1 R:R. Secret trick: skip entries near HTF support/resistance unless price is actively breaking that level.
-- filters/params: Donchian length 96, LWTI(25, smooth 20), volume MA 30 — all explicitly tuned for the **5-minute** time frame.
+- **Timeframe:** explicitly the **5-minute** chart (author's stated parameters are 5m-specific).
+- **Indicators:** Donchian Channels length 96; LWTI (Larry Williams Trade Index) period 25 / smoothing 20; volume with 30-MA.
+- **Long entry:** price touches the upper Donchian band AND LWTI is green AND volume bar is green and above its 30-MA. **Short:** mirror on the lower band with LWTI red.
+- **Stop:** just past the Donchian mid-line (or recent swing low if the gap is large). **Target:** 2:1 R:R. Discretionary add-on: skip trades near higher-timeframe S/R.
 
-## Verdict: ❌ REJECT — intraday-tuned + duplicate of deployed breakout
-Author states all params (Donchian 96, LWTI 25, vol MA 30) are for the 5m chart and explicitly warns to re-test for other timeframes — we have no intraday data. The HTF-level "secret trick" reintroduces discretion. A daily-bar version (Donchian-N breakout + volume-above-MA + trend filter) collapses to our deployed Momentum Breakout (N-day-high + vol≥1.5x + ADX≥20 regime gate, PF 2.34) — Donchian-upper-band breakout IS an N-day-high breakout. No novel daily edge.
-Status: rejected, not deployed
+## Verdict: REJECT — intraday + duplicate kernel.
+Specified for the 5-minute timeframe (intraday), so out of scope for daily US-stock swing trading. Its daily-bar core is a **Donchian channel breakout**, which is exactly the Turtle/Donchian system already validated as a PASS in this run (video 2ElrQnn2cZE: OOS PF 1.40). The added LWTI + volume confirmations are a proprietary-oscillator variation on the same breakout family; no distinct daily edge to test here that the Turtle pass doesn't already cover.
+Status: rejected

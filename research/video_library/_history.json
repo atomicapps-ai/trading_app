@@ -105,7 +105,10 @@
     "processed_at": "2026-06-29T17:17:21.613936+00:00",
     "duration_s": 840,
     "frames": 9,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "NQ/NAS100 intraday session liquidity sweep (5m/15m); futures+intraday, out of scope",
+    "retired_at": "2026-07-07T07:30:12.016360+00:00"
   },
   "e-QmGJU1XYc": {
     "url": "https://www.youtube.com/watch?v=e-QmGJU1XYc&pp=ygUmYmVzdCBhZHZhbmNlZCBzdG9jayB0cmFkaW5nIHN0cmF0ZWdpZXPSBwkJQQsBhyohjO8%3D",
@@ -206,7 +209,10 @@
     "processed_at": "2026-06-29T20:26:28.374607+00:00",
     "duration_s": 1332,
     "frames": 15,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "intraday opening-range reversal (5m execution); daily analog already = fear_dip_reversion",
+    "retired_at": "2026-07-07T07:31:17.450762+00:00"
   },
   "ZudTPpJCbbA": {
     "url": "https://www.youtube.com/watch?v=ZudTPpJCbbA",
@@ -220,7 +226,10 @@
     "processed_at": "2026-06-29T20:27:06.046072+00:00",
     "duration_s": 508,
     "frames": 6,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "5m intraday Donchian breakout + LWTI/vol filters; daily core = Turtle (already passed 2ElrQnn2cZE)",
+    "retired_at": "2026-07-07T07:32:01.510487+00:00"
   },
   "etCWLTLa6wA": {
     "url": "https://www.youtube.com/watch?v=etCWLTLa6wA",
@@ -234,14 +243,20 @@
     "processed_at": "2026-06-29T20:28:59.875987+00:00",
     "duration_s": 2895,
     "frames": 32,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "gold/forex via Apex futures prop firm, pip stops, discretionary doji sniper; out of scope",
+    "retired_at": "2026-07-07T07:32:46.050954+00:00"
   },
   "8gBcSlqRdTg": {
     "url": "https://www.youtube.com/watch?v=8gBcSlqRdTg",
     "processed_at": "2026-06-29T20:29:34.035967+00:00",
     "duration_s": 1639,
     "frames": 18,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "intraday options break-and-retest scalping (1m/5m, 0DTE); out of scope + discretionary",
+    "retired_at": "2026-07-07T07:30:42.893710+00:00"
   },
   "2ElrQnn2cZE": {
     "url": "https://www.youtube.com/watch?v=2ElrQnn2cZE",
