@@ -795,6 +795,14 @@ input, select, textarea { font: inherit; color: inherit; }
 /* Collapse the right-hand panel → chart goes full width (ChartTools reflows). */
 .two-col.right-collapsed { grid-template-columns: 1fr; }
 .two-col.right-collapsed > *:last-child { display: none; }
+/* Let both columns shrink below their content so re-showing the panel snaps
+   back cleanly — without min-width:0 the wide chart canvas keeps the column
+   from shrinking and the page overflows (horizontal scrollbar). The mount's
+   overflow:hidden clips the canvas until ChartTools' ResizeObserver reflows it. */
+#trade-detail-cols { max-width: 100%; }
+#trade-detail-cols > * { min-width: 0; }
+#trade-detail-cols .card,
+#trade-detail-cols .trade-detail-chart-card { min-width: 0; overflow: hidden; }
 
 /* Trade edit form (Phase 6 edit-mode) */
 .trade-edit-card { display: none; }
