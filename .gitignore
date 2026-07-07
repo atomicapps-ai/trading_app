@@ -126,3 +126,8 @@ detections*.csv
 
 # FVG raw 1m parquet cache (regenerate via scripts/fetch_fvg_data.py)
 data/fx_hist/
+
+# video-mining transient acquisition artifacts
+research/video_library/_acq_*
+research/video_library/_rankcache/
+research/video_library/_picks.txt

@@ -22,8 +22,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 LIB = ROOT / "research" / "video_library"
 
-# Queries aimed at DAILY US-STOCK, mechanical/systematic strategies.
+# Queries aimed at mechanical/systematic STOCK and FOREX strategies.
 QUERIES = [
+    # --- stocks ---
     "mechanical swing trading strategy stocks backtested rules",
     "stock breakout trading strategy backtest daily chart",
     "mean reversion stock strategy rules daily chart backtest",
@@ -34,11 +35,20 @@ QUERIES = [
     "VCP volatility contraction breakout stock strategy",
     "RSI 2 mean reversion stock strategy backtest",
     "trend following stock strategy rules backtest",
+    # --- forex (added per operator request) ---
+    "forex swing trading strategy backtest rules win rate",
+    "forex breakout trading strategy daily chart entry exit stop",
+    "mechanical forex trading strategy backtested results",
+    "forex trend following strategy rules backtest",
+    "forex mean reversion strategy backtest daily chart",
+    "best forex trading strategy backtest proven results",
 ]
 
-EXCLUDE = re.compile(r"forex|crypto|bitcoin|\boption|scalp|\bICT\b|smart money|"
-                     r"futures|5 ?min|1 ?min|prop firm|funded", re.I)
-INCLUDE = re.compile(r"stock|swing|breakout|revers|momentum|backtest|strateg|setup|rules|system", re.I)
+# Forex is now in-scope; still drop crypto/options/futures and pure day-scalp noise.
+EXCLUDE = re.compile(r"crypto|bitcoin|ethereum|\boption|\bfutures\b|"
+                     r"prop firm|funded account|1 ?min scalp|5 ?min scalp", re.I)
+INCLUDE = re.compile(r"stock|forex|currenc|fx\b|swing|breakout|revers|momentum|"
+                     r"backtest|strateg|setup|rules|system|pair|trend", re.I)
 
 
 def known_ids() -> set[str]:
