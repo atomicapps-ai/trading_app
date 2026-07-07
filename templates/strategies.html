@@ -6,14 +6,12 @@
   <div>
     <h1 class="page-title">Strategies</h1>
     <p class="page-subtitle">
-      {% if bucket == 'validated' %}
-        Strategies that passed a backtest run in the app (out-of-sample
-        profit factor ≥ 1.20). Earned by the ✓ Validate button; can be archived.
-      {% elif bucket == 'in-progress' %}
-        Strategies under research, or not yet validated. Click ✓ Validate on a
-        card to backtest it and promote it to Validated.
-      {% else %}
+      {% if bucket == 'archived' %}
         Retired strategies. Manual move only — kept for audit trail.
+      {% else %}
+        All active strategies — verified and in-progress together. The
+        <strong>✓ Validated</strong> badge marks the ones that passed a backtest
+        (out-of-sample profit factor ≥ 1.20); the rest are still under research.
       {% endif %}
     </p>
   </div>
@@ -121,7 +119,7 @@
           · n={{ v.n_trades }}
           {% if v.control_pf is not none %}· control PF {{ "%.2f"|format(v.control_pf) }}{% endif %}
           · bar PF≥{{ "%.2f"|format(v.threshold_pf) }}
-          · {{ v.ts[:10] }}
+          · {{ v.ts_pt or v.ts[:10] }}
         </span>
         <a href="/strategies/{{ s.name }}/validations" class="text-xs"
            style="color:var(--accent-blue);text-decoration:none;">history →</a>

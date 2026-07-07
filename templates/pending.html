@@ -96,9 +96,6 @@
     {% if big %}<span class="strength-num">{{ rating }}/5</span>{% endif %}
   </span>
 {% endmacro %}
-<div class="flex items-center" style="justify-content:flex-end;gap:8px;margin-bottom:10px;flex:0 0 auto;">
-  <a href="/trades/new" class="btn btn-primary btn-sm" style="text-decoration:none;">+ New Trade</a>
-</div>
 <div class="split-layout{% if selected %} has-detail{% endif %}">
 
   {# ===== Left: queue ===== #}
@@ -113,7 +110,7 @@
       <span style="color:var(--text-primary);">Approval Queue</span>
     </nav>
     {% endif %}
-    <div class="card-header" style="margin-bottom: 8px;">
+    <div class="card-header" style="margin-bottom: 8px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
       <span class="card-title">
         {% if filter_status == 'pending' %}Approval queue
         {% elif filter_status == 'executed' %}Executed
@@ -126,6 +123,7 @@
         {% endif %}
         <span class="badge badge-amber" style="margin-left: 6px;">{{ pending|length }}</span>
       </span>
+      <a href="/trades/new" class="btn btn-primary btn-sm" style="text-decoration:none;white-space:nowrap;">+ New Trade</a>
     </div>
 
     {# Filter tab bar #}
@@ -689,10 +687,16 @@
     // Build both panes via the shared helper. persistKey is per-pane
     // ('pending_a' / 'pending_b') so toggle preferences in the top
     // chart don't override the bottom one.
+    // FX / metals (EURUSD, XAUUSD…) have NO daily/hourly bars — they're only
+    // cached intraday (30m/5m from IBKR). So for a 6-letter FX symbol, map the
+    // default 1d/30m panes down to 30m/5m, which actually have data (otherwise
+    // the daily pane 404s and renders blank).
+    const isFx = /^[A-Z]{6}$/.test(symbol || '');
     const panes = {};
     document.querySelectorAll('.ct-mount').forEach(mount => {
       const idx = mount.dataset.chart;
-      const interval = mount.dataset.interval;
+      let interval = mount.dataset.interval;
+      if (isFx) interval = (interval === '1d' || interval === '1h') ? '30m' : '5m';
       const inst = ChartTools.renderChart(mount, {
         symbol, interval,
         // No screener context plumbed through to the plan today, so

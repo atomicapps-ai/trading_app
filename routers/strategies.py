@@ -170,7 +170,9 @@ def _fmt_run(run: dict | None) -> dict | None:
         dt = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=_tz.utc)
-        when_et = dt.astimezone(ZoneInfo("America/New_York")).strftime("%Y-%m-%d %H:%M ET")
+        # Pacific time, 12-hour clock (not military), DST-aware label (PST/PDT).
+        pt = dt.astimezone(ZoneInfo("America/Los_Angeles"))
+        when_et = pt.strftime("%b %d, %Y · %I:%M %p") + f" {pt.tzname() or 'PT'}"
     except (ValueError, TypeError):
         pass
     try:
@@ -189,6 +191,19 @@ def _fmt_run(run: dict | None) -> dict | None:
         "approved": run.get("plans_approved") or 0,
         "blocked": blocked,
     }
+
+
+def _pt_date(ts: str | None) -> str:
+    """A UTC/ISO timestamp → 'Jul 07, 2026' in Pacific time."""
+    from datetime import datetime, timezone as _tz
+    from zoneinfo import ZoneInfo
+    try:
+        dt = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=_tz.utc)
+        return dt.astimezone(ZoneInfo("America/Los_Angeles")).strftime("%b %d, %Y")
+    except (ValueError, TypeError):
+        return str(ts or "")[:10]
 
 
 def _job_for_workflow(workflow_id: str) -> dict[str, Any] | None:
@@ -239,12 +254,18 @@ async def _bucket_counts() -> dict[str, int]:
 
 @router.get("/strategies/validated", response_class=HTMLResponse)
 async def strategies_validated_page(request: Request, s: Settings = Depends(get_settings)):
-    return await _strategies_bucket_page(request, s, bucket="validated")
+    # Combined "Strategies" view: verified + in-progress on one page (the ✓
+    # Validated badge distinguishes them). Archived stays separate.
+    return await _strategies_bucket_page(
+        request, s, bucket="validated", include={"validated", "in-progress"},
+    )
 
 
 @router.get("/strategies/in-progress", response_class=HTMLResponse)
-async def strategies_inprogress_page(request: Request, s: Settings = Depends(get_settings)):
-    return await _strategies_bucket_page(request, s, bucket="in-progress")
+async def strategies_inprogress_page():
+    # In-progress is now merged into the main Strategies page.
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse("/strategies/validated", status_code=307)
 
 
 @router.get("/strategies/archived", response_class=HTMLResponse)
@@ -252,7 +273,9 @@ async def strategies_archived_page(request: Request, s: Settings = Depends(get_s
     return await _strategies_bucket_page(request, s, bucket="archived")
 
 
-async def _strategies_bucket_page(request: Request, s: Settings, bucket: str):
+async def _strategies_bucket_page(request: Request, s: Settings, bucket: str,
+                                  include: set[str] | None = None):
+    show = include or {bucket}
     if bucket not in _BUCKETS:
         raise HTTPException(404, f"unknown bucket: {bucket}")
     cfgs = [_load_strategy(p) for p in _strategy_files()]
@@ -286,8 +309,10 @@ async def _strategies_bucket_page(request: Request, s: Settings, bucket: str):
         from services import auto_approve_service as _aas
         auto_approve = await _aas.is_enabled(name)
         validation = validations.get(c.get("strategy_name", name)) or validations.get(name)
+        if validation and validation.get("ts"):
+            validation = {**validation, "ts_pt": _pt_date(validation.get("ts"))}
         bucket_for_row = _classify(c, archived, validation)
-        if bucket_for_row != bucket:
+        if bucket_for_row not in show:
             continue
         wfs = by_strategy.get(c.get("strategy_name", name)) or []
         strat_runs = []
@@ -326,13 +351,14 @@ async def _strategies_bucket_page(request: Request, s: Settings, bucket: str):
 
     counts = await _bucket_counts()
     tabs = [
-        {"key": b, "label": _BUCKET_LABELS[b], "href": f"/strategies/{b}",
-         "count": counts.get(b, 0)}
-        for b in _BUCKETS
+        {"key": "validated", "label": "Strategies", "href": "/strategies/validated",
+         "count": counts.get("validated", 0) + counts.get("in-progress", 0)},
+        {"key": "archived", "label": "Archived", "href": "/strategies/archived",
+         "count": counts.get("archived", 0)},
     ]
     active_key = {
         "validated": "strategies_validated",
-        "in-progress": "strategies_in_progress",
+        "in-progress": "strategies_validated",
         "archived": "strategies_archived",
     }[bucket]
     return templates.TemplateResponse(
@@ -344,9 +370,9 @@ async def _strategies_bucket_page(request: Request, s: Settings, bucket: str):
             "active_page": active_key,
             "active_section": "strategies",
             "tabs": tabs,
-            "active_tab": bucket,
+            "active_tab": "archived" if bucket == "archived" else "validated",
             "bucket": bucket,
-            "bucket_label": _BUCKET_LABELS[bucket],
+            "bucket_label": "Archived" if bucket == "archived" else "Strategies",
             "strategies": rows,
         },
     )
