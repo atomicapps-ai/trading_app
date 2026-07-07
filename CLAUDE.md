@@ -40,8 +40,16 @@ end-to-end (detector + `strategy_configs/*.yaml` + `workflows/*_scan.yaml` + doc
 Held (passes the gate but not wired): `ma_crossover` (20/50) — needs a survivorship-free /
 market-neutral re-test first. Parked as redundant: BB+RSI, 4-down-days, Turtle/Donchian,
 DEMA+SuperTrend (all > 0.6 corr to a live strategy). Full rationale + matrix:
-`strategies/STRATEGY_GRID.md` §"Video-mining run 2". **Nothing goes `active: true` without a
-human flipping the flag after reviewing the in-app OOS PF.**
+`strategies/STRATEGY_GRID.md` §"Video-mining run 2".
+
+**Activation switch — IMPORTANT:** the config `active:` flag is display-only (read by
+`dashboard_widgets`, NOT the pipeline). The scheduler (`_register_workflow_jobs`) registers a cron
+for ANY `workflows/*.yaml` that has a `schedule:` field, regardless of `active`. So the real
+on-switch is the workflow **schedule**, which for these three candidates is **commented out** in
+`workflows/{rsi_pullback,band_extreme_fade,hidden_divergence}_scan.yaml`. To turn one on: (1)
+review its in-app OOS PF, (2) uncomment the `schedule:` line, (3) set `active: true` in its
+`strategy_configs/*.yaml`, (4) restart the app so the scheduler picks it up. Until then they are
+fully dormant — registered/testable but never auto-scanning.
 
 ### Subsystems added in the pivot (beyond the pre-pivot app)
 - **Strategy research/optimization**: `services/optimization_db.py`,

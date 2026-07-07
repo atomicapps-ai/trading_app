@@ -2,10 +2,14 @@ workflow_id: rsi_pullback_scan
 description: >
   Daily post-close scan for the RSI Pullback strategy (Connors mean-reversion, gated diversifier
   vs Fear-Dip at 0.40 corr). Screens liquid_momentum_core, runs only the rsi_pullback detector,
-  builds plans, queues to /pending for human approval. Paper mode. active:false on the strategy
-  until in-app re-validation is reviewed.
+  builds plans, queues to /pending for human approval. Paper mode.
 default_mode: paper
-schedule: "35 16 * * 1-5"   # 16:35 ET Mon-Fri (staggered after macd at 16:30)
+# schedule DISABLED — this strategy is a candidate (active:false). The scheduler registers a cron
+# for any workflow with a `schedule:` field regardless of the strategy's active flag, so the
+# schedule is the real on-switch. To activate: uncomment the line below (16:35 ET Mon-Fri,
+# staggered after macd at 16:30) AND set active:true in strategy_configs/rsi_pullback.yaml, then
+# restart the app so the scheduler picks it up.
+# schedule: "35 16 * * 1-5"
 
 steps:
   - id: filter_universe

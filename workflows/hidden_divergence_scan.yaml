@@ -2,10 +2,13 @@ workflow_id: hidden_divergence_scan
 description: >
   Daily post-close scan for the Hidden Divergence strategy (RSI bullish hidden-divergence trend
   continuation; cleanest diversifier in the book, <=0.24 corr to every live strategy). Screens
-  liquid_momentum_core, runs only the hidden_divergence detector, builds plans, queues to
-  /pending. Paper mode. active:false until in-app re-validation is reviewed.
+  liquid_momentum_core, runs only the hidden_divergence detector, builds plans, queues to /pending.
+  Paper mode.
 default_mode: paper
-schedule: "45 16 * * 1-5"   # 16:45 ET Mon-Fri
+# schedule DISABLED — candidate (active:false). Uncomment to activate (16:45 ET Mon-Fri) AND set
+# active:true in strategy_configs/hidden_divergence.yaml, then restart the app so the scheduler
+# picks it up.
+# schedule: "45 16 * * 1-5"
 
 steps:
   - id: filter_universe

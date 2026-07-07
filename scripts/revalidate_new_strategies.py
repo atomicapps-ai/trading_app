@@ -38,9 +38,10 @@ def summarize(trades):
 async def main():
     cap = int(sys.argv[1]) if len(sys.argv) > 1 else 500
     since = sys.argv[2] if len(sys.argv) > 2 else "2006-01-01"
+    only = sys.argv[3].split(",") if len(sys.argv) > 3 else STRATS
     sl = syms("1d")[:cap]
     out = {"n_symbols": len(sl), "since": since, "results": {}}
-    for strat in STRATS:
+    for strat in only:
         trades = await replay(sl, since, "2026-06-30", strategy=strat)
         out["results"][strat] = summarize(trades)
         s = out["results"][strat]
