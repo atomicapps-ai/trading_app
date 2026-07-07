@@ -1,18 +1,17 @@
-# j8Q3MIwGYOk — 3 strategies (cycle / daily-bias liquidity / fib-FVG)
+# j8Q3MIwGYOk — "Top 3 strategies" (presidential cycle + ICT liquidity + Fib)
 
-Source: <https://www.youtube.com/watch?v=j8Q3MIwGYOk> · ~8 min. Heavy Telegram promo — discount claims.
+Source: <https://www.youtube.com/watch?v=j8Q3MIwGYOk>
 
-## Rules → hypotheses
-1. **Presidential-cycle seasonality.** Buy the index ~2 years before a US general election, sell in
-   the election year. Claims positive every cycle since 1980 except ~2004. → **H-MAC1**
-   *(cleanly testable on index daily data — SPY/^GSPC. High-value, unusual, falsifiable.)*
-2. **Daily-bias + liquidity sweep + close-confirmed BOS + FVG entry.** If daily candle green (bullish
-   bias), on 30m wait for a sweep *below* the daily open (fakeout), then a **break of structure whose
-   candle body CLOSES above** the prior high (wick-only = reject), then enter the **FVG** on retrace;
-   TP daily close, stop below the sweep low. → cross-links **H-ICT2** + close-confirmation (our **F1**).
-   The "body must close above the BOS" point is an explicit confirmation filter → **H-BOS-CC**.
-3. **Fib golden zone + FVG confluence reversal.** Fib 0.618–0.79 ("golden zone"); take reversals only
-   where a same-direction **FVG sits inside the golden zone**. → **H-FIB1** (overlaps ICT H-ICT5).
+## Rules (as described)
+1. **Presidential cycle (Druckenmiller):** buy the market 2 years before a US general election, sell in the election year. (Mechanical, positional, daily.)
+2. **Liquidity sweep + BOS + FVG:** mark the daily candle open/close; on 30-min, wait for a sell-side liquidity sweep beyond the open, a break of structure that *closes* above the prior high, then enter on the retrace into the fair-value gap; TP = daily close, stop below the sweep low. (ICT, intraday.)
+3. **Fib golden zone + FVG:** enter where the 0.618–0.79 Fib "golden pocket" of a swing overlaps a fair-value gap; stop beyond the zone, target the swing extreme. (Discretionary.)
 
-## Status: queued. **H-MAC1** is the standout — trivially testable on index daily and unlike anything
-else in the library. H-BOS-CC sharpens our close-confirmation test. H-FIB1 = confluence test.
+## Backtest — strategy 1 (already implemented as `s8_presidential_cycle`)
+Pooled robustness across ~500 stocks: mean 2-year return of **pre-election** windows = **+26.0%** (n=298) vs **all** overlapping 2-year windows = **+63.6%** (n=1,327). The "buy 2 years before the election" window **underperforms** a random 2-year hold. SPY headline is only ~11 non-independent elections since 1980 — far below the ≥100-trade bar and dominated by the general bull drift.
+(Cached: `data/research/strategy_results/s8_presidential_cycle.json`.)
+
+## Verdict: REJECT.
+- **Strategy 1** fails on both counts: it can't meet the trade-count/PF/avg-R bar (a once-every-4-years macro bet, n≈11), and the pooled stock test *disconfirms* the edge — pre-election 2-yr windows returned less than the average 2-yr window. The "positive every time" framing is small-sample bull-market drift, not a distinct timing edge.
+- **Strategies 2 & 3** are discretionary ICT (liquidity sweeps, break of structure, fair-value gaps, Fib golden pocket), intraday-framed (30-min) with subjective level/zone selection — out of scope and not objectively mechanical.
+Status: rejected

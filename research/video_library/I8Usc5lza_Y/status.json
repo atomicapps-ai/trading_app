@@ -1,0 +1,6 @@
+{
+  "video_id": "I8Usc5lza_Y",
+  "status": "rejected",
+  "reason": "VCP: vol-contraction-breakout family already live as coil_breakout (OOS PF 2.13); faithful VCP needs custom detector (not built now)",
+  "retired_at": "2026-07-07T07:47:00.767120+00:00"
+}

@@ -128,7 +128,10 @@
     "processed_at": "2026-06-29T17:18:06.118784+00:00",
     "duration_s": 494,
     "frames": 5,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "presidential cycle disconfirmed (pre-election 2yr +26% < all-windows +63.6%, n~11); ICT liquidity+FVG+Fib strats discretionary/intraday",
+    "retired_at": "2026-07-07T07:48:00.761257+00:00"
   },
   "k-X0164r66U": {
     "url": "https://www.youtube.com/watch?v=k-X0164r66U&pp=ygUmYmVzdCBhZHZhbmNlZCBzdG9jayB0cmFkaW5nIHN0cmF0ZWdpZXM%3D",
@@ -360,7 +363,10 @@
     "processed_at": "2026-06-29T21:06:49.288181+00:00",
     "duration_s": 663,
     "frames": 7,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "VCP: vol-contraction-breakout family already live as coil_breakout (OOS PF 2.13); faithful VCP needs custom detector (not built now)",
+    "retired_at": "2026-07-07T07:47:00.767120+00:00"
   },
   "CIsq8mHftAo": {
     "url": "https://www.youtube.com/watch?v=CIsq8mHftAo",
@@ -416,5 +422,10 @@
     "status": "rejected",
     "reason": "discretionary ICT 5-entry reversal model (imbalance/FVG/order block, multi-TF, 1m execution); out of scope",
     "retired_at": "2026-07-07T07:41:13.559558+00:00"
+  },
+  "I29peidTQxU": {
+    "status": "rejected",
+    "reason": "intraday 15m/5m opening-range breakout Short; out of scope, same family as fvg_continuation",
+    "retired_at": "2026-07-07T07:45:34.642321+00:00"
   }
 }
