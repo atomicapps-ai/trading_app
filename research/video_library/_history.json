@@ -500,7 +500,10 @@
     "processed_at": "2026-07-07T17:28:14.116706+00:00",
     "duration_s": 561,
     "frames": 6,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Stochastic exit-from-oversold + 200EMA reversal, 2R. Daily stocks: OOS PF 1.12 (2R) / 1.16 (overbought-exit), positive avg-R, beats control but below 1.2 bar. Marginal; weaker than similar passes (hidden-div 1.21, Connors 1.31).",
+    "retired_at": "2026-07-07T21:08:18.162007+00:00"
   },
   "8gWIykJgMNY": {
     "url": "https://www.youtube.com/watch?v=8gWIykJgMNY",
@@ -644,7 +647,10 @@
     "processed_at": "2026-07-07T18:48:01.541962+00:00",
     "duration_s": 524,
     "frames": 6,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Review of an RDB trend-following study (ATR trailing stop, 24k stocks). Not a self-contained strategy (no entry spec); trend-following+ATR-trail already live as momentum_breakout.",
+    "retired_at": "2026-07-07T21:07:31.354695+00:00"
   },
   "bITIVwysCzM": {
     "url": "https://www.youtube.com/watch?v=bITIVwysCzM",
@@ -661,7 +667,10 @@
     "processed_at": "2026-07-07T18:49:21.732868+00:00",
     "duration_s": 1371,
     "frames": 15,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Trading mindset/motivational commentary (Phil Collins anecdote, 'do not overcomplicate'). No mechanical setup.",
+    "retired_at": "2026-07-07T21:07:31.486036+00:00"
   },
   "Zr91ZaZmwqI": {
     "url": "https://www.youtube.com/watch?v=Zr91ZaZmwqI",
@@ -863,7 +872,10 @@
     "processed_at": "2026-07-07T07:58:45.861047+00:00",
     "duration_s": 520,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Mean-reversion concept explainer; video calls defining the mean 'the most subjective part', no fixed rule. Mechanical versions already validated (fear_dip, bbrsi, bb3sd, Connors).",
+    "retired_at": "2026-07-07T21:07:31.215743+00:00"
   },
   "ZF8uKPqAu8M": {
     "url": "https://www.youtube.com/watch?v=ZF8uKPqAu8M",
@@ -1103,7 +1115,10 @@
     "processed_at": "2026-07-07T19:01:30.671904+00:00",
     "duration_s": 3345,
     "frames": 37,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Trendline-break bounce playbook (action/safety line). Discretionary trendline; same family as FjxG1/G29. Mechanizable cousin already live (momentum/coil breakout).",
+    "retired_at": "2026-07-07T21:07:31.076178+00:00"
   },
   "LD1FEbwXU4o": {
     "url": "https://www.youtube.com/watch?v=LD1FEbwXU4o",

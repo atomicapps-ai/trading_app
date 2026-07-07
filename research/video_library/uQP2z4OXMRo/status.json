@@ -1,0 +1,6 @@
+{
+  "video_id": "uQP2z4OXMRo",
+  "status": "rejected",
+  "reason": "Review of an RDB trend-following study (ATR trailing stop, 24k stocks). Not a self-contained strategy (no entry spec); trend-following+ATR-trail already live as momentum_breakout.",
+  "retired_at": "2026-07-07T21:07:31.354695+00:00"
+}
