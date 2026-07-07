@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Strategy Backtests — TradeAgent{% endblock %}
+{% block content %}
+<div class="page-head" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;">
+  <div>
+    <h2 style="margin:0;">Strategy Backtests</h2>
+    <div class="text-tertiary text-sm">Per-symbol suitability scoring · cached until the strategy or universe changes</div>
+  </div>
+</div>
+
+<div id="bt-grid" class="bt-grid">
+  {% for st in statuses %}
+  {% include "backtests/_card.html" %}
+  {% endfor %}
+</div>
+
+<style>
+.bt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;}
+.bt-card{background:var(--surface-1);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.bt-card h3{margin:0 0 2px;font-size:15px;font-family:var(--font-mono);}
+.bt-badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.03em;}
+.bt-badge.fresh{background:rgba(34,197,94,.15);color:#22c55e;}
+.bt-badge.stale,.bt-badge.universe_changed{background:rgba(245,158,11,.15);color:#f59e0b;}
+.bt-badge.config_changed{background:rgba(239,68,68,.18);color:#ef4444;}
+.bt-badge.never_run{background:rgba(139,144,160,.15);color:#8b90a0;}
+.bt-badge.running{background:rgba(74,158,255,.15);color:#4a9eff;}
+.bt-msg{font-size:12px;margin:8px 0;color:var(--text-secondary);}
+.bt-msg.alert{color:#ef4444;font-weight:600;}
+.bt-stats{display:flex;flex-wrap:wrap;gap:10px 16px;font-size:12px;margin:10px 0;}
+.bt-stats b{color:var(--text-primary);font-family:var(--font-mono);}
+.bt-stats .keep{color:#22c55e;} .bt-stats .drop{color:#ef4444;} .bt-stats .thin{color:#8b90a0;}
+.bt-prog{height:6px;border-radius:6px;background:var(--surface-3);overflow:hidden;margin:8px 0;}
+.bt-prog>div{height:100%;background:var(--accent-blue);width:0;transition:width .4s;}
+.bt-actions{display:flex;gap:8px;align-items:center;margin-top:10px;}
+</style>
+
+<script src="/static/htmx.min.js"></script>
+<script>
+(function () {
+  function fmtTs(iso){ if(!iso) return "never"; return iso.slice(0,16).replace("T"," ") + " UTC"; }
+
+  function render(st){
+    const card = document.querySelector(`.bt-card[data-strategy="${st.strategy}"]`);
+    if(!card) return;
+    const badge = card.querySelector(".bt-badge");
+    const running = st.running;
+    const status = running ? "running" : st.status;
+    badge.className = "bt-badge " + status;
+    badge.textContent = running ? ("running " + (st.progress||0) + "%") : status.replace("_"," ");
+    const msg = card.querySelector(".bt-msg");
+    msg.textContent = running ? (st.msg || "replaying…") : st.message;
+    msg.classList.toggle("alert", status === "config_changed");
+    card.querySelector(".bt-ts").textContent = fmtTs(st.created_at);
+    card.querySelector(".bt-nt").textContent = st.n_trades ?? "—";
+    card.querySelector(".bt-ns").textContent = st.n_symbols ?? "—";
+    card.querySelector(".bt-keep").textContent = st.keep ?? "—";
+    card.querySelector(".bt-drop").textContent = st.drop ?? "—";
+    card.querySelector(".bt-thin").textContent = st.thin ?? "—";
+    const prog = card.querySelector(".bt-prog");
+    prog.style.display = running ? "" : "none";
+    if(running) prog.querySelector("div").style.width = (st.progress||0) + "%";
+    const btn = card.querySelector(".bt-run");
+    btn.disabled = running;
+    btn.textContent = running ? "Running…" : (st.status === "never_run" ? "Run backtest" : "Re-run");
+  }
+
+  async function poll(){
+    try {
+      const r = await fetch("/api/backtests/status");
+      const j = await r.json();
+      (j.statuses||[]).forEach(render);
+      // keep polling faster while any run is active
+      const active = (j.statuses||[]).some(s => s.running);
+      setTimeout(poll, active ? 2500 : 15000);
+    } catch(_) { setTimeout(poll, 15000); }
+  }
+
+  window.runBacktest = async function(strategy, btn){
+    btn.disabled = true; btn.textContent = "Starting…";
+    try {
+      const r = await fetch(`/api/backtests/${strategy}/run`, {method:"POST"});
+      const j = await r.json();
+      if(!j.ok){ btn.disabled=false; alert(j.error||"could not start"); }
+    } catch(e){ btn.disabled=false; alert("error: "+e); }
+    poll();
+  };
+
+  poll();
+})();
+</script>
+{% endblock %}

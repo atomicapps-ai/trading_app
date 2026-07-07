@@ -1,0 +1,34 @@
+<div class="bt-card" data-strategy="{{ st.strategy }}">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+    <h3>{{ st.strategy }}</h3>
+    <span class="bt-badge {{ 'running' if st.running else st.status }}">
+      {{ ('running ' ~ st.progress ~ '%') if st.running else st.status.replace('_',' ') }}
+    </span>
+  </div>
+  <div class="text-tertiary text-sm">universe: {{ st.universe or '—' }} ({{ st.universe_size }})</div>
+
+  <p class="bt-msg {{ 'alert' if st.status == 'config_changed' }}">
+    {{ st.msg if st.running else st.message }}
+  </p>
+
+  <div class="bt-prog" style="{{ '' if st.running else 'display:none' }}"><div style="width:{{ st.progress }}%"></div></div>
+
+  <div class="bt-stats">
+    <span>last run: <b class="bt-ts">{{ (st.created_at[:16]|replace('T',' ') ~ ' UTC') if st.created_at else 'never' }}</b></span>
+    <span>symbols: <b class="bt-ns">{{ st.n_symbols if st.n_symbols is not none else '—' }}</b></span>
+    <span>trades: <b class="bt-nt">{{ st.n_trades if st.n_trades is not none else '—' }}</b></span>
+  </div>
+  <div class="bt-stats">
+    <span class="keep">keep <b class="bt-keep">{{ st.keep if st.keep is not none else '—' }}</b></span>
+    <span class="drop">drop <b class="bt-drop">{{ st.drop if st.drop is not none else '—' }}</b></span>
+    <span class="thin">thin <b class="bt-thin">{{ st.thin if st.thin is not none else '—' }}</b></span>
+  </div>
+
+  <div class="bt-actions">
+    <button class="btn btn-primary btn-sm bt-run" type="button"
+            {{ 'disabled' if st.running }}
+            onclick="runBacktest('{{ st.strategy }}', this)">
+      {{ 'Running…' if st.running else ('Run backtest' if st.status == 'never_run' else 'Re-run') }}
+    </button>
+  </div>
+</div>

@@ -198,6 +198,55 @@ def get_trades(strategy: str, symbol: str | None = None, run_id: str | None = No
         conn.close()
 
 
+ARCHIVE_DIR = DATA_DIR / "backtest_archive"
+
+
+def archive_run_to_csv(run_id: str) -> str | None:
+    """Export a run's full trade ledger (indicators flattened) to a CSV under
+    data/backtest_archive/ before it's superseded/pruned. Returns the path."""
+    import csv
+
+    conn = _conn()
+    try:
+        run = conn.execute("SELECT * FROM backtest_runs WHERE run_id=?", (run_id,)).fetchone()
+        if not run:
+            return None
+        rows = conn.execute(
+            "SELECT * FROM backtest_trades WHERE run_id=? ORDER BY symbol, entry_date",
+            (run_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+    if not rows:
+        return None
+
+    ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
+    stamp = (run["created_at"] or "")[:10]
+    path = ARCHIVE_DIR / f"{run['strategy']}_{stamp}_{run_id[:8]}.csv"
+
+    base = ["symbol", "window", "signal_date", "entry_date", "exit_date", "direction",
+            "entry", "stop", "tp1", "exit_px", "exit_reason", "pnl_pct", "pnl_r",
+            "mfe_r", "mae_r", "win", "hold_days", "pqs"]
+    decoded = []
+    ind_cols: list[str] = []
+    for r in rows:
+        d = dict(r)
+        flat = {}
+        for pfx in ("entry", "exit", "adverse"):
+            for k, v in (json.loads(d.get(f"{pfx}_ind_json") or "{}")).items():
+                col = f"{pfx}_{k}"
+                flat[col] = v
+                if col not in ind_cols:
+                    ind_cols.append(col)
+        decoded.append((d, flat))
+    with open(path, "w", newline="", encoding="utf-8") as fh:
+        w = csv.writer(fh)
+        w.writerow(base + ind_cols)
+        for d, flat in decoded:
+            w.writerow([d.get(c) for c in base] + [flat.get(c) for c in ind_cols])
+    return str(path)
+
+
 def prune_old_runs(strategy: str, keep: int = 3) -> int:
     """Keep the newest `keep` runs per strategy; delete older ones and their
     trades/scores. Returns rows deleted from backtest_runs."""

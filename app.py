@@ -39,6 +39,7 @@ from routers import (
     research as research_router,
     settings as settings_router,
     stock_lists,
+    backtests as backtests_router,
     strategies as strategies_router,
     strategy_live as strategy_live_router,
     stubs,
@@ -196,6 +197,7 @@ app.include_router(live_status_router.router)
 app.include_router(workflows.router)
 app.include_router(jobs.router)
 app.include_router(strategies_router.router)
+app.include_router(backtests_router.router)
 app.include_router(strategy_live_router.router)
 app.include_router(replay_router.router)
 app.include_router(today_router.router)
