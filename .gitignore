@@ -134,3 +134,11 @@ strategies/config_archive/
 research/video_library/_acq_*
 research/video_library/_rankcache/
 research/video_library/_picks.txt
+
+# never commit exported browser cookies (contains your YouTube session)
+*cookies*.txt
+research/video_library/_tscheck.log*
+
+# exported YouTube session cookies (sensitive) - never commit
+*cookies*.json
+_yt_cookies*
