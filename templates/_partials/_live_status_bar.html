@@ -25,13 +25,15 @@
       <span class="live-bar-label">DAY P&amp;L</span>
       <span class="mono live-bar-pnl-value">{{ "%+.2f"|format(day_pnl_usd) }}</span>
     </span>
-    <span class="live-bar-pill {{ 'live-bar-pos' if open_pnl_usd >= 0 else 'live-bar-neg' }}"
+    {# open_pnl_* default-guarded so a template reload ahead of the Python
+       reload (pull-without-restart) can't error the whole live bar. #}
+    <span class="live-bar-pill {{ 'live-bar-pos' if (open_pnl_usd|default(0.0)) >= 0 else 'live-bar-neg' }}"
           data-toggle-pnl
-          data-pnl-usd="{{ "%.2f"|format(open_pnl_usd) }}"
-          data-pnl-pct="{{ "%.2f"|format(open_pnl_pct) }}"
+          data-pnl-usd="{{ "%.2f"|format(open_pnl_usd|default(0.0)) }}"
+          data-pnl-pct="{{ "%.2f"|format(open_pnl_pct|default(0.0)) }}"
           title="Open P&amp;L: total live unrealized across current positions">
       <span class="live-bar-label">OPEN P&amp;L</span>
-      <span class="mono live-bar-pnl-value">{{ "%+.2f"|format(open_pnl_usd) }}</span>
+      <span class="mono live-bar-pnl-value">{{ "%+.2f"|format(open_pnl_usd|default(0.0)) }}</span>
     </span>
 
     {# Divider between account totals and per-position chips. #}

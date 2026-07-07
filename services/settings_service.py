@@ -59,7 +59,41 @@ def _compute_asset_version() -> str:
     return str(latest or 1)
 
 
-ASSET_VERSION: str = _compute_asset_version()
+class _AssetVersion:
+    """Lazy cache-bust token that re-checks static file mtimes on a short TTL.
+
+    The deploy flow is ``git pull`` WITHOUT an app restart, so a token frozen at
+    startup would never change and browsers/CDN would keep serving stale CSS/JS.
+    Rendering ``{{ asset_v }}`` calls ``__str__`` here, which recomputes at most
+    once per ``ttl`` seconds — so a pull bumps the files' mtimes and the very
+    next render (within a few seconds) produces a fresh ``?v=`` for everyone,
+    no restart or manual hard-refresh required.
+    """
+
+    __slots__ = ("_val", "_ts", "_ttl")
+
+    def __init__(self, ttl: float = 5.0) -> None:
+        self._val = _compute_asset_version()
+        self._ts = 0.0
+        self._ttl = ttl
+
+    def _current(self) -> str:
+        import time
+        now = time.time()
+        if (now - self._ts) > self._ttl:
+            self._val = _compute_asset_version()
+            self._ts = now
+        return self._val
+
+    def __str__(self) -> str:
+        return self._current()
+
+    # Jinja autoescape prefers __html__ when present; the token is digits, so
+    # returning it verbatim is safe.
+    __html__ = __str__
+
+
+ASSET_VERSION = _AssetVersion()
 
 # Expose ``asset_v`` as a Jinja global on EVERY Jinja2Templates instance, so
 # any template can cache-bust with ``?v={{ asset_v }}`` without per-route
