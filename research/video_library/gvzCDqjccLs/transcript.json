@@ -1,0 +1,2182 @@
+[
+  {
+    "text": "today i'm going to demonstrate a way to",
+    "start": 0.0,
+    "duration": 3.52
+  },
+  {
+    "text": "improve an already profitable",
+    "start": 1.839,
+    "duration": 3.761
+  },
+  {
+    "text": "trading strategy that was originally",
+    "start": 3.52,
+    "duration": 3.04
+  },
+  {
+    "text": "created",
+    "start": 5.6,
+    "duration": 3.44
+  },
+  {
+    "text": "and documented by larry connors and",
+    "start": 6.56,
+    "duration": 4.72
+  },
+  {
+    "text": "cesar alvarez the modification i'm going",
+    "start": 9.04,
+    "duration": 3.759
+  },
+  {
+    "text": "to show you is dead simple",
+    "start": 11.28,
+    "duration": 4.16
+  },
+  {
+    "text": "and it triples the net profit it",
+    "start": 12.799,
+    "duration": 4.4
+  },
+  {
+    "text": "increases the winning percentage to over",
+    "start": 15.44,
+    "duration": 2.88
+  },
+  {
+    "text": "90 percent",
+    "start": 17.199,
+    "duration": 3.201
+  },
+  {
+    "text": "and it reduces the drawdown too those of",
+    "start": 18.32,
+    "duration": 3.44
+  },
+  {
+    "text": "you who are regular viewers to the",
+    "start": 20.4,
+    "duration": 1.92
+  },
+  {
+    "text": "channel",
+    "start": 21.76,
+    "duration": 2.72
+  },
+  {
+    "text": "may remember a similar study i did a",
+    "start": 22.32,
+    "duration": 3.039
+  },
+  {
+    "text": "while ago",
+    "start": 24.48,
+    "duration": 2.879
+  },
+  {
+    "text": "however this time i put a different",
+    "start": 25.359,
+    "duration": 3.601
+  },
+  {
+    "text": "twist on the exit to get different",
+    "start": 27.359,
+    "duration": 3.601
+  },
+  {
+    "text": "results the strategy uses",
+    "start": 28.96,
+    "duration": 4.72
+  },
+  {
+    "text": "the relative strength index or rsi",
+    "start": 30.96,
+    "duration": 3.759
+  },
+  {
+    "text": "indicator",
+    "start": 33.68,
+    "duration": 3.76
+  },
+  {
+    "text": "to get signals off of a daily chart and",
+    "start": 34.719,
+    "duration": 3.68
+  },
+  {
+    "text": "it works on the s",
+    "start": 37.44,
+    "duration": 3.2
+  },
+  {
+    "text": "p 500 this is going to be probably a",
+    "start": 38.399,
+    "duration": 4.401
+  },
+  {
+    "text": "shorter than normal video for me",
+    "start": 40.64,
+    "duration": 5.36
+  },
+  {
+    "text": "because the modification is so simple so",
+    "start": 42.8,
+    "duration": 4.56
+  },
+  {
+    "text": "i'm going to show you how to get into",
+    "start": 46.0,
+    "duration": 2.719
+  },
+  {
+    "text": "the trades then we go over the",
+    "start": 47.36,
+    "duration": 2.48
+  },
+  {
+    "text": "modification",
+    "start": 48.719,
+    "duration": 2.641
+  },
+  {
+    "text": "and compare the results i'm going to",
+    "start": 49.84,
+    "duration": 4.32
+  },
+  {
+    "text": "show you the test results using the spx",
+    "start": 51.36,
+    "duration": 6.08
+  },
+  {
+    "text": "cfd contract supplied by oanda",
+    "start": 54.16,
+    "duration": 5.76
+  },
+  {
+    "text": "and that tracks the e-mini future very",
+    "start": 57.44,
+    "duration": 4.0
+  },
+  {
+    "text": "well the results you'll see",
+    "start": 59.92,
+    "duration": 3.68
+  },
+  {
+    "text": "are going to be in points rather than",
+    "start": 61.44,
+    "duration": 3.6
+  },
+  {
+    "text": "dollars because",
+    "start": 63.6,
+    "duration": 4.08
+  },
+  {
+    "text": "the point value for the cfd is actually",
+    "start": 65.04,
+    "duration": 4.56
+  },
+  {
+    "text": "slightly different to the point value of",
+    "start": 67.68,
+    "duration": 4.4
+  },
+  {
+    "text": "the e-mini or the micro e-mini for the",
+    "start": 69.6,
+    "duration": 3.76
+  },
+  {
+    "text": "main test we're going to be looking at",
+    "start": 72.08,
+    "duration": 2.8
+  },
+  {
+    "text": "data from 2008",
+    "start": 73.36,
+    "duration": 3.6
+  },
+  {
+    "text": "through to the end of 2019 then we're",
+    "start": 74.88,
+    "duration": 3.919
+  },
+  {
+    "text": "going to run some optimizations",
+    "start": 76.96,
+    "duration": 3.839
+  },
+  {
+    "text": "and make some modifications and then",
+    "start": 78.799,
+    "duration": 3.761
+  },
+  {
+    "text": "look at the rest of the data i have",
+    "start": 80.799,
+    "duration": 2.64
+  },
+  {
+    "text": "which is from",
+    "start": 82.56,
+    "duration": 4.4
+  },
+  {
+    "text": "2020 through to the end of june 2021.",
+    "start": 83.439,
+    "duration": 5.521
+  },
+  {
+    "text": "let's look at the rules as i've already",
+    "start": 86.96,
+    "duration": 3.44
+  },
+  {
+    "text": "mentioned we're looking at",
+    "start": 88.96,
+    "duration": 4.56
+  },
+  {
+    "text": "the s p 500 and we're looking at a daily",
+    "start": 90.4,
+    "duration": 3.759
+  },
+  {
+    "text": "chart",
+    "start": 93.52,
+    "duration": 2.239
+  },
+  {
+    "text": "we're going to be using the rsi",
+    "start": 94.159,
+    "duration": 3.681
+  },
+  {
+    "text": "indicator and we're going to set it",
+    "start": 95.759,
+    "duration": 4.081
+  },
+  {
+    "text": "to a period of two so we're looking at a",
+    "start": 97.84,
+    "duration": 3.36
+  },
+  {
+    "text": "very short period",
+    "start": 99.84,
+    "duration": 4.4
+  },
+  {
+    "text": "rsi the general idea of the strategy",
+    "start": 101.2,
+    "duration": 5.52
+  },
+  {
+    "text": "is we're looking at an overall uptrend",
+    "start": 104.24,
+    "duration": 4.72
+  },
+  {
+    "text": "so it's a long only strategy we're only",
+    "start": 106.72,
+    "duration": 3.679
+  },
+  {
+    "text": "looking for buy trades",
+    "start": 108.96,
+    "duration": 4.0
+  },
+  {
+    "text": "and we're only looking for buys when the",
+    "start": 110.399,
+    "duration": 3.601
+  },
+  {
+    "text": "closing price",
+    "start": 112.96,
+    "duration": 3.839
+  },
+  {
+    "text": "or the closing daily price of the s p is",
+    "start": 114.0,
+    "duration": 5.439
+  },
+  {
+    "text": "above its 200 period moving average",
+    "start": 116.799,
+    "duration": 4.721
+  },
+  {
+    "text": "you can use a simple moving average or",
+    "start": 119.439,
+    "duration": 3.761
+  },
+  {
+    "text": "an exponential it doesn't make much",
+    "start": 121.52,
+    "duration": 2.16
+  },
+  {
+    "text": "difference",
+    "start": 123.2,
+    "duration": 2.559
+  },
+  {
+    "text": "in my test i just happen to be using a",
+    "start": 123.68,
+    "duration": 3.28
+  },
+  {
+    "text": "simple moving average",
+    "start": 125.759,
+    "duration": 3.2
+  },
+  {
+    "text": "once we've seen that the closing price",
+    "start": 126.96,
+    "duration": 4.16
+  },
+  {
+    "text": "is above that 200 period moving average",
+    "start": 128.959,
+    "duration": 4.241
+  },
+  {
+    "text": "we're assuming that we're in an overall",
+    "start": 131.12,
+    "duration": 4.56
+  },
+  {
+    "text": "uptrend an overall bull market",
+    "start": 133.2,
+    "duration": 4.16
+  },
+  {
+    "text": "and then we're looking at very",
+    "start": 135.68,
+    "duration": 3.68
+  },
+  {
+    "text": "short-term drops in price",
+    "start": 137.36,
+    "duration": 4.16
+  },
+  {
+    "text": "or pullbacks and we want to buy those",
+    "start": 139.36,
+    "duration": 4.32
+  },
+  {
+    "text": "pullbacks or buy those dips",
+    "start": 141.52,
+    "duration": 4.4
+  },
+  {
+    "text": "and then wait for prices to then turn",
+    "start": 143.68,
+    "duration": 4.32
+  },
+  {
+    "text": "around and begin to rally again",
+    "start": 145.92,
+    "duration": 4.72
+  },
+  {
+    "text": "and then we take our profit into those",
+    "start": 148.0,
+    "duration": 5.04
+  },
+  {
+    "text": "rallies and we use the rsi indicator",
+    "start": 150.64,
+    "duration": 5.28
+  },
+  {
+    "text": "to identify those short-term pullbacks",
+    "start": 153.04,
+    "duration": 4.88
+  },
+  {
+    "text": "we use our two-period rsi",
+    "start": 155.92,
+    "duration": 5.28
+  },
+  {
+    "text": "and we look for the rsi to cross down",
+    "start": 157.92,
+    "duration": 4.0
+  },
+  {
+    "text": "below",
+    "start": 161.2,
+    "duration": 3.119
+  },
+  {
+    "text": "the 10 level we can set these levels on",
+    "start": 161.92,
+    "duration": 4.0
+  },
+  {
+    "text": "our charts i think the standard is",
+    "start": 164.319,
+    "duration": 2.801
+  },
+  {
+    "text": "usually 30",
+    "start": 165.92,
+    "duration": 3.12
+  },
+  {
+    "text": "but we're going to use a lower level of",
+    "start": 167.12,
+    "duration": 3.119
+  },
+  {
+    "text": "10 so",
+    "start": 169.04,
+    "duration": 4.479
+  },
+  {
+    "text": "when it crosses below 10 then we buy",
+    "start": 170.239,
+    "duration": 5.36
+  },
+  {
+    "text": "on the next open larry connors does talk",
+    "start": 173.519,
+    "duration": 3.921
+  },
+  {
+    "text": "about using a level of 5",
+    "start": 175.599,
+    "duration": 4.72
+  },
+  {
+    "text": "rather than 10. however with 5 you are",
+    "start": 177.44,
+    "duration": 4.719
+  },
+  {
+    "text": "going to get less trades so",
+    "start": 180.319,
+    "duration": 4.241
+  },
+  {
+    "text": "for this test i'm going to use 10. larry",
+    "start": 182.159,
+    "duration": 4.321
+  },
+  {
+    "text": "connors also doesn't document a stop",
+    "start": 184.56,
+    "duration": 2.72
+  },
+  {
+    "text": "loss",
+    "start": 186.48,
+    "duration": 2.8
+  },
+  {
+    "text": "he's discovered that in this sort of a",
+    "start": 187.28,
+    "duration": 3.84
+  },
+  {
+    "text": "mean reversion type strategy",
+    "start": 189.28,
+    "duration": 3.679
+  },
+  {
+    "text": "that stop losses do just hurt the",
+    "start": 191.12,
+    "duration": 3.119
+  },
+  {
+    "text": "performance however",
+    "start": 192.959,
+    "duration": 2.721
+  },
+  {
+    "text": "i like to trade with the stop-loss i'm",
+    "start": 194.239,
+    "duration": 3.28
+  },
+  {
+    "text": "sure you like to trade in the loss",
+    "start": 195.68,
+    "duration": 4.88
+  },
+  {
+    "text": "so i've actually done a quick test and",
+    "start": 197.519,
+    "duration": 5.841
+  },
+  {
+    "text": "worked out that a 200 point stop loss",
+    "start": 200.56,
+    "duration": 4.0
+  },
+  {
+    "text": "works quite well",
+    "start": 203.36,
+    "duration": 4.0
+  },
+  {
+    "text": "200 is quite large but we want to give",
+    "start": 204.56,
+    "duration": 3.28
+  },
+  {
+    "text": "the",
+    "start": 207.36,
+    "duration": 3.36
+  },
+  {
+    "text": "prices room to continue to go down ever",
+    "start": 207.84,
+    "duration": 5.039
+  },
+  {
+    "text": "so slightly before they they go back up",
+    "start": 210.72,
+    "duration": 4.72
+  },
+  {
+    "text": "so 200 is quite a nice area so that's",
+    "start": 212.879,
+    "duration": 3.92
+  },
+  {
+    "text": "what we're using for this study",
+    "start": 215.44,
+    "duration": 3.2
+  },
+  {
+    "text": "larry connors also suggests a few",
+    "start": 216.799,
+    "duration": 4.08
+  },
+  {
+    "text": "different exits and they all work",
+    "start": 218.64,
+    "duration": 5.28
+  },
+  {
+    "text": "some of the exits that he suggests is",
+    "start": 220.879,
+    "duration": 5.201
+  },
+  {
+    "text": "putting a five-period moving average on",
+    "start": 223.92,
+    "duration": 3.84
+  },
+  {
+    "text": "the price and exiting",
+    "start": 226.08,
+    "duration": 4.56
+  },
+  {
+    "text": "when the daily price closes above that",
+    "start": 227.76,
+    "duration": 4.479
+  },
+  {
+    "text": "five period moving average",
+    "start": 230.64,
+    "duration": 4.48
+  },
+  {
+    "text": "a ten period works as well and he also",
+    "start": 232.239,
+    "duration": 5.441
+  },
+  {
+    "text": "suggests one using the rsi indicator",
+    "start": 235.12,
+    "duration": 4.399
+  },
+  {
+    "text": "so for this study i'm going to use the",
+    "start": 237.68,
+    "duration": 3.279
+  },
+  {
+    "text": "rsi indicator",
+    "start": 239.519,
+    "duration": 3.841
+  },
+  {
+    "text": "and our exit what we're going to compare",
+    "start": 240.959,
+    "duration": 3.84
+  },
+  {
+    "text": "to is",
+    "start": 243.36,
+    "duration": 4.64
+  },
+  {
+    "text": "exiting when value of the rsi closes",
+    "start": 244.799,
+    "duration": 6.8
+  },
+  {
+    "text": "above the 70 level okay so 10 is our",
+    "start": 248.0,
+    "duration": 4.08
+  },
+  {
+    "text": "entry",
+    "start": 251.599,
+    "duration": 2.801
+  },
+  {
+    "text": "and then 70 is going to be our exit",
+    "start": 252.08,
+    "duration": 3.439
+  },
+  {
+    "text": "level or",
+    "start": 254.4,
+    "duration": 2.48
+  },
+  {
+    "text": "that's going to be what we're comparing",
+    "start": 255.519,
+    "duration": 3.201
+  },
+  {
+    "text": "it to i'm going to introduce a slightly",
+    "start": 256.88,
+    "duration": 2.879
+  },
+  {
+    "text": "different exit",
+    "start": 258.72,
+    "duration": 3.039
+  },
+  {
+    "text": "but for the baseline that's our",
+    "start": 259.759,
+    "duration": 4.16
+  },
+  {
+    "text": "comparison using that 70 level",
+    "start": 261.759,
+    "duration": 5.44
+  },
+  {
+    "text": "because as with using a level of 10 or 5",
+    "start": 263.919,
+    "duration": 4.481
+  },
+  {
+    "text": "for the entry",
+    "start": 267.199,
+    "duration": 3.521
+  },
+  {
+    "text": "the exit there is no perfect one some",
+    "start": 268.4,
+    "duration": 3.76
+  },
+  {
+    "text": "work better in some cases",
+    "start": 270.72,
+    "duration": 3.52
+  },
+  {
+    "text": "somewhat better in other cases and",
+    "start": 272.16,
+    "duration": 3.44
+  },
+  {
+    "text": "that's the baseline strategy that i'm",
+    "start": 274.24,
+    "duration": 2.8
+  },
+  {
+    "text": "going to compare it to",
+    "start": 275.6,
+    "duration": 3.2
+  },
+  {
+    "text": "when i do the modification i'm going to",
+    "start": 277.04,
+    "duration": 3.68
+  },
+  {
+    "text": "keep the entry identical",
+    "start": 278.8,
+    "duration": 3.76
+  },
+  {
+    "text": "i'm just going to modify the exit and",
+    "start": 280.72,
+    "duration": 3.36
+  },
+  {
+    "text": "for that i'm going to use",
+    "start": 282.56,
+    "duration": 3.04
+  },
+  {
+    "text": "a method that i picked up from larry",
+    "start": 284.08,
+    "duration": 3.36
+  },
+  {
+    "text": "williams which i've used quite a lot on",
+    "start": 285.6,
+    "duration": 2.72
+  },
+  {
+    "text": "this channel",
+    "start": 287.44,
+    "duration": 3.36
+  },
+  {
+    "text": "which is his bad out exit or first",
+    "start": 288.32,
+    "duration": 3.76
+  },
+  {
+    "text": "profitable close",
+    "start": 290.8,
+    "duration": 3.119
+  },
+  {
+    "text": "and what that means is we look at the",
+    "start": 292.08,
+    "duration": 4.24
+  },
+  {
+    "text": "closing price of each day and if we're",
+    "start": 293.919,
+    "duration": 3.041
+  },
+  {
+    "text": "in profit",
+    "start": 296.32,
+    "duration": 2.56
+  },
+  {
+    "text": "we get out and take the profit if we're",
+    "start": 296.96,
+    "duration": 4.48
+  },
+  {
+    "text": "not in profit we leave the trade open",
+    "start": 298.88,
+    "duration": 5.12
+  },
+  {
+    "text": "and it'll either hit the stop loss or we",
+    "start": 301.44,
+    "duration": 3.599
+  },
+  {
+    "text": "will take the profit",
+    "start": 304.0,
+    "duration": 2.639
+  },
+  {
+    "text": "so let's go to the computer and have a",
+    "start": 305.039,
+    "duration": 4.561
+  },
+  {
+    "text": "look how the modification to the exit",
+    "start": 306.639,
+    "duration": 5.921
+  },
+  {
+    "text": "works or improves over this baseline one",
+    "start": 309.6,
+    "duration": 4.08
+  },
+  {
+    "text": "that we're going to compare to",
+    "start": 312.56,
+    "duration": 3.199
+  },
+  {
+    "text": "in this first workspace i've got two",
+    "start": 313.68,
+    "duration": 3.2
+  },
+  {
+    "text": "charts",
+    "start": 315.759,
+    "duration": 4.481
+  },
+  {
+    "text": "and the top chart or the top pane uses",
+    "start": 316.88,
+    "duration": 6.159
+  },
+  {
+    "text": "the strategy that uses the rsi for the",
+    "start": 320.24,
+    "duration": 3.36
+  },
+  {
+    "text": "exit",
+    "start": 323.039,
+    "duration": 3.761
+  },
+  {
+    "text": "so whenever the rsi crosses over",
+    "start": 323.6,
+    "duration": 6.72
+  },
+  {
+    "text": "70 we exit and the bottom one",
+    "start": 326.8,
+    "duration": 6.48
+  },
+  {
+    "text": "down here it uses the first profitable",
+    "start": 330.32,
+    "duration": 3.68
+  },
+  {
+    "text": "close",
+    "start": 333.28,
+    "duration": 2.8
+  },
+  {
+    "text": "a closing price of every bar if we're in",
+    "start": 334.0,
+    "duration": 4.479
+  },
+  {
+    "text": "profit we just exit the trade",
+    "start": 336.08,
+    "duration": 4.72
+  },
+  {
+    "text": "and you'll notice that in the bottom we",
+    "start": 338.479,
+    "duration": 4.641
+  },
+  {
+    "text": "have got a few more trades because",
+    "start": 340.8,
+    "duration": 4.16
+  },
+  {
+    "text": "we're exiting a little bit quicker so",
+    "start": 343.12,
+    "duration": 4.4
+  },
+  {
+    "text": "the entry in fact let me just",
+    "start": 344.96,
+    "duration": 4.88
+  },
+  {
+    "text": "put the rsi so you can see what the",
+    "start": 347.52,
+    "duration": 5.28
+  },
+  {
+    "text": "entry is",
+    "start": 349.84,
+    "duration": 5.44
+  },
+  {
+    "text": "we use the two period rsi and we're",
+    "start": 352.8,
+    "duration": 4.399
+  },
+  {
+    "text": "looking at",
+    "start": 355.28,
+    "duration": 4.56
+  },
+  {
+    "text": "an oversold level of 10 and we leave the",
+    "start": 357.199,
+    "duration": 4.481
+  },
+  {
+    "text": "overbought level which is our exit as",
+    "start": 359.84,
+    "duration": 4.32
+  },
+  {
+    "text": "70.",
+    "start": 361.68,
+    "duration": 6.16
+  },
+  {
+    "text": "so we can see",
+    "start": 364.16,
+    "duration": 3.68
+  },
+  {
+    "text": "every time so this green line here this",
+    "start": 369.44,
+    "duration": 4.24
+  },
+  {
+    "text": "bottom line is the 10 level",
+    "start": 371.52,
+    "duration": 5.519
+  },
+  {
+    "text": "so the minute the rsi comes below",
+    "start": 373.68,
+    "duration": 5.84
+  },
+  {
+    "text": "10 we've got a buy and then we're not",
+    "start": 377.039,
+    "duration": 3.121
+  },
+  {
+    "text": "exiting",
+    "start": 379.52,
+    "duration": 3.6
+  },
+  {
+    "text": "until it goes above 70 here and we're",
+    "start": 380.16,
+    "duration": 4.879
+  },
+  {
+    "text": "exiting on the next bar",
+    "start": 383.12,
+    "duration": 5.519
+  },
+  {
+    "text": "so again below 10. didn't get above 70",
+    "start": 385.039,
+    "duration": 5.6
+  },
+  {
+    "text": "so we stayed in the trade went below 10",
+    "start": 388.639,
+    "duration": 3.601
+  },
+  {
+    "text": "again but we stayed in the original",
+    "start": 390.639,
+    "duration": 2.081
+  },
+  {
+    "text": "trade",
+    "start": 392.24,
+    "duration": 3.679
+  },
+  {
+    "text": "exited above 70. so",
+    "start": 392.72,
+    "duration": 6.479
+  },
+  {
+    "text": "that's the original one and",
+    "start": 395.919,
+    "duration": 5.28
+  },
+  {
+    "text": "on the bottom one it's just exiting",
+    "start": 399.199,
+    "duration": 3.361
+  },
+  {
+    "text": "first profitable close",
+    "start": 401.199,
+    "duration": 3.761
+  },
+  {
+    "text": "so let's have a look at the results the",
+    "start": 402.56,
+    "duration": 5.68
+  },
+  {
+    "text": "first one",
+    "start": 404.96,
+    "duration": 5.359
+  },
+  {
+    "text": "there's the equity curve and it's not",
+    "start": 408.24,
+    "duration": 3.04
+  },
+  {
+    "text": "bad again",
+    "start": 410.319,
+    "duration": 3.401
+  },
+  {
+    "text": "data from 2008 through to the end of",
+    "start": 411.28,
+    "duration": 4.08
+  },
+  {
+    "text": "2019",
+    "start": 413.72,
+    "duration": 5.4
+  },
+  {
+    "text": "recently has dropped off a little bit",
+    "start": 415.36,
+    "duration": 3.76
+  },
+  {
+    "text": "make a net profit of 731 points",
+    "start": 421.599,
+    "duration": 4.801
+  },
+  {
+    "text": "76 trades we've got a percent profitable",
+    "start": 428.4,
+    "duration": 4.4
+  },
+  {
+    "text": "or win rate of just over",
+    "start": 431.12,
+    "duration": 5.359
+  },
+  {
+    "text": "81 an average trade of",
+    "start": 432.8,
+    "duration": 6.799
+  },
+  {
+    "text": "9.6 points per trade",
+    "start": 436.479,
+    "duration": 6.081
+  },
+  {
+    "text": "so let's compare that to the first",
+    "start": 439.599,
+    "duration": 5.841
+  },
+  {
+    "text": "profitable close",
+    "start": 442.56,
+    "duration": 2.88
+  },
+  {
+    "text": "firstly here's the equity curve",
+    "start": 445.52,
+    "duration": 8.48
+  },
+  {
+    "text": "similar probably not quite as good",
+    "start": 449.599,
+    "duration": 4.401
+  },
+  {
+    "text": "making less net profit at only 588",
+    "start": 454.639,
+    "duration": 5.361
+  },
+  {
+    "text": "points this time",
+    "start": 457.599,
+    "duration": 5.44
+  },
+  {
+    "text": "a few more trades 79",
+    "start": 460.0,
+    "duration": 5.68
+  },
+  {
+    "text": "the winning percentage is higher the",
+    "start": 463.039,
+    "duration": 4.56
+  },
+  {
+    "text": "average trade is slightly lower",
+    "start": 465.68,
+    "duration": 5.359
+  },
+  {
+    "text": "only 7.4 points per trade",
+    "start": 467.599,
+    "duration": 6.0
+  },
+  {
+    "text": "notice we got our largest losing trade",
+    "start": 471.039,
+    "duration": 5.361
+  },
+  {
+    "text": "of 200 that's our 200 point stop loss",
+    "start": 473.599,
+    "duration": 5.201
+  },
+  {
+    "text": "so that's the comparison between the",
+    "start": 476.4,
+    "duration": 4.56
+  },
+  {
+    "text": "baseline using the rsi exit",
+    "start": 478.8,
+    "duration": 5.2
+  },
+  {
+    "text": "and the first profitable close before i",
+    "start": 480.96,
+    "duration": 4.72
+  },
+  {
+    "text": "make any modifications",
+    "start": 484.0,
+    "duration": 4.08
+  },
+  {
+    "text": "in the previous video i made which was",
+    "start": 485.68,
+    "duration": 4.56
+  },
+  {
+    "text": "using a similar exit using the",
+    "start": 488.08,
+    "duration": 4.64
+  },
+  {
+    "text": "first profitable close what i looked at",
+    "start": 490.24,
+    "duration": 4.399
+  },
+  {
+    "text": "was the amount of points we were in",
+    "start": 492.72,
+    "duration": 2.72
+  },
+  {
+    "text": "profit",
+    "start": 494.639,
+    "duration": 3.68
+  },
+  {
+    "text": "before exiting at the moment in this",
+    "start": 495.44,
+    "duration": 3.52
+  },
+  {
+    "text": "study",
+    "start": 498.319,
+    "duration": 3.28
+  },
+  {
+    "text": "we're looking are we in profit or not in",
+    "start": 498.96,
+    "duration": 3.12
+  },
+  {
+    "text": "profit",
+    "start": 501.599,
+    "duration": 2.801
+  },
+  {
+    "text": "so even if at the end of the day we're",
+    "start": 502.08,
+    "duration": 5.36
+  },
+  {
+    "text": "two points in profit we exit the trade",
+    "start": 504.4,
+    "duration": 4.96
+  },
+  {
+    "text": "in the previous video i looked to see if",
+    "start": 507.44,
+    "duration": 4.319
+  },
+  {
+    "text": "there was a better number than just",
+    "start": 509.36,
+    "duration": 5.119
+  },
+  {
+    "text": "1.2 points etc which done on",
+    "start": 511.759,
+    "duration": 4.881
+  },
+  {
+    "text": "optimization and i found that 30 worked",
+    "start": 514.479,
+    "duration": 3.12
+  },
+  {
+    "text": "quite well",
+    "start": 516.64,
+    "duration": 3.6
+  },
+  {
+    "text": "so we were looking for a minimum of 30",
+    "start": 517.599,
+    "duration": 3.201
+  },
+  {
+    "text": "points",
+    "start": 520.24,
+    "duration": 2.88
+  },
+  {
+    "text": "now in this video in this study what",
+    "start": 520.8,
+    "duration": 3.76
+  },
+  {
+    "text": "we're going to look at next",
+    "start": 523.12,
+    "duration": 4.64
+  },
+  {
+    "text": "is leaving the the points in profit",
+    "start": 524.56,
+    "duration": 5.12
+  },
+  {
+    "text": "at anything above zero so it could be",
+    "start": 527.76,
+    "duration": 3.6
+  },
+  {
+    "text": "just one point in profit",
+    "start": 529.68,
+    "duration": 4.4
+  },
+  {
+    "text": "however i am going to introduce a delay",
+    "start": 531.36,
+    "duration": 3.12
+  },
+  {
+    "text": "on",
+    "start": 534.08,
+    "duration": 2.64
+  },
+  {
+    "text": "that exit so what i'm going to say is i",
+    "start": 534.48,
+    "duration": 3.6
+  },
+  {
+    "text": "want to be in the trade for",
+    "start": 536.72,
+    "duration": 4.4
+  },
+  {
+    "text": "a minimum amount of time before we",
+    "start": 538.08,
+    "duration": 4.319
+  },
+  {
+    "text": "employ that exit",
+    "start": 541.12,
+    "duration": 4.24
+  },
+  {
+    "text": "so it might be the case that we want to",
+    "start": 542.399,
+    "duration": 4.401
+  },
+  {
+    "text": "enter the trade we want to be in the",
+    "start": 545.36,
+    "duration": 3.2
+  },
+  {
+    "text": "trade at least three days",
+    "start": 546.8,
+    "duration": 4.4
+  },
+  {
+    "text": "and then only after that third day we",
+    "start": 548.56,
+    "duration": 3.68
+  },
+  {
+    "text": "look at",
+    "start": 551.2,
+    "duration": 3.6
+  },
+  {
+    "text": "each end of day are we in profit if",
+    "start": 552.24,
+    "duration": 3.36
+  },
+  {
+    "text": "we're in profit",
+    "start": 554.8,
+    "duration": 2.32
+  },
+  {
+    "text": "it could be a couple of points it could",
+    "start": 555.6,
+    "duration": 4.239
+  },
+  {
+    "text": "be 30 points we take the profit",
+    "start": 557.12,
+    "duration": 5.2
+  },
+  {
+    "text": "and run but we're using that day delay",
+    "start": 559.839,
+    "duration": 4.0
+  },
+  {
+    "text": "that's what we're going to look at next",
+    "start": 562.32,
+    "duration": 3.28
+  },
+  {
+    "text": "we're going to look at an optimization",
+    "start": 563.839,
+    "duration": 4.081
+  },
+  {
+    "text": "to see if the day delay",
+    "start": 565.6,
+    "duration": 4.239
+  },
+  {
+    "text": "improves the results and i'm sure it",
+    "start": 567.92,
+    "duration": 4.0
+  },
+  {
+    "text": "will so in this workspace",
+    "start": 569.839,
+    "duration": 4.161
+  },
+  {
+    "text": "we're looking at the day delay and i'll",
+    "start": 571.92,
+    "duration": 4.88
+  },
+  {
+    "text": "show you the optimization report",
+    "start": 574.0,
+    "duration": 4.399
+  },
+  {
+    "text": "and you see i've created this input",
+    "start": 576.8,
+    "duration": 3.52
+  },
+  {
+    "text": "called day delay",
+    "start": 578.399,
+    "duration": 4.481
+  },
+  {
+    "text": "one is no delay whatsoever you'll",
+    "start": 580.32,
+    "duration": 4.639
+  },
+  {
+    "text": "remember our 588",
+    "start": 582.88,
+    "duration": 5.44
+  },
+  {
+    "text": "points profit has 79 trades and i've",
+    "start": 584.959,
+    "duration": 4.081
+  },
+  {
+    "text": "looked at",
+    "start": 588.32,
+    "duration": 2.959
+  },
+  {
+    "text": "right way through to 20 days i don't",
+    "start": 589.04,
+    "duration": 3.359
+  },
+  {
+    "text": "want to be in the trade",
+    "start": 591.279,
+    "duration": 3.601
+  },
+  {
+    "text": "much more than 20 days this is a short",
+    "start": 592.399,
+    "duration": 5.12
+  },
+  {
+    "text": "term trading strategy now looking down",
+    "start": 594.88,
+    "duration": 4.8
+  },
+  {
+    "text": "the net profit and the average trade",
+    "start": 597.519,
+    "duration": 3.201
+  },
+  {
+    "text": "value",
+    "start": 599.68,
+    "duration": 3.12
+  },
+  {
+    "text": "we can quite quickly see that there's",
+    "start": 600.72,
+    "duration": 5.119
+  },
+  {
+    "text": "some decent",
+    "start": 602.8,
+    "duration": 3.039
+  },
+  {
+    "text": "and we still got a really high percent",
+    "start": 617.04,
+    "duration": 3.76
+  },
+  {
+    "text": "profitable as well we've kept",
+    "start": 619.12,
+    "duration": 4.56
+  },
+  {
+    "text": "over 91 profitable which is good so the",
+    "start": 620.8,
+    "duration": 3.76
+  },
+  {
+    "text": "rules would be",
+    "start": 623.68,
+    "duration": 3.68
+  },
+  {
+    "text": "enter the trade wait 12 days and then",
+    "start": 624.56,
+    "duration": 4.24
+  },
+  {
+    "text": "start looking",
+    "start": 627.36,
+    "duration": 3.599
+  },
+  {
+    "text": "every day are we in profit if we are in",
+    "start": 628.8,
+    "duration": 3.2
+  },
+  {
+    "text": "profit we exit",
+    "start": 630.959,
+    "duration": 2.721
+  },
+  {
+    "text": "if we're not in profit we stay in the",
+    "start": 632.0,
+    "duration": 3.04
+  },
+  {
+    "text": "trade and",
+    "start": 633.68,
+    "duration": 3.52
+  },
+  {
+    "text": "we've got an increased net profit an",
+    "start": 635.04,
+    "duration": 3.12
+  },
+  {
+    "text": "increased",
+    "start": 637.2,
+    "duration": 4.319
+  },
+  {
+    "text": "average trade very slightly increased",
+    "start": 638.16,
+    "duration": 6.56
+  },
+  {
+    "text": "profitability or win rate and",
+    "start": 641.519,
+    "duration": 5.201
+  },
+  {
+    "text": "let's have a look at the drawdown draw",
+    "start": 644.72,
+    "duration": 6.48
+  },
+  {
+    "text": "down -270 points compared to -327",
+    "start": 646.72,
+    "duration": 8.32
+  },
+  {
+    "text": "using no delay at all so it looks better",
+    "start": 651.2,
+    "duration": 6.8
+  },
+  {
+    "text": "all round in my opinion so let's use",
+    "start": 655.04,
+    "duration": 3.6
+  },
+  {
+    "text": "that one",
+    "start": 658.0,
+    "duration": 4.64
+  },
+  {
+    "text": "and look at the equity curve",
+    "start": 658.64,
+    "duration": 4.0
+  },
+  {
+    "text": "so that's the equity curve which i think",
+    "start": 665.519,
+    "duration": 4.721
+  },
+  {
+    "text": "you'll agree is better",
+    "start": 667.519,
+    "duration": 4.961
+  },
+  {
+    "text": "recently we are making new highs so",
+    "start": 670.24,
+    "duration": 3.2
+  },
+  {
+    "text": "that's good",
+    "start": 672.48,
+    "duration": 3.84
+  },
+  {
+    "text": "we've already seen the the net profit",
+    "start": 673.44,
+    "duration": 3.76
+  },
+  {
+    "text": "over 2",
+    "start": 676.32,
+    "duration": 3.44
+  },
+  {
+    "text": "100 points now so that's over triple the",
+    "start": 677.2,
+    "duration": 4.4
+  },
+  {
+    "text": "amount of our baseline study",
+    "start": 679.76,
+    "duration": 4.96
+  },
+  {
+    "text": "using the rsi 70 as the exit if you",
+    "start": 681.6,
+    "duration": 4.239
+  },
+  {
+    "text": "remember the rsi",
+    "start": 684.72,
+    "duration": 4.64
+  },
+  {
+    "text": "exit only made 731 points",
+    "start": 685.839,
+    "duration": 6.881
+  },
+  {
+    "text": "so that's really good and max drawdown",
+    "start": 689.36,
+    "duration": 4.4
+  },
+  {
+    "text": "for this strategy",
+    "start": 692.72,
+    "duration": 5.2
+  },
+  {
+    "text": "is 270 points and the max drawdown for",
+    "start": 693.76,
+    "duration": 8.48
+  },
+  {
+    "text": "the rsi exit was 281 points so",
+    "start": 697.92,
+    "duration": 7.2
+  },
+  {
+    "text": "slightly less drawdown using this exit",
+    "start": 702.24,
+    "duration": 3.44
+  },
+  {
+    "text": "2.",
+    "start": 705.12,
+    "duration": 2.56
+  },
+  {
+    "text": "looking at the total trade analysis we",
+    "start": 705.68,
+    "duration": 3.279
+  },
+  {
+    "text": "have got less trades",
+    "start": 707.68,
+    "duration": 4.24
+  },
+  {
+    "text": "the rsrx it had 76 trades now we've only",
+    "start": 708.959,
+    "duration": 4.32
+  },
+  {
+    "text": "got 60 with this",
+    "start": 711.92,
+    "duration": 2.719
+  },
+  {
+    "text": "because we're staying in the trade",
+    "start": 713.279,
+    "duration": 3.281
+  },
+  {
+    "text": "longer giving us a higher chance of",
+    "start": 714.639,
+    "duration": 3.76
+  },
+  {
+    "text": "making bigger profit",
+    "start": 716.56,
+    "duration": 3.6
+  },
+  {
+    "text": "percent profitable we've already seen",
+    "start": 718.399,
+    "duration": 3.44
+  },
+  {
+    "text": "just over 91",
+    "start": 720.16,
+    "duration": 5.6
+  },
+  {
+    "text": "the rsi exit was only 81.5",
+    "start": 721.839,
+    "duration": 7.44
+  },
+  {
+    "text": "the average trade here is huge at 35.7",
+    "start": 725.76,
+    "duration": 5.12
+  },
+  {
+    "text": "points compared to",
+    "start": 729.279,
+    "duration": 5.68
+  },
+  {
+    "text": "using the rsi exit of only 9.6 points",
+    "start": 730.88,
+    "duration": 6.72
+  },
+  {
+    "text": "and the largest losing trade on both of",
+    "start": 734.959,
+    "duration": 5.361
+  },
+  {
+    "text": "them is 200 because that's our 200 point",
+    "start": 737.6,
+    "duration": 4.72
+  },
+  {
+    "text": "stop loss so i think you'll agree that",
+    "start": 740.32,
+    "duration": 3.28
+  },
+  {
+    "text": "we've got improvements",
+    "start": 742.32,
+    "duration": 4.4
+  },
+  {
+    "text": "all around using this exits the last",
+    "start": 743.6,
+    "duration": 3.679
+  },
+  {
+    "text": "thing we do",
+    "start": 746.72,
+    "duration": 2.16
+  },
+  {
+    "text": "in this pane we've got both the",
+    "start": 747.279,
+    "duration": 3.12
+  },
+  {
+    "text": "strategies we've got",
+    "start": 748.88,
+    "duration": 4.079
+  },
+  {
+    "text": "the top one which is using 70 level of",
+    "start": 750.399,
+    "duration": 3.68
+  },
+  {
+    "text": "the rsi",
+    "start": 752.959,
+    "duration": 3.761
+  },
+  {
+    "text": "and the bottom one which is using the",
+    "start": 754.079,
+    "duration": 4.961
+  },
+  {
+    "text": "first profit will close with the 12-day",
+    "start": 756.72,
+    "duration": 2.96
+  },
+  {
+    "text": "delay",
+    "start": 759.04,
+    "duration": 3.239
+  },
+  {
+    "text": "and i want to look at the results from",
+    "start": 759.68,
+    "duration": 3.76
+  },
+  {
+    "text": "2020",
+    "start": 762.279,
+    "duration": 4.201
+  },
+  {
+    "text": "through to the end of june 2021.",
+    "start": 763.44,
+    "duration": 4.72
+  },
+  {
+    "text": "let's first look at the equity curves of",
+    "start": 766.48,
+    "duration": 3.12
+  },
+  {
+    "text": "both so",
+    "start": 768.16,
+    "duration": 4.64
+  },
+  {
+    "text": "one we're using the rsi exit",
+    "start": 769.6,
+    "duration": 5.359
+  },
+  {
+    "text": "i've actually included the whole data",
+    "start": 772.8,
+    "duration": 3.36
+  },
+  {
+    "text": "but i've just added on",
+    "start": 774.959,
+    "duration": 4.0
+  },
+  {
+    "text": "the extra unseen data and the equity",
+    "start": 776.16,
+    "duration": 5.04
+  },
+  {
+    "text": "curve is not great within the last few",
+    "start": 778.959,
+    "duration": 3.68
+  },
+  {
+    "text": "years unfortunately",
+    "start": 781.2,
+    "duration": 3.84
+  },
+  {
+    "text": "let's compare that to using the first",
+    "start": 782.639,
+    "duration": 5.361
+  },
+  {
+    "text": "profitable close with the day delay",
+    "start": 785.04,
+    "duration": 5.52
+  },
+  {
+    "text": "and we're actually making new highs the",
+    "start": 788.0,
+    "duration": 4.0
+  },
+  {
+    "text": "equity curve is still a little bit",
+    "start": 790.56,
+    "duration": 2.719
+  },
+  {
+    "text": "choppy like the other one",
+    "start": 792.0,
+    "duration": 4.24
+  },
+  {
+    "text": "but we are making new highs you can see",
+    "start": 793.279,
+    "duration": 3.521
+  },
+  {
+    "text": "here",
+    "start": 796.24,
+    "duration": 2.48
+  },
+  {
+    "text": "making new highs let's look at the",
+    "start": 796.8,
+    "duration": 3.279
+  },
+  {
+    "text": "periodic analysis",
+    "start": 798.72,
+    "duration": 3.44
+  },
+  {
+    "text": "and that will show us how much profit",
+    "start": 800.079,
+    "duration": 4.56
+  },
+  {
+    "text": "each strategy has made",
+    "start": 802.16,
+    "duration": 5.359
+  },
+  {
+    "text": "so we've got 2021 so we've only got six",
+    "start": 804.639,
+    "duration": 4.64
+  },
+  {
+    "text": "months of 2021",
+    "start": 807.519,
+    "duration": 5.281
+  },
+  {
+    "text": "so far and all of 2020. so remember",
+    "start": 809.279,
+    "duration": 4.881
+  },
+  {
+    "text": "we're looking at the strategy",
+    "start": 812.8,
+    "duration": 3.76
+  },
+  {
+    "text": "now using the first profitable close",
+    "start": 814.16,
+    "duration": 3.919
+  },
+  {
+    "text": "with the day delay",
+    "start": 816.56,
+    "duration": 6.16
+  },
+  {
+    "text": "so we made 303.8 in 2021.",
+    "start": 818.079,
+    "duration": 8.401
+  },
+  {
+    "text": "we lost 137.7 in 2020",
+    "start": 822.72,
+    "duration": 7.08
+  },
+  {
+    "text": "for a grand total of about",
+    "start": 826.48,
+    "duration": 7.76
+  },
+  {
+    "text": "166 points let's have a look at the",
+    "start": 829.8,
+    "duration": 8.839
+  },
+  {
+    "text": "rsi exit",
+    "start": 834.24,
+    "duration": 7.52
+  },
+  {
+    "text": "and 2021 we made 165",
+    "start": 838.639,
+    "duration": 7.361
+  },
+  {
+    "text": "lost 117 for a grand total of",
+    "start": 841.76,
+    "duration": 7.6
+  },
+  {
+    "text": "only 48 points so in the out of sample",
+    "start": 846.0,
+    "duration": 4.32
+  },
+  {
+    "text": "data",
+    "start": 849.36,
+    "duration": 3.36
+  },
+  {
+    "text": "the exit using the first profitable",
+    "start": 850.32,
+    "duration": 4.319
+  },
+  {
+    "text": "close and the 12-day delay",
+    "start": 852.72,
+    "duration": 4.96
+  },
+  {
+    "text": "did work better well i told you today's",
+    "start": 854.639,
+    "duration": 4.64
+  },
+  {
+    "text": "video was going to be a slightly shorter",
+    "start": 857.68,
+    "duration": 2.56
+  },
+  {
+    "text": "one",
+    "start": 859.279,
+    "duration": 3.281
+  },
+  {
+    "text": "in this demonstration what i've shown is",
+    "start": 860.24,
+    "duration": 4.48
+  },
+  {
+    "text": "that the entry and the exit rules",
+    "start": 862.56,
+    "duration": 4.0
+  },
+  {
+    "text": "of a certain strategy don't have to be",
+    "start": 864.72,
+    "duration": 3.28
+  },
+  {
+    "text": "set in stone",
+    "start": 866.56,
+    "duration": 4.959
+  },
+  {
+    "text": "as long as we're using the the main idea",
+    "start": 868.0,
+    "duration": 5.6
+  },
+  {
+    "text": "and the main idea in this strategy being",
+    "start": 871.519,
+    "duration": 3.76
+  },
+  {
+    "text": "we're looking for an overall",
+    "start": 873.6,
+    "duration": 3.76
+  },
+  {
+    "text": "uptrend or a longer-term uptrend and",
+    "start": 875.279,
+    "duration": 3.601
+  },
+  {
+    "text": "we're looking at a way to",
+    "start": 877.36,
+    "duration": 4.0
+  },
+  {
+    "text": "identify very short-term pullbacks",
+    "start": 878.88,
+    "duration": 4.319
+  },
+  {
+    "text": "buying into those pullbacks and then",
+    "start": 881.36,
+    "duration": 4.88
+  },
+  {
+    "text": "exiting into strength or once we're in",
+    "start": 883.199,
+    "duration": 4.64
+  },
+  {
+    "text": "profit and i've demonstrated that",
+    "start": 886.24,
+    "duration": 3.12
+  },
+  {
+    "text": "different exit ideas",
+    "start": 887.839,
+    "duration": 4.881
+  },
+  {
+    "text": "do work and i've also demonstrated that",
+    "start": 889.36,
+    "duration": 5.279
+  },
+  {
+    "text": "the longer we're in a trade the more",
+    "start": 892.72,
+    "duration": 4.32
+  },
+  {
+    "text": "chance we have of catching a bigger move",
+    "start": 894.639,
+    "duration": 5.041
+  },
+  {
+    "text": "and getting a more quality trade that's",
+    "start": 897.04,
+    "duration": 4.64
+  },
+  {
+    "text": "why using the 12-day delay",
+    "start": 899.68,
+    "duration": 3.519
+  },
+  {
+    "text": "works really well if you're already",
+    "start": 901.68,
+    "duration": 3.12
+  },
+  {
+    "text": "trading this strategy of",
+    "start": 903.199,
+    "duration": 4.241
+  },
+  {
+    "text": "larry connors then you might want to",
+    "start": 904.8,
+    "duration": 3.839
+  },
+  {
+    "text": "consider using",
+    "start": 907.44,
+    "duration": 3.6
+  },
+  {
+    "text": "this version too something i often do",
+    "start": 908.639,
+    "duration": 3.361
+  },
+  {
+    "text": "when",
+    "start": 911.04,
+    "duration": 3.599
+  },
+  {
+    "text": "i get a strategy and two different exits",
+    "start": 912.0,
+    "duration": 3.279
+  },
+  {
+    "text": "do work",
+    "start": 914.639,
+    "duration": 2.801
+  },
+  {
+    "text": "then sometimes i split my positions into",
+    "start": 915.279,
+    "duration": 3.601
+  },
+  {
+    "text": "half let's say you're",
+    "start": 917.44,
+    "duration": 3.68
+  },
+  {
+    "text": "trading 10 contracts trade five",
+    "start": 918.88,
+    "duration": 3.44
+  },
+  {
+    "text": "contracts using",
+    "start": 921.12,
+    "duration": 3.519
+  },
+  {
+    "text": "your original or your preferred exit",
+    "start": 922.32,
+    "duration": 3.92
+  },
+  {
+    "text": "technique and trade the other five",
+    "start": 924.639,
+    "duration": 2.241
+  },
+  {
+    "text": "contracts",
+    "start": 926.24,
+    "duration": 2.719
+  },
+  {
+    "text": "using the different technique like this",
+    "start": 926.88,
+    "duration": 3.199
+  },
+  {
+    "text": "one and that's",
+    "start": 928.959,
+    "duration": 2.721
+  },
+  {
+    "text": "quite a good way to work things it's",
+    "start": 930.079,
+    "duration": 3.76
+  },
+  {
+    "text": "quite a good way of diversifying the two",
+    "start": 931.68,
+    "duration": 3.36
+  },
+  {
+    "text": "strategies",
+    "start": 933.839,
+    "duration": 3.12
+  },
+  {
+    "text": "within the same strategy so i hope",
+    "start": 935.04,
+    "duration": 3.2
+  },
+  {
+    "text": "you've enjoyed this video",
+    "start": 936.959,
+    "duration": 3.44
+  },
+  {
+    "text": "if you have please give it a thumbs up",
+    "start": 938.24,
+    "duration": 3.519
+  },
+  {
+    "text": "and until the next one",
+    "start": 940.399,
+    "duration": 11.601
+  },
+  {
+    "text": "this is jared goodwin and thank you",
+    "start": 941.759,
+    "duration": 10.241
+  }
+]

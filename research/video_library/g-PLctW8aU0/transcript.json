@@ -1,0 +1,537 @@
+[
+  {
+    "text": "I found a trading strategy that profited 130%\nin just 2 months of trading. It involves using",
+    "start": 0.229,
+    "duration": 6.491
+  },
+  {
+    "text": "just 2 indicators, and best of all, both of\nthem are completely free on TradingView. The",
+    "start": 6.72,
+    "duration": 4.94
+  },
+  {
+    "text": "strategy is extremely easy to use, works in\nall markets, and it s insanely profitable.",
+    "start": 11.66,
+    "duration": 5.679
+  },
+  {
+    "text": "Make sure you stick around till the end of\nthe video, because Ill be sharing some secrets",
+    "start": 17.339,
+    "duration": 3.69
+  },
+  {
+    "text": "to make this strategy even better and I m\ngoing to share the backtest results, to show",
+    "start": 21.029,
+    "duration": 4.321
+  },
+  {
+    "text": "you how it performed while taking 100 trades.\nLet s get straight to it.",
+    "start": 25.35,
+    "duration": 4.339
+  },
+  {
+    "text": "First things first, you need to get on tradingview.\nI ll leave a link in the description. Once",
+    "start": 29.689,
+    "duration": 3.771
+  },
+  {
+    "text": "your on the chart, type in any security you\nwant to trade with. Like I said earlier, this",
+    "start": 33.46,
+    "duration": 4.22
+  },
+  {
+    "text": "strategy works with basically any security,\nso there really isn t a wrong answer.",
+    "start": 37.68,
+    "duration": 4.309
+  },
+  {
+    "text": "For this example, I m going to use doge. Because,\nwhy not.",
+    "start": 41.989,
+    "duration": 3.98
+  },
+  {
+    "text": "Once you ve selected what you want to trade.\nYour going to add the first indicator. The",
+    "start": 45.969,
+    "duration": 3.282
+  },
+  {
+    "text": "first indicator is the dema, or the double\nema.",
+    "start": 49.251,
+    "duration": 3.468
+  },
+  {
+    "text": "If you don t know what the dema is, its basically\nan upgraded version of the exponential moving",
+    "start": 52.719,
+    "duration": 6.211
+  },
+  {
+    "text": "average. It was created in 1994 and was made\nto give faster signals with less lag compared",
+    "start": 58.93,
+    "duration": 5.94
+  },
+  {
+    "text": "to a normal ema.\nSo this is a double exponential moving average",
+    "start": 64.87,
+    "duration": 4.35
+  },
+  {
+    "text": "(the blue one) and a normal exponential moving\naverage (the red one).",
+    "start": 69.22,
+    "duration": 3.54
+  },
+  {
+    "text": "As you can see, the double exponential moving\naverage is a lot lower, and is giving entry",
+    "start": 72.76,
+    "duration": 4.61
+  },
+  {
+    "text": "signals a lot faster than the normal ema.\nWhich in return is giving us a lot less lag.",
+    "start": 77.37,
+    "duration": 6.08
+  },
+  {
+    "text": "You should also understand though, that less\nlag is not always a good thing. This Is because",
+    "start": 83.45,
+    "duration": 5.33
+  },
+  {
+    "text": "lag can sometimes help filter out noise and\ngive a higher success rate at times.",
+    "start": 88.78,
+    "duration": 4.59
+  },
+  {
+    "text": "But I backtested this strategy with both a\ndouble exponential moving average and a normal",
+    "start": 93.37,
+    "duration": 5.1
+  },
+  {
+    "text": "moving average. And the dema performed better\nwith this specific strategy.",
+    "start": 98.47,
+    "duration": 5.66
+  },
+  {
+    "text": "Once you have the double exponential moving\naverage added, we have to change the settings",
+    "start": 104.13,
+    "duration": 4.25
+  },
+  {
+    "text": "a bit.\nGo to the settings of double exponential moving",
+    "start": 108.38,
+    "duration": 2.65
+  },
+  {
+    "text": "average, and we want to change the length\nto 200. Then go to the style tab and we are",
+    "start": 111.03,
+    "duration": 4.79
+  },
+  {
+    "text": "going to change it to blue, just so it s a\nbit easier to see.",
+    "start": 115.82,
+    "duration": 3.0
+  },
+  {
+    "text": "The second indicator for this strategy is\none that we ve used on this channel before,",
+    "start": 118.82,
+    "duration": 4.36
+  },
+  {
+    "text": "and that is the supertrend indicator.\nTo add it, go to the indicators tab, and type",
+    "start": 123.18,
+    "duration": 5.289
+  },
+  {
+    "text": "in super trend. Make sure to choose this one\nright here.",
+    "start": 128.469,
+    "duration": 3.391
+  },
+  {
+    "text": "Go to the settings of the super trend indicator,\nand make sure to change the ATR period to",
+    "start": 131.86,
+    "duration": 4.41
+  },
+  {
+    "text": "12 and the ATR multiplier to 3.\nNow that we have the indicators added and",
+    "start": 136.27,
+    "duration": 5.299
+  },
+  {
+    "text": "all the settings are correct. Lets get on\nwith how to use this strategy.",
+    "start": 141.569,
+    "duration": 3.81
+  },
+  {
+    "text": "In this example we are trading on DOGE/USD\non the 15 minute time frame.",
+    "start": 145.379,
+    "duration": 4.75
+  },
+  {
+    "text": "The first rule of the strategy, is that we\nwill only enter a long trade if the price",
+    "start": 150.129,
+    "duration": 5.39
+  },
+  {
+    "text": "is above the dema, the blue line. If the price\nisn t above the blue line, we will not enter",
+    "start": 155.519,
+    "duration": 6.8
+  },
+  {
+    "text": "the trade.\nThe 2nd rule we must follow is that, the supertrend",
+    "start": 162.319,
+    "duration": 3.7
+  },
+  {
+    "text": "indicator must give a buy signal. Let me show\nyou an example.",
+    "start": 166.019,
+    "duration": 3.181
+  },
+  {
+    "text": "So here, the price is above the 200 dema,\nbut the super trend indicator hasn t given",
+    "start": 169.2,
+    "duration": 4.42
+  },
+  {
+    "text": "a buy signal yet, so we wait.\nWe then wait and the super trend gives a buy",
+    "start": 173.62,
+    "duration": 5.11
+  },
+  {
+    "text": "signal. It is also important to note, that\nyou must wait for the buy signal candle to",
+    "start": 178.73,
+    "duration": 4.729
+  },
+  {
+    "text": "close before entering. This candle could give\na buy signal, but change before it closes.",
+    "start": 183.459,
+    "duration": 5.381
+  },
+  {
+    "text": "Keeping it a sell signal. So make sure you\nare only entering after the buy signal candle",
+    "start": 188.84,
+    "duration": 4.75
+  },
+  {
+    "text": "closes.\nOnce the candle closes, we enter the trade.",
+    "start": 193.59,
+    "duration": 2.97
+  },
+  {
+    "text": "You are going to set your stop loss at the\nbuy signal line of the super trend indicator.",
+    "start": 196.56,
+    "duration": 4.86
+  },
+  {
+    "text": "So for this example right here.\nThen the cool thing about this strategy is",
+    "start": 201.42,
+    "duration": 4.399
+  },
+  {
+    "text": "that we basically have infinite profit potential.\nUnlike my other trading strategies, where",
+    "start": 205.819,
+    "duration": 4.751
+  },
+  {
+    "text": "you set a 1.5 or 2 profit ratio, we are going\nto do something different with this strategy.",
+    "start": 210.57,
+    "duration": 5.44
+  },
+  {
+    "text": "We are only going to sell once the supertrend\nindicator becomes a sell signal.",
+    "start": 216.01,
+    "duration": 4.44
+  },
+  {
+    "text": "That s one of the reasons why this strategy\nis so powerful because you are going to have",
+    "start": 220.45,
+    "duration": 4.569
+  },
+  {
+    "text": "some trades where there s going to be a 4.2\nprofit ratio, or even higher.",
+    "start": 225.019,
+    "duration": 5.28
+  },
+  {
+    "text": "So going back to the example. We saw that\nthe price was above the 200 dema, and the",
+    "start": 230.299,
+    "duration": 6.33
+  },
+  {
+    "text": "supertrend indicator gave a buy signal. We\nthen enter the trade after the candle closed,",
+    "start": 236.629,
+    "duration": 5.11
+  },
+  {
+    "text": "and set our stop loss at the buy signal of\nthe supertrend indicator.",
+    "start": 241.739,
+    "duration": 4.04
+  },
+  {
+    "text": "We the wait while the price goes up, for a\nsell signal from the supertrend indicator.",
+    "start": 245.779,
+    "duration": 4.41
+  },
+  {
+    "text": "The supertrend indicator then turns red and\ngives a sell signal.",
+    "start": 250.189,
+    "duration": 3.871
+  },
+  {
+    "text": "This is when we exit the trade. And as you\ncan see, we got a profitable trade with a",
+    "start": 254.06,
+    "duration": 4.19
+  },
+  {
+    "text": "4.1 profit ratio.\nLet s do one more example.",
+    "start": 258.25,
+    "duration": 1.76
+  },
+  {
+    "text": "We see price just crossed the dema, we wait\nfor a buy signal from the supertrend, we enter,",
+    "start": 260.01,
+    "duration": 6.74
+  },
+  {
+    "text": "set our stop loss at the buy signal of the\nsupertrend, then wait for a sell signal. Once",
+    "start": 266.75,
+    "duration": 5.131
+  },
+  {
+    "text": "we see one. We exit the trade. Profit.\nLets go over an example of a short trade.",
+    "start": 271.881,
+    "duration": 5.009
+  },
+  {
+    "text": "After that, I will be sharing some secrets\ntips for you guys to help make this strategy",
+    "start": 276.89,
+    "duration": 3.59
+  },
+  {
+    "text": "even more profitable. Ill also share how this\nstrategy did while making 100 trades.",
+    "start": 280.48,
+    "duration": 5.97
+  },
+  {
+    "text": "So for a short trade, you are going to be\ndoing the exact opposite. Make sure the price",
+    "start": 286.45,
+    "duration": 4.46
+  },
+  {
+    "text": "is below the 200 dema, wait for a sell signal\nto occur, once it does, enter the trade, set",
+    "start": 290.91,
+    "duration": 7.191
+  },
+  {
+    "text": "the stop loss at the sell signal, then stay\nin the trade till you see a buy signal. Once",
+    "start": 298.101,
+    "duration": 4.749
+  },
+  {
+    "text": "you see one. Exit the trade. Profit.\nNow, it s time to go over some secret tips",
+    "start": 302.85,
+    "duration": 8.95
+  },
+  {
+    "text": "to make this strategy even better. One tip\nI would recommend, is for a situation like",
+    "start": 311.8,
+    "duration": 4.82
+  },
+  {
+    "text": "this. Where the price is below the blue line,\nbut the super trend indicator is giving a",
+    "start": 316.62,
+    "duration": 5.23
+  },
+  {
+    "text": "buy signal.\nWhat I d recommend doing here, is waiting",
+    "start": 321.85,
+    "duration": 2.95
+  },
+  {
+    "text": "for the price to cross the 200 dema, and then\nentering.",
+    "start": 324.8,
+    "duration": 3.3
+  },
+  {
+    "text": "Rather then not going in this trade because\nthe buy signal came before crossing the dema,",
+    "start": 328.1,
+    "duration": 5.44
+  },
+  {
+    "text": "we will still enter once the price crosses\nthe dema line.",
+    "start": 333.54,
+    "duration": 3.42
+  },
+  {
+    "text": "If you only entered when the price is above\nthe blue line, and then the super trend indicator",
+    "start": 336.96,
+    "duration": 4.82
+  },
+  {
+    "text": "gives a buy signal, in that order. you would\nmiss out on a lot of opportunities like this",
+    "start": 341.78,
+    "duration": 4.89
+  },
+  {
+    "text": "one.\nAnother tip for using this strategy is maybe",
+    "start": 346.67,
+    "duration": 2.97
+  },
+  {
+    "text": "implementing another indicator called the\nFibonacci Bollinger Bands.",
+    "start": 349.64,
+    "duration": 4.2
+  },
+  {
+    "text": "I didn t end up backtesting the strategy with\nthis indicator, but I did look at a couple",
+    "start": 353.84,
+    "duration": 4.93
+  },
+  {
+    "text": "examples and saw you would get potentially\nmore profit if using this indicator with the",
+    "start": 358.77,
+    "duration": 4.041
+  },
+  {
+    "text": "strategy.\nIf one you wants to backtest this strategy",
+    "start": 362.811,
+    "duration": 1.0
+  },
+  {
+    "text": "with the Fibonnaci bolling bands added, leave\nin the comments what the results were, if",
+    "start": 363.811,
+    "duration": 2.139
+  },
+  {
+    "text": "the strategy was better with, or without them.\nBecause again, I want to make this channel",
+    "start": 365.95,
+    "duration": 4.93
+  },
+  {
+    "text": "a community where we all help each other out.\nBut lets get on to how to use the fibonnaci",
+    "start": 370.88,
+    "duration": 4.71
+  },
+  {
+    "text": "Bollinger bands with this strategy.\nSo all you have to do is go to the indicators",
+    "start": 375.59,
+    "duration": 3.94
+  },
+  {
+    "text": "tab, and type in fbb for fibonnaci bolliner\nbands.",
+    "start": 379.53,
+    "duration": 4.3
+  },
+  {
+    "text": "Then go to the settings of the indicator,\nand uncheck all the boxes besides the boxes",
+    "start": 383.83,
+    "duration": 4.75
+  },
+  {
+    "text": "with the 1 s. Then change the colors to red\njust so you can see the lines better.",
+    "start": 388.58,
+    "duration": 4.6
+  },
+  {
+    "text": "These lines are basically going to be acting\nas the absolute highs and lows for the price.",
+    "start": 393.18,
+    "duration": 5.69
+  },
+  {
+    "text": "So if the price ever touches the red line,\nwe are going to sell immediately, even if",
+    "start": 398.87,
+    "duration": 4.37
+  },
+  {
+    "text": "the super trend indicator still has a buy\nsignal.",
+    "start": 403.24,
+    "duration": 2.6
+  },
+  {
+    "text": "If the price does ever hit the fibonnaci Bollinger\nband, it usually reflects off it and goes",
+    "start": 405.84,
+    "duration": 4.87
+  },
+  {
+    "text": "the opposite direction.\nSo as you can see in this example. The price",
+    "start": 410.71,
+    "duration": 3.76
+  },
+  {
+    "text": "hit our Bollinger band, so we sold here, even\nthough the super trend indicator was still",
+    "start": 414.47,
+    "duration": 5.11
+  },
+  {
+    "text": "green. And if we fast forward, we made more\nmoney selling here, then if sold when the",
+    "start": 419.58,
+    "duration": 4.79
+  },
+  {
+    "text": "super trend indicator told us.\nThe price will rarely high these fibonnaci",
+    "start": 424.37,
+    "duration": 3.88
+  },
+  {
+    "text": "Bollinger bands, but if it does. Sell.\nLike Is said, I didn t backtest this strategy",
+    "start": 428.25,
+    "duration": 4.93
+  },
+  {
+    "text": "with the Bollinger bands, but I did check\na couple example with it, and it was more",
+    "start": 433.18,
+    "duration": 4.52
+  },
+  {
+    "text": "profitable a majority of the time.\nNext, let s take a look at the back test results",
+    "start": 437.7,
+    "duration": 4.47
+  },
+  {
+    "text": "for the original strategy.\nFor this backtest, I traded both doge/usd",
+    "start": 442.17,
+    "duration": 4.98
+  },
+  {
+    "text": "and LTC/usd. I did 100 trades. Which took\na round 2.5 months. The most wins in a row",
+    "start": 447.15,
+    "duration": 6.24
+  },
+  {
+    "text": "I had with this strategy was 8, and the most\nlosses in a row was 3. This stat by itself,",
+    "start": 453.39,
+    "duration": 6.76
+  },
+  {
+    "text": "is insanely good for a trading strategy.\nThe total amount of gains from the 100 trades",
+    "start": 460.15,
+    "duration": 2.28
+  },
+  {
+    "text": "was 130.14% and the trading strategy had a\nsuccess rate of 60% with 60 winning trades,",
+    "start": 462.43,
+    "duration": 5.49
+  },
+  {
+    "text": "and 40 loosing trades.\nIf you want to learn how to backtest trades",
+    "start": 467.92,
+    "duration": 11.75
+  },
+  {
+    "text": "like this and test your own personal strategies,\nwatch this video where I go over how to do",
+    "start": 479.67,
+    "duration": 5.33
+  },
+  {
+    "text": "so and backtest your strategies with years\nof data on tradingview, so you can see just",
+    "start": 485.0,
+    "duration": 5.14
+  },
+  {
+    "text": "how profitable your strategies actually are.\nThanks for watching and ill see you guys,",
+    "start": 490.14,
+    "duration": 5.26
+  },
+  {
+    "text": "next time.",
+    "start": 495.4,
+    "duration": 5.84
+  }
+]

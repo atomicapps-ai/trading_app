@@ -439,5 +439,136 @@
     "status": "rejected",
     "reason": "intraday 15m/5m opening-range breakout Short; out of scope, same family as fvg_continuation",
     "retired_at": "2026-07-07T07:45:34.642321+00:00"
+  },
+  "MCOiVEBjFnA": {
+    "url": "https://www.youtube.com/watch?v=MCOiVEBjFnA",
+    "processed_at": "2026-07-07T07:57:22.600782+00:00",
+    "duration_s": 705,
+    "frames": 8,
+    "transcript": true
+  },
+  "UXN50MOGDmA": {
+    "url": "https://www.youtube.com/watch?v=UXN50MOGDmA",
+    "processed_at": "2026-07-07T07:57:30.663836+00:00",
+    "duration_s": 511,
+    "frames": 6,
+    "transcript": true
+  },
+  "g-PLctW8aU0": {
+    "url": "https://www.youtube.com/watch?v=g-PLctW8aU0",
+    "processed_at": "2026-07-07T07:57:37.505486+00:00",
+    "duration_s": 501,
+    "frames": 6,
+    "transcript": true,
+    "status": "passed",
+    "reason": "",
+    "retired_at": "2026-07-07T08:08:39.255165+00:00"
+  },
+  "gvzCDqjccLs": {
+    "url": "https://www.youtube.com/watch?v=gvzCDqjccLs",
+    "processed_at": "2026-07-07T07:57:45.607548+00:00",
+    "duration_s": 952,
+    "frames": 11,
+    "transcript": true
+  },
+  "qpkCxEUdoMo": {
+    "url": "https://www.youtube.com/watch?v=qpkCxEUdoMo",
+    "processed_at": "2026-07-07T07:57:53.025771+00:00",
+    "duration_s": 1046,
+    "frames": 12,
+    "transcript": true
+  },
+  "r7gzyEnPTwg": {
+    "url": "https://www.youtube.com/watch?v=r7gzyEnPTwg",
+    "processed_at": "2026-07-07T07:57:58.742506+00:00",
+    "duration_s": 453,
+    "frames": 5,
+    "transcript": true
+  },
+  "1FdgVZX55AY": {
+    "url": "https://www.youtube.com/watch?v=1FdgVZX55AY",
+    "processed_at": "2026-07-07T07:58:06.060517+00:00",
+    "duration_s": 770,
+    "frames": 9,
+    "transcript": true,
+    "status": "rejected",
+    "reason": "trend-pullback w/ discretionary multi-TF divergence; mechanizable core = pullback family already tested break-even; crypto/forex",
+    "retired_at": "2026-07-07T08:00:46.055296+00:00"
+  },
+  "rlSkRMmycWo": {
+    "url": "https://www.youtube.com/watch?v=rlSkRMmycWo",
+    "processed_at": "2026-07-07T07:58:16.541561+00:00",
+    "duration_s": 537,
+    "frames": 6,
+    "transcript": true
+  },
+  "pLI-xOg-5bQ": {
+    "url": "https://www.youtube.com/watch?v=pLI-xOg-5bQ",
+    "processed_at": "2026-07-07T07:58:25.108308+00:00",
+    "duration_s": 684,
+    "frames": 8,
+    "transcript": true
+  },
+  "aenu7yUxTr8": {
+    "url": "https://www.youtube.com/watch?v=aenu7yUxTr8",
+    "processed_at": "2026-07-07T07:58:31.685861+00:00",
+    "duration_s": 622,
+    "frames": 7,
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Faber 10mo/200d index-timing overlay; long-only, no defined-risk trades (cant meet trade/PF bar); core = SPY>200MA gate already in suite",
+    "retired_at": "2026-07-07T08:01:34.992743+00:00"
+  },
+  "KuXV0LRfJx8": {
+    "url": "https://www.youtube.com/watch?v=KuXV0LRfJx8",
+    "processed_at": "2026-07-07T07:58:41.888191+00:00",
+    "duration_s": 611,
+    "frames": 7,
+    "transcript": true
+  },
+  "uF8krD3vDy8": {
+    "url": "https://www.youtube.com/watch?v=uF8krD3vDy8",
+    "processed_at": "2026-07-07T07:58:45.861047+00:00",
+    "duration_s": 520,
+    "frames": 0,
+    "transcript": true
+  },
+  "ZF8uKPqAu8M": {
+    "url": "https://www.youtube.com/watch?v=ZF8uKPqAu8M",
+    "processed_at": "2026-07-07T07:58:51.282144+00:00",
+    "duration_s": 647,
+    "frames": 7,
+    "transcript": true
+  },
+  "ezFVU_rZgKk": {
+    "url": "https://www.youtube.com/watch?v=ezFVU_rZgKk",
+    "processed_at": "2026-07-07T07:59:01.335774+00:00",
+    "duration_s": 1375,
+    "frames": 15,
+    "transcript": true,
+    "status": "rejected",
+    "reason": "GBP/JPY forex, discretionary trend-following backtest demo (hand-drawn structure/trendlines); out of scope, not mechanical",
+    "retired_at": "2026-07-07T08:02:07.006752+00:00"
+  },
+  "sOa4PovtZ1c": {
+    "url": "https://www.youtube.com/watch?v=sOa4PovtZ1c",
+    "processed_at": "2026-07-07T07:59:07.992336+00:00",
+    "duration_s": 675,
+    "frames": 7,
+    "transcript": true
+  },
+  "PVMgOxHUqFA": {
+    "url": "https://www.youtube.com/watch?v=PVMgOxHUqFA",
+    "processed_at": "2026-07-07T07:59:14.252835+00:00",
+    "duration_s": 615,
+    "frames": 7,
+    "transcript": true
+  },
+  "sYRCzSbvOpQ": {
+    "url": "https://www.youtube.com/watch?v=sYRCzSbvOpQ",
+    "processed_at": "2026-07-07T07:59:45.669481+00:00",
+    "duration_s": 1406,
+    "frames": 16,
+    "transcript": true
   }
 }

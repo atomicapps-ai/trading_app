@@ -1,0 +1,1397 @@
+[
+  {
+    "text": "in this video we're going to talk about",
+    "start": 0.199,
+    "duration": 3.881
+  },
+  {
+    "text": "a new momentum indicator that you can",
+    "start": 1.839,
+    "duration": 5.761
+  },
+  {
+    "text": "use for perfect entry and exit points so",
+    "start": 4.08,
+    "duration": 5.84
+  },
+  {
+    "text": "to add this indicator to your chart you",
+    "start": 7.6,
+    "duration": 4.199
+  },
+  {
+    "text": "want to go to trading View and then",
+    "start": 9.92,
+    "duration": 4.44
+  },
+  {
+    "text": "click on indicators and then type in",
+    "start": 11.799,
+    "duration": 5.521
+  },
+  {
+    "text": "Clinger volume",
+    "start": 14.36,
+    "duration": 4.88
+  },
+  {
+    "text": "oscillator and it's going to bit this",
+    "start": 17.32,
+    "duration": 4.799
+  },
+  {
+    "text": "one by everg for those of you who are",
+    "start": 19.24,
+    "duration": 4.44
+  },
+  {
+    "text": "going to ask about the time frame that",
+    "start": 22.119,
+    "duration": 3.4
+  },
+  {
+    "text": "I'm using as well as the trading",
+    "start": 23.68,
+    "duration": 3.839
+  },
+  {
+    "text": "security well as you can see here it's",
+    "start": 25.519,
+    "duration": 4.76
+  },
+  {
+    "text": "the 15minute time frame of CAD CHF but",
+    "start": 27.519,
+    "duration": 4.641
+  },
+  {
+    "text": "you're not going to be limited to this",
+    "start": 30.279,
+    "duration": 3.96
+  },
+  {
+    "text": "you can actually try out this indicator",
+    "start": 32.16,
+    "duration": 4.12
+  },
+  {
+    "text": "on different trading Securities as well",
+    "start": 34.239,
+    "duration": 5.201
+  },
+  {
+    "text": "as on different time frames now this is",
+    "start": 36.28,
+    "duration": 5.279
+  },
+  {
+    "text": "how this indicator looks like which is",
+    "start": 39.44,
+    "duration": 4.08
+  },
+  {
+    "text": "obviously different from what you saw on",
+    "start": 41.559,
+    "duration": 4.401
+  },
+  {
+    "text": "the thumbnail of this video and I know",
+    "start": 43.52,
+    "duration": 4.12
+  },
+  {
+    "text": "what you thinking",
+    "start": 45.96,
+    "duration": 4.32
+  },
+  {
+    "text": "clickbait well that was in clickbait we",
+    "start": 47.64,
+    "duration": 4.2
+  },
+  {
+    "text": "just changed the settings of this",
+    "start": 50.28,
+    "duration": 3.599
+  },
+  {
+    "text": "indicator to make it more usable and",
+    "start": 51.84,
+    "duration": 3.8
+  },
+  {
+    "text": "this is how we did it you just access",
+    "start": 53.879,
+    "duration": 3.52
+  },
+  {
+    "text": "the settings and then on the style tub",
+    "start": 55.64,
+    "duration": 4.079
+  },
+  {
+    "text": "you want to change the display style for",
+    "start": 57.399,
+    "duration": 5.84
+  },
+  {
+    "text": "the kvo option to area change color two",
+    "start": 59.719,
+    "duration": 5.8
+  },
+  {
+    "text": "of the signal line to White to make it",
+    "start": 63.239,
+    "duration": 4.281
+  },
+  {
+    "text": "more visible and then we also want to",
+    "start": 65.519,
+    "duration": 4.92
+  },
+  {
+    "text": "disable the background next for the",
+    "start": 67.52,
+    "duration": 5.08
+  },
+  {
+    "text": "first crossover option we want to change",
+    "start": 70.439,
+    "duration": 4.68
+  },
+  {
+    "text": "its color to a darker shade of green",
+    "start": 72.6,
+    "duration": 5.8
+  },
+  {
+    "text": "increase the opacity to 100% do the same",
+    "start": 75.119,
+    "duration": 5.481
+  },
+  {
+    "text": "for the second crossover option change",
+    "start": 78.4,
+    "duration": 4.8
+  },
+  {
+    "text": "its color to a darker shade of red with",
+    "start": 80.6,
+    "duration": 4.159
+  },
+  {
+    "text": "100%",
+    "start": 83.2,
+    "duration": 5.04
+  },
+  {
+    "text": "opacity after that click okay now the",
+    "start": 84.759,
+    "duration": 6.921
+  },
+  {
+    "text": "Clinger volume oscillator by Everet is a",
+    "start": 88.24,
+    "duration": 5.559
+  },
+  {
+    "text": "super powerful trading indicator that",
+    "start": 91.68,
+    "duration": 4.92
+  },
+  {
+    "text": "can be used for volume identification",
+    "start": 93.799,
+    "duration": 5.481
+  },
+  {
+    "text": "it's made up of this red green histogram",
+    "start": 96.6,
+    "duration": 5.4
+  },
+  {
+    "text": "used to track bullish and bearish volume",
+    "start": 99.28,
+    "duration": 5.04
+  },
+  {
+    "text": "and we also have this white signal line",
+    "start": 102.0,
+    "duration": 4.479
+  },
+  {
+    "text": "used to gugge the strength of the volume",
+    "start": 104.32,
+    "duration": 4.6
+  },
+  {
+    "text": "in the market now how this indicator",
+    "start": 106.479,
+    "duration": 4.881
+  },
+  {
+    "text": "works is like this whenever this",
+    "start": 108.92,
+    "duration": 4.64
+  },
+  {
+    "text": "histogram is colored green that",
+    "start": 111.36,
+    "duration": 4.88
+  },
+  {
+    "text": "indicates bullish volume a signal lying",
+    "start": 113.56,
+    "duration": 5.239
+  },
+  {
+    "text": "above the zero level but inside the",
+    "start": 116.24,
+    "duration": 4.4
+  },
+  {
+    "text": "green histogram in indicates that the",
+    "start": 118.799,
+    "duration": 3.761
+  },
+  {
+    "text": "bullish momentum of the market is",
+    "start": 120.64,
+    "duration": 4.36
+  },
+  {
+    "text": "increasing as soon as this signal line",
+    "start": 122.56,
+    "duration": 5.159
+  },
+  {
+    "text": "gets outside of the green histogram that",
+    "start": 125.0,
+    "duration": 4.64
+  },
+  {
+    "text": "may indicate a slowing down of the",
+    "start": 127.719,
+    "duration": 4.321
+  },
+  {
+    "text": "bullish momentum which could be due to a",
+    "start": 129.64,
+    "duration": 4.56
+  },
+  {
+    "text": "retracement or a potential Trend",
+    "start": 132.04,
+    "duration": 3.68
+  },
+  {
+    "text": "reversal to the",
+    "start": 134.2,
+    "duration": 3.84
+  },
+  {
+    "text": "downside on the other hand a red",
+    "start": 135.72,
+    "duration": 5.12
+  },
+  {
+    "text": "histogram like this indicates bearish",
+    "start": 138.04,
+    "duration": 4.8
+  },
+  {
+    "text": "volume in the market a signal line",
+    "start": 140.84,
+    "duration": 4.36
+  },
+  {
+    "text": "that's under the zero level but dropped",
+    "start": 142.84,
+    "duration": 5.039
+  },
+  {
+    "text": "inside the red histogram like here",
+    "start": 145.2,
+    "duration": 4.52
+  },
+  {
+    "text": "indicates that the bearish momentum of",
+    "start": 147.879,
+    "duration": 4.801
+  },
+  {
+    "text": "the Market is decreasing however as soon",
+    "start": 149.72,
+    "duration": 5.4
+  },
+  {
+    "text": "as the white signal line gets outside of",
+    "start": 152.68,
+    "duration": 4.839
+  },
+  {
+    "text": "the red histogram that may indicate a",
+    "start": 155.12,
+    "duration": 4.64
+  },
+  {
+    "text": "slowing down of the bearish momentum",
+    "start": 157.519,
+    "duration": 5.161
+  },
+  {
+    "text": "which may be due to a retracement or an",
+    "start": 159.76,
+    "duration": 5.64
+  },
+  {
+    "text": "overall trend reversal to the",
+    "start": 162.68,
+    "duration": 5.32
+  },
+  {
+    "text": "upside these red and green dots are",
+    "start": 165.4,
+    "duration": 4.96
+  },
+  {
+    "text": "formed whenever the signal line gets",
+    "start": 168.0,
+    "duration": 5.28
+  },
+  {
+    "text": "inside or outside the histogram as you",
+    "start": 170.36,
+    "duration": 4.84
+  },
+  {
+    "text": "can see here as soon as the white signal",
+    "start": 173.28,
+    "duration": 4.76
+  },
+  {
+    "text": "line went inside the green histogram a",
+    "start": 175.2,
+    "duration": 5.319
+  },
+  {
+    "text": "dark green dot was printed same thing",
+    "start": 178.04,
+    "duration": 4.6
+  },
+  {
+    "text": "happened here only this time it was a",
+    "start": 180.519,
+    "duration": 5.121
+  },
+  {
+    "text": "Red Dot to indicate that the signal line",
+    "start": 182.64,
+    "duration": 5.519
+  },
+  {
+    "text": "just exited the green histogram now a",
+    "start": 185.64,
+    "duration": 4.679
+  },
+  {
+    "text": "dark red dot is going to be printed",
+    "start": 188.159,
+    "duration": 4.561
+  },
+  {
+    "text": "whenever the signal line enters the red",
+    "start": 190.319,
+    "duration": 4.48
+  },
+  {
+    "text": "histogram and then as soon as it exits",
+    "start": 192.72,
+    "duration": 4.2
+  },
+  {
+    "text": "the histogram a Green Dot is going to be",
+    "start": 194.799,
+    "duration": 4.44
+  },
+  {
+    "text": "printed these are going to be useful for",
+    "start": 196.92,
+    "duration": 3.959
+  },
+  {
+    "text": "our strategy because we're going to be",
+    "start": 199.239,
+    "duration": 4.28
+  },
+  {
+    "text": "using them to confirm market pullbacks",
+    "start": 200.879,
+    "duration": 4.44
+  },
+  {
+    "text": "and we're going to go over how we can do",
+    "start": 203.519,
+    "duration": 3.681
+  },
+  {
+    "text": "that in the next few minutes with trade",
+    "start": 205.319,
+    "duration": 4.681
+  },
+  {
+    "text": "examples however for now let's add one",
+    "start": 207.2,
+    "duration": 4.599
+  },
+  {
+    "text": "more indicator to the chart to filter",
+    "start": 210.0,
+    "duration": 3.28
+  },
+  {
+    "text": "out the false signals that may be",
+    "start": 211.799,
+    "duration": 3.44
+  },
+  {
+    "text": "produced by this indicator on the",
+    "start": 213.28,
+    "duration": 4.72
+  },
+  {
+    "text": "indicator search tab you want to type in",
+    "start": 215.239,
+    "duration": 5.441
+  },
+  {
+    "text": "RSI and you want to go with this one",
+    "start": 218.0,
+    "duration": 5.599
+  },
+  {
+    "text": "under technicals next you want to double",
+    "start": 220.68,
+    "duration": 4.559
+  },
+  {
+    "text": "click on it so we can change some",
+    "start": 223.599,
+    "duration": 3.36
+  },
+  {
+    "text": "settings on the input tab you want to",
+    "start": 225.239,
+    "duration": 4.441
+  },
+  {
+    "text": "change the length to 35 and then on the",
+    "start": 226.959,
+    "duration": 5.081
+  },
+  {
+    "text": "style tab we want to disable the RSI",
+    "start": 229.68,
+    "duration": 5.36
+  },
+  {
+    "text": "based moving average change the RSI",
+    "start": 232.04,
+    "duration": 4.759
+  },
+  {
+    "text": "color to Yellow to make it a bit",
+    "start": 235.04,
+    "duration": 4.0
+  },
+  {
+    "text": "brighter we also want to increase the",
+    "start": 236.799,
+    "duration": 5.481
+  },
+  {
+    "text": "RSI middle band's visibility so change",
+    "start": 239.04,
+    "duration": 5.64
+  },
+  {
+    "text": "its color to white and then drag the",
+    "start": 242.28,
+    "duration": 5.879
+  },
+  {
+    "text": "opacity slider all the way to 100% after",
+    "start": 244.68,
+    "duration": 5.839
+  },
+  {
+    "text": "that click okay so we're going to be",
+    "start": 248.159,
+    "duration": 5.121
+  },
+  {
+    "text": "using the RSI indicator for Trend",
+    "start": 250.519,
+    "duration": 5.161
+  },
+  {
+    "text": "identification whenever the yellow line",
+    "start": 253.28,
+    "duration": 5.239
+  },
+  {
+    "text": "which is the RSI line is above the 50",
+    "start": 255.68,
+    "duration": 5.04
+  },
+  {
+    "text": "level that would indicate a bullish",
+    "start": 258.519,
+    "duration": 4.481
+  },
+  {
+    "text": "Trend conversely whenever the RSI line",
+    "start": 260.72,
+    "duration": 5.44
+  },
+  {
+    "text": "is under the 50 level that is a bearish",
+    "start": 263.0,
+    "duration": 5.479
+  },
+  {
+    "text": "trend now the next thing that we want to",
+    "start": 266.16,
+    "duration": 5.16
+  },
+  {
+    "text": "do is go over the entry conditions for",
+    "start": 268.479,
+    "duration": 4.44
+  },
+  {
+    "text": "taking positions using these two",
+    "start": 271.32,
+    "duration": 4.08
+  },
+  {
+    "text": "indicators but before we do that let's",
+    "start": 272.919,
+    "duration": 4.761
+  },
+  {
+    "text": "talk about the Forex broker called hker",
+    "start": 275.4,
+    "duration": 5.16
+  },
+  {
+    "text": "trade now I've been using hker trade for",
+    "start": 277.68,
+    "duration": 5.0
+  },
+  {
+    "text": "quite some time as you can see here this",
+    "start": 280.56,
+    "duration": 4.32
+  },
+  {
+    "text": "is my Live account on hker trade's web",
+    "start": 282.68,
+    "duration": 4.359
+  },
+  {
+    "text": "Trader platform the reason why I think",
+    "start": 284.88,
+    "duration": 4.159
+  },
+  {
+    "text": "hker trade is a great broker is because",
+    "start": 287.039,
+    "duration": 4.361
+  },
+  {
+    "text": "of their low commissions and spreads on",
+    "start": 289.039,
+    "duration": 4.88
+  },
+  {
+    "text": "Forex for example the spreads can go as",
+    "start": 291.4,
+    "duration": 5.44
+  },
+  {
+    "text": "low as 0.0 Pips which is actually the",
+    "start": 293.919,
+    "duration": 5.081
+  },
+  {
+    "text": "lowest spreads can go and for those of",
+    "start": 296.84,
+    "duration": 4.28
+  },
+  {
+    "text": "us who love High leverage well hker",
+    "start": 299.0,
+    "duration": 4.52
+  },
+  {
+    "text": "trade offers a maximum leverage of 1 to",
+    "start": 301.12,
+    "duration": 4.72
+  },
+  {
+    "text": "500 and if all of this isn't enough",
+    "start": 303.52,
+    "duration": 4.72
+  },
+  {
+    "text": "they're also going to give you a 100%",
+    "start": 305.84,
+    "duration": 4.6
+  },
+  {
+    "text": "deposit bonus for all your first",
+    "start": 308.24,
+    "duration": 6.56
+  },
+  {
+    "text": "deposits of between $100 all the way to",
+    "start": 310.44,
+    "duration": 8.0
+  },
+  {
+    "text": "$25,000 so if you deposit say $3,000",
+    "start": 314.8,
+    "duration": 5.48
+  },
+  {
+    "text": "they're going to give you a bonus of",
+    "start": 318.44,
+    "duration": 5.64
+  },
+  {
+    "text": "$3,000 giving you a total of $6,000 to",
+    "start": 320.28,
+    "duration": 6.0
+  },
+  {
+    "text": "trade with to access the bonus as well",
+    "start": 324.08,
+    "duration": 4.0
+  },
+  {
+    "text": "as all the other perks well sign up to",
+    "start": 326.28,
+    "duration": 3.96
+  },
+  {
+    "text": "hker trade using the link in the video",
+    "start": 328.08,
+    "duration": 5.119
+  },
+  {
+    "text": "description now back to the video so how",
+    "start": 330.24,
+    "duration": 5.88
+  },
+  {
+    "text": "do we take a long trade using this",
+    "start": 333.199,
+    "duration": 5.161
+  },
+  {
+    "text": "strategy well these are the conditions",
+    "start": 336.12,
+    "duration": 4.44
+  },
+  {
+    "text": "first we want to confirm that the market",
+    "start": 338.36,
+    "duration": 4.559
+  },
+  {
+    "text": "is in a bullish Trend to do that we're",
+    "start": 340.56,
+    "duration": 4.759
+  },
+  {
+    "text": "going to be using the RSI indicator we",
+    "start": 342.919,
+    "duration": 5.241
+  },
+  {
+    "text": "need the yellow RSI line to be above the",
+    "start": 345.319,
+    "duration": 5.32
+  },
+  {
+    "text": "50 level to indicate that the trend is",
+    "start": 348.16,
+    "duration": 4.84
+  },
+  {
+    "text": "bullish now condition number two is we",
+    "start": 350.639,
+    "duration": 4.721
+  },
+  {
+    "text": "want to use the Clinger volume",
+    "start": 353.0,
+    "duration": 5.16
+  },
+  {
+    "text": "oscillator to confirm two things one the",
+    "start": 355.36,
+    "duration": 4.8
+  },
+  {
+    "text": "presence of bullish volume volume at the",
+    "start": 358.16,
+    "duration": 4.319
+  },
+  {
+    "text": "time of our entry and two a market",
+    "start": 360.16,
+    "duration": 3.52
+  },
+  {
+    "text": "pullback now the way we're going to",
+    "start": 362.479,
+    "duration": 3.641
+  },
+  {
+    "text": "confirm a market pullback using this",
+    "start": 363.68,
+    "duration": 4.76
+  },
+  {
+    "text": "indicator is to have a brief change of",
+    "start": 366.12,
+    "duration": 4.6
+  },
+  {
+    "text": "color of this histogram we want it to",
+    "start": 368.44,
+    "duration": 4.8
+  },
+  {
+    "text": "change from green to red and then back",
+    "start": 370.72,
+    "duration": 4.56
+  },
+  {
+    "text": "to green now immediately it changes",
+    "start": 373.24,
+    "duration": 4.399
+  },
+  {
+    "text": "color back to green we need the white",
+    "start": 375.28,
+    "duration": 5.0
+  },
+  {
+    "text": "signal line to enter into the histogram",
+    "start": 377.639,
+    "duration": 4.881
+  },
+  {
+    "text": "to be sure that it actually entered the",
+    "start": 380.28,
+    "duration": 4.039
+  },
+  {
+    "text": "histogram we're going to be looking for",
+    "start": 382.52,
+    "duration": 4.079
+  },
+  {
+    "text": "this dark green dot to be printed then",
+    "start": 384.319,
+    "duration": 4.0
+  },
+  {
+    "text": "lastly to confirm that there is",
+    "start": 386.599,
+    "duration": 3.641
+  },
+  {
+    "text": "significant bullish volume for us to",
+    "start": 388.319,
+    "duration": 4.521
+  },
+  {
+    "text": "take this trade we need the white signal",
+    "start": 390.24,
+    "duration": 5.64
+  },
+  {
+    "text": "line to be above the middle line all our",
+    "start": 392.84,
+    "duration": 5.96
+  },
+  {
+    "text": "entry conditions were met on this candle",
+    "start": 395.88,
+    "duration": 5.96
+  },
+  {
+    "text": "so we take a long trade the stop loss",
+    "start": 398.8,
+    "duration": 6.36
+  },
+  {
+    "text": "goes under the most recent swing low for",
+    "start": 401.84,
+    "duration": 6.28
+  },
+  {
+    "text": "the take profit it's going to be at 1.5",
+    "start": 405.16,
+    "duration": 6.4
+  },
+  {
+    "text": "times the risk letting the trade",
+    "start": 408.12,
+    "duration": 6.0
+  },
+  {
+    "text": "run and it was",
+    "start": 411.56,
+    "duration": 5.84
+  },
+  {
+    "text": "profitable now this was another trade as",
+    "start": 414.12,
+    "duration": 5.479
+  },
+  {
+    "text": "you can see you basically want this",
+    "start": 417.4,
+    "duration": 4.76
+  },
+  {
+    "text": "green histogram to change color briefly",
+    "start": 419.599,
+    "duration": 5.401
+  },
+  {
+    "text": "to Red just for a few candles and then",
+    "start": 422.16,
+    "duration": 5.12
+  },
+  {
+    "text": "back to green immediately it changes",
+    "start": 425.0,
+    "duration": 5.319
+  },
+  {
+    "text": "color back to green we want a dark green",
+    "start": 427.28,
+    "duration": 6.0
+  },
+  {
+    "text": "dot to be printed like this to indicate",
+    "start": 430.319,
+    "duration": 5.28
+  },
+  {
+    "text": "that the white signal line just entered",
+    "start": 433.28,
+    "duration": 4.52
+  },
+  {
+    "text": "the histogram next at the time the dot",
+    "start": 435.599,
+    "duration": 4.081
+  },
+  {
+    "text": "is printed you want to make sure that",
+    "start": 437.8,
+    "duration": 4.839
+  },
+  {
+    "text": "the white signal line is above the zero",
+    "start": 439.68,
+    "duration": 5.12
+  },
+  {
+    "text": "level the zero level is located at the",
+    "start": 442.639,
+    "duration": 4.361
+  },
+  {
+    "text": "center of this indicator right here you",
+    "start": 444.8,
+    "duration": 4.36
+  },
+  {
+    "text": "want to confirm that this white number",
+    "start": 447.0,
+    "duration": 4.639
+  },
+  {
+    "text": "right here here is greater than zero you",
+    "start": 449.16,
+    "duration": 5.64
+  },
+  {
+    "text": "take a long position",
+    "start": 451.639,
+    "duration": 5.521
+  },
+  {
+    "text": "here and it was",
+    "start": 454.8,
+    "duration": 4.64
+  },
+  {
+    "text": "profitable now for a short position",
+    "start": 457.16,
+    "duration": 4.159
+  },
+  {
+    "text": "we're going to do the opposite which is",
+    "start": 459.44,
+    "duration": 4.8
+  },
+  {
+    "text": "to confirm an initial bearish volume in",
+    "start": 461.319,
+    "duration": 5.961
+  },
+  {
+    "text": "the market followed by a market pullback",
+    "start": 464.24,
+    "duration": 5.56
+  },
+  {
+    "text": "so this red histogram indicates a",
+    "start": 467.28,
+    "duration": 4.199
+  },
+  {
+    "text": "bearish volume and then the volume",
+    "start": 469.8,
+    "duration": 3.44
+  },
+  {
+    "text": "started to decrease which led to there",
+    "start": 471.479,
+    "duration": 4.361
+  },
+  {
+    "text": "being a market pullback as indicated by",
+    "start": 473.24,
+    "duration": 5.519
+  },
+  {
+    "text": "the brief color change from red to green",
+    "start": 475.84,
+    "duration": 4.6
+  },
+  {
+    "text": "and then to increase the probability of",
+    "start": 478.759,
+    "duration": 3.801
+  },
+  {
+    "text": "the price going back down we want the",
+    "start": 480.44,
+    "duration": 4.599
+  },
+  {
+    "text": "color to change back to Red to indicate",
+    "start": 482.56,
+    "duration": 4.479
+  },
+  {
+    "text": "the end of the pullback and a return of",
+    "start": 485.039,
+    "duration": 4.241
+  },
+  {
+    "text": "the bearish volume in the market we also",
+    "start": 487.039,
+    "duration": 4.72
+  },
+  {
+    "text": "want the signal line to enter into the",
+    "start": 489.28,
+    "duration": 5.479
+  },
+  {
+    "text": "red histogram and a dark red dot to be",
+    "start": 491.759,
+    "duration": 5.16
+  },
+  {
+    "text": "printed the candle where the dot is",
+    "start": 494.759,
+    "duration": 4.56
+  },
+  {
+    "text": "printed is going to represent our entry",
+    "start": 496.919,
+    "duration": 4.521
+  },
+  {
+    "text": "candle next at the time the dot is",
+    "start": 499.319,
+    "duration": 4.0
+  },
+  {
+    "text": "printed you want to make sure that the",
+    "start": 501.44,
+    "duration": 4.159
+  },
+  {
+    "text": "white signal line is under the zero",
+    "start": 503.319,
+    "duration": 4.361
+  },
+  {
+    "text": "level to be sure that it's under the",
+    "start": 505.599,
+    "duration": 4.241
+  },
+  {
+    "text": "zero level you just hover your Mouse",
+    "start": 507.68,
+    "duration": 5.039
+  },
+  {
+    "text": "pointer at the dark red dot and you look",
+    "start": 509.84,
+    "duration": 4.48
+  },
+  {
+    "text": "at this number it should be in the",
+    "start": 512.719,
+    "duration": 3.721
+  },
+  {
+    "text": "negative our last condition is to",
+    "start": 514.32,
+    "duration": 4.32
+  },
+  {
+    "text": "confirm that the price is in a bearish",
+    "start": 516.44,
+    "duration": 5.159
+  },
+  {
+    "text": "trend by ensuring that the yellow RSI",
+    "start": 518.64,
+    "duration": 6.24
+  },
+  {
+    "text": "line is under the 50 level all our entry",
+    "start": 521.599,
+    "duration": 5.761
+  },
+  {
+    "text": "conditions are met on this candle so",
+    "start": 524.88,
+    "duration": 4.72
+  },
+  {
+    "text": "we're going to take a short position the",
+    "start": 527.36,
+    "duration": 4.52
+  },
+  {
+    "text": "stop loss goes right above the most",
+    "start": 529.6,
+    "duration": 5.12
+  },
+  {
+    "text": "recent swing high for the take profit",
+    "start": 531.88,
+    "duration": 5.28
+  },
+  {
+    "text": "we're going to go with 1.5 times the",
+    "start": 534.72,
+    "duration": 5.88
+  },
+  {
+    "text": "risk letting the trade run",
+    "start": 537.16,
+    "duration": 4.96
+  },
+  {
+    "text": "and it was",
+    "start": 540.6,
+    "duration": 4.16
+  },
+  {
+    "text": "profitable now this is just one of the",
+    "start": 542.12,
+    "duration": 4.839
+  },
+  {
+    "text": "methods of trading with this indicator a",
+    "start": 544.76,
+    "duration": 4.04
+  },
+  {
+    "text": "second way of trading with it would be",
+    "start": 546.959,
+    "duration": 4.401
+  },
+  {
+    "text": "to add our own custom indicator called",
+    "start": 548.8,
+    "duration": 5.279
+  },
+  {
+    "text": "the pine trades Market Beacon then",
+    "start": 551.36,
+    "duration": 4.84
+  },
+  {
+    "text": "double click on the Clinger volume",
+    "start": 554.079,
+    "duration": 5.44
+  },
+  {
+    "text": "oscillator disable the signal line and",
+    "start": 556.2,
+    "duration": 6.24
+  },
+  {
+    "text": "the two crossover signals after that",
+    "start": 559.519,
+    "duration": 6.0
+  },
+  {
+    "text": "click okay so the conditions for taking",
+    "start": 562.44,
+    "duration": 5.2
+  },
+  {
+    "text": "trades with these two indicators in",
+    "start": 565.519,
+    "duration": 3.88
+  },
+  {
+    "text": "addition to the Pine trades Market",
+    "start": 567.64,
+    "duration": 4.36
+  },
+  {
+    "text": "Beacon is like this you wait for a long",
+    "start": 569.399,
+    "duration": 5.241
+  },
+  {
+    "text": "signal to be printed by the pine trades",
+    "start": 572.0,
+    "duration": 4.76
+  },
+  {
+    "text": "Market Beacon and then at the time the",
+    "start": 574.64,
+    "duration": 5.04
+  },
+  {
+    "text": "long signal is printed the kvo indicator",
+    "start": 576.76,
+    "duration": 5.319
+  },
+  {
+    "text": "should be colored green to confirm the",
+    "start": 579.68,
+    "duration": 4.839
+  },
+  {
+    "text": "presence of sufficient bullish volume in",
+    "start": 582.079,
+    "duration": 4.481
+  },
+  {
+    "text": "the Market at the same time the yellow",
+    "start": 584.519,
+    "duration": 5.161
+  },
+  {
+    "text": "RSI line should be above the 50 level to",
+    "start": 586.56,
+    "duration": 5.44
+  },
+  {
+    "text": "indicate that the trend is bullish once",
+    "start": 589.68,
+    "duration": 4.32
+  },
+  {
+    "text": "those conditions are met you take your",
+    "start": 592.0,
+    "duration": 5.0
+  },
+  {
+    "text": "position",
+    "start": 594.0,
+    "duration": 3.0
+  },
+  {
+    "text": "[Music]",
+    "start": 598.39,
+    "duration": 3.19
+  },
+  {
+    "text": "and then the opposite of this is true",
+    "start": 602.279,
+    "duration": 4.481
+  },
+  {
+    "text": "for short positions you want a short",
+    "start": 604.04,
+    "duration": 5.4
+  },
+  {
+    "text": "signal to be printed by the PT Market",
+    "start": 606.76,
+    "duration": 4.68
+  },
+  {
+    "text": "Beacon indicator and then corresponding",
+    "start": 609.44,
+    "duration": 4.92
+  },
+  {
+    "text": "to this short signal we want the kvo",
+    "start": 611.44,
+    "duration": 5.24
+  },
+  {
+    "text": "indicator to be colored red to confirm",
+    "start": 614.36,
+    "duration": 4.28
+  },
+  {
+    "text": "the presence of sufficient bearish",
+    "start": 616.68,
+    "duration": 4.159
+  },
+  {
+    "text": "volume in the market to push the price",
+    "start": 618.64,
+    "duration": 4.4
+  },
+  {
+    "text": "all the way to our take profit and then",
+    "start": 620.839,
+    "duration": 5.44
+  },
+  {
+    "text": "for the RSI we want the yellow RSI line",
+    "start": 623.04,
+    "duration": 6.039
+  },
+  {
+    "text": "to be under the 50 level to confirm a",
+    "start": 626.279,
+    "duration": 4.961
+  },
+  {
+    "text": "bare bearish Trend once these conditions",
+    "start": 629.079,
+    "duration": 5.681
+  },
+  {
+    "text": "are met you take your",
+    "start": 631.24,
+    "duration": 3.52
+  },
+  {
+    "text": "position now the pine trades Market",
+    "start": 641.04,
+    "duration": 5.359
+  },
+  {
+    "text": "Beacon indicator is a private indicator",
+    "start": 643.56,
+    "duration": 4.839
+  },
+  {
+    "text": "so to get access to it you want to click",
+    "start": 646.399,
+    "duration": 4.0
+  },
+  {
+    "text": "on this link down in the video",
+    "start": 648.399,
+    "duration": 3.201
+  },
+  {
+    "text": "description and you're going to get",
+    "start": 650.399,
+    "duration": 3.081
+  },
+  {
+    "text": "access to it as well as all the other",
+    "start": 651.6,
+    "duration": 4.039
+  },
+  {
+    "text": "chart Prime indicators including the",
+    "start": 653.48,
+    "duration": 5.159
+  },
+  {
+    "text": "market Oracle the market dynamics the",
+    "start": 655.639,
+    "duration": 5.88
+  },
+  {
+    "text": "prime a cator Etc using the link in the",
+    "start": 658.639,
+    "duration": 4.961
+  },
+  {
+    "text": "video description is going to give you a",
+    "start": 661.519,
+    "duration": 5.32
+  },
+  {
+    "text": "30% discount as well as a 7-Day money",
+    "start": 663.6,
+    "duration": 6.0
+  },
+  {
+    "text": "back guarantee so use the link now",
+    "start": 666.839,
+    "duration": 4.881
+  },
+  {
+    "text": "that's everything for our strategy if",
+    "start": 669.6,
+    "duration": 3.679
+  },
+  {
+    "text": "you have any questions let us know in",
+    "start": 671.72,
+    "duration": 3.28
+  },
+  {
+    "text": "the comment section below if you found",
+    "start": 673.279,
+    "duration": 3.68
+  },
+  {
+    "text": "value in this video remember to leave a",
+    "start": 675.0,
+    "duration": 4.519
+  },
+  {
+    "text": "like And subscribe to stay tuned thanks",
+    "start": 676.959,
+    "duration": 7.161
+  },
+  {
+    "text": "for watching see you next time",
+    "start": 679.519,
+    "duration": 4.601
+  }
+]

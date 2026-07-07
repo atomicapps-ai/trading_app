@@ -1,0 +1,1222 @@
+[
+  {
+    "text": "[music]",
+    "start": 1.964,
+    "duration": 2.436
+  },
+  {
+    "text": "This is one video you won't want to",
+    "start": 2.72,
+    "duration": 4.639
+  },
+  {
+    "text": "miss. Before we start, we remind you",
+    "start": 4.4,
+    "duration": 5.04
+  },
+  {
+    "text": "that you find our best strategies on our",
+    "start": 7.359,
+    "duration": 4.961
+  },
+  {
+    "text": "web page. Mind you, even though the",
+    "start": 9.44,
+    "duration": 5.119
+  },
+  {
+    "text": "strategies in this video are great, they",
+    "start": 12.32,
+    "duration": 4.4
+  },
+  {
+    "text": "are not our best.",
+    "start": 14.559,
+    "duration": 4.401
+  },
+  {
+    "text": "Okay, let's get back to our five free",
+    "start": 16.72,
+    "duration": 4.16
+  },
+  {
+    "text": "swing strategies.",
+    "start": 18.96,
+    "duration": 4.0
+  },
+  {
+    "text": "First, let's start by explaining swing",
+    "start": 20.88,
+    "duration": 4.88
+  },
+  {
+    "text": "trading. Swing trading is a dynamic",
+    "start": 22.96,
+    "duration": 4.559
+  },
+  {
+    "text": "strategy that involves holding a",
+    "start": 25.76,
+    "duration": 4.24
+  },
+  {
+    "text": "tradable asset for one or more days with",
+    "start": 27.519,
+    "duration": 4.241
+  },
+  {
+    "text": "the aim of profiting from price changes",
+    "start": 30.0,
+    "duration": 4.8
+  },
+  {
+    "text": "or swings. That's right. We're talking",
+    "start": 31.76,
+    "duration": 5.04
+  },
+  {
+    "text": "about capitalizing on short-term price",
+    "start": 34.8,
+    "duration": 4.64
+  },
+  {
+    "text": "movements. In this video, we only look",
+    "start": 36.8,
+    "duration": 4.72
+  },
+  {
+    "text": "at the stock market and we back test the",
+    "start": 39.44,
+    "duration": 6.639
+  },
+  {
+    "text": "ETF that tracks S&P 500 SPY. You can",
+    "start": 41.52,
+    "duration": 6.32
+  },
+  {
+    "text": "most likely also trade the futures",
+    "start": 46.079,
+    "duration": 4.241
+  },
+  {
+    "text": "contract. Unlike day trading where",
+    "start": 47.84,
+    "duration": 4.239
+  },
+  {
+    "text": "positions are opened and closed within",
+    "start": 50.32,
+    "duration": 4.079
+  },
+  {
+    "text": "the same day, swing trading positions",
+    "start": 52.079,
+    "duration": 4.64
+  },
+  {
+    "text": "are held for longer periods, but not",
+    "start": 54.399,
+    "duration": 4.16
+  },
+  {
+    "text": "quite as long as buy and hold investment",
+    "start": 56.719,
+    "duration": 4.48
+  },
+  {
+    "text": "strategies. So, you get the best of both",
+    "start": 58.559,
+    "duration": 4.8
+  },
+  {
+    "text": "worlds, the potential for big gains",
+    "start": 61.199,
+    "duration": 3.6
+  },
+  {
+    "text": "without the stress of constantly",
+    "start": 63.359,
+    "duration": 4.001
+  },
+  {
+    "text": "monitoring the markets. We aim to",
+    "start": 64.799,
+    "duration": 4.721
+  },
+  {
+    "text": "exploit the long-term rising trend in",
+    "start": 67.36,
+    "duration": 3.84
+  },
+  {
+    "text": "the stock market, but we buy on",
+    "start": 69.52,
+    "duration": 4.24
+  },
+  {
+    "text": "short-term weakness and panics. The",
+    "start": 71.2,
+    "duration": 5.2
+  },
+  {
+    "text": "chart shows you an example. We want to",
+    "start": 73.76,
+    "duration": 4.24
+  },
+  {
+    "text": "buy when the price deviates from the",
+    "start": 76.4,
+    "duration": 3.759
+  },
+  {
+    "text": "longer trend and sell when the market is",
+    "start": 78.0,
+    "duration": 4.72
+  },
+  {
+    "text": "strong. We buy weakness and sell",
+    "start": 80.159,
+    "duration": 6.0
+  },
+  {
+    "text": "strength. And we include 0.03% per trade",
+    "start": 82.72,
+    "duration": 6.079
+  },
+  {
+    "text": "for slippage and commissions.",
+    "start": 86.159,
+    "duration": 4.481
+  },
+  {
+    "text": "Okay. Now let's jump to the trading",
+    "start": 88.799,
+    "duration": 4.161
+  },
+  {
+    "text": "rules of our first strategy. In the",
+    "start": 90.64,
+    "duration": 4.24
+  },
+  {
+    "text": "first strategy, we want to enter when",
+    "start": 92.96,
+    "duration": 3.44
+  },
+  {
+    "text": "the price has dropped from a recent",
+    "start": 94.88,
+    "duration": 4.239
+  },
+  {
+    "text": "high. We calculate a band that is based",
+    "start": 96.4,
+    "duration": 5.039
+  },
+  {
+    "text": "on the 25-day average of the difference",
+    "start": 99.119,
+    "duration": 5.601
+  },
+  {
+    "text": "of the daily highs and lows. When spy",
+    "start": 101.439,
+    "duration": 5.521
+  },
+  {
+    "text": "closes below the band deducted from the",
+    "start": 104.72,
+    "duration": 6.24
+  },
+  {
+    "text": "10-day high and IBS is lower than 0.3,",
+    "start": 106.96,
+    "duration": 6.88
+  },
+  {
+    "text": "we go long. We have explained the IBS",
+    "start": 110.96,
+    "duration": 4.96
+  },
+  {
+    "text": "indicator in a separate video which",
+    "start": 113.84,
+    "duration": 4.959
+  },
+  {
+    "text": "contains three free strategies. We also",
+    "start": 115.92,
+    "duration": 4.799
+  },
+  {
+    "text": "need to make a rule for the exit because",
+    "start": 118.799,
+    "duration": 3.92
+  },
+  {
+    "text": "we want to sell on strength to exploit",
+    "start": 120.719,
+    "duration": 4.961
+  },
+  {
+    "text": "the mean reversion effect. We sell when",
+    "start": 122.719,
+    "duration": 6.16
+  },
+  {
+    "text": "today's close is above yesterday's high.",
+    "start": 125.68,
+    "duration": 5.279
+  },
+  {
+    "text": "Let's show you a trade example. The red",
+    "start": 128.879,
+    "duration": 4.481
+  },
+  {
+    "text": "line in the chart shows the 10-day high.",
+    "start": 130.959,
+    "duration": 4.401
+  },
+  {
+    "text": "The blue line is calculated by using the",
+    "start": 133.36,
+    "duration": 3.84
+  },
+  {
+    "text": "average range of high and low and",
+    "start": 135.36,
+    "duration": 4.56
+  },
+  {
+    "text": "deducted from the 10-day high. The lower",
+    "start": 137.2,
+    "duration": 4.64
+  },
+  {
+    "text": "pane in the chart shows the IBS",
+    "start": 139.92,
+    "duration": 5.52
+  },
+  {
+    "text": "indicator. We buy when SPY closes below",
+    "start": 141.84,
+    "duration": 6.16
+  },
+  {
+    "text": "the blue line and when the IBS indicator",
+    "start": 145.44,
+    "duration": 4.879
+  },
+  {
+    "text": "is below 0.3.",
+    "start": 148.0,
+    "duration": 4.72
+  },
+  {
+    "text": "Green arrows show when we buy and red",
+    "start": 150.319,
+    "duration": 5.041
+  },
+  {
+    "text": "arrows when we sell. Let's find out how",
+    "start": 152.72,
+    "duration": 5.44
+  },
+  {
+    "text": "the strategy performed from 1993 until",
+    "start": 155.36,
+    "duration": 5.76
+  },
+  {
+    "text": "today. We back tested the strategy in",
+    "start": 158.16,
+    "duration": 5.439
+  },
+  {
+    "text": "Ammy Broker and our starting capital of",
+    "start": 161.12,
+    "duration": 6.24
+  },
+  {
+    "text": "100,000 in year 1993 grows to 1.2",
+    "start": 163.599,
+    "duration": 6.081
+  },
+  {
+    "text": "million in 2025.",
+    "start": 167.36,
+    "duration": 5.2
+  },
+  {
+    "text": "This is an annual return of 8% slightly",
+    "start": 169.68,
+    "duration": 5.279
+  },
+  {
+    "text": "below buy and hold, but the strategy is",
+    "start": 172.56,
+    "duration": 5.679
+  },
+  {
+    "text": "invested only 18% of the time. Because",
+    "start": 174.959,
+    "duration": 5.601
+  },
+  {
+    "text": "of less time spent in the market, the",
+    "start": 178.239,
+    "duration": 4.321
+  },
+  {
+    "text": "max draw down is also substantially",
+    "start": 180.56,
+    "duration": 6.64
+  },
+  {
+    "text": "lower at 23% versus buy and holds 55%.",
+    "start": 182.56,
+    "duration": 6.64
+  },
+  {
+    "text": "Thus, we might also argue the risk",
+    "start": 187.2,
+    "duration": 4.959
+  },
+  {
+    "text": "adjusted return is 44%.",
+    "start": 189.2,
+    "duration": 5.6
+  },
+  {
+    "text": "We calculate the risk adjusted return by",
+    "start": 192.159,
+    "duration": 5.281
+  },
+  {
+    "text": "taking the annual return of 8% and",
+    "start": 194.8,
+    "duration": 5.359
+  },
+  {
+    "text": "divide it by 0.18, which is the",
+    "start": 197.44,
+    "duration": 5.12
+  },
+  {
+    "text": "percentage of time spent in the market.",
+    "start": 200.159,
+    "duration": 4.401
+  },
+  {
+    "text": "Let's go to our second strategy for the",
+    "start": 202.56,
+    "duration": 4.8
+  },
+  {
+    "text": "day and its trading rules. We buy at the",
+    "start": 204.56,
+    "duration": 4.8
+  },
+  {
+    "text": "close on Monday if the close is lower",
+    "start": 207.36,
+    "duration": 4.56
+  },
+  {
+    "text": "for the second day in a row. We exit",
+    "start": 209.36,
+    "duration": 3.92
+  },
+  {
+    "text": "when the close is higher than",
+    "start": 211.92,
+    "duration": 3.679
+  },
+  {
+    "text": "yesterday's high. The name of the",
+    "start": 213.28,
+    "duration": 4.0
+  },
+  {
+    "text": "strategy is perhaps better known as",
+    "start": 215.599,
+    "duration": 3.92
+  },
+  {
+    "text": "turnaround Tuesday because the market",
+    "start": 217.28,
+    "duration": 4.72
+  },
+  {
+    "text": "often rallies on Tuesdays after a weak",
+    "start": 219.519,
+    "duration": 4.64
+  },
+  {
+    "text": "Monday. Let's look at some trade",
+    "start": 222.0,
+    "duration": 4.48
+  },
+  {
+    "text": "samples. The green arrows show Mondays",
+    "start": 224.159,
+    "duration": 3.841
+  },
+  {
+    "text": "where the closest is down for the second",
+    "start": 226.48,
+    "duration": 3.52
+  },
+  {
+    "text": "time in a row and the red arrows are",
+    "start": 228.0,
+    "duration": 4.319
+  },
+  {
+    "text": "when we sell on strength.",
+    "start": 230.0,
+    "duration": 4.0
+  },
+  {
+    "text": "All five trades shown here are",
+    "start": 232.319,
+    "duration": 3.761
+  },
+  {
+    "text": "profitable, but it is of course not",
+    "start": 234.0,
+    "duration": 3.76
+  },
+  {
+    "text": "always the case because trading also",
+    "start": 236.08,
+    "duration": 4.159
+  },
+  {
+    "text": "involves losing trades. Let's look at",
+    "start": 237.76,
+    "duration": 3.92
+  },
+  {
+    "text": "the bigger picture and look at the",
+    "start": 240.239,
+    "duration": 4.0
+  },
+  {
+    "text": "equity curve of the strategy since 1993",
+    "start": 241.68,
+    "duration": 5.839
+  },
+  {
+    "text": "until today. A 100,000 investment would",
+    "start": 244.239,
+    "duration": 6.72
+  },
+  {
+    "text": "have compounded annually at 7.2% from",
+    "start": 247.519,
+    "duration": 6.72
+  },
+  {
+    "text": "1993 until today. The equity curve rises",
+    "start": 250.959,
+    "duration": 5.361
+  },
+  {
+    "text": "steadily and the equity would have grown",
+    "start": 254.239,
+    "duration": 4.96
+  },
+  {
+    "text": "to 1 million by today. Not too bad for",
+    "start": 256.32,
+    "duration": 6.159
+  },
+  {
+    "text": "such a simple strategy. There are 271",
+    "start": 259.199,
+    "duration": 5.841
+  },
+  {
+    "text": "trades that on average are invested just",
+    "start": 262.479,
+    "duration": 4.801
+  },
+  {
+    "text": "4 days, thus making you invested just",
+    "start": 265.04,
+    "duration": 4.56
+  },
+  {
+    "text": "11% of the time and hence avoiding the",
+    "start": 267.28,
+    "duration": 5.12
+  },
+  {
+    "text": "worst draw downs. Max draw down is at",
+    "start": 269.6,
+    "duration": 6.72
+  },
+  {
+    "text": "only 16%. Again, the riskadjusted return",
+    "start": 272.4,
+    "duration": 6.72
+  },
+  {
+    "text": "is very high at 65%.",
+    "start": 276.32,
+    "duration": 4.48
+  },
+  {
+    "text": "Let's go to our third proven swing",
+    "start": 279.12,
+    "duration": 5.12
+  },
+  {
+    "text": "strategy. We buy SPY when the close is",
+    "start": 280.8,
+    "duration": 5.52
+  },
+  {
+    "text": "lower than the low of the previous five",
+    "start": 284.24,
+    "duration": 5.28
+  },
+  {
+    "text": "trading days. That's it. We buy on a",
+    "start": 286.32,
+    "duration": 6.159
+  },
+  {
+    "text": "5-day low. As usual, we sell when the",
+    "start": 289.52,
+    "duration": 5.76
+  },
+  {
+    "text": "close ends higher than yesterday's high.",
+    "start": 292.479,
+    "duration": 5.121
+  },
+  {
+    "text": "We see five trading examples, all of",
+    "start": 295.28,
+    "duration": 5.199
+  },
+  {
+    "text": "them winners. Obviously, not all turn",
+    "start": 297.6,
+    "duration": 4.8
+  },
+  {
+    "text": "out to be winners, but the win rate is",
+    "start": 300.479,
+    "duration": 4.081
+  },
+  {
+    "text": "very high, as is typical for mean",
+    "start": 302.4,
+    "duration": 4.799
+  },
+  {
+    "text": "reversion strategies. If we look at the",
+    "start": 304.56,
+    "duration": 4.88
+  },
+  {
+    "text": "equity curve of the strategy, it's hard",
+    "start": 307.199,
+    "duration": 3.921
+  },
+  {
+    "text": "not to be impressed of such a simple",
+    "start": 309.44,
+    "duration": 3.199
+  },
+  {
+    "text": "strategy.",
+    "start": 311.12,
+    "duration": 5.28
+  },
+  {
+    "text": "You started with 100,000 in 1993 and end",
+    "start": 312.639,
+    "duration": 6.801
+  },
+  {
+    "text": "up with 1.25 25 million today despite",
+    "start": 316.4,
+    "duration": 6.079
+  },
+  {
+    "text": "being invested just 21% of the time. The",
+    "start": 319.44,
+    "duration": 5.28
+  },
+  {
+    "text": "annual returns are 8% while the",
+    "start": 322.479,
+    "duration": 5.28
+  },
+  {
+    "text": "riskadjusted return is 37%.",
+    "start": 324.72,
+    "duration": 5.12
+  },
+  {
+    "text": "Again, it shows that simplicity works in",
+    "start": 327.759,
+    "duration": 4.961
+  },
+  {
+    "text": "the stock market. As a matter of fact,",
+    "start": 329.84,
+    "duration": 5.44
+  },
+  {
+    "text": "simplicity trumps complexity.",
+    "start": 332.72,
+    "duration": 5.44
+  },
+  {
+    "text": "Let's go to today's fourth strategy.",
+    "start": 335.28,
+    "duration": 4.4
+  },
+  {
+    "text": "This one is a bit different compared to",
+    "start": 338.16,
+    "duration": 3.28
+  },
+  {
+    "text": "the first three because it's mainly",
+    "start": 339.68,
+    "duration": 3.519
+  },
+  {
+    "text": "based on volatility and to a lesser",
+    "start": 341.44,
+    "duration": 4.4
+  },
+  {
+    "text": "extent mean reversion.",
+    "start": 343.199,
+    "duration": 5.521
+  },
+  {
+    "text": "These are the trading rules. We buy when",
+    "start": 345.84,
+    "duration": 4.72
+  },
+  {
+    "text": "today's range is lower than the daily",
+    "start": 348.72,
+    "duration": 4.08
+  },
+  {
+    "text": "range the previous six trading days and",
+    "start": 350.56,
+    "duration": 5.52
+  },
+  {
+    "text": "the 5-day ADX must be above 40. Yet",
+    "start": 352.8,
+    "duration": 5.76
+  },
+  {
+    "text": "again, we exit when today's close ends",
+    "start": 356.08,
+    "duration": 5.119
+  },
+  {
+    "text": "above yesterday's high. The green arrow",
+    "start": 358.56,
+    "duration": 4.32
+  },
+  {
+    "text": "shows a day when the daily range is",
+    "start": 361.199,
+    "duration": 3.84
+  },
+  {
+    "text": "lower than the previous six trading days",
+    "start": 362.88,
+    "duration": 6.159
+  },
+  {
+    "text": "and the ADX is high. Thus, we go long at",
+    "start": 365.039,
+    "duration": 8.0
+  },
+  {
+    "text": "the close. The next day, S&P 500 rallies",
+    "start": 369.039,
+    "duration": 6.0
+  },
+  {
+    "text": "and the close is higher than yesterday's",
+    "start": 373.039,
+    "duration": 5.681
+  },
+  {
+    "text": "high. We exit at the close for a nice",
+    "start": 375.039,
+    "duration": 7.201
+  },
+  {
+    "text": "0.58% gain. Let's look at how your",
+    "start": 378.72,
+    "duration": 5.52
+  },
+  {
+    "text": "equity would have grown if you traded",
+    "start": 382.24,
+    "duration": 5.679
+  },
+  {
+    "text": "all signals from 1993 until today. We",
+    "start": 384.24,
+    "duration": 7.76
+  },
+  {
+    "text": "start with 100,000 USD in 1993 and let",
+    "start": 387.919,
+    "duration": 6.961
+  },
+  {
+    "text": "it compound until today. As you can see,",
+    "start": 392.0,
+    "duration": 5.68
+  },
+  {
+    "text": "the equity shows an upward slope. There",
+    "start": 394.88,
+    "duration": 5.12
+  },
+  {
+    "text": "are a few setbacks along the way, but",
+    "start": 397.68,
+    "duration": 4.639
+  },
+  {
+    "text": "overall the strategy performs reasonably",
+    "start": 400.0,
+    "duration": 4.96
+  },
+  {
+    "text": "well. The statistics are not as good as",
+    "start": 402.319,
+    "duration": 4.88
+  },
+  {
+    "text": "the previous three strategies, but as",
+    "start": 404.96,
+    "duration": 4.16
+  },
+  {
+    "text": "you'll see at the end of the video, the",
+    "start": 407.199,
+    "duration": 3.361
+  },
+  {
+    "text": "strategy complements the other",
+    "start": 409.12,
+    "duration": 4.079
+  },
+  {
+    "text": "strategies well. Let's go to our last",
+    "start": 410.56,
+    "duration": 4.56
+  },
+  {
+    "text": "back tested and proven swing trading",
+    "start": 413.199,
+    "duration": 4.72
+  },
+  {
+    "text": "strategy. Our last strategy is somewhat",
+    "start": 415.12,
+    "duration": 4.639
+  },
+  {
+    "text": "different than the others. This is a",
+    "start": 417.919,
+    "duration": 4.481
+  },
+  {
+    "text": "strategy we made 6 years ago, and it has",
+    "start": 419.759,
+    "duration": 4.961
+  },
+  {
+    "text": "lately worked better than ever. The",
+    "start": 422.4,
+    "duration": 4.799
+  },
+  {
+    "text": "trading rules are very simple. Today's",
+    "start": 424.72,
+    "duration": 4.319
+  },
+  {
+    "text": "high must be higher than the high of the",
+    "start": 427.199,
+    "duration": 4.801
+  },
+  {
+    "text": "last 10 days and the IBS indicator must",
+    "start": 429.039,
+    "duration": 5.6
+  },
+  {
+    "text": "be below 0.15.",
+    "start": 432.0,
+    "duration": 6.08
+  },
+  {
+    "text": "If both are true, we buy the close. We",
+    "start": 434.639,
+    "duration": 5.361
+  },
+  {
+    "text": "use the same sell signal as in all the",
+    "start": 438.08,
+    "duration": 4.239
+  },
+  {
+    "text": "four other strategies. When the close is",
+    "start": 440.0,
+    "duration": 4.88
+  },
+  {
+    "text": "higher than yesterday's high, let's show",
+    "start": 442.319,
+    "duration": 5.201
+  },
+  {
+    "text": "you a few trade examples. The seven",
+    "start": 444.88,
+    "duration": 4.8
+  },
+  {
+    "text": "trades turn out five profitable ones in",
+    "start": 447.52,
+    "duration": 5.6
+  },
+  {
+    "text": "our sample. We buy on a weak day when",
+    "start": 449.68,
+    "duration": 5.68
+  },
+  {
+    "text": "SPY closes in the bottom of its daily",
+    "start": 453.12,
+    "duration": 4.4
+  },
+  {
+    "text": "range, but it still managed to set a new",
+    "start": 455.36,
+    "duration": 4.0
+  },
+  {
+    "text": "10-day high earlier in the trading",
+    "start": 457.52,
+    "duration": 4.48
+  },
+  {
+    "text": "session. The equity curve is pretty",
+    "start": 459.36,
+    "duration": 5.36
+  },
+  {
+    "text": "good, right? It's the strategy with the",
+    "start": 462.0,
+    "duration": 5.759
+  },
+  {
+    "text": "fewest trades, but the slope is up. It",
+    "start": 464.72,
+    "duration": 6.16
+  },
+  {
+    "text": "was only 186 trades and the average gain",
+    "start": 467.759,
+    "duration": 6.72
+  },
+  {
+    "text": "was 0.6% per trade. You were invested",
+    "start": 470.88,
+    "duration": 5.439
+  },
+  {
+    "text": "less than a week on average, and the",
+    "start": 474.479,
+    "duration": 5.28
+  },
+  {
+    "text": "annual return was 3.3%. But that low",
+    "start": 476.319,
+    "duration": 5.6
+  },
+  {
+    "text": "number is due to being invested only 8%",
+    "start": 479.759,
+    "duration": 5.041
+  },
+  {
+    "text": "of the time. However, the strategy has",
+    "start": 481.919,
+    "duration": 6.241
+  },
+  {
+    "text": "the lowest draw down at only 8%.",
+    "start": 484.8,
+    "duration": 5.519
+  },
+  {
+    "text": "We have now presented you five free and",
+    "start": 488.16,
+    "duration": 4.319
+  },
+  {
+    "text": "proven swing strategies, but let's go on",
+    "start": 490.319,
+    "duration": 4.961
+  },
+  {
+    "text": "to do the final back test of the day. We",
+    "start": 492.479,
+    "duration": 5.28
+  },
+  {
+    "text": "trade all strategies at the same time,",
+    "start": 495.28,
+    "duration": 4.88
+  },
+  {
+    "text": "but we allocate 100% of the equity to",
+    "start": 497.759,
+    "duration": 4.961
+  },
+  {
+    "text": "one position, thus ignoring buy signals",
+    "start": 500.16,
+    "duration": 5.12
+  },
+  {
+    "text": "if we already have a position. Because",
+    "start": 502.72,
+    "duration": 4.8
+  },
+  {
+    "text": "we use the same sell signal in all five",
+    "start": 505.28,
+    "duration": 4.08
+  },
+  {
+    "text": "strategies. There are no conflicts with",
+    "start": 507.52,
+    "duration": 4.8
+  },
+  {
+    "text": "the exits. When we add all five",
+    "start": 509.36,
+    "duration": 5.76
+  },
+  {
+    "text": "strategies, we get a lot more trades.",
+    "start": 512.32,
+    "duration": 4.959
+  },
+  {
+    "text": "The trade sample shown here indicates",
+    "start": 515.12,
+    "duration": 3.919
+  },
+  {
+    "text": "that you in some periods get many",
+    "start": 517.279,
+    "duration": 3.921
+  },
+  {
+    "text": "trades. But how do the five strategies",
+    "start": 519.039,
+    "duration": 4.88
+  },
+  {
+    "text": "perform together? Let's back test and",
+    "start": 521.2,
+    "duration": 6.8
+  },
+  {
+    "text": "find out. Your initial 100,000 in 1993",
+    "start": 523.919,
+    "duration": 6.48
+  },
+  {
+    "text": "would have grown to 3.2 million with a",
+    "start": 528.0,
+    "duration": 4.88
+  },
+  {
+    "text": "max draw down of 23%.",
+    "start": 530.399,
+    "duration": 4.081
+  },
+  {
+    "text": "That's the beauty of compounding",
+    "start": 532.88,
+    "duration": 4.72
+  },
+  {
+    "text": "returns. It snowballs.",
+    "start": 534.48,
+    "duration": 4.96
+  },
+  {
+    "text": "Remember the scale on the right side is",
+    "start": 537.6,
+    "duration": 4.799
+  },
+  {
+    "text": "logarithmic, not linear. And thus we see",
+    "start": 539.44,
+    "duration": 5.68
+  },
+  {
+    "text": "relative changes. The five strategies",
+    "start": 542.399,
+    "duration": 4.721
+  },
+  {
+    "text": "combined would have had only two losing",
+    "start": 545.12,
+    "duration": 7.12
+  },
+  {
+    "text": "years. 2008 and 2018 minus 1 and 13%",
+    "start": 547.12,
+    "duration": 7.92
+  },
+  {
+    "text": "respectively. We can assure you it feels",
+    "start": 552.24,
+    "duration": 4.4
+  },
+  {
+    "text": "great to make money when the market is",
+    "start": 555.04,
+    "duration": 3.919
+  },
+  {
+    "text": "down. And our strategies only trade from",
+    "start": 556.64,
+    "duration": 5.52
+  },
+  {
+    "text": "the long side. Believe us, a bare market",
+    "start": 558.959,
+    "duration": 5.201
+  },
+  {
+    "text": "is not only good for short strategies,",
+    "start": 562.16,
+    "duration": 4.16
+  },
+  {
+    "text": "but also short-term long trades tend to",
+    "start": 564.16,
+    "duration": 3.679
+  },
+  {
+    "text": "improve because of the increased",
+    "start": 566.32,
+    "duration": 4.16
+  },
+  {
+    "text": "volatility. Let's sum up the statistics",
+    "start": 567.839,
+    "duration": 5.281
+  },
+  {
+    "text": "for all five strategies combined. The",
+    "start": 570.48,
+    "duration": 7.12
+  },
+  {
+    "text": "975 trades returned an average of 0.38%",
+    "start": 573.12,
+    "duration": 6.399
+  },
+  {
+    "text": "and it amounts to a compounding return",
+    "start": 577.6,
+    "duration": 4.4
+  },
+  {
+    "text": "of 11.1%.",
+    "start": 579.519,
+    "duration": 4.721
+  },
+  {
+    "text": "That is better than buy and hold even",
+    "start": 582.0,
+    "duration": 3.839
+  },
+  {
+    "text": "though the strategies in total are",
+    "start": 584.24,
+    "duration": 4.88
+  },
+  {
+    "text": "invested only 41% of the time.",
+    "start": 585.839,
+    "duration": 4.961
+  },
+  {
+    "text": "This shows the power of combining",
+    "start": 589.12,
+    "duration": 4.32
+  },
+  {
+    "text": "strategies and perhaps even better the",
+    "start": 590.8,
+    "duration": 4.88
+  },
+  {
+    "text": "results can be improved. But that is for",
+    "start": 593.44,
+    "duration": 5.28
+  },
+  {
+    "text": "another video. We stop here for today",
+    "start": 595.68,
+    "duration": 5.36
+  },
+  {
+    "text": "and hope you like and subscribe and",
+    "start": 598.72,
+    "duration": 4.239
+  },
+  {
+    "text": "visit our website quantifi",
+    "start": 601.04,
+    "duration": 4.479
+  },
+  {
+    "text": "strategies.com to find hundreds of other",
+    "start": 602.959,
+    "duration": 5.361
+  },
+  {
+    "text": "strategies for many other asset classes.",
+    "start": 605.519,
+    "duration": 6.281
+  },
+  {
+    "text": "Good luck trading.",
+    "start": 608.32,
+    "duration": 3.48
+  }
+]

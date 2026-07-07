@@ -1,0 +1,1237 @@
+[
+  {
+    "text": "what if we enter the market when the",
+    "start": 0.16,
+    "duration": 1.439
+  },
+  {
+    "text": "price breaks the asian session's highest",
+    "start": 1.599,
+    "duration": 1.921
+  },
+  {
+    "text": "and lowest price levels or in another",
+    "start": 3.52,
+    "duration": 2.239
+  },
+  {
+    "text": "word what if we back test the london",
+    "start": 5.759,
+    "duration": 1.761
+  },
+  {
+    "text": "breakout trading strategy 100 times",
+    "start": 7.52,
+    "duration": 2.159
+  },
+  {
+    "text": "using an indicator",
+    "start": 9.679,
+    "duration": 1.84
+  },
+  {
+    "text": "do you think it's a profitable strategy",
+    "start": 11.519,
+    "duration": 2.08
+  },
+  {
+    "text": "should we trade the london session",
+    "start": 13.599,
+    "duration": 1.361
+  },
+  {
+    "text": "according to the prize performance",
+    "start": 14.96,
+    "duration": 1.279
+  },
+  {
+    "text": "during the asian market well let's",
+    "start": 16.239,
+    "duration": 2.001
+  },
+  {
+    "text": "review this strategy and back test it",
+    "start": 18.24,
+    "duration": 1.68
+  },
+  {
+    "text": "together to find out",
+    "start": 19.92,
+    "duration": 2.99
+  },
+  {
+    "text": "[Music]",
+    "start": 22.91,
+    "duration": 8.93
+  },
+  {
+    "text": "a few days back we received an",
+    "start": 31.84,
+    "duration": 1.92
+  },
+  {
+    "text": "interesting trading strategy from alex",
+    "start": 33.76,
+    "duration": 2.16
+  },
+  {
+    "text": "olsen who's one of our subscribers it's",
+    "start": 35.92,
+    "duration": 2.639
+  },
+  {
+    "text": "not very different from the london",
+    "start": 38.559,
+    "duration": 1.281
+  },
+  {
+    "text": "breakout trading strategy that we back",
+    "start": 39.84,
+    "duration": 1.76
+  },
+  {
+    "text": "tested last time and traded in live",
+    "start": 41.6,
+    "duration": 1.84
+  },
+  {
+    "text": "market conditions",
+    "start": 43.44,
+    "duration": 2.08
+  },
+  {
+    "text": "as usual we'll review the strategy and",
+    "start": 45.52,
+    "duration": 2.4
+  },
+  {
+    "text": "see some examples from the chart once",
+    "start": 47.92,
+    "duration": 2.08
+  },
+  {
+    "text": "done we'll begin back testing the",
+    "start": 50.0,
+    "duration": 1.68
+  },
+  {
+    "text": "strategy with the help of a trading",
+    "start": 51.68,
+    "duration": 1.44
+  },
+  {
+    "text": "indicator that alex has sent us i'll",
+    "start": 53.12,
+    "duration": 2.16
+  },
+  {
+    "text": "leave a link in the description box if",
+    "start": 55.28,
+    "duration": 1.599
+  },
+  {
+    "text": "you're interested in downloading it",
+    "start": 56.879,
+    "duration": 2.241
+  },
+  {
+    "text": "if this is your first time here don't",
+    "start": 59.12,
+    "duration": 1.759
+  },
+  {
+    "text": "forget to subscribe to the channel and",
+    "start": 60.879,
+    "duration": 1.68
+  },
+  {
+    "text": "give this video a thumbs up for the",
+    "start": 62.559,
+    "duration": 1.441
+  },
+  {
+    "text": "youtube algorithm",
+    "start": 64.0,
+    "duration": 1.84
+  },
+  {
+    "text": "with that being said let's get into it",
+    "start": 65.84,
+    "duration": 2.88
+  },
+  {
+    "text": "this strategy relies on the performance",
+    "start": 68.72,
+    "duration": 1.84
+  },
+  {
+    "text": "of the price during the asian session in",
+    "start": 70.56,
+    "duration": 2.4
+  },
+  {
+    "text": "simple terms the london breakout",
+    "start": 72.96,
+    "duration": 1.92
+  },
+  {
+    "text": "strategy is a day trading method that",
+    "start": 74.88,
+    "duration": 1.84
+  },
+  {
+    "text": "seeks to take advantage of the trading",
+    "start": 76.72,
+    "duration": 1.68
+  },
+  {
+    "text": "range prior to the london opening",
+    "start": 78.4,
+    "duration": 1.68
+  },
+  {
+    "text": "session",
+    "start": 80.08,
+    "duration": 1.28
+  },
+  {
+    "text": "london breakout trading strategies are",
+    "start": 81.36,
+    "duration": 1.759
+  },
+  {
+    "text": "popular among traders these days as it",
+    "start": 83.119,
+    "duration": 1.921
+  },
+  {
+    "text": "allows them to trade forex or other",
+    "start": 85.04,
+    "duration": 1.759
+  },
+  {
+    "text": "financial securities according to the",
+    "start": 86.799,
+    "duration": 1.521
+  },
+  {
+    "text": "performance of the price during the",
+    "start": 88.32,
+    "duration": 1.439
+  },
+  {
+    "text": "asian session",
+    "start": 89.759,
+    "duration": 1.761
+  },
+  {
+    "text": "the most basic form of establishing the",
+    "start": 91.52,
+    "duration": 1.84
+  },
+  {
+    "text": "asian market range is to use the high",
+    "start": 93.36,
+    "duration": 2.079
+  },
+  {
+    "text": "and low of the previous trading session",
+    "start": 95.439,
+    "duration": 2.241
+  },
+  {
+    "text": "this method takes into consideration the",
+    "start": 97.68,
+    "duration": 1.68
+  },
+  {
+    "text": "whole price action since the start of",
+    "start": 99.36,
+    "duration": 1.759
+  },
+  {
+    "text": "the new trading day",
+    "start": 101.119,
+    "duration": 1.841
+  },
+  {
+    "text": "the advantage that comes with this",
+    "start": 102.96,
+    "duration": 1.36
+  },
+  {
+    "text": "approach is that it will help you better",
+    "start": 104.32,
+    "duration": 1.6
+  },
+  {
+    "text": "manage your trade and you can have",
+    "start": 105.92,
+    "duration": 1.519
+  },
+  {
+    "text": "enough time to look at the fundamentals",
+    "start": 107.439,
+    "duration": 1.601
+  },
+  {
+    "text": "before entering the market well let's",
+    "start": 109.04,
+    "duration": 2.079
+  },
+  {
+    "text": "look at this example",
+    "start": 111.119,
+    "duration": 1.921
+  },
+  {
+    "text": "this is the euro usd one hour chart we",
+    "start": 113.04,
+    "duration": 2.8
+  },
+  {
+    "text": "all know that each candle represents one",
+    "start": 115.84,
+    "duration": 1.919
+  },
+  {
+    "text": "hour the asian session runs for nine",
+    "start": 117.759,
+    "duration": 2.241
+  },
+  {
+    "text": "hours usually opens at 11 pm and closes",
+    "start": 120.0,
+    "duration": 2.719
+  },
+  {
+    "text": "at 8 am gmt",
+    "start": 122.719,
+    "duration": 2.481
+  },
+  {
+    "text": "according to this strategy will only",
+    "start": 125.2,
+    "duration": 1.919
+  },
+  {
+    "text": "take into consideration the last four",
+    "start": 127.119,
+    "duration": 1.759
+  },
+  {
+    "text": "hours before the opening of the london",
+    "start": 128.878,
+    "duration": 1.601
+  },
+  {
+    "text": "session this way we'll have a narrower",
+    "start": 130.479,
+    "duration": 2.161
+  },
+  {
+    "text": "range",
+    "start": 132.64,
+    "duration": 1.44
+  },
+  {
+    "text": "so to define the london breakout range",
+    "start": 134.08,
+    "duration": 1.84
+  },
+  {
+    "text": "that we'll be using on a given day we",
+    "start": 135.92,
+    "duration": 2.0
+  },
+  {
+    "text": "need to draw support and resistance",
+    "start": 137.92,
+    "duration": 1.76
+  },
+  {
+    "text": "levels based on the last four hours",
+    "start": 139.68,
+    "duration": 1.84
+  },
+  {
+    "text": "before the london opening",
+    "start": 141.52,
+    "duration": 2.16
+  },
+  {
+    "text": "i'm using a free indicator called",
+    "start": 143.68,
+    "duration": 1.6
+  },
+  {
+    "text": "sessions by junior fx attic it helps",
+    "start": 145.28,
+    "duration": 2.72
+  },
+  {
+    "text": "highlight the different forex market",
+    "start": 148.0,
+    "duration": 1.52
+  },
+  {
+    "text": "sessions",
+    "start": 149.52,
+    "duration": 0.96
+  },
+  {
+    "text": "i've disabled the new york market and",
+    "start": 150.48,
+    "duration": 1.92
+  },
+  {
+    "text": "kept the asian one in red and the london",
+    "start": 152.4,
+    "duration": 2.08
+  },
+  {
+    "text": "session in green",
+    "start": 154.48,
+    "duration": 1.92
+  },
+  {
+    "text": "as we're working on a one hour time",
+    "start": 156.4,
+    "duration": 1.6
+  },
+  {
+    "text": "frame that's going to be the last four",
+    "start": 158.0,
+    "duration": 1.76
+  },
+  {
+    "text": "candles we should take into",
+    "start": 159.76,
+    "duration": 1.6
+  },
+  {
+    "text": "consideration the body of the candles as",
+    "start": 161.36,
+    "duration": 1.84
+  },
+  {
+    "text": "well as the wicks",
+    "start": 163.2,
+    "duration": 1.92
+  },
+  {
+    "text": "let me use the rectangle tool to define",
+    "start": 165.12,
+    "duration": 2.0
+  },
+  {
+    "text": "the price range that we can rely on as",
+    "start": 167.12,
+    "duration": 1.839
+  },
+  {
+    "text": "part of the london breakout strategy",
+    "start": 168.959,
+    "duration": 1.521
+  },
+  {
+    "text": "we're testing today we can consider the",
+    "start": 170.48,
+    "duration": 2.24
+  },
+  {
+    "text": "two lines as our support and resistance",
+    "start": 172.72,
+    "duration": 1.84
+  },
+  {
+    "text": "levels",
+    "start": 174.56,
+    "duration": 1.44
+  },
+  {
+    "text": "once the market range is drawn we'll",
+    "start": 176.0,
+    "duration": 1.92
+  },
+  {
+    "text": "just monitor the price movement and wait",
+    "start": 177.92,
+    "duration": 1.599
+  },
+  {
+    "text": "for the price to break above or below it",
+    "start": 179.519,
+    "duration": 2.321
+  },
+  {
+    "text": "to make life easier we can set two price",
+    "start": 181.84,
+    "duration": 2.16
+  },
+  {
+    "text": "alerts most trading platforms allow you",
+    "start": 184.0,
+    "duration": 2.319
+  },
+  {
+    "text": "to do this and since we're using trading",
+    "start": 186.319,
+    "duration": 2.0
+  },
+  {
+    "text": "view we can simply click on the clock",
+    "start": 188.319,
+    "duration": 1.92
+  },
+  {
+    "text": "icon and hit here to create a new price",
+    "start": 190.239,
+    "duration": 2.321
+  },
+  {
+    "text": "alert",
+    "start": 192.56,
+    "duration": 1.36
+  },
+  {
+    "text": "first we need to select the pair we're",
+    "start": 193.92,
+    "duration": 1.599
+  },
+  {
+    "text": "trading then choose cross up or down",
+    "start": 195.519,
+    "duration": 2.561
+  },
+  {
+    "text": "from the drop down menu for support",
+    "start": 198.08,
+    "duration": 2.32
+  },
+  {
+    "text": "select crossing down and type in the",
+    "start": 200.4,
+    "duration": 1.759
+  },
+  {
+    "text": "support price value you can choose the",
+    "start": 202.159,
+    "duration": 2.241
+  },
+  {
+    "text": "alert actions i always use mobile app",
+    "start": 204.4,
+    "duration": 2.399
+  },
+  {
+    "text": "notifications as it's pretty practical",
+    "start": 206.799,
+    "duration": 2.641
+  },
+  {
+    "text": "that's it just hit on ok and do the same",
+    "start": 209.44,
+    "duration": 2.56
+  },
+  {
+    "text": "thing for the resistance price value",
+    "start": 212.0,
+    "duration": 2.64
+  },
+  {
+    "text": "perfect now all we need to do is wait",
+    "start": 214.64,
+    "duration": 2.08
+  },
+  {
+    "text": "for the price to hit the upper or lower",
+    "start": 216.72,
+    "duration": 1.68
+  },
+  {
+    "text": "levels",
+    "start": 218.4,
+    "duration": 1.44
+  },
+  {
+    "text": "so what to do next",
+    "start": 219.84,
+    "duration": 1.679
+  },
+  {
+    "text": "according to the strategy once the price",
+    "start": 221.519,
+    "duration": 2.0
+  },
+  {
+    "text": "hits either the support or resistance we",
+    "start": 223.519,
+    "duration": 2.0
+  },
+  {
+    "text": "should immediately go down to the 30",
+    "start": 225.519,
+    "duration": 1.681
+  },
+  {
+    "text": "minutes time frame and wait for any",
+    "start": 227.2,
+    "duration": 1.759
+  },
+  {
+    "text": "candle that closes either above or below",
+    "start": 228.959,
+    "duration": 2.161
+  },
+  {
+    "text": "our price range if a candle closes above",
+    "start": 231.12,
+    "duration": 2.56
+  },
+  {
+    "text": "the price range we immediately go long",
+    "start": 233.68,
+    "duration": 2.72
+  },
+  {
+    "text": "on the other hand we go short if the",
+    "start": 236.4,
+    "duration": 1.919
+  },
+  {
+    "text": "candle closes below the price range",
+    "start": 238.319,
+    "duration": 2.961
+  },
+  {
+    "text": "let's look at this example",
+    "start": 241.28,
+    "duration": 1.76
+  },
+  {
+    "text": "we can see here that the price crossed",
+    "start": 243.04,
+    "duration": 1.6
+  },
+  {
+    "text": "below our range as a second confirmation",
+    "start": 244.64,
+    "duration": 2.879
+  },
+  {
+    "text": "we need to look for a candle that closes",
+    "start": 247.519,
+    "duration": 1.681
+  },
+  {
+    "text": "below the asian market range which is",
+    "start": 249.2,
+    "duration": 1.679
+  },
+  {
+    "text": "our selling signal we can see a strong",
+    "start": 250.879,
+    "duration": 2.321
+  },
+  {
+    "text": "downtrend that formed at this stage and",
+    "start": 253.2,
+    "duration": 1.84
+  },
+  {
+    "text": "it has a 100 pips potential imagine if",
+    "start": 255.04,
+    "duration": 2.64
+  },
+  {
+    "text": "you ride this trend all the way down",
+    "start": 257.68,
+    "duration": 2.798
+  },
+  {
+    "text": "before we begin back testing let's look",
+    "start": 260.478,
+    "duration": 2.322
+  },
+  {
+    "text": "at a second example",
+    "start": 262.8,
+    "duration": 1.6
+  },
+  {
+    "text": "this is the pound usd 30 minutes chart",
+    "start": 264.4,
+    "duration": 2.64
+  },
+  {
+    "text": "we proceed to define our range",
+    "start": 267.04,
+    "duration": 2.24
+  },
+  {
+    "text": "the last four hours before the london",
+    "start": 269.28,
+    "duration": 1.76
+  },
+  {
+    "text": "opening should be represented with eight",
+    "start": 271.04,
+    "duration": 1.84
+  },
+  {
+    "text": "candles we can extend the rectangle from",
+    "start": 272.88,
+    "duration": 2.48
+  },
+  {
+    "text": "the left side",
+    "start": 275.36,
+    "duration": 2.64
+  },
+  {
+    "text": "it's clear that the price crossed above",
+    "start": 279.04,
+    "duration": 1.68
+  },
+  {
+    "text": "the price range and closed above it this",
+    "start": 280.72,
+    "duration": 2.0
+  },
+  {
+    "text": "is going to be our entry signal so we",
+    "start": 282.72,
+    "duration": 1.84
+  },
+  {
+    "text": "immediately go long",
+    "start": 284.56,
+    "duration": 3.04
+  },
+  {
+    "text": "that's another successful trade",
+    "start": 289.759,
+    "duration": 2.561
+  },
+  {
+    "text": "all right now it's time to back test the",
+    "start": 292.32,
+    "duration": 1.92
+  },
+  {
+    "text": "strategy 100 times",
+    "start": 294.24,
+    "duration": 2.16
+  },
+  {
+    "text": "today we'll be using a free indicator",
+    "start": 296.4,
+    "duration": 1.76
+  },
+  {
+    "text": "that's designed according to this",
+    "start": 298.16,
+    "duration": 1.36
+  },
+  {
+    "text": "strategy",
+    "start": 299.52,
+    "duration": 1.119
+  },
+  {
+    "text": "you can find a link to download it in",
+    "start": 300.639,
+    "duration": 1.521
+  },
+  {
+    "text": "the video description box this indicator",
+    "start": 302.16,
+    "duration": 2.479
+  },
+  {
+    "text": "is called three-tier london breakout and",
+    "start": 304.639,
+    "duration": 2.241
+  },
+  {
+    "text": "is developed by mer 7 1898",
+    "start": 306.88,
+    "duration": 3.36
+  },
+  {
+    "text": "anyway this indicator highlights in blue",
+    "start": 310.24,
+    "duration": 2.16
+  },
+  {
+    "text": "the last four hours before the london",
+    "start": 312.4,
+    "duration": 1.68
+  },
+  {
+    "text": "opening",
+    "start": 314.08,
+    "duration": 0.88
+  },
+  {
+    "text": "and tells us the number of pips between",
+    "start": 314.96,
+    "duration": 1.76
+  },
+  {
+    "text": "the support and resistance levels this",
+    "start": 316.72,
+    "duration": 2.16
+  },
+  {
+    "text": "value will be used to define the take",
+    "start": 318.88,
+    "duration": 1.759
+  },
+  {
+    "text": "profit and stop loss",
+    "start": 320.639,
+    "duration": 2.241
+  },
+  {
+    "text": "so basically the take profit is",
+    "start": 322.88,
+    "duration": 1.68
+  },
+  {
+    "text": "positioned according to the width of our",
+    "start": 324.56,
+    "duration": 1.52
+  },
+  {
+    "text": "price range let's call that value l",
+    "start": 326.08,
+    "duration": 2.88
+  },
+  {
+    "text": "these can be adjusted from the indicator",
+    "start": 328.96,
+    "duration": 1.679
+  },
+  {
+    "text": "settings but initially we'll have the",
+    "start": 330.639,
+    "duration": 1.761
+  },
+  {
+    "text": "first take profit at 3l distance from",
+    "start": 332.4,
+    "duration": 2.48
+  },
+  {
+    "text": "our entry point",
+    "start": 334.88,
+    "duration": 1.28
+  },
+  {
+    "text": "so we'll always target the buy or sell",
+    "start": 336.16,
+    "duration": 1.84
+  },
+  {
+    "text": "target number three",
+    "start": 338.0,
+    "duration": 2.0
+  },
+  {
+    "text": "regarding the stop loss we'll just place",
+    "start": 340.0,
+    "duration": 2.24
+  },
+  {
+    "text": "it at a 2l distance from our entry",
+    "start": 342.24,
+    "duration": 2.959
+  },
+  {
+    "text": "so to sum up we're risking 2l for a",
+    "start": 345.199,
+    "duration": 2.641
+  },
+  {
+    "text": "profit of 3l that's a 2-3 risk to reward",
+    "start": 347.84,
+    "duration": 3.44
+  },
+  {
+    "text": "ratio",
+    "start": 351.28,
+    "duration": 1.44
+  },
+  {
+    "text": "let me know in the comments section if",
+    "start": 352.72,
+    "duration": 1.44
+  },
+  {
+    "text": "you have any questions about this",
+    "start": 354.16,
+    "duration": 1.44
+  },
+  {
+    "text": "strategy",
+    "start": 355.6,
+    "duration": 1.12
+  },
+  {
+    "text": "all right let's begin back testing we'll",
+    "start": 356.72,
+    "duration": 2.4
+  },
+  {
+    "text": "use a one thousand dollar balance and",
+    "start": 359.12,
+    "duration": 1.84
+  },
+  {
+    "text": "stick to one micro lot volume size",
+    "start": 360.96,
+    "duration": 3.04
+  },
+  {
+    "text": "while waiting for the results don't",
+    "start": 364.0,
+    "duration": 1.44
+  },
+  {
+    "text": "forget to hit the thumbs up button and",
+    "start": 365.44,
+    "duration": 1.599
+  },
+  {
+    "text": "subscribe to the channel if this is your",
+    "start": 367.039,
+    "duration": 1.521
+  },
+  {
+    "text": "first time here you can also submit your",
+    "start": 368.56,
+    "duration": 2.24
+  },
+  {
+    "text": "trading strategy for back testing simply",
+    "start": 370.8,
+    "duration": 2.399
+  },
+  {
+    "text": "visit this link and provide the",
+    "start": 373.199,
+    "duration": 1.681
+  },
+  {
+    "text": "necessary details about your trading",
+    "start": 374.88,
+    "duration": 1.759
+  },
+  {
+    "text": "method",
+    "start": 376.639,
+    "duration": 1.361
+  },
+  {
+    "text": "this indicator might show you different",
+    "start": 378.0,
+    "duration": 1.52
+  },
+  {
+    "text": "values based on the settings as well as",
+    "start": 379.52,
+    "duration": 1.84
+  },
+  {
+    "text": "your server's time management since",
+    "start": 381.36,
+    "duration": 1.92
+  },
+  {
+    "text": "we're using mt4 depending on the mt4",
+    "start": 383.28,
+    "duration": 2.88
+  },
+  {
+    "text": "broker's server time the charts or the",
+    "start": 386.16,
+    "duration": 1.92
+  },
+  {
+    "text": "candlesticks on the charts are",
+    "start": 388.08,
+    "duration": 1.28
+  },
+  {
+    "text": "calculated differently for example most",
+    "start": 389.36,
+    "duration": 2.48
+  },
+  {
+    "text": "gmt brokers tend to have an additional",
+    "start": 391.84,
+    "duration": 1.84
+  },
+  {
+    "text": "candlestick such as sunday candlesticks",
+    "start": 393.68,
+    "duration": 2.16
+  },
+  {
+    "text": "as well while this might not be a big",
+    "start": 395.84,
+    "duration": 2.16
+  },
+  {
+    "text": "issue when you're using a trading",
+    "start": 398.0,
+    "duration": 1.68
+  },
+  {
+    "text": "strategy that has time as a major factor",
+    "start": 399.68,
+    "duration": 2.4
+  },
+  {
+    "text": "the result could differ from one broker",
+    "start": 402.08,
+    "duration": 1.6
+  },
+  {
+    "text": "to another",
+    "start": 403.68,
+    "duration": 1.519
+  },
+  {
+    "text": "we've just completed back testing this",
+    "start": 405.199,
+    "duration": 1.681
+  },
+  {
+    "text": "strategy let's look at the results",
+    "start": 406.88,
+    "duration": 2.879
+  },
+  {
+    "text": "well the success rate is 68",
+    "start": 409.759,
+    "duration": 2.321
+  },
+  {
+    "text": "and we've only got 32 losing trades we",
+    "start": 412.08,
+    "duration": 2.72
+  },
+  {
+    "text": "managed to make 1 812 pips in total so",
+    "start": 414.8,
+    "duration": 3.28
+  },
+  {
+    "text": "to sum up we started this back testing",
+    "start": 418.08,
+    "duration": 2.08
+  },
+  {
+    "text": "process with one thousand dollars and",
+    "start": 420.16,
+    "duration": 2.0
+  },
+  {
+    "text": "ended up with one thousand one hundred",
+    "start": 422.16,
+    "duration": 1.52
+  },
+  {
+    "text": "eighty one dollars that's one hundred",
+    "start": 423.68,
+    "duration": 1.919
+  },
+  {
+    "text": "eighty one dollars total profit it's",
+    "start": 425.599,
+    "duration": 1.841
+  },
+  {
+    "text": "amazing right",
+    "start": 427.44,
+    "duration": 1.599
+  },
+  {
+    "text": "well at this stage i do believe that the",
+    "start": 429.039,
+    "duration": 1.681
+  },
+  {
+    "text": "figures are quite positive but the",
+    "start": 430.72,
+    "duration": 1.68
+  },
+  {
+    "text": "market entry and exit points are not",
+    "start": 432.4,
+    "duration": 1.6
+  },
+  {
+    "text": "quite clear and flexible",
+    "start": 434.0,
+    "duration": 2.319
+  },
+  {
+    "text": "to be honest with you i'm afraid that",
+    "start": 436.319,
+    "duration": 1.841
+  },
+  {
+    "text": "this strategy alex isn't designed to",
+    "start": 438.16,
+    "duration": 1.92
+  },
+  {
+    "text": "ride the trends and super trends",
+    "start": 440.08,
+    "duration": 2.64
+  },
+  {
+    "text": "i quickly run through some of the losing",
+    "start": 442.72,
+    "duration": 1.599
+  },
+  {
+    "text": "trades they're mostly due to a sideways",
+    "start": 444.319,
+    "duration": 2.241
+  },
+  {
+    "text": "market condition and failure to spot",
+    "start": 446.56,
+    "duration": 1.68
+  },
+  {
+    "text": "some key market structures for example",
+    "start": 448.24,
+    "duration": 2.72
+  },
+  {
+    "text": "we can see here a long entry signal but",
+    "start": 450.96,
+    "duration": 2.239
+  },
+  {
+    "text": "the take profit which is tp3 is located",
+    "start": 453.199,
+    "duration": 2.641
+  },
+  {
+    "text": "beyond a major resistance other than",
+    "start": 455.84,
+    "duration": 2.32
+  },
+  {
+    "text": "that the entry candle was followed by",
+    "start": 458.16,
+    "duration": 1.84
+  },
+  {
+    "text": "two significant long bearish and bullish",
+    "start": 460.0,
+    "duration": 2.0
+  },
+  {
+    "text": "candles that illustrate the uncertainty",
+    "start": 462.0,
+    "duration": 1.759
+  },
+  {
+    "text": "of the market plus this strategy doesn't",
+    "start": 463.759,
+    "duration": 2.321
+  },
+  {
+    "text": "consider fundamentals",
+    "start": 466.08,
+    "duration": 2.239
+  },
+  {
+    "text": "well we'll probably need to turn this",
+    "start": 468.319,
+    "duration": 1.6
+  },
+  {
+    "text": "indicator into an expert advisor to have",
+    "start": 469.919,
+    "duration": 2.0
+  },
+  {
+    "text": "the ability to back test it over a",
+    "start": 471.919,
+    "duration": 1.521
+  },
+  {
+    "text": "longer time interval let me know if you",
+    "start": 473.44,
+    "duration": 1.92
+  },
+  {
+    "text": "want us to cover that in the future by",
+    "start": 475.36,
+    "duration": 2.64
+  },
+  {
+    "text": "the way we've already made a live market",
+    "start": 478.0,
+    "duration": 1.919
+  },
+  {
+    "text": "video where we traded forex using a",
+    "start": 479.919,
+    "duration": 1.84
+  },
+  {
+    "text": "london breakout strategy you can click",
+    "start": 481.759,
+    "duration": 2.16
+  },
+  {
+    "text": "on this link to watch it",
+    "start": 483.919,
+    "duration": 2.241
+  },
+  {
+    "text": "so what do you think about this london",
+    "start": 486.16,
+    "duration": 1.68
+  },
+  {
+    "text": "breakout trading strategy let us know in",
+    "start": 487.84,
+    "duration": 2.24
+  },
+  {
+    "text": "the comments section and don't forget to",
+    "start": 490.08,
+    "duration": 1.6
+  },
+  {
+    "text": "check out the other videos on this",
+    "start": 491.68,
+    "duration": 1.44
+  },
+  {
+    "text": "channel",
+    "start": 493.12,
+    "duration": 1.359
+  },
+  {
+    "text": "happy trading",
+    "start": 494.479,
+    "duration": 3.321
+  },
+  {
+    "text": "you",
+    "start": 509.28,
+    "duration": 2.08
+  }
+]

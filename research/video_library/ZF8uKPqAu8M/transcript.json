@@ -1,0 +1,1747 @@
+[
+  {
+    "text": "I've been trading the opening range",
+    "start": 0.24,
+    "duration": 3.84
+  },
+  {
+    "text": "breakout strategy for the last 6 months",
+    "start": 1.92,
+    "duration": 3.839
+  },
+  {
+    "text": "and I've made steady profits with it.",
+    "start": 4.08,
+    "duration": 3.52
+  },
+  {
+    "text": "The strategy is simple, but there are",
+    "start": 5.759,
+    "duration": 3.681
+  },
+  {
+    "text": "many different versions of it online.",
+    "start": 7.6,
+    "duration": 3.84
+  },
+  {
+    "text": "One variant that I see over and over",
+    "start": 9.44,
+    "duration": 4.64
+  },
+  {
+    "text": "again is using the orb with a breakout,",
+    "start": 11.44,
+    "duration": 4.96
+  },
+  {
+    "text": "pullback, and continuation pattern. It",
+    "start": 14.08,
+    "duration": 4.16
+  },
+  {
+    "text": "looks like a really good setup, but the",
+    "start": 16.4,
+    "duration": 3.84
+  },
+  {
+    "text": "only way to know if it works is to try",
+    "start": 18.24,
+    "duration": 4.32
+  },
+  {
+    "text": "it out. I have back tested 5 years of",
+    "start": 20.24,
+    "duration": 5.44
+  },
+  {
+    "text": "S&P 500 data to find out for myself. But",
+    "start": 22.56,
+    "duration": 4.559
+  },
+  {
+    "text": "first, I'm just going to do a quick",
+    "start": 25.68,
+    "duration": 3.359
+  },
+  {
+    "text": "recap of the way that I trade the",
+    "start": 27.119,
+    "duration": 3.681
+  },
+  {
+    "text": "strategy for anyone who's new to the",
+    "start": 29.039,
+    "duration": 3.921
+  },
+  {
+    "text": "channel. This is a 15minute opening",
+    "start": 30.8,
+    "duration": 4.56
+  },
+  {
+    "text": "range breakout. I'm here on a 15-minute",
+    "start": 32.96,
+    "duration": 4.8
+  },
+  {
+    "text": "chart, and I set my time zone to New",
+    "start": 35.36,
+    "duration": 4.879
+  },
+  {
+    "text": "York. So, that's UTC minus 4. I then",
+    "start": 37.76,
+    "duration": 4.799
+  },
+  {
+    "text": "look for the 9:30 candle, which is the",
+    "start": 40.239,
+    "duration": 4.32
+  },
+  {
+    "text": "market open in New York, and that's this",
+    "start": 42.559,
+    "duration": 3.84
+  },
+  {
+    "text": "green candle here. Once I've got that,",
+    "start": 44.559,
+    "duration": 3.761
+  },
+  {
+    "text": "I'm going to mark out the high and the",
+    "start": 46.399,
+    "duration": 4.0
+  },
+  {
+    "text": "low. So, I mark the high and then do the",
+    "start": 48.32,
+    "duration": 4.0
+  },
+  {
+    "text": "same thing with the low. This gives me",
+    "start": 50.399,
+    "duration": 4.0
+  },
+  {
+    "text": "my opening range. After that, I'm just",
+    "start": 52.32,
+    "duration": 3.759
+  },
+  {
+    "text": "waiting for a candle to break out",
+    "start": 54.399,
+    "duration": 3.281
+  },
+  {
+    "text": "through this range. There are different",
+    "start": 56.079,
+    "duration": 3.361
+  },
+  {
+    "text": "ways to do this, and I know that some",
+    "start": 57.68,
+    "duration": 3.679
+  },
+  {
+    "text": "people will enter as soon as the price",
+    "start": 59.44,
+    "duration": 3.919
+  },
+  {
+    "text": "is broken, like on this green wick up",
+    "start": 61.359,
+    "duration": 3.681
+  },
+  {
+    "text": "here. But I prefer to wait for the",
+    "start": 63.359,
+    "duration": 3.201
+  },
+  {
+    "text": "candle to actually break through and",
+    "start": 65.04,
+    "duration": 3.759
+  },
+  {
+    "text": "then close above. So, in this case, my",
+    "start": 66.56,
+    "duration": 4.32
+  },
+  {
+    "text": "signal is this candle here because it's",
+    "start": 68.799,
+    "duration": 3.601
+  },
+  {
+    "text": "the first one to actually break out and",
+    "start": 70.88,
+    "duration": 3.52
+  },
+  {
+    "text": "then close outside of that range. I then",
+    "start": 72.4,
+    "duration": 4.16
+  },
+  {
+    "text": "enter at the open of the next one. So,",
+    "start": 74.4,
+    "duration": 4.399
+  },
+  {
+    "text": "this here would be my entry. And I'll",
+    "start": 76.56,
+    "duration": 4.08
+  },
+  {
+    "text": "place my long entry here just to",
+    "start": 78.799,
+    "duration": 3.441
+  },
+  {
+    "text": "visualize things a little bit. After",
+    "start": 80.64,
+    "duration": 3.6
+  },
+  {
+    "text": "that, the stop loss goes at the bottom",
+    "start": 82.24,
+    "duration": 4.48
+  },
+  {
+    "text": "of the range. So down here, and I target",
+    "start": 84.24,
+    "duration": 5.28
+  },
+  {
+    "text": "1.5 to one reward to risk. So this",
+    "start": 86.72,
+    "duration": 4.719
+  },
+  {
+    "text": "takerit would be somewhere around here.",
+    "start": 89.52,
+    "duration": 3.2
+  },
+  {
+    "text": "And this would have been a profitable",
+    "start": 91.439,
+    "duration": 2.881
+  },
+  {
+    "text": "trade. There are additional rules that",
+    "start": 92.72,
+    "duration": 3.759
+  },
+  {
+    "text": "I've developed like I don't trade after",
+    "start": 94.32,
+    "duration": 4.32
+  },
+  {
+    "text": "the 12:00 candle, which would be here.",
+    "start": 96.479,
+    "duration": 3.68
+  },
+  {
+    "text": "So that would be my cut off for entering",
+    "start": 98.64,
+    "duration": 3.439
+  },
+  {
+    "text": "a trade. And I also don't trade ranges",
+    "start": 100.159,
+    "duration": 4.241
+  },
+  {
+    "text": "that are either too small or too big",
+    "start": 102.079,
+    "duration": 4.481
+  },
+  {
+    "text": "based on the recent ATR. I'm not going",
+    "start": 104.4,
+    "duration": 3.92
+  },
+  {
+    "text": "to go into all of that just now, but",
+    "start": 106.56,
+    "duration": 3.44
+  },
+  {
+    "text": "I'll leave a link to the detailed video",
+    "start": 108.32,
+    "duration": 3.68
+  },
+  {
+    "text": "where I explain all these rules and I",
+    "start": 110.0,
+    "duration": 3.92
+  },
+  {
+    "text": "show the back test as well. The problem",
+    "start": 112.0,
+    "duration": 4.0
+  },
+  {
+    "text": "with this approach becomes apparent on",
+    "start": 113.92,
+    "duration": 4.0
+  },
+  {
+    "text": "this trade. I've got my 50-minute",
+    "start": 116.0,
+    "duration": 4.24
+  },
+  {
+    "text": "opening range marked by this first green",
+    "start": 117.92,
+    "duration": 4.239
+  },
+  {
+    "text": "candle, and then I have my breakout, but",
+    "start": 120.24,
+    "duration": 3.839
+  },
+  {
+    "text": "the breakout is so big that my entry",
+    "start": 122.159,
+    "duration": 4.0
+  },
+  {
+    "text": "ends up being all the way out here. That",
+    "start": 124.079,
+    "duration": 4.001
+  },
+  {
+    "text": "in turn leads me to have a really big",
+    "start": 126.159,
+    "duration": 3.921
+  },
+  {
+    "text": "stop-loss on my trade because I place",
+    "start": 128.08,
+    "duration": 4.159
+  },
+  {
+    "text": "the stop at the bottom of the range. But",
+    "start": 130.08,
+    "duration": 4.0
+  },
+  {
+    "text": "often what seems to happen after the",
+    "start": 132.239,
+    "duration": 3.681
+  },
+  {
+    "text": "initial breakout is that we get this",
+    "start": 134.08,
+    "duration": 4.08
+  },
+  {
+    "text": "pullback towards the opening range. This",
+    "start": 135.92,
+    "duration": 4.16
+  },
+  {
+    "text": "is how the modified strategy will work.",
+    "start": 138.16,
+    "duration": 3.84
+  },
+  {
+    "text": "First, I switch over to the 5-minut",
+    "start": 140.08,
+    "duration": 3.76
+  },
+  {
+    "text": "chart. This way, I can react to price",
+    "start": 142.0,
+    "duration": 4.0
+  },
+  {
+    "text": "action a lot quicker. My orb range is",
+    "start": 143.84,
+    "duration": 4.32
+  },
+  {
+    "text": "still defined by the first 15 minutes of",
+    "start": 146.0,
+    "duration": 4.4
+  },
+  {
+    "text": "the day. But since I'm on the 5-minut",
+    "start": 148.16,
+    "duration": 4.0
+  },
+  {
+    "text": "time frame now, I have to use the first",
+    "start": 150.4,
+    "duration": 3.839
+  },
+  {
+    "text": "three candles to define my range high",
+    "start": 152.16,
+    "duration": 3.76
+  },
+  {
+    "text": "and range low. Once I have those",
+    "start": 154.239,
+    "duration": 3.681
+  },
+  {
+    "text": "defined, I then wait for my breakout",
+    "start": 155.92,
+    "duration": 4.0
+  },
+  {
+    "text": "just like before. But this time, I don't",
+    "start": 157.92,
+    "duration": 3.679
+  },
+  {
+    "text": "buy immediately on the close of this",
+    "start": 159.92,
+    "duration": 3.52
+  },
+  {
+    "text": "breakout candle. Instead, I have to wait",
+    "start": 161.599,
+    "duration": 3.441
+  },
+  {
+    "text": "and see if price is going to make a",
+    "start": 163.44,
+    "duration": 3.6
+  },
+  {
+    "text": "pullback towards the opening range. And",
+    "start": 165.04,
+    "duration": 3.68
+  },
+  {
+    "text": "this will be difficult psychologically",
+    "start": 167.04,
+    "duration": 3.44
+  },
+  {
+    "text": "because I'll be getting FOMO about",
+    "start": 168.72,
+    "duration": 3.36
+  },
+  {
+    "text": "missing out on a potential trade,",
+    "start": 170.48,
+    "duration": 3.28
+  },
+  {
+    "text": "especially if it continues going up the",
+    "start": 172.08,
+    "duration": 3.439
+  },
+  {
+    "text": "way. But according to this strategy,",
+    "start": 173.76,
+    "duration": 3.759
+  },
+  {
+    "text": "price will often make a pullback and it",
+    "start": 175.519,
+    "duration": 4.0
+  },
+  {
+    "text": "will return back to the orb. And what",
+    "start": 177.519,
+    "duration": 3.761
+  },
+  {
+    "text": "I'm looking for is a candle that's going",
+    "start": 179.519,
+    "duration": 3.681
+  },
+  {
+    "text": "to break through the range but then",
+    "start": 181.28,
+    "duration": 3.679
+  },
+  {
+    "text": "close back above it, which is exactly",
+    "start": 183.2,
+    "duration": 3.44
+  },
+  {
+    "text": "what this candle here has done. The",
+    "start": 184.959,
+    "duration": 3.36
+  },
+  {
+    "text": "reason for this is that I want to see",
+    "start": 186.64,
+    "duration": 3.599
+  },
+  {
+    "text": "buyers coming back in and pushing the",
+    "start": 188.319,
+    "duration": 3.28
+  },
+  {
+    "text": "price back up. That gives me",
+    "start": 190.239,
+    "duration": 3.121
+  },
+  {
+    "text": "confirmation that this line is now",
+    "start": 191.599,
+    "duration": 3.92
+  },
+  {
+    "text": "starting to act as support. Once I get",
+    "start": 193.36,
+    "duration": 3.92
+  },
+  {
+    "text": "this pullback candle, I don't enter",
+    "start": 195.519,
+    "duration": 3.44
+  },
+  {
+    "text": "immediately. I want to see confirmation",
+    "start": 197.28,
+    "duration": 3.52
+  },
+  {
+    "text": "that price is going to bounce off and",
+    "start": 198.959,
+    "duration": 3.28
+  },
+  {
+    "text": "move back up. And I'm going to be",
+    "start": 200.8,
+    "duration": 3.519
+  },
+  {
+    "text": "waiting for a break of this most recent",
+    "start": 202.239,
+    "duration": 4.08
+  },
+  {
+    "text": "high. We get that on the next candle.",
+    "start": 204.319,
+    "duration": 3.601
+  },
+  {
+    "text": "And this gives me my confirmation to",
+    "start": 206.319,
+    "duration": 3.28
+  },
+  {
+    "text": "enter into a trade. So, the trade is",
+    "start": 207.92,
+    "duration": 3.599
+  },
+  {
+    "text": "opened here. The stop loss will still go",
+    "start": 209.599,
+    "duration": 4.0
+  },
+  {
+    "text": "at the bottom of my opening range. And I",
+    "start": 211.519,
+    "duration": 3.761
+  },
+  {
+    "text": "will target 1 and 1/2 times for my",
+    "start": 213.599,
+    "duration": 3.36
+  },
+  {
+    "text": "take-profit ratio. I don't have to put",
+    "start": 215.28,
+    "duration": 3.36
+  },
+  {
+    "text": "the stop loss down here. It could also",
+    "start": 216.959,
+    "duration": 3.2
+  },
+  {
+    "text": "go at the bottom of this pullback",
+    "start": 218.64,
+    "duration": 3.12
+  },
+  {
+    "text": "candle. And likewise, I don't have to",
+    "start": 220.159,
+    "duration": 3.44
+  },
+  {
+    "text": "always aim for one and a half times. And",
+    "start": 221.76,
+    "duration": 3.36
+  },
+  {
+    "text": "I will be testing out all of these",
+    "start": 223.599,
+    "duration": 3.441
+  },
+  {
+    "text": "different scenarios. And this completes",
+    "start": 225.12,
+    "duration": 4.32
+  },
+  {
+    "text": "the breakout, pullback, and continuation",
+    "start": 227.04,
+    "duration": 4.24
+  },
+  {
+    "text": "pattern. The theory here is pretty",
+    "start": 229.44,
+    "duration": 4.0
+  },
+  {
+    "text": "simple, but it requires patience not to",
+    "start": 231.28,
+    "duration": 4.239
+  },
+  {
+    "text": "chase that initial move, but to actually",
+    "start": 233.44,
+    "duration": 3.84
+  },
+  {
+    "text": "wait for price to come back down and",
+    "start": 235.519,
+    "duration": 3.761
+  },
+  {
+    "text": "give a better entry. I jumped over to my",
+    "start": 237.28,
+    "duration": 4.08
+  },
+  {
+    "text": "back tester and started setting this up,",
+    "start": 239.28,
+    "duration": 3.679
+  },
+  {
+    "text": "but it actually turned out to be a lot",
+    "start": 241.36,
+    "duration": 3.519
+  },
+  {
+    "text": "more complicated than I thought. And by",
+    "start": 242.959,
+    "duration": 3.36
+  },
+  {
+    "text": "the way, I'm happy to share this back",
+    "start": 244.879,
+    "duration": 2.961
+  },
+  {
+    "text": "test code. Let me know in the comments",
+    "start": 246.319,
+    "duration": 3.12
+  },
+  {
+    "text": "if you want to see the code and I can",
+    "start": 247.84,
+    "duration": 3.52
+  },
+  {
+    "text": "share the link to the GitHub repo. The",
+    "start": 249.439,
+    "duration": 3.281
+  },
+  {
+    "text": "first challenge that I had with this",
+    "start": 251.36,
+    "duration": 3.36
+  },
+  {
+    "text": "system was how do I actually define a",
+    "start": 252.72,
+    "duration": 3.84
+  },
+  {
+    "text": "breakout because this here is obviously",
+    "start": 254.72,
+    "duration": 3.919
+  },
+  {
+    "text": "a breakout, but then so is this. Price",
+    "start": 256.56,
+    "duration": 3.84
+  },
+  {
+    "text": "has broken out and closed above the",
+    "start": 258.639,
+    "duration": 3.361
+  },
+  {
+    "text": "opening range. But I would trust this",
+    "start": 260.4,
+    "duration": 3.28
+  },
+  {
+    "text": "breakout far less than I would trust",
+    "start": 262.0,
+    "duration": 3.759
+  },
+  {
+    "text": "this one. Visually, it's easy to see the",
+    "start": 263.68,
+    "duration": 3.84
+  },
+  {
+    "text": "difference, but for my back tester, I",
+    "start": 265.759,
+    "duration": 3.521
+  },
+  {
+    "text": "need to take into account the height of",
+    "start": 267.52,
+    "duration": 3.52
+  },
+  {
+    "text": "this breakout. And I made sure that this",
+    "start": 269.28,
+    "duration": 4.56
+  },
+  {
+    "text": "was greater than at least 1 times ATR to",
+    "start": 271.04,
+    "duration": 4.879
+  },
+  {
+    "text": "be considered a suitable breakout. I",
+    "start": 273.84,
+    "duration": 3.44
+  },
+  {
+    "text": "then configured the pullback and",
+    "start": 275.919,
+    "duration": 3.521
+  },
+  {
+    "text": "continuation logic, but I regularly had",
+    "start": 277.28,
+    "duration": 4.24
+  },
+  {
+    "text": "to check my simulated trade log and fix",
+    "start": 279.44,
+    "duration": 4.16
+  },
+  {
+    "text": "any bugs that I found. Finally, I was",
+    "start": 281.52,
+    "duration": 4.08
+  },
+  {
+    "text": "happy with the accuracy of my back test,",
+    "start": 283.6,
+    "duration": 4.0
+  },
+  {
+    "text": "and this was the result over those 5",
+    "start": 285.6,
+    "duration": 4.0
+  },
+  {
+    "text": "years of testing. The strategy seemed to",
+    "start": 287.6,
+    "duration": 4.4
+  },
+  {
+    "text": "perform okay for the last 2 years from",
+    "start": 289.6,
+    "duration": 5.039
+  },
+  {
+    "text": "2023 onwards. But before that, it was",
+    "start": 292.0,
+    "duration": 4.56
+  },
+  {
+    "text": "pretty much sideways for the first 3",
+    "start": 294.639,
+    "duration": 4.0
+  },
+  {
+    "text": "years. Going by the equity curve alone,",
+    "start": 296.56,
+    "duration": 3.52
+  },
+  {
+    "text": "I really wasn't impressed with this",
+    "start": 298.639,
+    "duration": 3.28
+  },
+  {
+    "text": "performance. Looking at the stats here,",
+    "start": 300.08,
+    "duration": 3.92
+  },
+  {
+    "text": "the win rate is actually very similar to",
+    "start": 301.919,
+    "duration": 3.921
+  },
+  {
+    "text": "what my current strategy does. I",
+    "start": 304.0,
+    "duration": 3.919
+  },
+  {
+    "text": "expected that waiting for a pullback to",
+    "start": 305.84,
+    "duration": 3.359
+  },
+  {
+    "text": "get a better price would actually give",
+    "start": 307.919,
+    "duration": 2.72
+  },
+  {
+    "text": "me a better win rate, but it doesn't",
+    "start": 309.199,
+    "duration": 2.881
+  },
+  {
+    "text": "seem to have made much of a difference.",
+    "start": 310.639,
+    "duration": 3.201
+  },
+  {
+    "text": "What it has done, though, is reduce the",
+    "start": 312.08,
+    "duration": 3.6
+  },
+  {
+    "text": "overall number of trades. So now over",
+    "start": 313.84,
+    "duration": 4.24
+  },
+  {
+    "text": "that 5-year period, I only got 130",
+    "start": 315.68,
+    "duration": 4.239
+  },
+  {
+    "text": "trades with this system, and the overall",
+    "start": 318.08,
+    "duration": 3.679
+  },
+  {
+    "text": "return for the strategy was pretty poor.",
+    "start": 319.919,
+    "duration": 3.521
+  },
+  {
+    "text": "So, it wasn't off to the best start, but",
+    "start": 321.759,
+    "duration": 3.201
+  },
+  {
+    "text": "then I thought maybe the 1 and a half",
+    "start": 323.44,
+    "duration": 3.599
+  },
+  {
+    "text": "times ratio was too restrictive. The",
+    "start": 324.96,
+    "duration": 3.92
+  },
+  {
+    "text": "entries in theory are much better now,",
+    "start": 327.039,
+    "duration": 3.44
+  },
+  {
+    "text": "so I should be able to aim for bigger",
+    "start": 328.88,
+    "duration": 3.84
+  },
+  {
+    "text": "profits. I reran the simulation and this",
+    "start": 330.479,
+    "duration": 4.241
+  },
+  {
+    "text": "time I tested take-profit ratios",
+    "start": 332.72,
+    "duration": 3.84
+  },
+  {
+    "text": "starting at 2 1/2 and going all the way",
+    "start": 334.72,
+    "duration": 5.12
+  },
+  {
+    "text": "up to 4 1/2 in increments of 0.5. And it",
+    "start": 336.56,
+    "duration": 4.96
+  },
+  {
+    "text": "seems that each increment made the",
+    "start": 339.84,
+    "duration": 3.68
+  },
+  {
+    "text": "strategy perform that little bit better.",
+    "start": 341.52,
+    "duration": 3.679
+  },
+  {
+    "text": "So, it certainly was an improvement, but",
+    "start": 343.52,
+    "duration": 3.44
+  },
+  {
+    "text": "I would still say that the equity curve",
+    "start": 345.199,
+    "duration": 3.84
+  },
+  {
+    "text": "overall for all of these is still pretty",
+    "start": 346.96,
+    "duration": 4.32
+  },
+  {
+    "text": "poor. and the final balance is far less",
+    "start": 349.039,
+    "duration": 4.16
+  },
+  {
+    "text": "than what my current strategy does. Then",
+    "start": 351.28,
+    "duration": 3.52
+  },
+  {
+    "text": "I actually looked at some of the trades",
+    "start": 353.199,
+    "duration": 3.28
+  },
+  {
+    "text": "that I was getting and I realized the",
+    "start": 354.8,
+    "duration": 3.92
+  },
+  {
+    "text": "problem. This breakout, pullback and",
+    "start": 356.479,
+    "duration": 3.921
+  },
+  {
+    "text": "continuation that's shown with these",
+    "start": 358.72,
+    "duration": 4.0
+  },
+  {
+    "text": "kinds of examples is an ideal scenario,",
+    "start": 360.4,
+    "duration": 4.079
+  },
+  {
+    "text": "but it almost never actually looks like",
+    "start": 362.72,
+    "duration": 3.68
+  },
+  {
+    "text": "this in real trading. This chart makes",
+    "start": 364.479,
+    "duration": 3.44
+  },
+  {
+    "text": "it look very obvious where the entry",
+    "start": 366.4,
+    "duration": 3.2
+  },
+  {
+    "text": "would be and the chart is super",
+    "start": 367.919,
+    "duration": 3.28
+  },
+  {
+    "text": "predictable. But this is what a real",
+    "start": 369.6,
+    "duration": 3.2
+  },
+  {
+    "text": "trading chart looks like. This is",
+    "start": 371.199,
+    "duration": 3.12
+  },
+  {
+    "text": "screenshot of one of the trades that my",
+    "start": 372.8,
+    "duration": 3.36
+  },
+  {
+    "text": "back tester took. This is on the 5-minut",
+    "start": 374.319,
+    "duration": 3.841
+  },
+  {
+    "text": "time frame. So these first three candles",
+    "start": 376.16,
+    "duration": 4.479
+  },
+  {
+    "text": "formed my opening range high and low. I",
+    "start": 378.16,
+    "duration": 4.24
+  },
+  {
+    "text": "got the initial breakout which doesn't",
+    "start": 380.639,
+    "duration": 3.921
+  },
+  {
+    "text": "look as clean as the examples and then I",
+    "start": 382.4,
+    "duration": 4.0
+  },
+  {
+    "text": "got my pullback. And this is the candle",
+    "start": 384.56,
+    "duration": 3.52
+  },
+  {
+    "text": "that confirmed the pullback. It broke",
+    "start": 386.4,
+    "duration": 3.2
+  },
+  {
+    "text": "below the opening range and then closed",
+    "start": 388.08,
+    "duration": 3.36
+  },
+  {
+    "text": "back above it again. My entry then came",
+    "start": 389.6,
+    "duration": 3.36
+  },
+  {
+    "text": "at the next candle when it broke the",
+    "start": 391.44,
+    "duration": 3.12
+  },
+  {
+    "text": "high of the previous one. But then",
+    "start": 392.96,
+    "duration": 3.2
+  },
+  {
+    "text": "immediately price turned around and went",
+    "start": 394.56,
+    "duration": 3.12
+  },
+  {
+    "text": "the wrong way. The interesting thing is",
+    "start": 396.16,
+    "duration": 3.68
+  },
+  {
+    "text": "that my original strategy that buys the",
+    "start": 397.68,
+    "duration": 3.76
+  },
+  {
+    "text": "breakout would have entered somewhere",
+    "start": 399.84,
+    "duration": 3.68
+  },
+  {
+    "text": "around here which is not really that",
+    "start": 401.44,
+    "duration": 4.16
+  },
+  {
+    "text": "different to this entry price. In either",
+    "start": 403.52,
+    "duration": 3.44
+  },
+  {
+    "text": "case, both of the trades would have",
+    "start": 405.6,
+    "duration": 3.28
+  },
+  {
+    "text": "taken a loss over here. Here's another",
+    "start": 406.96,
+    "duration": 4.0
+  },
+  {
+    "text": "example. We've got the 930 candle as",
+    "start": 408.88,
+    "duration": 3.52
+  },
+  {
+    "text": "well as the two candles after that",
+    "start": 410.96,
+    "duration": 3.359
+  },
+  {
+    "text": "giving me the initial opening range high",
+    "start": 412.4,
+    "duration": 3.68
+  },
+  {
+    "text": "and low. And then I get my breakout",
+    "start": 414.319,
+    "duration": 3.681
+  },
+  {
+    "text": "followed by a pretty strong pullback.",
+    "start": 416.08,
+    "duration": 3.679
+  },
+  {
+    "text": "However, the initial pullback broke all",
+    "start": 418.0,
+    "duration": 3.68
+  },
+  {
+    "text": "the way through into the opening range.",
+    "start": 419.759,
+    "duration": 3.84
+  },
+  {
+    "text": "So that invalidated the trade. I waited",
+    "start": 421.68,
+    "duration": 3.519
+  },
+  {
+    "text": "for the second breakout and that was",
+    "start": 423.599,
+    "duration": 3.361
+  },
+  {
+    "text": "followed by a second pullback. Then this",
+    "start": 425.199,
+    "duration": 3.28
+  },
+  {
+    "text": "one looked pretty nice. Price broke",
+    "start": 426.96,
+    "duration": 3.2
+  },
+  {
+    "text": "through into the opening range and then",
+    "start": 428.479,
+    "duration": 3.12
+  },
+  {
+    "text": "it was rejected pretty strongly",
+    "start": 430.16,
+    "duration": 3.2
+  },
+  {
+    "text": "indicating that this has now turned into",
+    "start": 431.599,
+    "duration": 3.841
+  },
+  {
+    "text": "an area of support. My entry came at the",
+    "start": 433.36,
+    "duration": 4.0
+  },
+  {
+    "text": "break of that high. Stop loss down at",
+    "start": 435.44,
+    "duration": 3.36
+  },
+  {
+    "text": "the bottom of the range. And this trade",
+    "start": 437.36,
+    "duration": 2.959
+  },
+  {
+    "text": "did actually work out. It went in the",
+    "start": 438.8,
+    "duration": 2.959
+  },
+  {
+    "text": "right direction. So, this is a good",
+    "start": 440.319,
+    "duration": 3.521
+  },
+  {
+    "text": "example. But my original strategy that",
+    "start": 441.759,
+    "duration": 3.84
+  },
+  {
+    "text": "buys the breakout immediately would have",
+    "start": 443.84,
+    "duration": 3.359
+  },
+  {
+    "text": "entered around here because that's where",
+    "start": 445.599,
+    "duration": 3.44
+  },
+  {
+    "text": "the 15-minute candle would have closed.",
+    "start": 447.199,
+    "duration": 3.28
+  },
+  {
+    "text": "So, the entry level between the two",
+    "start": 449.039,
+    "duration": 3.681
+  },
+  {
+    "text": "strategies is practically identical. The",
+    "start": 450.479,
+    "duration": 4.081
+  },
+  {
+    "text": "whole point of this breakout pullback",
+    "start": 452.72,
+    "duration": 3.44
+  },
+  {
+    "text": "continuation is that I should get a",
+    "start": 454.56,
+    "duration": 3.199
+  },
+  {
+    "text": "better price than what I'm getting right",
+    "start": 456.16,
+    "duration": 3.28
+  },
+  {
+    "text": "now. So, maybe what I'm doing wrong is",
+    "start": 457.759,
+    "duration": 3.361
+  },
+  {
+    "text": "I'm waiting too long to get back into",
+    "start": 459.44,
+    "duration": 3.52
+  },
+  {
+    "text": "the trade. Instead, should I just place",
+    "start": 461.12,
+    "duration": 4.16
+  },
+  {
+    "text": "a stop order at the opening range? That",
+    "start": 462.96,
+    "duration": 4.0
+  },
+  {
+    "text": "way, when price hits it, I get in",
+    "start": 465.28,
+    "duration": 3.44
+  },
+  {
+    "text": "immediately for that bounce back up.",
+    "start": 466.96,
+    "duration": 3.6
+  },
+  {
+    "text": "Well, I tested that, too. This time, the",
+    "start": 468.72,
+    "duration": 3.28
+  },
+  {
+    "text": "stop loss is still at the bottom of the",
+    "start": 470.56,
+    "duration": 3.759
+  },
+  {
+    "text": "range. I have a 1.5 take profit, but now",
+    "start": 472.0,
+    "duration": 4.24
+  },
+  {
+    "text": "I'm using a stop order at the top of the",
+    "start": 474.319,
+    "duration": 3.681
+  },
+  {
+    "text": "orb. And the results here are even",
+    "start": 476.24,
+    "duration": 3.6
+  },
+  {
+    "text": "worse. Without the confirmation that",
+    "start": 478.0,
+    "duration": 3.68
+  },
+  {
+    "text": "price has made the pullback and is now",
+    "start": 479.84,
+    "duration": 3.68
+  },
+  {
+    "text": "continuing back up, I'm losing far more",
+    "start": 481.68,
+    "duration": 3.6
+  },
+  {
+    "text": "trades. And as a result, the performance",
+    "start": 483.52,
+    "duration": 3.44
+  },
+  {
+    "text": "is awful. But I wasn't ready to give up",
+    "start": 485.28,
+    "duration": 3.199
+  },
+  {
+    "text": "yet. I noticed something else in these",
+    "start": 486.96,
+    "duration": 3.28
+  },
+  {
+    "text": "examples, which is that when price came",
+    "start": 488.479,
+    "duration": 3.601
+  },
+  {
+    "text": "back down to the orb, quite often it",
+    "start": 490.24,
+    "duration": 3.519
+  },
+  {
+    "text": "actually moved quite far into it,",
+    "start": 492.08,
+    "duration": 3.519
+  },
+  {
+    "text": "somewhere around the halfway point",
+    "start": 493.759,
+    "duration": 3.761
+  },
+  {
+    "text": "before bouncing back up. So maybe it's",
+    "start": 495.599,
+    "duration": 3.6
+  },
+  {
+    "text": "not the high of the opening range that I",
+    "start": 497.52,
+    "duration": 3.119
+  },
+  {
+    "text": "should be focused on, but it's actually",
+    "start": 499.199,
+    "duration": 3.12
+  },
+  {
+    "text": "the midpoint. And this is what it would",
+    "start": 500.639,
+    "duration": 3.041
+  },
+  {
+    "text": "look like. I'm still measuring the",
+    "start": 502.319,
+    "duration": 2.88
+  },
+  {
+    "text": "breakout from the top of the opening",
+    "start": 503.68,
+    "duration": 3.68
+  },
+  {
+    "text": "range, but now a pullback down to the",
+    "start": 505.199,
+    "duration": 3.84
+  },
+  {
+    "text": "opening range isn't enough. I'm waiting",
+    "start": 507.36,
+    "duration": 3.44
+  },
+  {
+    "text": "for price to pull back all the way into",
+    "start": 509.039,
+    "duration": 3.521
+  },
+  {
+    "text": "this midpoint here, and that's where I'm",
+    "start": 510.8,
+    "duration": 3.44
+  },
+  {
+    "text": "going to buy with a stop order. I'm not",
+    "start": 512.56,
+    "duration": 3.279
+  },
+  {
+    "text": "looking for confirmation of a previous",
+    "start": 514.24,
+    "duration": 3.12
+  },
+  {
+    "text": "high being broken. I just enter",
+    "start": 515.839,
+    "duration": 3.44
+  },
+  {
+    "text": "immediately as it reaches the midpoint.",
+    "start": 517.36,
+    "duration": 3.679
+  },
+  {
+    "text": "I kept seeing this happen over and over",
+    "start": 519.279,
+    "duration": 3.921
+  },
+  {
+    "text": "again. Oftent times almost to the pip,",
+    "start": 521.039,
+    "duration": 4.001
+  },
+  {
+    "text": "the price would retrace back into that",
+    "start": 523.2,
+    "duration": 3.6
+  },
+  {
+    "text": "midpoint, bounce really strongly back",
+    "start": 525.04,
+    "duration": 3.68
+  },
+  {
+    "text": "up. The additional benefit here is that",
+    "start": 526.8,
+    "duration": 3.52
+  },
+  {
+    "text": "because I'm at the midpoint, my stop",
+    "start": 528.72,
+    "duration": 4.08
+  },
+  {
+    "text": "loss is far smaller. So, I don't need as",
+    "start": 530.32,
+    "duration": 4.24
+  },
+  {
+    "text": "much movement back up to get my one and",
+    "start": 532.8,
+    "duration": 3.84
+  },
+  {
+    "text": "a half times or I could aim for even",
+    "start": 534.56,
+    "duration": 4.0
+  },
+  {
+    "text": "more. I was excited about this one and I",
+    "start": 536.64,
+    "duration": 3.199
+  },
+  {
+    "text": "really thought I was on to something.",
+    "start": 538.56,
+    "duration": 2.8
+  },
+  {
+    "text": "So, then I tested it and this was the",
+    "start": 539.839,
+    "duration": 3.281
+  },
+  {
+    "text": "result. Somehow, this performed even",
+    "start": 541.36,
+    "duration": 3.52
+  },
+  {
+    "text": "worse than before. I guess it means that",
+    "start": 543.12,
+    "duration": 3.44
+  },
+  {
+    "text": "for every one trade where this worked",
+    "start": 544.88,
+    "duration": 3.04
+  },
+  {
+    "text": "out, there's probably plenty others",
+    "start": 546.56,
+    "duration": 2.959
+  },
+  {
+    "text": "where price just barreled all the way",
+    "start": 547.92,
+    "duration": 3.68
+  },
+  {
+    "text": "through, easily taking me out. By this",
+    "start": 549.519,
+    "duration": 4.081
+  },
+  {
+    "text": "point, I had spent many hours testing",
+    "start": 551.6,
+    "duration": 3.919
+  },
+  {
+    "text": "all these different variations, and none",
+    "start": 553.6,
+    "duration": 3.84
+  },
+  {
+    "text": "of them were showing profitable results.",
+    "start": 555.519,
+    "duration": 3.281
+  },
+  {
+    "text": "I didn't want to waste time on something",
+    "start": 557.44,
+    "duration": 3.04
+  },
+  {
+    "text": "that clearly wasn't working, so I",
+    "start": 558.8,
+    "duration": 3.2
+  },
+  {
+    "text": "decided to stop testing this any",
+    "start": 560.48,
+    "duration": 3.039
+  },
+  {
+    "text": "further. As disappointing as those",
+    "start": 562.0,
+    "duration": 3.36
+  },
+  {
+    "text": "results were, I think I know why they",
+    "start": 563.519,
+    "duration": 3.44
+  },
+  {
+    "text": "didn't work, and I have an idea on how",
+    "start": 565.36,
+    "duration": 3.36
+  },
+  {
+    "text": "to fix it. The first problem, I think,",
+    "start": 566.959,
+    "duration": 3.841
+  },
+  {
+    "text": "is that many of the screenshots that we",
+    "start": 568.72,
+    "duration": 3.84
+  },
+  {
+    "text": "see in all of these videos that promote",
+    "start": 570.8,
+    "duration": 3.44
+  },
+  {
+    "text": "the strategy are these perfect",
+    "start": 572.56,
+    "duration": 3.36
+  },
+  {
+    "text": "cherrypicked examples. They make the",
+    "start": 574.24,
+    "duration": 3.76
+  },
+  {
+    "text": "setup look really simple and reliable,",
+    "start": 575.92,
+    "duration": 3.599
+  },
+  {
+    "text": "but as I've shown, the majority of",
+    "start": 578.0,
+    "duration": 3.36
+  },
+  {
+    "text": "trades don't look like this at all. Most",
+    "start": 579.519,
+    "duration": 3.681
+  },
+  {
+    "text": "of the time, the breakout isn't all that",
+    "start": 581.36,
+    "duration": 4.08
+  },
+  {
+    "text": "clean, or the pullback is confirmed, but",
+    "start": 583.2,
+    "duration": 4.079
+  },
+  {
+    "text": "price moves the wrong way anyway. But I",
+    "start": 585.44,
+    "duration": 3.28
+  },
+  {
+    "text": "think most importantly, the best",
+    "start": 587.279,
+    "duration": 3.12
+  },
+  {
+    "text": "breakouts are the ones that have strong",
+    "start": 588.72,
+    "duration": 3.92
+  },
+  {
+    "text": "momentum, and they don't often pull back",
+    "start": 590.399,
+    "duration": 3.921
+  },
+  {
+    "text": "down to the opening range. They might",
+    "start": 592.64,
+    "duration": 3.36
+  },
+  {
+    "text": "have small corrections along the way,",
+    "start": 594.32,
+    "duration": 3.519
+  },
+  {
+    "text": "but nothing significant. This is an",
+    "start": 596.0,
+    "duration": 4.0
+  },
+  {
+    "text": "example of a real trade that my bot took",
+    "start": 597.839,
+    "duration": 3.921
+  },
+  {
+    "text": "and the entry was down here. As soon as",
+    "start": 600.0,
+    "duration": 3.36
+  },
+  {
+    "text": "the bot entered the trade, price just",
+    "start": 601.76,
+    "duration": 3.519
+  },
+  {
+    "text": "moved immediately towards the takerit.",
+    "start": 603.36,
+    "duration": 3.84
+  },
+  {
+    "text": "By sitting and waiting for a pullback,",
+    "start": 605.279,
+    "duration": 3.68
+  },
+  {
+    "text": "I'm essentially skipping out on the",
+    "start": 607.2,
+    "duration": 3.92
+  },
+  {
+    "text": "strongest breakouts, trading only those",
+    "start": 608.959,
+    "duration": 3.921
+  },
+  {
+    "text": "that were weak enough to come back down",
+    "start": 611.12,
+    "duration": 3.44
+  },
+  {
+    "text": "to the opening range. And I think that's",
+    "start": 612.88,
+    "duration": 3.6
+  },
+  {
+    "text": "the key reason my back test here failed.",
+    "start": 614.56,
+    "duration": 3.2
+  },
+  {
+    "text": "And this flips the whole thing with",
+    "start": 616.48,
+    "duration": 3.2
+  },
+  {
+    "text": "pullback and continuation on its head a",
+    "start": 617.76,
+    "duration": 3.36
+  },
+  {
+    "text": "little bit, at least in the context of",
+    "start": 619.68,
+    "duration": 3.2
+  },
+  {
+    "text": "the opening range. And this back test",
+    "start": 621.12,
+    "duration": 3.44
+  },
+  {
+    "text": "gave me another idea, which is actually",
+    "start": 622.88,
+    "duration": 3.6
+  },
+  {
+    "text": "to do the opposite of waiting for a",
+    "start": 624.56,
+    "duration": 3.92
+  },
+  {
+    "text": "pullback and instead focus on the",
+    "start": 626.48,
+    "duration": 4.16
+  },
+  {
+    "text": "momentum and the strength of the initial",
+    "start": 628.48,
+    "duration": 3.84
+  },
+  {
+    "text": "breakout to see if it's possible to",
+    "start": 630.64,
+    "duration": 3.6
+  },
+  {
+    "text": "avoid some of the fake outs and catch",
+    "start": 632.32,
+    "duration": 3.6
+  },
+  {
+    "text": "the strongest breakouts instead. I can",
+    "start": 634.24,
+    "duration": 3.44
+  },
+  {
+    "text": "do a back test on that idea. If you want",
+    "start": 635.92,
+    "duration": 3.28
+  },
+  {
+    "text": "me to make a video on it, then in the",
+    "start": 637.68,
+    "duration": 3.52
+  },
+  {
+    "text": "comments down below, type breakout back",
+    "start": 639.2,
+    "duration": 3.6
+  },
+  {
+    "text": "test to let me know that's something you",
+    "start": 641.2,
+    "duration": 2.96
+  },
+  {
+    "text": "guys want to see. And make sure to",
+    "start": 642.8,
+    "duration": 4.32
+  },
+  {
+    "text": "subscribe so you don't miss",
+    "start": 644.16,
+    "duration": 2.96
+  }
+]
