@@ -306,6 +306,10 @@ async def pending_ack(
 
 
 @router.get("/api/pending/count", response_class=PlainTextResponse)
-async def pending_count() -> str:
+async def pending_count(s: Settings = Depends(get_settings)) -> str:
+    # Mirror the Trade List page: expire stale plans first so the nav badge
+    # counts only live, actionable pending plans (not 4-day-old zombies).
+    await db_service.expire_stale_plans(
+        timeout_minutes=s.execution.stale_plan_timeout_minutes)
     n = await db_service.get_pending_count()
     return str(n)
