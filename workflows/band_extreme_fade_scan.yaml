@@ -1,0 +1,29 @@
+workflow_id: band_extreme_fade_scan
+description: >
+  Daily post-close scan for the Band Extreme Fade strategy (Bollinger 3-sigma mean reversion,
+  gated diversifier vs Fear-Dip at 0.54 corr, vs RSI Pullback at 0.22). Screens
+  liquid_momentum_core, runs only the band_extreme_fade detector, builds plans, queues to
+  /pending. Paper mode. active:false until in-app re-validation is reviewed.
+default_mode: paper
+schedule: "40 16 * * 1-5"   # 16:40 ET Mon-Fri
+
+steps:
+  - id: filter_universe
+    kind: filter_universe
+    params:
+      preset: liquid_momentum_core
+      shortlist_size: 500
+  - id: compute_macro
+    kind: compute_macro
+    depends_on: [filter_universe]
+  - id: analyze
+    kind: analyze
+    params:
+      strategy: band_extreme_fade
+      lenses: [technical, macro]
+    depends_on: [compute_macro]
+  - id: plan
+    kind: plan
+    params:
+      strategy: band_extreme_fade
+    depends_on: [analyze]

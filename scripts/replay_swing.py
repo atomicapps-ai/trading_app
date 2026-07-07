@@ -163,6 +163,34 @@ def _simulate(pattern, ei, entry, stop, tp2, h, l, c, sma50, n, breakeven_r=0.0)
             if h[j] >= tp2: return tp2, "TP", j
             if sma50[j] == sma50[j] and c[j] < sma50[j]: return float(c[j]), "TRAIL_50SMA", j
         return float(c[horizon - 1]), "TIME", horizon - 1
+    if pattern == "rsi_pullback":
+        # Connors exit: RSI(10) recovers above 40, or 10-bar time stop, else disaster stop.
+        cs = pd.Series(c); d = cs.diff()
+        up = d.clip(lower=0).ewm(alpha=1 / 10, adjust=False).mean()
+        dn = (-d).clip(lower=0).ewm(alpha=1 / 10, adjust=False).mean()
+        rsi10 = (100 - 100 / (1 + up / dn.replace(0, float("nan")))).fillna(50).values
+        horizon = min(ei + 10, n); eff = stop
+        for j in range(ei, horizon):
+            hit, eff = _hit_stop(j, eff)
+            if hit: return hit
+            if rsi10[j] > 40: return float(c[j]), "RSI_EXIT", j
+        return float(c[horizon - 1]), "TIME", horizon - 1
+    if pattern == "band_extreme_fade":
+        # Fade to the basis (tp2 = SMA20), swing stop, 30-bar time cap.
+        horizon = min(ei + 30, n); eff = stop
+        for j in range(ei, horizon):
+            hit, eff = _hit_stop(j, eff)
+            if hit: return hit
+            if h[j] >= tp2: return tp2, "TARGET", j
+        return float(c[horizon - 1]), "TIME", horizon - 1
+    if pattern == "hidden_divergence":
+        # Ride the trend: structural trail up to the prior-bar low; no fixed target.
+        horizon = min(ei + 60, n); eff = stop
+        for j in range(ei, horizon):
+            if j > ei and l[j - 1] > eff: eff = l[j - 1]           # trail up
+            if l[j] <= eff: return eff, ("TRAIL" if eff > stop else "STOP"), j
+            if be_trig is not None and h[j] >= be_trig and eff < entry: eff = entry
+        return float(c[horizon - 1]), "TIME", horizon - 1
     # s5_mean_reversion: stop / target=mean(tp2) / time 45
     horizon = min(ei + 45, n); eff = stop
     for j in range(ei, horizon):

@@ -1,0 +1,36 @@
+strategy_name: band_extreme_fade
+version: "1.0"
+description: >
+  Band Extreme Fade — Bollinger 3-sigma "Extreme Fade" mean reversion. Price stretches to 3 SD
+  below the 20-SMA, then closes back inside the 2-SD band (confirmation) → fade toward the basis
+  (20-SMA). Video-mined (FqxEKDxemtI); standalone daily-stock OOS PF 1.22-1.40, +0.14/+0.28R
+  (FX intraday fails — band-hugging). Correlation-gated DIVERSIFIER (0.54 vs Fear-Dip, only 0.22
+  vs RSI Pullback). active:false pending in-app re-validation.
+  See strategies/strategy_docs/BAND_EXTREME_FADE.md and strategies/STRATEGY_GRID.md.
+universe_filter_preset: liquid_momentum_core
+mode: paper
+active: false
+holding_period: swing_days
+
+detectors:
+  - band_extreme_fade
+
+min_signal_strength: 0.55
+
+portfolio_rules:
+  single_signal_override: 0.55
+  min_patterns_agreeing: 1
+  min_lenses_agreeing: 2
+  trail_mode: none            # target the basis (SMA20); swing stop; 30-bar time cap
+  time_stop_sessions: 30
+
+risk:
+  max_risk_pct_per_trade: 0.50
+  max_position_pct_of_equity: 8.0
+  min_rr_ratio: 1.0           # target is the mean, R:R varies with the stretch depth
+
+pattern_thresholds:
+  band_extreme_fade:
+    arm_lookback: 10
+    swing_lookback: 5
+    stop_buffer_atr: 0.1

@@ -1,0 +1,29 @@
+workflow_id: rsi_pullback_scan
+description: >
+  Daily post-close scan for the RSI Pullback strategy (Connors mean-reversion, gated diversifier
+  vs Fear-Dip at 0.40 corr). Screens liquid_momentum_core, runs only the rsi_pullback detector,
+  builds plans, queues to /pending for human approval. Paper mode. active:false on the strategy
+  until in-app re-validation is reviewed.
+default_mode: paper
+schedule: "35 16 * * 1-5"   # 16:35 ET Mon-Fri (staggered after macd at 16:30)
+
+steps:
+  - id: filter_universe
+    kind: filter_universe
+    params:
+      preset: liquid_momentum_core
+      shortlist_size: 500
+  - id: compute_macro
+    kind: compute_macro
+    depends_on: [filter_universe]
+  - id: analyze
+    kind: analyze
+    params:
+      strategy: rsi_pullback
+      lenses: [technical, macro]
+    depends_on: [compute_macro]
+  - id: plan
+    kind: plan
+    params:
+      strategy: rsi_pullback
+    depends_on: [analyze]

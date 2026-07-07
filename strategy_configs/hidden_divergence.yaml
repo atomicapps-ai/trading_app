@@ -1,0 +1,38 @@
+strategy_name: hidden_divergence
+version: "1.0"
+description: >
+  Hidden Divergence — RSI bullish hidden divergence trend continuation. In an uptrend
+  (close>200-EMA), price makes a higher-low while RSI(14) makes a lower-low, with a Stochastic
+  %K<45 confirmation; ride the continuation with a structural trailing stop. Video-mined
+  (9KVvwJHvcyE); standalone daily-stock OOS PF ~1.21, +0.06R. Correlation-gated as the CLEANEST
+  DIVERSIFIER in the book (<=0.24 correlated with every live strategy). active:false pending
+  in-app re-validation. See strategies/strategy_docs/HIDDEN_DIVERGENCE.md and STRATEGY_GRID.md.
+universe_filter_preset: liquid_momentum_core
+mode: paper
+active: false
+holding_period: swing_days
+
+detectors:
+  - hidden_divergence
+
+min_signal_strength: 0.55
+
+portfolio_rules:
+  single_signal_override: 0.55
+  min_patterns_agreeing: 1
+  min_lenses_agreeing: 2
+  trail_mode: structural       # ride the trend: trail up to the prior-bar low (handled in replay)
+  time_stop_sessions: 60
+
+risk:
+  max_risk_pct_per_trade: 0.50
+  max_position_pct_of_equity: 8.0
+  min_rr_ratio: 1.5
+
+pattern_thresholds:
+  hidden_divergence:
+    pivot_k: 3
+    max_pivot_gap: 40
+    stoch_max: 45
+    stop_buffer_atr: 0.1
+    trend_ema: 200

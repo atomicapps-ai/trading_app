@@ -1,0 +1,39 @@
+strategy_name: rsi_pullback
+version: "1.0"
+description: >
+  RSI Pullback (Larry Connors) — buy a shallow oversold dip inside an uptrend (close>SMA200,
+  RSI(10)<30), exit on the first RSI recovery (RSI(10)>40) or a 10-bar time stop. No fixed
+  target; the edge is the fast recovery exit (high win rate ~68%, small avg win). Video-mined
+  (W8ENIXvcGlQ); standalone OOS PF ~1.26-1.31, +0.10R. Correlation-gated DIVERSIFIER — only 0.40
+  correlated with the live Fear-Dip Reversion. active:false pending in-app re-validation.
+  See strategies/strategy_docs/RSI_PULLBACK.md and strategies/STRATEGY_GRID.md.
+universe_filter_preset: liquid_momentum_core
+mode: paper
+active: false
+holding_period: swing_days
+
+detectors:
+  - rsi_pullback
+
+min_signal_strength: 0.55
+
+portfolio_rules:
+  single_signal_override: 0.55
+  min_patterns_agreeing: 1
+  min_lenses_agreeing: 2
+  trail_mode: none            # exit is RSI-recovery / time stop (handled in replay/executioner)
+  time_stop_sessions: 10
+
+risk:
+  max_risk_pct_per_trade: 0.50
+  max_position_pct_of_equity: 8.0
+  min_rr_ratio: 1.0           # mean-reversion: no 2R target, disaster stop is wide
+
+pattern_thresholds:
+  rsi_pullback:
+    rsi_length: 10
+    rsi_entry: 30
+    rsi_exit: 40
+    stop_atr_mult: 3.0
+    time_stop_bars: 10
+    require_trend: true

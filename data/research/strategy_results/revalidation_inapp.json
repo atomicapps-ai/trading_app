@@ -1,0 +1,84 @@
+{
+  "n_symbols": 30,
+  "since": "2019-01-01",
+  "results": {
+    "rsi_pullback": {
+      "all": {
+        "n": 276,
+        "win_pct": 67.8,
+        "expectancy_R": 0.0456,
+        "profit_factor": 1.21
+      },
+      "in_sample": {
+        "n": 138,
+        "win_pct": 68.8,
+        "expectancy_R": 0.0348,
+        "profit_factor": 1.14
+      },
+      "out_sample": {
+        "n": 138,
+        "win_pct": 66.7,
+        "expectancy_R": 0.0564,
+        "profit_factor": 1.32
+      },
+      "random_control": {
+        "n": 276,
+        "win_pct": 56.2,
+        "expectancy_R": 0.0411,
+        "profit_factor": 1.19
+      }
+    },
+    "band_extreme_fade": {
+      "all": {
+        "n": 322,
+        "win_pct": 43.8,
+        "expectancy_R": 0.1998,
+        "profit_factor": 1.39
+      },
+      "in_sample": {
+        "n": 161,
+        "win_pct": 43.5,
+        "expectancy_R": 0.3306,
+        "profit_factor": 1.63
+      },
+      "out_sample": {
+        "n": 161,
+        "win_pct": 44.1,
+        "expectancy_R": 0.069,
+        "profit_factor": 1.14
+      },
+      "random_control": {
+        "n": 322,
+        "win_pct": 46.6,
+        "expectancy_R": 0.0785,
+        "profit_factor": 1.14
+      }
+    },
+    "hidden_divergence": {
+      "all": {
+        "n": 243,
+        "win_pct": 35.4,
+        "expectancy_R": 0.1239,
+        "profit_factor": 1.54
+      },
+      "in_sample": {
+        "n": 121,
+        "win_pct": 38.0,
+        "expectancy_R": 0.0359,
+        "profit_factor": 1.17
+      },
+      "out_sample": {
+        "n": 122,
+        "win_pct": 32.8,
+        "expectancy_R": 0.2112,
+        "profit_factor": 1.84
+      },
+      "random_control": {
+        "n": 243,
+        "win_pct": 49.0,
+        "expectancy_R": -0.0109,
+        "profit_factor": 0.96
+      }
+    }
+  }
+}

@@ -24,14 +24,17 @@ Remaining:
     the short paths inside the implemented reversal/continuation detectors
 """
 from agents.detectors.ascending_triangle import detect_ascending_descending_triangle
+from agents.detectors.band_extreme_fade import detect_band_extreme_fade
 from agents.detectors.bull_flag import detect_bull_flag
 from agents.detectors.coil_breakout import detect_coil_breakout
 from agents.detectors.cup_and_handle import detect_cup_and_handle
+from agents.detectors.hidden_divergence import detect_hidden_divergence
 from agents.detectors.double_bottom_top import detect_double_bottom_top
 from agents.detectors.double_lock_filtered import detect_double_lock_filtered
 from agents.detectors.inside_bar_nr7 import detect_inside_bar_nr7
 from agents.detectors.macd_run import detect_macd_run
 from agents.detectors.rsi_divergence import detect_rsi_divergence
+from agents.detectors.rsi_pullback import detect_rsi_pullback
 from agents.detectors.s5_mean_reversion import detect_s5_mean_reversion
 from agents.detectors.s7_breakout_continuation import detect_s7_breakout_continuation
 from agents.detectors.volatility_squeeze import detect_volatility_squeeze
@@ -58,6 +61,11 @@ ALL_DETECTORS = {
     "s5_mean_reversion": detect_s5_mean_reversion,
     "coil_breakout": detect_coil_breakout,
     "macd_run": detect_macd_run,
+    # Video-mined diversifiers (gated on correlation vs the live book) — active:false
+    # pending in-app re-validation. See strategies/STRATEGY_GRID.md.
+    "rsi_pullback": detect_rsi_pullback,
+    "band_extreme_fade": detect_band_extreme_fade,
+    "hidden_divergence": detect_hidden_divergence,
 }
 
 # Intraday detectors — different signature than ALL_DETECTORS. Each
@@ -72,14 +80,17 @@ __all__ = [
     "ALL_DETECTORS",
     "INTRADAY_DETECTORS",
     "detect_ascending_descending_triangle",
+    "detect_band_extreme_fade",
     "detect_bull_flag",
     "detect_coil_breakout",
     "detect_cup_and_handle",
     "detect_double_bottom_top",
     "detect_double_lock_filtered",
+    "detect_hidden_divergence",
     "detect_inside_bar_nr7",
     "detect_macd_run",
     "detect_rsi_divergence",
+    "detect_rsi_pullback",
     "detect_s5_mean_reversion",
     "detect_s7_breakout_continuation",
     "detect_volatility_squeeze",

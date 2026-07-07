@@ -26,6 +26,23 @@ Full rules + IS/OOS/control tables: `strategies/strategy_docs/S#_*.md` and
 Recurring lesson from the rig: **edge is payoff geometry (cut at structure, let winners
 run), not direction prediction.**
 
+### Candidate strategies — wired but `active: false` (video-mining run 2, 2026-07)
+Three video-mined diversifiers passed the standalone rig **and** the correlation gate
+(`scripts/strategy_correlation_gate.py`, max|corr| to the live book < 0.60), so they're wired
+end-to-end (detector + `strategy_configs/*.yaml` + `workflows/*_scan.yaml` + doc) but shipped
+**`active: false`** pending in-app re-validation + human review:
+| Candidate | Type | Standalone OOS | Corr → live | Note |
+|---|---|---|---|---|
+| `rsi_pullback` | daily mean-rev | PF 1.31 / 68% win | 0.40 (Fear-Dip) | Connors RSI(10)<30 in uptrend, exit on RSI>40/time |
+| `band_extreme_fade` | daily mean-rev | PF 1.22–1.40 | 0.54 (Fear-Dip) | Bollinger 3σ stretch → fade to basis; equities-only |
+| `hidden_divergence` | daily trend | PF 1.21 (borderline) | 0.24 (cleanest) | RSI hidden div + 200-EMA + stoch, ride the trend |
+
+Held (passes the gate but not wired): `ma_crossover` (20/50) — needs a survivorship-free /
+market-neutral re-test first. Parked as redundant: BB+RSI, 4-down-days, Turtle/Donchian,
+DEMA+SuperTrend (all > 0.6 corr to a live strategy). Full rationale + matrix:
+`strategies/STRATEGY_GRID.md` §"Video-mining run 2". **Nothing goes `active: true` without a
+human flipping the flag after reviewing the in-app OOS PF.**
+
 ### Subsystems added in the pivot (beyond the pre-pivot app)
 - **Strategy research/optimization**: `services/optimization_db.py`,
   `scripts/random_search.py`, `scripts/vector_analyze.py` (see the RESEARCH PIPELINE

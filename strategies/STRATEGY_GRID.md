@@ -27,6 +27,46 @@ Ranked by tuned out-of-sample expectancy. "Tuned" = after the attribution + hard
 over the period is the passive baseline. Both validated winners beat the control decisively; the
 marginal ones (3–5) barely clear it.
 
+## 🎬 Video-mining run 2 (2026-07) — correlation-gated promotions
+
+41 pending videos assessed → 4 new passes on the standalone rig. Rather than deploy all of them
+(the mean-rev/trend clusters overlap the live book), each was run through the **correlation gate**
+(`scripts/strategy_correlation_gate.py`): monthly summed-R series vs the live anchors; promote only
+if max|corr| to a live strategy < 0.60 with positive OOS PF; within-family dedup at 0.70.
+Matrix + verdicts: `data/research/strategy_results/correlation_gate.json`.
+
+| Strategy | Slug | Family | Standalone OOS PF | Max corr → live | Gate verdict |
+|---|---|---|---|---|---|
+| **RSI Pullback** (Connors) | `rsi_pullback` | mean-rev | 1.26–1.31 | 0.40 → Fear-Dip | ✅ **DIVERSIFIER — wired, active:false** |
+| **Band Extreme Fade** (BB 3σ) | `band_extreme_fade` | mean-rev | 1.22–1.40 | 0.54 → Fear-Dip | ✅ **DIVERSIFIER — wired, active:false** |
+| **Hidden Divergence** (RSI) | `hidden_divergence` | trend | 1.21 (borderline) | 0.24 → MACD-run | ✅ **DIVERSIFIER (cleanest) — wired, active:false** |
+| 20/50 MA crossover | `ma_crossover` | trend | 1.66 | 0.33 → Momentum | ⏸ **HELD** — passes gate but long-beta/survivorship-exposed; needs survivorship-free / market-neutral re-test before wiring |
+| BB(30,2)+RSI | (parked) | mean-rev | 1.25–1.28 | **0.73** → Fear-Dip | ⛔ redundant vs Fear-Dip |
+| 4-down-days reversion | (parked) | mean-rev | 1.39–1.42 | **0.72** → Fear-Dip | ⛔ redundant vs Fear-Dip |
+| Turtle / Donchian 55/20 | (parked) | trend | 1.40 | **0.71** → Momentum | ⛔ redundant (weaker cousin of Momentum Breakout) |
+| DEMA + SuperTrend | (parked) | trend | 1.32–1.38 | **0.63** → MACD (0.76 → Turtle) | ⛔ redundant |
+
+The two promoted mean-rev sleeves are only **0.22** correlated with *each other* → near-independent.
+Hidden Divergence is ≤0.24 correlated with the entire live book → the best diversifier found.
+The 3 promoted strategies are wired end-to-end (detector + config + workflow + doc) but shipped
+`active: false` pending in-app re-validation and a human review before any `active: true`.
+Already-live from earlier runs: `macd_run`, `coil_breakout`, `fvg_continuation` (3 of the 12
+passes were their sources).
+
+**In-app re-validation** (real detectors via `replay()`, confirmation sample 30 symbols /
+2019–2026; `scripts/revalidate_new_strategies.py` → `revalidation_inapp.json`):
+
+| Strategy | in-app OOS PF | avg-R | win% | vs control | read |
+|---|---|---|---|---|---|
+| `rsi_pullback` | **1.32** | +0.056 | 67% | 1.19 | ✅ confirms standalone (1.31) |
+| `hidden_divergence` | **1.84** | +0.211 | 33% | 0.96 | ✅ strong; trend-ride (low win / big winners) |
+| `band_extreme_fade` | 1.14 (IS 1.63) | +0.069 | 44% | 1.14 | ⚠️ marginal on small/recent sample — needs full-universe run before activation |
+
+NB: the confirmation is a *sample* (the per-bar detector is O(n²)/symbol, so a full-history /
+full-universe in-app run is slow). rsi_pullback and hidden_divergence reproduce (and exceed) the
+standalone edge; band_extreme_fade is marginal here and must clear a fuller in-app run before it's
+activated. None flips to `active: true` without a human review.
+
 ## ⚠️ Intraday FX / futures strategies — SHELVED (need intraday FX data we don't have)
 
 Specced and registered, but **not testable on daily stock bars** — their edge (if any) lives in
