@@ -1684,11 +1684,14 @@ input, select, textarea { font: inherit; color: inherit; }
 .color-swatch::-webkit-color-swatch-wrapper { padding: 2px; }
 .color-swatch::-webkit-color-swatch { border: none; border-radius: 4px; }
 
-@media (max-width: 768px) {
+/* Breakpoint is 1199px (not 768) because the desktop shell pins a 1200px
+   min-width; any viewport below that must use this single-column / drawer
+   layout, otherwise 769–1199px windows overflow with a horizontal scrollbar. */
+@media (max-width: 1199px) {
   :root { --content-pad: 16px 14px; }
 
   /* Single-column shell; kill the 1200px min-width that forced
-     desktop zoom-out on phones. Sidebar leaves the grid (fixed).
+     desktop zoom-out on narrow windows. Sidebar leaves the grid (fixed).
      minmax(0, 1fr) (not plain 1fr) stops a wide child's min-content
      from stretching the column past the viewport. */
   .app-shell {
