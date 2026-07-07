@@ -97,10 +97,25 @@ async def main() -> int:
     ap.add_argument("--md", action="store_true", help="Also write a Markdown report")
     args = ap.parse_args()
 
+    # Self-apply the schema migration (rename core_universe_100 -> core_universe,
+    # add is_core) so this works even if the app hasn't been restarted since the
+    # upgrade. Idempotent; safe against a shared Turso DB.
+    from services import db_service
+    await db_service.ensure_tables()
+
     if args.universe:
         preset = await universe_service.get_preset_db(args.universe)
     else:
         preset = await universe_service.get_core_universe()
+        # Fall back if no core is flagged yet (fresh/older DB).
+        if not preset:
+            for name in ("core_universe", "core_universe_100"):
+                preset = await universe_service.get_preset_db(name)
+                if preset:
+                    break
+        if not preset:
+            active = [p for p in await universe_service.list_presets_db() if p.get("is_active")]
+            preset = active[0] if active else None
     if not preset:
         print("no universe found (need a core universe or --universe NAME)")
         return 1
