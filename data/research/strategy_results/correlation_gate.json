@@ -1,0 +1,235 @@
+{
+  "n_symbols": 400,
+  "months": 242,
+  "threshold_vs_live": 0.6,
+  "fam_dedup_threshold": 0.7,
+  "corr_matrix": {
+    "LIVE:MomentumBreakout": {
+      "LIVE:MomentumBreakout": 1.0,
+      "LIVE:FearDip(50MAmr)": 0.28,
+      "LIVE:MACD_run": 0.54,
+      "cand:rsi_pullback(Connors)": 0.17,
+      "cand:band_extreme_fade(BB3SD)": 0.24,
+      "cand:band_rsi_reversion(BBRSI)": 0.17,
+      "cand:down_days_reversion(4red)": 0.26,
+      "cand:hidden_divergence": 0.16,
+      "cand:donchian_breakout(Turtle55/20)": 0.71,
+      "cand:supertrend_run(DEMA+ST)": 0.59,
+      "cand:ma_crossover(HELD)": 0.33
+    },
+    "LIVE:FearDip(50MAmr)": {
+      "LIVE:MomentumBreakout": 0.28,
+      "LIVE:FearDip(50MAmr)": 1.0,
+      "LIVE:MACD_run": 0.44,
+      "cand:rsi_pullback(Connors)": 0.4,
+      "cand:band_extreme_fade(BB3SD)": 0.54,
+      "cand:band_rsi_reversion(BBRSI)": 0.73,
+      "cand:down_days_reversion(4red)": 0.72,
+      "cand:hidden_divergence": 0.11,
+      "cand:donchian_breakout(Turtle55/20)": 0.29,
+      "cand:supertrend_run(DEMA+ST)": 0.42,
+      "cand:ma_crossover(HELD)": 0.29
+    },
+    "LIVE:MACD_run": {
+      "LIVE:MomentumBreakout": 0.54,
+      "LIVE:FearDip(50MAmr)": 0.44,
+      "LIVE:MACD_run": 1.0,
+      "cand:rsi_pullback(Connors)": 0.15,
+      "cand:band_extreme_fade(BB3SD)": 0.28,
+      "cand:band_rsi_reversion(BBRSI)": 0.23,
+      "cand:down_days_reversion(4red)": 0.32,
+      "cand:hidden_divergence": 0.24,
+      "cand:donchian_breakout(Turtle55/20)": 0.48,
+      "cand:supertrend_run(DEMA+ST)": 0.63,
+      "cand:ma_crossover(HELD)": 0.25
+    },
+    "cand:rsi_pullback(Connors)": {
+      "LIVE:MomentumBreakout": 0.17,
+      "LIVE:FearDip(50MAmr)": 0.4,
+      "LIVE:MACD_run": 0.15,
+      "cand:rsi_pullback(Connors)": 1.0,
+      "cand:band_extreme_fade(BB3SD)": 0.22,
+      "cand:band_rsi_reversion(BBRSI)": 0.48,
+      "cand:down_days_reversion(4red)": 0.54,
+      "cand:hidden_divergence": 0.07,
+      "cand:donchian_breakout(Turtle55/20)": 0.17,
+      "cand:supertrend_run(DEMA+ST)": 0.22,
+      "cand:ma_crossover(HELD)": 0.18
+    },
+    "cand:band_extreme_fade(BB3SD)": {
+      "LIVE:MomentumBreakout": 0.24,
+      "LIVE:FearDip(50MAmr)": 0.54,
+      "LIVE:MACD_run": 0.28,
+      "cand:rsi_pullback(Connors)": 0.22,
+      "cand:band_extreme_fade(BB3SD)": 1.0,
+      "cand:band_rsi_reversion(BBRSI)": 0.55,
+      "cand:down_days_reversion(4red)": 0.39,
+      "cand:hidden_divergence": 0.1,
+      "cand:donchian_breakout(Turtle55/20)": 0.24,
+      "cand:supertrend_run(DEMA+ST)": 0.24,
+      "cand:ma_crossover(HELD)": 0.18
+    },
+    "cand:band_rsi_reversion(BBRSI)": {
+      "LIVE:MomentumBreakout": 0.17,
+      "LIVE:FearDip(50MAmr)": 0.73,
+      "LIVE:MACD_run": 0.23,
+      "cand:rsi_pullback(Connors)": 0.48,
+      "cand:band_extreme_fade(BB3SD)": 0.55,
+      "cand:band_rsi_reversion(BBRSI)": 1.0,
+      "cand:down_days_reversion(4red)": 0.53,
+      "cand:hidden_divergence": 0.02,
+      "cand:donchian_breakout(Turtle55/20)": 0.18,
+      "cand:supertrend_run(DEMA+ST)": 0.25,
+      "cand:ma_crossover(HELD)": 0.15
+    },
+    "cand:down_days_reversion(4red)": {
+      "LIVE:MomentumBreakout": 0.26,
+      "LIVE:FearDip(50MAmr)": 0.72,
+      "LIVE:MACD_run": 0.32,
+      "cand:rsi_pullback(Connors)": 0.54,
+      "cand:band_extreme_fade(BB3SD)": 0.39,
+      "cand:band_rsi_reversion(BBRSI)": 0.53,
+      "cand:down_days_reversion(4red)": 1.0,
+      "cand:hidden_divergence": 0.16,
+      "cand:donchian_breakout(Turtle55/20)": 0.32,
+      "cand:supertrend_run(DEMA+ST)": 0.39,
+      "cand:ma_crossover(HELD)": 0.34
+    },
+    "cand:hidden_divergence": {
+      "LIVE:MomentumBreakout": 0.16,
+      "LIVE:FearDip(50MAmr)": 0.11,
+      "LIVE:MACD_run": 0.24,
+      "cand:rsi_pullback(Connors)": 0.07,
+      "cand:band_extreme_fade(BB3SD)": 0.1,
+      "cand:band_rsi_reversion(BBRSI)": 0.02,
+      "cand:down_days_reversion(4red)": 0.16,
+      "cand:hidden_divergence": 1.0,
+      "cand:donchian_breakout(Turtle55/20)": 0.15,
+      "cand:supertrend_run(DEMA+ST)": 0.19,
+      "cand:ma_crossover(HELD)": 0.05
+    },
+    "cand:donchian_breakout(Turtle55/20)": {
+      "LIVE:MomentumBreakout": 0.71,
+      "LIVE:FearDip(50MAmr)": 0.29,
+      "LIVE:MACD_run": 0.48,
+      "cand:rsi_pullback(Connors)": 0.17,
+      "cand:band_extreme_fade(BB3SD)": 0.24,
+      "cand:band_rsi_reversion(BBRSI)": 0.18,
+      "cand:down_days_reversion(4red)": 0.32,
+      "cand:hidden_divergence": 0.15,
+      "cand:donchian_breakout(Turtle55/20)": 1.0,
+      "cand:supertrend_run(DEMA+ST)": 0.76,
+      "cand:ma_crossover(HELD)": 0.64
+    },
+    "cand:supertrend_run(DEMA+ST)": {
+      "LIVE:MomentumBreakout": 0.59,
+      "LIVE:FearDip(50MAmr)": 0.42,
+      "LIVE:MACD_run": 0.63,
+      "cand:rsi_pullback(Connors)": 0.22,
+      "cand:band_extreme_fade(BB3SD)": 0.24,
+      "cand:band_rsi_reversion(BBRSI)": 0.25,
+      "cand:down_days_reversion(4red)": 0.39,
+      "cand:hidden_divergence": 0.19,
+      "cand:donchian_breakout(Turtle55/20)": 0.76,
+      "cand:supertrend_run(DEMA+ST)": 1.0,
+      "cand:ma_crossover(HELD)": 0.58
+    },
+    "cand:ma_crossover(HELD)": {
+      "LIVE:MomentumBreakout": 0.33,
+      "LIVE:FearDip(50MAmr)": 0.29,
+      "LIVE:MACD_run": 0.25,
+      "cand:rsi_pullback(Connors)": 0.18,
+      "cand:band_extreme_fade(BB3SD)": 0.18,
+      "cand:band_rsi_reversion(BBRSI)": 0.15,
+      "cand:down_days_reversion(4red)": 0.34,
+      "cand:hidden_divergence": 0.05,
+      "cand:donchian_breakout(Turtle55/20)": 0.64,
+      "cand:supertrend_run(DEMA+ST)": 0.58,
+      "cand:ma_crossover(HELD)": 1.0
+    }
+  },
+  "candidates": {
+    "cand:rsi_pullback(Connors)": {
+      "family": "meanrev",
+      "n_trades": 7635,
+      "oos_pf": 1.26,
+      "max_corr_to_live": 0.4,
+      "most_correlated_live": "LIVE:FearDip(50MAmr)",
+      "diversifies_live": true,
+      "family_dups_over_thresh": []
+    },
+    "cand:band_extreme_fade(BB3SD)": {
+      "family": "meanrev",
+      "n_trades": 4134,
+      "oos_pf": 1.42,
+      "max_corr_to_live": 0.54,
+      "most_correlated_live": "LIVE:FearDip(50MAmr)",
+      "diversifies_live": true,
+      "family_dups_over_thresh": []
+    },
+    "cand:band_rsi_reversion(BBRSI)": {
+      "family": "meanrev",
+      "n_trades": 6443,
+      "oos_pf": 1.28,
+      "max_corr_to_live": 0.73,
+      "most_correlated_live": "LIVE:FearDip(50MAmr)",
+      "diversifies_live": false,
+      "family_dups_over_thresh": []
+    },
+    "cand:down_days_reversion(4red)": {
+      "family": "meanrev",
+      "n_trades": 32442,
+      "oos_pf": 1.26,
+      "max_corr_to_live": 0.72,
+      "most_correlated_live": "LIVE:FearDip(50MAmr)",
+      "diversifies_live": false,
+      "family_dups_over_thresh": []
+    },
+    "cand:hidden_divergence": {
+      "family": "trend",
+      "n_trades": 6162,
+      "oos_pf": 1.34,
+      "max_corr_to_live": 0.24,
+      "most_correlated_live": "LIVE:MACD_run",
+      "diversifies_live": true,
+      "family_dups_over_thresh": []
+    },
+    "cand:donchian_breakout(Turtle55/20)": {
+      "family": "trend",
+      "n_trades": 14857,
+      "oos_pf": 1.39,
+      "max_corr_to_live": 0.71,
+      "most_correlated_live": "LIVE:MomentumBreakout",
+      "diversifies_live": false,
+      "family_dups_over_thresh": [
+        [
+          "cand:supertrend_run(DEMA+ST)",
+          0.76
+        ]
+      ]
+    },
+    "cand:supertrend_run(DEMA+ST)": {
+      "family": "trend",
+      "n_trades": 15074,
+      "oos_pf": 1.32,
+      "max_corr_to_live": 0.63,
+      "most_correlated_live": "LIVE:MACD_run",
+      "diversifies_live": false,
+      "family_dups_over_thresh": [
+        [
+          "cand:donchian_breakout(Turtle55/20)",
+          0.76
+        ]
+      ]
+    },
+    "cand:ma_crossover(HELD)": {
+      "family": "trend",
+      "n_trades": 17359,
+      "oos_pf": 1.68,
+      "max_corr_to_live": 0.33,
+      "most_correlated_live": "LIVE:MomentumBreakout",
+      "diversifies_live": true,
+      "family_dups_over_thresh": []
+    }
+  }
+}
