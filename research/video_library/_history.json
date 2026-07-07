@@ -527,7 +527,10 @@
     "processed_at": "2026-07-07T17:29:04.435307+00:00",
     "duration_s": 548,
     "frames": 6,
-    "transcript": true
+    "transcript": true,
+    "status": "passed",
+    "reason": "20/50 MA crossover trend-follow (exit on opposite cross). Daily stocks: OOS PF 1.66-1.67, +0.58R, n 20k, beats control 0.92, IS->OOS consistent. PASS by criteria but HEAVILY caveated: long-beta/survivorship exposed, needs survivorship-free/market-neutral re-test; candidate only.",
+    "retired_at": "2026-07-07T21:03:55.748754+00:00"
   },
   "DKohGRr18ZA": {
     "url": "https://www.youtube.com/watch?v=DKohGRr18ZA",
@@ -554,7 +557,10 @@
     "processed_at": "2026-07-07T17:31:02.535124+00:00",
     "duration_s": 1105,
     "frames": 12,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "3-step supply/demand (buy demand/sell supply), hand-drawn zones. Discretionary; s4_supply_demand kernel already marginal (PF ~1.04); 79% claim is hand-marked cherry-pick.",
+    "retired_at": "2026-07-07T21:02:18.563970+00:00"
   },
   "2GAAK_JhNW0": {
     "url": "https://www.youtube.com/watch?v=2GAAK_JhNW0",
@@ -571,14 +577,20 @@
     "processed_at": "2026-07-07T18:40:00.772652+00:00",
     "duration_s": 1068,
     "frames": 12,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Supply/demand sniper entries + zone refinement + MTF. Discretionary zones; mechanical analog s4_supply_demand already marginal (PF ~1.04).",
+    "retired_at": "2026-07-07T21:02:18.432793+00:00"
   },
   "gJOD8OSRSYE": {
     "url": "https://www.youtube.com/watch?v=gJOD8OSRSYE",
     "processed_at": "2026-07-07T18:41:35.609188+00:00",
     "duration_s": 1527,
     "frames": 17,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Two ways to identify trend (educational). No strategy spec; trend-following already covered by live momentum/macd/coil.",
+    "retired_at": "2026-07-07T21:02:18.291718+00:00"
   },
   "9azX4PfaW3A": {
     "url": "https://www.youtube.com/watch?v=9azX4PfaW3A",
@@ -622,7 +634,10 @@
     "processed_at": "2026-07-07T18:47:04.257792+00:00",
     "duration_s": 1124,
     "frames": 12,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "3-step prop-firm strategy = discretionary HTF daily bias + market structure shift. No numeric entry/stop/target; SMC framework. Trend-continuation already live.",
+    "retired_at": "2026-07-07T21:02:18.144358+00:00"
   },
   "uQP2z4OXMRo": {
     "url": "https://www.youtube.com/watch?v=uQP2z4OXMRo",

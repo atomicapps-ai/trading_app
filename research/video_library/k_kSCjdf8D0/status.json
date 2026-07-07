@@ -1,0 +1,6 @@
+{
+  "video_id": "k_kSCjdf8D0",
+  "status": "passed",
+  "reason": "20/50 MA crossover trend-follow (exit on opposite cross). Daily stocks: OOS PF 1.66-1.67, +0.58R, n 20k, beats control 0.92, IS->OOS consistent. PASS by criteria but HEAVILY caveated: long-beta/survivorship exposed, needs survivorship-free/market-neutral re-test; candidate only.",
+  "retired_at": "2026-07-07T21:03:55.748754+00:00"
+}
