@@ -462,15 +462,34 @@ def _fetch_symbol_ibkr_sync(symbol: str, interval: str = "30m",
 
     host = os.getenv("IBKR_HOST", "127.0.0.1")
     port = int(os.getenv("IBKR_PORT", "4002"))
-    client_id = int(os.getenv(
+    # Base client id; a fresh jittered id is used per connect so back-to-back
+    # symbol fetches don't collide on "clientId already in use" (Error 326)
+    # when the gateway hasn't released the previous id yet.
+    base_id = int(os.getenv(
         "IBKR_DATA_CLIENT_ID",
         str(int(os.getenv("IBKR_CLIENT_ID", "7")) + 20),
     ))
 
+    import random as _random
     ib = IB()
     frames: list[pd.DataFrame] = []
     try:
-        ib.connect(host, port, clientId=client_id, timeout=15)
+        _last_err: Exception | None = None
+        for _attempt in range(6):
+            client_id = base_id + _random.randint(0, 9000)
+            try:
+                ib.connect(host, port, clientId=client_id, timeout=15)
+                break
+            except Exception as _e:  # noqa: BLE001 — id-in-use / transient: retry fresh id
+                _last_err = _e
+                try:
+                    if ib.isConnected():
+                        ib.disconnect()
+                except Exception:  # noqa: BLE001
+                    pass
+                _time.sleep(2)
+        else:
+            raise RuntimeError(f"IBKR connect failed after retries: {_last_err}")
         if start:
             # Page backward from "now" in chunks until we cover `start`.
             start_ts = pd.Timestamp(start).tz_localize("UTC") if pd.Timestamp(start).tzinfo is None else pd.Timestamp(start)
