@@ -41,6 +41,7 @@ async def live_status(request: Request):
     equity = None
     cash = None
     day_pnl_usd = 0.0
+    open_pnl_usd = 0.0
     positions: list[dict] = []
     error: str | None = None
 
@@ -59,6 +60,9 @@ async def live_status(request: Request):
             # booked today), via AccountState.day_pnl_usd. Falls back to
             # realized+unrealized for brokers that don't report last_equity.
             day_pnl_usd = float(state.day_pnl_usd or 0.0)
+            # OPEN P&L = live unrealized across current open positions (the
+            # "how much am I up right now" number, independent of the day).
+            open_pnl_usd = float(state.unrealized_pnl_today or 0.0)
 
             # Pull the open-orders book once so we can hang TP/SL prices
             # off each position in a single broker call. Bracket orders
@@ -103,6 +107,7 @@ async def live_status(request: Request):
     # equity from unrealized) — we'll improve once Phase 6 trade journal
     # derivations land. For now this is a meaningful proxy.
     day_pnl_pct = (day_pnl_usd / equity * 100.0) if equity else 0.0
+    open_pnl_pct = (open_pnl_usd / equity * 100.0) if equity else 0.0
 
     return templates.TemplateResponse(
         request=request,
@@ -113,6 +118,8 @@ async def live_status(request: Request):
             "cash":         cash,
             "day_pnl_usd":  day_pnl_usd,
             "day_pnl_pct":  day_pnl_pct,
+            "open_pnl_usd": open_pnl_usd,
+            "open_pnl_pct": open_pnl_pct,
             "positions":    positions,
         },
     )
