@@ -12,7 +12,7 @@ Public: async replay(symbols, since, until, strategy, refresh=False, ignore_regi
 """
 from __future__ import annotations
 import copy
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 import pandas as pd
@@ -23,6 +23,39 @@ from services.indicator_service import add_indicators
 
 HIST = Path(__file__).resolve().parent.parent / "data" / "historical"
 _EMPTY = pd.DataFrame()
+
+# Indicator columns captured per candle for the analytics ledger (entry / exit
+# / worst-adverse candle). Whatever add_indicators produced that's in this list.
+_SNAP_COLS = [
+    "open", "high", "low", "close", "volume",
+    "rsi_14", "atr_14", "atr_14_pct", "adx_14",
+    "macd_line", "macd_signal", "macd_hist",
+    "sma_20", "sma_50", "sma_200", "ema_20",
+    "volume_ratio", "bb_width_20", "momentum", "vwap",
+]
+
+
+def _snapshot(dfi: pd.DataFrame, pos: int, mc: dict | None = None) -> dict:
+    """Indicator values on the candle at integer position `pos` — the analytics
+    row for entry / exit / stop review. Adds %-distance from the moving averages
+    and the regime context (SPY>200MA, VIX) when available."""
+    if pos < 0 or pos >= len(dfi):
+        return {}
+    row = dfi.iloc[pos]
+    snap: dict = {"date": dfi.index[pos].date().isoformat()}
+    for col in _SNAP_COLS:
+        if col in dfi.columns:
+            v = row[col]
+            snap[col] = None if pd.isna(v) else round(float(v), 4)
+    close = snap.get("close")
+    for m in ("sma_20", "sma_50", "sma_200", "vwap"):
+        mv = snap.get(m)
+        if mv and close:
+            snap[f"dist_{m}_pct"] = round((close / mv - 1) * 100, 2)
+    if mc:
+        snap["spy_above_sma200"] = mc.get("spy_above_sma200")
+        snap["vix"] = mc.get("vix")
+    return snap
 
 
 @dataclass
@@ -41,6 +74,15 @@ class SwingTrade:
     notes: str
     hold_days: int
     pnl_dollars_per_100shr: float
+    # Analytics (default so the History UI + older callers are unaffected).
+    entry_date: str = ""
+    exit_date: str = ""
+    pnl_r: float = 0.0            # realized reward/risk multiple
+    mfe_r: float = 0.0           # max favorable excursion (R) during the hold
+    mae_r: float = 0.0           # max adverse excursion (R) — how close to stop
+    entry_ind: dict = field(default_factory=dict)   # indicators on the entry candle
+    exit_ind: dict = field(default_factory=dict)    # indicators on the exit/stop candle
+    adverse_ind: dict = field(default_factory=dict)  # indicators on the worst candle
 
 
 def _load_daily(sym: str) -> pd.DataFrame | None:
@@ -116,7 +158,7 @@ def _note(r) -> str:
 
 
 async def replay(symbols, since, until, strategy="momentum_breakout",
-                 refresh=False, ignore_regime=False):
+                 refresh=False, ignore_regime=False, progress=None):
     if isinstance(since, str): since = date.fromisoformat(since)
     if isinstance(until, str): until = date.fromisoformat(until)
     cfg = copy.deepcopy(load_strategy_config(strategy))
@@ -129,7 +171,10 @@ async def replay(symbols, since, until, strategy="momentum_breakout",
     macro = _macro_by_date()
 
     trades: list[SwingTrade] = []
-    for sym in symbols:
+    total = len(symbols)
+    for si, sym in enumerate(symbols, 1):
+        if progress is not None:
+            progress(si, total, sym)
         df = _load_daily(sym)
         if df is None or len(df) < 210:
             continue
@@ -156,6 +201,15 @@ async def replay(symbols, since, until, strategy="momentum_breakout",
                 tp1 = float(r.tp1_price); tp2 = float(r.tp2_price)
                 exit_px, reason, xj = _simulate(nm, ei, entry, stop, tp2, h, l, c, sma50, n)
                 pnl = (exit_px - entry) / entry * 100.0 if entry else 0.0
+                # R-multiples + max favorable/adverse excursion over the hold.
+                risk = entry - stop
+                seg_l = l[ei:xj + 1]; seg_h = h[ei:xj + 1]
+                mae_off = int(seg_l.argmin()) if len(seg_l) else 0
+                mfe_off = int(seg_h.argmax()) if len(seg_h) else 0
+                pnl_r = (exit_px - entry) / risk if risk > 1e-9 else 0.0
+                mae_r = (float(seg_l[mae_off]) - entry) / risk if risk > 1e-9 and len(seg_l) else 0.0
+                mfe_r = (float(seg_h[mfe_off]) - entry) / risk if risk > 1e-9 and len(seg_h) else 0.0
+                x_mc = macro.get(idx[xj].normalize(), {})
                 trades.append(SwingTrade(
                     date_str=d.date().isoformat(), symbol=sym, direction="long",
                     entry=round(entry, 2), stop=round(stop, 2), tp=round(tp1, 2),
@@ -163,6 +217,12 @@ async def replay(symbols, since, until, strategy="momentum_breakout",
                     pnl_pct=round(pnl, 2), win=pnl > 0, pqs=r.pqs_total,
                     notes=_note(r), hold_days=xj - ei,
                     pnl_dollars_per_100shr=round((exit_px - entry) * 100, 2),
+                    entry_date=idx[ei].date().isoformat(),
+                    exit_date=idx[xj].date().isoformat(),
+                    pnl_r=round(pnl_r, 3), mfe_r=round(mfe_r, 3), mae_r=round(mae_r, 3),
+                    entry_ind=_snapshot(dfi, ei, mc),
+                    exit_ind=_snapshot(dfi, xj, x_mc),
+                    adverse_ind=_snapshot(dfi, ei + mae_off, None),
                 ))
                 i = xj + 1; continue
             i += 1

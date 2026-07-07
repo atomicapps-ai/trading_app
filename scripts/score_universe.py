@@ -72,6 +72,40 @@ def _metrics(trades: list) -> dict:
     }
 
 
+def _trade_dict(t, window: str) -> dict:
+    return {"symbol": t.symbol, "window": window, "signal_date": t.date_str,
+            "entry_date": t.entry_date, "exit_date": t.exit_date,
+            "direction": t.direction, "entry": t.entry, "stop": t.stop, "tp1": t.tp,
+            "exit_px": t.exit_px, "exit_reason": t.exit_reason,
+            "pnl_pct": t.pnl_pct, "pnl_r": t.pnl_r, "mfe_r": t.mfe_r, "mae_r": t.mae_r,
+            "win": t.win, "hold_days": t.hold_days, "pqs": t.pqs,
+            "entry_ind": t.entry_ind, "exit_ind": t.exit_ind, "adverse_ind": t.adverse_ind}
+
+
+def _persist(store, args, preset, cfg_hash, uni_hash, rows, is_trades, oos_trades) -> None:
+    import uuid
+    from datetime import datetime, timezone
+    run_id = str(uuid.uuid4())
+    created = datetime.now(timezone.utc).isoformat()
+    trades = [_trade_dict(t, "IS") for t in is_trades] + \
+             [_trade_dict(t, "OOS") for t in oos_trades]
+    scores = [{"symbol": r["sym"],
+               "is_n": r["is"]["n"], "is_pf": r["is"]["pf"], "is_wr": r["is"]["win_rate"],
+               "is_avg_r": r["is"]["avg_r"], "is_total_r": r["is"]["total_r"],
+               "oos_n": r["oos"]["n"], "oos_pf": r["oos"]["pf"], "oos_wr": r["oos"]["win_rate"],
+               "oos_avg_r": r["oos"]["avg_r"], "verdict": r["verdict"]} for r in rows]
+    agg = {"n_symbols": len(rows), "n_trades": len(trades),
+           "is_pf": None, "is_avg_r": None, "oos_pf": None, "oos_avg_r": None}
+    store.save_run(run_id=run_id, strategy=args.strategy, cfg_hash=cfg_hash,
+                   universe_name=preset["name"], uni_hash=uni_hash,
+                   is_since=args.is_since, split=args.split, until=args.until,
+                   created_at=created, agg=agg, trades=trades, scores=scores)
+    pruned = store.prune_old_runs(args.strategy, keep=args.keep)
+    print(f"✓ persisted run {run_id[:8]}: {len(trades)} trades + {len(scores)} symbol "
+          f"scores → data/backtest_cache.db"
+          + (f" (pruned {pruned} old)" if pruned else ""), flush=True)
+
+
 def _classify(is_m: dict, oos_m: dict, min_trades: int, pf_drop: float) -> str:
     if is_m["n"] < min_trades:
         return "THIN"
@@ -95,6 +129,12 @@ async def main() -> int:
     ap.add_argument("--pf-drop", type=float, default=1.0,
                     help="IS profit factor below this (and weak OOS) = dragger")
     ap.add_argument("--md", action="store_true", help="Also write a Markdown report")
+    ap.add_argument("--force", action="store_true",
+                    help="Re-run even if a cached run exists for this config")
+    ap.add_argument("--max-age-days", type=float, default=30.0,
+                    help="Reuse a cached run only if newer than this (default 30)")
+    ap.add_argument("--keep", type=int, default=3,
+                    help="Runs to keep per strategy before pruning older ones")
     args = ap.parse_args()
 
     # Self-apply the schema migration (rename core_universe_100 -> core_universe,
@@ -123,38 +163,77 @@ async def main() -> int:
     print(f"strategy: {args.strategy}   universe: {preset['name']} ({len(symbols)} symbols)")
     print(f"IS {args.is_since}→{args.split}   OOS {args.split}→{args.until}   "
           f"min_trades={args.min_trades}  pf_drop={args.pf_drop}")
-    print(f"replaying (this runs the real detector over {len(symbols)} symbols)…", flush=True)
 
-    is_trades = await replay(symbols, args.is_since, args.split, args.strategy)
-    oos_trades = await replay(symbols, args.split, args.until, args.strategy)
+    from services import backtest_store as store
+    cfg_hash = store.config_hash(args.strategy)
+    uni_hash = store.universe_hash(symbols)
 
-    by_sym_is: dict[str, list] = {}
-    by_sym_oos: dict[str, list] = {}
-    for t in is_trades:
-        by_sym_is.setdefault(t.symbol, []).append(t)
-    for t in oos_trades:
-        by_sym_oos.setdefault(t.symbol, []).append(t)
+    # ── Cache: reuse a stored run unless the strategy config or universe
+    # changed (hashes differ) or --force. Heavy backtests run once. ──
+    rows: list = []
+    cached_at = None
+    if not args.force:
+        cr = store.find_cached_run(args.strategy, cfg_hash, uni_hash, args.max_age_days)
+        if cr:
+            cached_at = cr["created_at"]
+            for s in store.get_scores(cr["run_id"]):
+                rows.append({"sym": s["symbol"],
+                             "is": {"n": s["is_n"], "pf": s["is_pf"], "win_rate": s["is_wr"],
+                                    "avg_r": s["is_avg_r"], "total_r": s["is_total_r"]},
+                             "oos": {"n": s["oos_n"], "pf": s["oos_pf"], "win_rate": s["oos_wr"],
+                                     "avg_r": s["oos_avg_r"], "total_r": 0.0},
+                             "verdict": s["verdict"]})
+            print(f"✓ cached run {cr['run_id'][:8]} from {cached_at[:19]} — "
+                  f"{cr['n_trades']} trades (use --force to re-run)", flush=True)
 
-    rows = []
-    for sym in symbols:
-        is_m = _metrics(by_sym_is.get(sym, []))
-        oos_m = _metrics(by_sym_oos.get(sym, []))
-        if is_m["n"] == 0 and oos_m["n"] == 0:
-            continue  # detector never fired for this symbol — not tradeable by it
-        verdict = _classify(is_m, oos_m, args.min_trades, args.pf_drop)
-        rows.append({"sym": sym, "is": is_m, "oos": oos_m, "verdict": verdict})
+    if not rows:
+        print(f"replaying real detector over {len(symbols)} symbols "
+              f"(cache miss — this is the heavy run)…", flush=True)
 
-    # Sort: draggers first (most negative IS total_R), then by IS PF descending.
+        def _prog(i, tot, sym):
+            if i % 25 == 0 or i == tot:
+                print(f"  … {i}/{tot} symbols", flush=True)
+
+        is_trades = await replay(symbols, args.is_since, args.split, args.strategy, progress=_prog)
+        print("  IS window done; running OOS…", flush=True)
+        oos_trades = await replay(symbols, args.split, args.until, args.strategy, progress=_prog)
+
+        by_sym_is: dict[str, list] = {}
+        by_sym_oos: dict[str, list] = {}
+        for t in is_trades:
+            by_sym_is.setdefault(t.symbol, []).append(t)
+        for t in oos_trades:
+            by_sym_oos.setdefault(t.symbol, []).append(t)
+
+        for sym in symbols:
+            is_m = _metrics(by_sym_is.get(sym, []))
+            oos_m = _metrics(by_sym_oos.get(sym, []))
+            if is_m["n"] == 0 and oos_m["n"] == 0:
+                continue
+            verdict = _classify(is_m, oos_m, args.min_trades, args.pf_drop)
+            rows.append({"sym": sym, "is": is_m, "oos": oos_m, "verdict": verdict})
+
+        # Persist the run: every trade (with indicator snapshots) + per-symbol
+        # scores, keyed by config/universe hash so we never re-run needlessly.
+        _persist(store, args, preset, cfg_hash, uni_hash, rows, is_trades, oos_trades)
+
     rows.sort(key=lambda r: (r["verdict"] != "DROP", -r["is"]["total_r"]))
-
-    def _agg(rs: list) -> dict:
-        allt = [t for r in rs for t in by_sym_is.get(r["sym"], [])]
-        return _metrics(allt)
-
     kept = [r for r in rows if r["verdict"] in ("KEEP", "THIN")]
     dropped = [r for r in rows if r["verdict"] == "DROP"]
-    before = _agg(rows)
-    after = _agg(kept)
+
+    def _agg_rows(rs: list) -> dict:
+        # Summary IS aggregate across per-symbol rows. PF is approximated from
+        # each symbol's net total_R (winners' R vs losers' R) — enough to show
+        # whether trimming draggers lifts the aggregate.
+        n = sum(r["is"]["n"] for r in rs)
+        tot = sum(r["is"]["total_r"] for r in rs)
+        pos = sum(r["is"]["total_r"] for r in rs if r["is"]["total_r"] > 0)
+        neg = abs(sum(r["is"]["total_r"] for r in rs if r["is"]["total_r"] < 0))
+        pf = pos / neg if neg > 1e-9 else (99.0 if pos > 0 else 0.0)
+        return {"pf": pf, "avg_r": (tot / n if n else 0.0), "total_r": tot, "n": int(n)}
+
+    before = _agg_rows(rows)
+    after = _agg_rows(kept)
 
     print("-" * 92)
     print(f"{'SYM':<7}{'verdict':<8}{'IS n':>5}{'IS PF':>7}{'IS WR':>7}{'IS avgR':>8}"
