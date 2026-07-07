@@ -58,7 +58,10 @@
     "processed_at": "2026-06-29T17:13:43.663887+00:00",
     "duration_s": 1044,
     "frames": 12,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "discretionary liquidity/stop-hunt concept + intraday day-trader clock; sweep-reversal kernel already tested marginal (4cT8WTyxhYY)",
+    "retired_at": "2026-07-07T07:45:04.214497+00:00"
   },
   "s4DSY3Y_N4Y": {
     "url": "https://www.youtube.com/watch?v=s4DSY3Y_N4Y",
@@ -115,7 +118,10 @@
     "processed_at": "2026-06-29T17:17:44.737771+00:00",
     "duration_s": 509,
     "frames": 6,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "supply/demand zone retest = s4; even with RR>=2.5 filter OOS PF 1.04 (below 1.2 bar); marginal",
+    "retired_at": "2026-07-07T07:42:48.845532+00:00"
   },
   "j8Q3MIwGYOk": {
     "url": "https://www.youtube.com/watch?v=j8Q3MIwGYOk",
@@ -239,7 +245,10 @@
     "processed_at": "2026-06-29T20:27:57.628076+00:00",
     "duration_s": 1496,
     "frames": 17,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "discretionary moving-average tactics (structure+MA, per-market EMA, MA+S/R+candle); forex, no single mechanical system",
+    "retired_at": "2026-07-07T07:44:26.332237+00:00"
   },
   "ADnslyKOwFE": {
     "url": "https://www.youtube.com/watch?v=ADnslyKOwFE",
@@ -320,7 +329,10 @@
     "processed_at": "2026-06-29T21:04:41.888231+00:00",
     "duration_s": 740,
     "frames": 8,
-    "transcript": true
+    "transcript": true,
+    "status": "passed",
+    "reason": "",
+    "retired_at": "2026-07-07T07:43:54.315095+00:00"
   },
   "YWBLKRLnrZ0": {
     "url": "https://www.youtube.com/watch?v=YWBLKRLnrZ0",

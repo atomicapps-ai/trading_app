@@ -1,0 +1,6 @@
+{
+  "video_id": "e-QmGJU1XYc",
+  "status": "rejected",
+  "reason": "supply/demand zone retest = s4; even with RR>=2.5 filter OOS PF 1.04 (below 1.2 bar); marginal",
+  "retired_at": "2026-07-07T07:42:48.845532+00:00"
+}
