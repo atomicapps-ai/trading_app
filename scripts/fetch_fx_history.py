@@ -12,8 +12,13 @@ Usage:
 """
 import argparse
 import asyncio
+import sys
+from pathlib import Path
 
-from services import hf_data_service as hf
+# Allow running by path (python scripts/fetch_fx_history.py), not just -m.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from services import hf_data_service as hf  # noqa: E402
 
 DEFAULT = ["EURUSD", "USDJPY", "EURJPY", "GBPJPY", "AUDJPY", "EURAUD",
            "EURCAD", "GBPUSD", "AUDUSD", "XAUUSD"]
