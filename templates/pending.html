@@ -121,7 +121,7 @@
         {% elif filter_status == 'all' %}All plans
         {% else %}Plans
         {% endif %}
-        <span class="badge badge-amber" style="margin-left: 6px;">{{ pending|length }}</span>
+        <span class="badge badge-amber" id="queue-count-badge" style="margin-left: 6px;">{{ pending|length }}</span>
       </span>
       <a href="/trades/new" class="btn btn-primary btn-sm" style="text-decoration:none;white-space:nowrap;">+ New Trade</a>
     </div>
@@ -138,11 +138,11 @@
       ] %}
       {% for key, label in tabs %}
         {% set n = status_counts.get(key, 0) %}
-        <a href="/pending?status={{ key }}"
+        <a href="/pending?status={{ key }}" data-tab-key="{{ key }}"
            class="badge {% if filter_status == key %}badge-amber{% else %}badge-gray{% endif %}"
            style="text-decoration: none; cursor: pointer;">
           {{ label }}
-          {% if n > 0 %}<span style="opacity: 0.7;">({{ n }})</span>{% endif %}
+          <span class="tab-count" style="opacity: 0.7;{% if n == 0 %}display:none;{% endif %}">({{ n }})</span>
         </a>
       {% endfor %}
     </div>
@@ -898,6 +898,44 @@
   })();
 
   // Approval action — confirm + POST /pending/{id}/ack, swap status pill.
+  // Current queue filter — cards only leave the list when we're viewing 'pending'.
+  const PENDING_FILTER = {{ filter_status|tojson }};
+
+  function _decCount(el) {
+    if (!el) return;
+    const n = parseInt((el.textContent || '').replace(/[()]/g, '').trim(), 10);
+    if (isNaN(n)) return;
+    const v = Math.max(0, n - 1);
+    if (el.classList.contains('tab-count')) {
+      el.textContent = '(' + v + ')';
+      el.style.display = v > 0 ? '' : 'none';
+    } else {
+      el.textContent = String(v);
+    }
+  }
+
+  // After a successful approve/reject the plan is no longer pending — update
+  // the queue in real time: drop its card, decrement the counts, and refresh
+  // the nav badge from the server (authoritative).
+  function onAckResolved(planId, action) {
+    const chk = document.querySelector('.bulk-check[data-plan-id="' + (window.CSS ? CSS.escape(planId) : planId) + '"]');
+    const card = chk ? chk.closest('.pending-card') : null;
+    if (card && PENDING_FILTER === 'pending') {
+      card.style.transition = 'opacity .18s ease';
+      card.style.opacity = '0';
+      setTimeout(() => card.remove(), 180);
+    }
+    _decCount(document.getElementById('queue-count-badge'));
+    _decCount(document.querySelector('[data-tab-key="pending"] .tab-count'));
+    fetch('/api/pending/count')
+      .then(r => r.text())
+      .then(t => {
+        const val = t.trim();
+        document.querySelectorAll('[id="pending-badge"]').forEach(b => { b.textContent = val; });
+      })
+      .catch(() => {});
+  }
+
   async function ackAction(planId, action) {
     const verb = { approve: 'approve', reject: 'reject' }[action];
     if (!verb) return;
@@ -912,6 +950,7 @@
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: `action=${encodeURIComponent(action)}`,
     });
+    const ok = r.ok;
     document.getElementById('ack-status').innerHTML = await r.text();
     // Any terminal ack locks the buttons so the user can't double-submit.
     disableApprove();
@@ -919,6 +958,8 @@
       const rej = document.querySelector('.btn.btn-danger');
       if (rej) rej.setAttribute('disabled', 'disabled');
     }
+    // On success, update the queue state live (card + counts + nav badge).
+    if (ok) onAckResolved(planId, action);
   }
 
   // Bulk approve/reject — checkboxes on the queue cards POST each selected plan
