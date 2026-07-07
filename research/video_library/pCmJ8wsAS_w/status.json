@@ -1,0 +1,6 @@
+{
+  "video_id": "pCmJ8wsAS_w",
+  "status": "passed",
+  "reason": "BB(30,2)+RSI(13) mean-rev PASS: OOS PF 1.25-1.28, avg-R +0.12, beats control; squeeze filter helps",
+  "retired_at": "2026-07-07T08:21:59.271763+00:00"
+}

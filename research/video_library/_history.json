@@ -4,7 +4,10 @@
     "processed_at": "2026-06-29T17:18:33.221063+00:00",
     "duration_s": 843,
     "frames": 9,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "forex JPY crosses, discretionary sentiment/correlation, multi-TF intraday sessions; out of scope",
+    "retired_at": "2026-07-07T08:19:33.531899+00:00"
   },
   "9F5NoQYFWYw": {
     "url": "https://www.youtube.com/watch?v=9F5NoQYFWYw",
@@ -155,7 +158,10 @@
     "processed_at": "2026-06-29T20:02:33.381787+00:00",
     "duration_s": 391,
     "frames": 4,
-    "transcript": true
+    "transcript": true,
+    "status": "passed",
+    "reason": "BB(30,2)+RSI(13) mean-rev PASS: OOS PF 1.25-1.28, avg-R +0.12, beats control; squeeze filter helps",
+    "retired_at": "2026-07-07T08:21:59.271763+00:00"
   },
   "OwvElpGjLKI": {
     "url": "https://www.youtube.com/watch?v=OwvElpGjLKI",
@@ -516,7 +522,10 @@
     "processed_at": "2026-07-07T07:58:25.108308+00:00",
     "duration_s": 684,
     "frames": 8,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "forex CAD/CHF 15m, Klinger volume oscillator fuzzy color-transition trigger + paid indicator; needs custom detector, out of scope",
+    "retired_at": "2026-07-07T08:22:51.074817+00:00"
   },
   "aenu7yUxTr8": {
     "url": "https://www.youtube.com/watch?v=aenu7yUxTr8",
@@ -574,7 +583,10 @@
     "processed_at": "2026-07-07T07:59:14.252835+00:00",
     "duration_s": 615,
     "frames": 7,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "gold XAUUSD intraday day-trading/scalping (15m/5m/1m sessions), discretionary highs/lows; out of scope",
+    "retired_at": "2026-07-07T08:23:24.527423+00:00"
   },
   "sYRCzSbvOpQ": {
     "url": "https://www.youtube.com/watch?v=sYRCzSbvOpQ",

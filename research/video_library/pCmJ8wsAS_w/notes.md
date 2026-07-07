@@ -1,21 +1,25 @@
-# pCmJ8wsAS_w — Bollinger Band + RSI mean reversion (TradingLab)
+# pCmJ8wsAS_w — "Bollinger Bands + RSI strategy" (mean reversion)
 
-Source: <https://www.youtube.com/watch?v=pCmJ8wsAS_w> · ~7 min, indicator combo, daily stocks.
+Source: <https://www.youtube.com/watch?v=pCmJ8wsAS_w>
 
-## Rules (mechanical)
-- Bollinger Bands length 30, 2σ; RSI length 13.
-- **Long**: close below lower band AND RSI < 25 → mean-revert to the middle band (SMA30).
-- Short: close above upper band AND RSI > 75 (we test long-only).
-- Avoid narrow/squeezed bands (sideways → falling-knife risk). Bonus: RSI bullish divergence.
+## Rules (mechanical) — daily (demoed on AAPL)
+- **Indicators:** Bollinger Bands length **30**, 2 SD; RSI length **13**.
+- **Long entry:** close below the lower band **AND** RSI < 25 → buy.
+- **Short entry:** close above the upper band AND RSI > 75 (mirror).
+- **Exit:** reversion to the mean (the middle band / 30-SMA).
+- **Crucial tip:** do NOT trade when the bands are narrow (a squeeze / sideways market) — those break out with momentum ("don't catch a falling knife"). Optional: RSI bullish divergence as extra confirmation.
 
-## Backtest (45 daily stocks, 10bps cost, long-only, stop 2×ATR, target = mid band, hold 20)
-| variant | OOS n | win% | exp | PF |
-|---|---|---|---|---|
-| base | 2044 | 50.9% | +0.137R | 1.30 |
-| uptrend-only (close>200MA) | 520 | 51.9% | +0.159R | 1.36 |
+## Backtest (strategy_suite rig, 955-symbol daily US-stock universe, 10bps, IS/OOS, random control)
+Long: close<lowerBB(30,2) & RSI(13)<25 → next open; target = 30-SMA (mean); stop = entry−2·ATR(14):
+| Variant | n | win% | OOS PF | OOS avg-R | Control PF |
+|---|---|---|---|---|---|
+| BB+RSI | 11,822 | 48% | 1.25 | +0.119 | 0.94 |
+| BB+RSI, skip squeezes | 11,613 | 48% | **1.28** | **+0.129** | 0.95 |
 
-## Verdict: ⚠️ MARGINAL — overlaps Fear-Dip Reversion
-Real, modest edge (best of the web-surfaced batch), but it's the **same oversold-mean-reversion
-family as the deployed Fear-Dip Reversion**, which is stronger (PF 1.68 base → 3.13 tuned). Not worth
-deploying as a separate strategy. Could be revisited by adding the fear-regime filter, but it would
-likely just converge toward what Fear-Dip already does. Status: keep note; not deployed.
+Script: `scripts/bt_bbrsi.py`; JSON: `data/research/strategy_results/bbrsi_video.json`.
+
+## Verdict: PASS
+The BB(30,2)+RSI(13) mean-reversion clears every bar: OOS profit factor **1.25** (base) and **1.28** with the video's own squeeze-avoidance filter, avg-R +0.12/+0.13 (>0), ~11.8k trades (>>100), and it beats its random-direction control (0.94–0.95). Notably it's the **first mean-reversion variant in this run to clear 1.2** — the tight double filter (band extreme AND RSI<25) is more selective/higher-quality than plain RSI-2 (1.13), single-MA pullbacks (~1.0) or supply/demand (1.04). The squeeze-avoidance tip is real signal (1.25→1.28), not noise.
+
+Note: validated *candidate* only. Distinct trigger from the live `fear_dip_reversion` (≥3×ATR below the 50-SMA) — more frequent, band-based. Whether to adopt (and correlation vs fear_dip_reversion) is a separate human decision. Nothing goes live from this run.
+Status: passed
