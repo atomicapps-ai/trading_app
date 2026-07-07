@@ -1,0 +1,89 @@
+{
+  "universe": "FX 10 pairs (9 majors + XAUUSD), both directions",
+  "results": {
+    "ema_stochrsi_15m": {
+      "all": {
+        "n": 25278,
+        "win_pct": 12.0,
+        "expectancy_R": -1.0631,
+        "profit_factor": 0.02,
+        "avg_win_R": 0.181,
+        "avg_loss_R": -1.232,
+        "max_dd_R": -26874.41,
+        "total_R": -26874.1
+      },
+      "in_sample": {
+        "n": 12639,
+        "win_pct": 10.9,
+        "expectancy_R": -1.0967,
+        "profit_factor": 0.02,
+        "avg_win_R": 0.154,
+        "avg_loss_R": -1.249,
+        "max_dd_R": -13861.17,
+        "total_R": -13860.9
+      },
+      "out_sample": {
+        "n": 12639,
+        "win_pct": 13.1,
+        "expectancy_R": -1.0296,
+        "profit_factor": 0.03,
+        "avg_win_R": 0.203,
+        "avg_loss_R": -1.215,
+        "max_dd_R": -13013.05,
+        "total_R": -13013.2
+      },
+      "random_control": {
+        "n": 25278,
+        "win_pct": 15.6,
+        "expectancy_R": -1.0515,
+        "profit_factor": 0.04,
+        "avg_win_R": 0.25,
+        "avg_loss_R": -1.292,
+        "max_dd_R": -26580.76,
+        "total_R": -26580.2
+      }
+    },
+    "ema_stochrsi_30m": {
+      "all": {
+        "n": 76217,
+        "win_pct": 37.2,
+        "expectancy_R": -0.5805,
+        "profit_factor": 0.12,
+        "avg_win_R": 0.222,
+        "avg_loss_R": -1.056,
+        "max_dd_R": -44240.41,
+        "total_R": -44240.5
+      },
+      "in_sample": {
+        "n": 38108,
+        "win_pct": 43.1,
+        "expectancy_R": -0.5036,
+        "profit_factor": 0.17,
+        "avg_win_R": 0.245,
+        "avg_loss_R": -1.071,
+        "max_dd_R": -19189.64,
+        "total_R": -19189.5
+      },
+      "out_sample": {
+        "n": 38109,
+        "win_pct": 31.4,
+        "expectancy_R": -0.6574,
+        "profit_factor": 0.08,
+        "avg_win_R": 0.19,
+        "avg_loss_R": -1.045,
+        "max_dd_R": -25051.85,
+        "total_R": -25051.0
+      },
+      "random_control": {
+        "n": 76217,
+        "win_pct": 35.0,
+        "expectancy_R": -0.5884,
+        "profit_factor": 0.16,
+        "avg_win_R": 0.324,
+        "avg_loss_R": -1.08,
+        "max_dd_R": -44848.7,
+        "total_R": -44848.2
+      }
+    }
+  }
+}

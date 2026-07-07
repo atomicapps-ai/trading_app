@@ -1,0 +1,6 @@
+{
+  "video_id": "7NM7bR2mL7U",
+  "status": "rejected",
+  "reason": "Triple-EMA(8/14/50)+StochRSI cross scalp, TP 2ATR/SL 3ATR. FX 11yr both dirs: OOS PF 0.03(15m)/0.08(30m), win 13-31% (needs >60%), avg-R deeply negative; even random control loses (payoff geometry structurally negative). Video 'won all 15' is cherry-picked.",
+  "retired_at": "2026-07-07T20:28:12.667382+00:00"
+}

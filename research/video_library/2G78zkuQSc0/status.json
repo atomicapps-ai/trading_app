@@ -1,0 +1,6 @@
+{
+  "video_id": "2G78zkuQSc0",
+  "status": "rejected",
+  "reason": "Heikin-Ashi+Stochastic reversal (doji + 2 HA candles); no exit specified. OOS PF 1.06 best (HA-flip exit), beats control 0.87 but < 1.2 bar; target variant coin-flip 0.99. Marginal.",
+  "retired_at": "2026-07-07T20:22:15.499288+00:00"
+}

@@ -543,7 +543,10 @@
     "processed_at": "2026-07-07T18:39:02.327719+00:00",
     "duration_s": 611,
     "frames": 7,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Fib golden-pocket (0.5-0.618) continuation, FX intraday. Mechanical proxy: win 11-18%, OOS PF 0.02-0.09 at/below random control -> no edge. Real entry is discretionary (candle patterns/engulfing); only 0.618 limit is mechanical. Matches prior marginal fib-50 (bQP6vLB7ius).",
+    "retired_at": "2026-07-07T20:31:10.240495+00:00"
   },
   "m-G1ag77aVc": {
     "url": "https://www.youtube.com/watch?v=m-G1ag77aVc",
@@ -571,7 +574,10 @@
     "processed_at": "2026-07-07T18:43:42.218748+00:00",
     "duration_s": 360,
     "frames": 4,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Heikin-Ashi+Stochastic reversal (doji + 2 HA candles); no exit specified. OOS PF 1.06 best (HA-flip exit), beats control 0.87 but < 1.2 bar; target variant coin-flip 0.99. Marginal.",
+    "retired_at": "2026-07-07T20:22:15.499288+00:00"
   },
   "9KVvwJHvcyE": {
     "url": "https://www.youtube.com/watch?v=9KVvwJHvcyE",
@@ -641,14 +647,20 @@
     "processed_at": "2026-07-07T18:53:12.321019+00:00",
     "duration_s": 715,
     "frames": 8,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Discretionary market-structure retest scalping (1H trend -> 5m break of structure -> wait for retest). No fixed entry/stop/target; hand-drawn levels. Not mechanizable.",
+    "retired_at": "2026-07-07T20:25:37.204339+00:00"
   },
   "7NM7bR2mL7U": {
     "url": "https://www.youtube.com/watch?v=7NM7bR2mL7U",
     "processed_at": "2026-07-07T18:53:49.773109+00:00",
     "duration_s": 575,
     "frames": 6,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Triple-EMA(8/14/50)+StochRSI cross scalp, TP 2ATR/SL 3ATR. FX 11yr both dirs: OOS PF 0.03(15m)/0.08(30m), win 13-31% (needs >60%), avg-R deeply negative; even random control loses (payoff geometry structurally negative). Video 'won all 15' is cherry-picked.",
+    "retired_at": "2026-07-07T20:28:12.667382+00:00"
   },
   "FqxEKDxemtI": {
     "url": "https://www.youtube.com/watch?v=FqxEKDxemtI",
@@ -991,7 +1003,10 @@
     "processed_at": "2026-07-07T18:58:02.028149+00:00",
     "duration_s": 862,
     "frames": 10,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "ICT/TTrades 'fractal model' multi-TF: daily bias + swing point at discretionary point-of-interest + candle closure on 5m. Entry/POI/confirmation all discretionary; only mechanical piece (daily-range-break continuation) is a bias filter already covered by live momentum_breakout/coil_breakout.",
+    "retired_at": "2026-07-07T20:32:13.072769+00:00"
   },
   "G29LbG1Xkvw": {
     "url": "https://www.youtube.com/watch?v=G29LbG1Xkvw",

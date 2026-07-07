@@ -1,0 +1,89 @@
+{
+  "n_symbols": 955,
+  "results": {
+    "heikin_base": {
+      "all": {
+        "n": 27664,
+        "win_pct": 37.0,
+        "expectancy_R": 0.0076,
+        "profit_factor": 1.01,
+        "avg_win_R": 1.838,
+        "avg_loss_R": -1.068,
+        "max_dd_R": -1246.94,
+        "total_R": 210.2
+      },
+      "in_sample": {
+        "n": 13832,
+        "win_pct": 37.6,
+        "expectancy_R": 0.0235,
+        "profit_factor": 1.04,
+        "avg_win_R": 1.837,
+        "avg_loss_R": -1.071,
+        "max_dd_R": -726.05,
+        "total_R": 324.6
+      },
+      "out_sample": {
+        "n": 13832,
+        "win_pct": 36.4,
+        "expectancy_R": -0.0083,
+        "profit_factor": 0.99,
+        "avg_win_R": 1.839,
+        "avg_loss_R": -1.066,
+        "max_dd_R": -1246.94,
+        "total_R": -114.4
+      },
+      "random_control": {
+        "n": 27664,
+        "win_pct": 49.7,
+        "expectancy_R": -0.0859,
+        "profit_factor": 0.88,
+        "avg_win_R": 1.256,
+        "avg_loss_R": -1.411,
+        "max_dd_R": -2437.11,
+        "total_R": -2376.4
+      }
+    },
+    "heikin_haflip": {
+      "all": {
+        "n": 27719,
+        "win_pct": 33.2,
+        "expectancy_R": 0.0372,
+        "profit_factor": 1.06,
+        "avg_win_R": 1.858,
+        "avg_loss_R": -0.87,
+        "max_dd_R": -1037.87,
+        "total_R": 1030.0
+      },
+      "in_sample": {
+        "n": 13859,
+        "win_pct": 34.3,
+        "expectancy_R": 0.0413,
+        "profit_factor": 1.07,
+        "avg_win_R": 1.784,
+        "avg_loss_R": -0.869,
+        "max_dd_R": -733.17,
+        "total_R": 572.0
+      },
+      "out_sample": {
+        "n": 13860,
+        "win_pct": 32.2,
+        "expectancy_R": 0.033,
+        "profit_factor": 1.06,
+        "avg_win_R": 1.938,
+        "avg_loss_R": -0.87,
+        "max_dd_R": -1037.87,
+        "total_R": 458.0
+      },
+      "random_control": {
+        "n": 27719,
+        "win_pct": 47.9,
+        "expectancy_R": -0.082,
+        "profit_factor": 0.87,
+        "avg_win_R": 1.143,
+        "avg_loss_R": -1.206,
+        "max_dd_R": -2296.42,
+        "total_R": -2273.0
+      }
+    }
+  }
+}
