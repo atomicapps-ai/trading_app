@@ -115,39 +115,59 @@ def _macro_by_date() -> dict:
     return out
 
 
-def _simulate(pattern, ei, entry, stop, tp2, h, l, c, sma50, n):
-    """Per-strategy forward exit. Returns (exit_px, reason, exit_index)."""
+def _simulate(pattern, ei, entry, stop, tp2, h, l, c, sma50, n, breakeven_r=0.0):
+    """Per-strategy forward exit. Returns (exit_px, reason, exit_index).
+
+    breakeven_r > 0 arms a breakeven stop: once a bar trades `breakeven_r` R in
+    favor, the stop is raised to entry for the rest of the trade (a STOP after
+    that point becomes a BE_STOP scratch). Armed at the END of the bar to avoid
+    intrabar look-ahead. This is the tunable behind the 'move the stop to
+    breakeven after +1R' hypothesis.
+    """
+    risk = entry - stop
+    be_trig = (entry + breakeven_r * risk) if (breakeven_r and risk > 0) else None
+
+    def _hit_stop(j, eff):
+        # STOP check + arm-breakeven-at-end. Returns (exit_tuple or None, new_eff).
+        if l[j] <= eff:
+            return (eff, "BE_STOP" if eff >= entry > stop else "STOP", j), eff
+        if be_trig is not None and h[j] >= be_trig and eff < entry:
+            eff = entry
+        return None, eff
+
     if pattern == "macd_run":
-        # let winners run: exit when MACD line crosses back below signal (or stop / 6R / time)
         cs = pd.Series(c)
         macd = cs.ewm(span=12, adjust=False).mean() - cs.ewm(span=26, adjust=False).mean()
         sig = macd.ewm(span=9, adjust=False).mean()
-        horizon = min(ei + 120, n)
+        horizon = min(ei + 120, n); eff = stop
         for j in range(ei, horizon):
-            if l[j] <= stop: return stop, "STOP", j
+            hit, eff = _hit_stop(j, eff)
+            if hit: return hit
             if h[j] >= tp2: return tp2, "TP", j
             if j > ei and macd.iloc[j] < sig.iloc[j] and macd.iloc[j - 1] >= sig.iloc[j - 1]:
                 return float(c[j]), "MACD_EXIT", j
         return float(c[horizon - 1]), "TIME", horizon - 1
     if pattern == "coil_breakout":
-        # validated exit: stop at range low, 3R fixed target, 120-bar horizon
         tgt = entry + 3.0 * (entry - stop)
-        horizon = min(ei + 120, n)
+        horizon = min(ei + 120, n); eff = stop
         for j in range(ei, horizon):
-            if l[j] <= stop: return stop, "STOP", j
+            hit, eff = _hit_stop(j, eff)
+            if hit: return hit
             if h[j] >= tgt: return tgt, "TP_3R", j
         return float(c[horizon - 1]), "TIME", horizon - 1
     if pattern == "s7_breakout_continuation":
-        horizon = min(ei + 120, n)
+        horizon = min(ei + 120, n); eff = stop
         for j in range(ei, horizon):
-            if l[j] <= stop: return stop, "STOP", j
+            hit, eff = _hit_stop(j, eff)
+            if hit: return hit
             if h[j] >= tp2: return tp2, "TP", j
             if sma50[j] == sma50[j] and c[j] < sma50[j]: return float(c[j]), "TRAIL_50SMA", j
         return float(c[horizon - 1]), "TIME", horizon - 1
     # s5_mean_reversion: stop / target=mean(tp2) / time 45
-    horizon = min(ei + 45, n)
+    horizon = min(ei + 45, n); eff = stop
     for j in range(ei, horizon):
-        if l[j] <= stop: return stop, "STOP", j
+        hit, eff = _hit_stop(j, eff)
+        if hit: return hit
         if h[j] >= tp2: return tp2, "TARGET", j
     return float(c[horizon - 1]), "TIME", horizon - 1
 
@@ -158,7 +178,7 @@ def _note(r) -> str:
 
 
 async def replay(symbols, since, until, strategy="momentum_breakout",
-                 refresh=False, ignore_regime=False, progress=None):
+                 refresh=False, ignore_regime=False, progress=None, overrides=None):
     if isinstance(since, str): since = date.fromisoformat(since)
     if isinstance(until, str): until = date.fromisoformat(until)
     cfg = copy.deepcopy(load_strategy_config(strategy))
@@ -166,8 +186,19 @@ async def replay(symbols, since, until, strategy="momentum_breakout",
         pt = cfg.setdefault("pattern_thresholds", {})
         pt.setdefault("s7_breakout_continuation", {})["require_breakout_volume"] = False
         pt.setdefault("s5_mean_reversion", {})["require_fear_regime"] = False
+    # Experiment overrides — patch the config in memory only (live YAML untouched).
+    # Top-level keys set directly; pattern_thresholds deep-merged per detector.
+    if overrides:
+        for k, v in overrides.items():
+            if k == "pattern_thresholds" and isinstance(v, dict):
+                pt = cfg.setdefault("pattern_thresholds", {})
+                for pk, pv in (v or {}).items():
+                    pt.setdefault(pk, {}).update(pv or {})
+            else:
+                cfg[k] = v
     wl = set(cfg.get("detectors") or [])
     dets = [(nm, fn) for nm, fn in ALL_DETECTORS.items() if (not wl or nm in wl)]
+    be_r = float(cfg.get("breakeven_after_r", 0.0) or 0.0)   # 0 = off
     macro = _macro_by_date()
 
     trades: list[SwingTrade] = []
@@ -199,7 +230,7 @@ async def replay(symbols, since, until, strategy="momentum_breakout",
                 nm, r = fired; ei = i + 1
                 entry = float(o[ei]); stop = float(r.stop_price)
                 tp1 = float(r.tp1_price); tp2 = float(r.tp2_price)
-                exit_px, reason, xj = _simulate(nm, ei, entry, stop, tp2, h, l, c, sma50, n)
+                exit_px, reason, xj = _simulate(nm, ei, entry, stop, tp2, h, l, c, sma50, n, be_r)
                 pnl = (exit_px - entry) / entry * 100.0 if entry else 0.0
                 # R-multiples + max favorable/adverse excursion over the hold.
                 risk = entry - stop
