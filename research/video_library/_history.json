@@ -24,7 +24,10 @@
     "processed_at": "2026-06-29T17:00:25.432492+00:00",
     "duration_s": 400,
     "frames": 4,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "discretionary mindset/commentary (pump-dump, 100-pip boxes, session timing); forex/futures intraday, no mechanical rules",
+    "retired_at": "2026-07-07T08:42:26.964608+00:00"
   },
   "bQP6vLB7ius": {
     "url": "https://www.youtube.com/watch?v=bQP6vLB7ius",
@@ -151,7 +154,10 @@
     "processed_at": "2026-06-29T17:18:59.221422+00:00",
     "duration_s": 817,
     "frames": 9,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "forex intraday discretionary concept (significant volume + unfilled gaps + HTF narrative); no complete mechanical system",
+    "retired_at": "2026-07-07T08:42:53.081886+00:00"
   },
   "pCmJ8wsAS_w": {
     "url": "https://www.youtube.com/watch?v=pCmJ8wsAS_w",
@@ -372,7 +378,10 @@
     "processed_at": "2026-06-29T21:05:12.714039+00:00",
     "duration_s": 574,
     "frames": 6,
-    "transcript": true
+    "transcript": true,
+    "status": "passed",
+    "reason": "source of live coil_breakout (range/coil contraction -> volume breakout); OOS PF 2.13",
+    "retired_at": "2026-07-07T08:43:34.773886+00:00"
   },
   "JL7HdUKRxfI": {
     "url": "https://www.youtube.com/watch?v=JL7HdUKRxfI",
@@ -479,7 +488,10 @@
     "processed_at": "2026-07-07T07:57:30.663836+00:00",
     "duration_s": 511,
     "frames": 6,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "London Breakout forex intraday session strategy (Asian range -> London open, 1h/30m); out of scope",
+    "retired_at": "2026-07-07T08:42:01.101946+00:00"
   },
   "g-PLctW8aU0": {
     "url": "https://www.youtube.com/watch?v=g-PLctW8aU0",
@@ -583,7 +595,10 @@
     "processed_at": "2026-07-07T07:58:51.282144+00:00",
     "duration_s": 647,
     "frames": 7,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "intraday 15m/5m ORB+pullback on ES/S&P; out of scope + author's own 5yr backtest found it unprofitable",
+    "retired_at": "2026-07-07T08:44:10.266469+00:00"
   },
   "ezFVU_rZgKk": {
     "url": "https://www.youtube.com/watch?v=ezFVU_rZgKk",

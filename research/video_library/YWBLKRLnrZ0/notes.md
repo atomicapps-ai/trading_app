@@ -28,4 +28,5 @@ Selective (only ~7 trades/symbol over 20y), high quality (OOS PF 2.13, win 55%, 
 coin-flip control (0.88), AND nearly uncorrelated with the existing book — so it adds a genuinely new, high-PF
 sleeve rather than overlapping Momentum Breakout. The volatility-contraction precondition (ATR10<ATR50) is what
 makes it selective and is the real edge. Recommend building it as the next paper strategy (ahead of MACD-run).
-Status: recommended for paper deployment (coil-breakout, 3R target).
+Update (this mining run): confirmed as the source of the live **`coil_breakout`** strategy — now deployed (active) in `strategy_configs/coil_breakout.yaml`, OOS PF ~2.13 / +0.42R, near-uncorrelated (0.14) with the breakout book. This is one of the run's strongest passes.
+Status: passed
