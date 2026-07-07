@@ -73,12 +73,8 @@ async def strategy_status(strategy: str) -> dict:
     cur_cfg = store.config_hash(strategy)
     cur_uni = store.universe_hash(symbols) if symbols else ""
 
-    import sqlite3
-    conn = sqlite3.connect(store.DB_PATH)
-    conn.row_factory = sqlite3.Row
+    conn = store._conn()  # runs schema + the kind-column migration
     try:
-        for stmt in store._SCHEMA:
-            conn.execute(stmt)
         row = conn.execute(
             "SELECT * FROM backtest_runs WHERE strategy=? AND kind='baseline' "
             "ORDER BY created_at DESC LIMIT 1", (strategy,),
@@ -120,7 +116,16 @@ async def strategy_status(strategy: str) -> dict:
 
 
 async def all_statuses() -> list[dict]:
-    return [await strategy_status(s) for s in STRATEGIES]
+    out = []
+    for s in STRATEGIES:
+        try:
+            out.append(await strategy_status(s))
+        except Exception as exc:  # noqa: BLE001 — one bad strategy must not 500 the page
+            out.append({"strategy": s, "status": "never_run", "universe": None,
+                        "universe_size": 0, "created_at": None, "n_symbols": None,
+                        "n_trades": None, "keep": None, "drop": None, "thin": None,
+                        "message": f"status error: {exc}"})
+    return out
 
 
 def _eff_hash(strategy: str, overrides: dict | None) -> str:
@@ -315,9 +320,7 @@ async def discard_thread(thread_id: str) -> dict:
 
 
 def _latest_run(strategy: str) -> dict | None:
-    import sqlite3
-    conn = sqlite3.connect(store.DB_PATH)
-    conn.row_factory = sqlite3.Row
+    conn = store._conn()  # runs schema + the kind-column migration
     try:
         r = conn.execute("SELECT * FROM backtest_runs WHERE strategy=? AND "
                          "kind='baseline' ORDER BY created_at DESC LIMIT 1",
