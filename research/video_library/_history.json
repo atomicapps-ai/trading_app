@@ -466,14 +466,20 @@
     "processed_at": "2026-07-07T17:26:48.434442+00:00",
     "duration_s": 565,
     "frames": 6,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Trendline continuation+breakout patterns. Discretionary line drawing; video admits touch needs extra discretionary confirmation. No deterministic rules.",
+    "retired_at": "2026-07-07T21:12:25.167364+00:00"
   },
   "zDfxBX38WZc": {
     "url": "https://www.youtube.com/watch?v=zDfxBX38WZc",
     "processed_at": "2026-07-07T17:27:03.712004+00:00",
     "duration_s": 1444,
     "frames": 16,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Reversal candlestick patterns education (whiteboard). Discretionary 'where to see them'; no fixed entry/stop/target. Isolated candles weak; mechanical reversal edges already live.",
+    "retired_at": "2026-07-07T21:12:25.287751+00:00"
   },
   "TUke1NybhrM": {
     "url": "https://www.youtube.com/watch?v=TUke1NybhrM",
@@ -630,7 +636,10 @@
     "processed_at": "2026-07-07T18:45:50.950071+00:00",
     "duration_s": 941,
     "frames": 10,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Trendlines masterclass (Tori Trades). Discretionary trendline drawing; same family as qLtq73bTPBA/FjxG1/G29/vzC. Break cousin already live (momentum/coil).",
+    "retired_at": "2026-07-07T21:12:25.044905+00:00"
   },
   "dE4lPhAWke8": {
     "url": "https://www.youtube.com/watch?v=dE4lPhAWke8",
@@ -1051,7 +1060,10 @@
     "processed_at": "2026-07-07T18:55:53.568801+00:00",
     "duration_s": 542,
     "frames": 6,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "3 swing strategies = buy support/sell resistance, catch-the-wave. Discretionary S/R levels, no numeric rules. Mechanical analogs already live.",
+    "retired_at": "2026-07-07T21:12:24.922375+00:00"
   },
   "W8ENIXvcGlQ": {
     "url": "https://www.youtube.com/watch?v=W8ENIXvcGlQ",
@@ -1098,7 +1110,10 @@
     "processed_at": "2026-07-07T18:59:15.367230+00:00",
     "duration_s": 268,
     "frames": 3,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Williams Fractals + 20/50/100 MA pullback (stacked MAs, pullback under 20/50, fractal-low trigger, stop below 50/100, 1.5R). Daily stocks: OOS PF 1.08 (1.5R)/1.11 (2R), positive avg-R, beats control 0.90 but below 1.2. Marginal.",
+    "retired_at": "2026-07-07T21:13:04.668558+00:00"
   },
   "LlHZil_7Ueg": {
     "url": "https://www.youtube.com/watch?v=LlHZil_7Ueg",
@@ -1135,7 +1150,10 @@
     "processed_at": "2026-07-07T19:03:11.573510+00:00",
     "duration_s": 654,
     "frames": 7,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Prop-firm swing-point strategy: mark hourly swing highs/lows + daily bias + NY open execution. Discretionary (same creator/format as dE4lPhAWke8). No numeric rules.",
+    "retired_at": "2026-07-07T21:12:24.814418+00:00"
   },
   "AlsXNhTm4AA": {
     "status": "rejected",
