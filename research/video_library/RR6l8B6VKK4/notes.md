@@ -1,12 +1,11 @@
-# RR6l8B6VKK4 — "True Trend Following (TTF) / trailing stops" (forex trend-follower)
+# RR6l8B6VKK4 — "Simple & Profitable Trend Following (TTF method)" (TraderNick)
 
-Source: <https://www.youtube.com/watch?v=RR6l8B6VKK4> · ~19 min.
+Source: <https://www.youtube.com/watch?v=RR6l8B6VKK4>
 
-## Rules (mechanical)
-- entry: buy "pullbacks" in a strong uptrend — no objective entry definition given; admits the entry is "one of the least important / most over-hyped" parts.
-- exit/stop/target: NO take-profit. Initial tight stop, then trail the stop manually below the most recent swing/structural support; exit only when price "breaks support." Trail tightens after each break of "key resistance."
-- filters/params: only trade markets that are "trending very beautifully"; skip choppy/sideways. Trend identification is by-eye plus fundamental catalysts. Win rate ~43%, loses more often than wins; edge comes from rare 15:1+ runners.
+## Rules (as described)
+- **"True Trend Following":** trade only strong trending markets (identified technically + often a fundamental catalyst); buy pullbacks with a tight stop; **no take-profit** — trail the stop aggressively below market structure (below support in an uptrend), exit only when support breaks. Let winners run for occasionally huge R (best trades ~15:1, ~3% of the time); ~43% win rate.
+- Instrument: forex (USD/JPY examples, pips/lots).
 
-## Verdict: 🟡 SHELVED-INTRADAY — forex instrument + discretionary structure
-The instrument is FX (USDJPY example, "pips," lots) which we have no data for, and the entry/trail logic relies on hand-judged swing support/resistance breaks — not mechanizable as stated. A plausible daily-stock analog (buy pullback in uptrend, no TP, chandelier/swing-low trailing stop, exit on structural break) is essentially a discretionary version of trend-following we already cover via the Momentum Breakout + trailing-stop concept; nothing novel and objective to extract.
-Status: shelved-intraday
+## Verdict: REJECT — forex + discretionary, no objective entry.
+The author explicitly de-emphasizes the entry ("one of the most over-hyped components," judgment-based) and identifies trends partly via fundamentals; the trailing exit is discretionary ("react to the market," trail below hand-picked structure). Forex, not daily US stocks. No codifiable trigger to backtest. The generic idea (trend + pullback + trail, let winners run) is already captured mechanically by the live breakout members (momentum_breakout) and the validated Turtle/SuperTrend passes. Nothing new or mechanical.
+Status: rejected

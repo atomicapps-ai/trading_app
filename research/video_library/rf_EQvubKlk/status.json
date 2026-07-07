@@ -1,0 +1,6 @@
+{
+  "video_id": "rf_EQvubKlk",
+  "status": "passed",
+  "reason": "matches live validated macd_run (MACD cross below zero + 200MA); OOS PF ~1.52",
+  "retired_at": "2026-07-07T08:33:30.109159+00:00"
+}
