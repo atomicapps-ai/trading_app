@@ -264,7 +264,10 @@
     "processed_at": "2026-06-29T20:26:44.286433+00:00",
     "duration_s": 503,
     "frames": 6,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "generic range breakout + momentum candle + chandelier trail; discretionary S/R; duplicate of validated breakout family (Turtle/coil/SuperTrend/momentum_breakout)",
+    "retired_at": "2026-07-07T08:45:00.381916+00:00"
   },
   "9JEmsSItdt4": {
     "url": "https://www.youtube.com/watch?v=9JEmsSItdt4",
