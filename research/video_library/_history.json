@@ -480,7 +480,10 @@
     "processed_at": "2026-07-07T17:27:45.210576+00:00",
     "duration_s": 907,
     "frames": 10,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Top-down multi-timeframe analysis framework + SMC. No entry/stop/target rule; meta-guidance. Out of scope.",
+    "retired_at": "2026-07-07T20:58:06.649598+00:00"
   },
   "APSkB4hP73M": {
     "url": "https://www.youtube.com/watch?v=APSkB4hP73M",
@@ -633,7 +636,10 @@
     "processed_at": "2026-07-07T18:48:37.551226+00:00",
     "duration_s": 883,
     "frames": 10,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Opening-range (first session candle) with breakout/retest/reversal entry models + confluences. ORB already explored (FHC-S1 failed, double_lock removed, 2-min ORB=coil_breakout); multi-model/discretionary, no single faithful spec.",
+    "retired_at": "2026-07-07T20:58:07.051594+00:00"
   },
   "v3w4RprB-8Q": {
     "url": "https://www.youtube.com/watch?v=v3w4RprB-8Q",
@@ -647,7 +653,10 @@
     "processed_at": "2026-07-07T18:50:00.067631+00:00",
     "duration_s": 1117,
     "frames": 12,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "4 gold strategies grab-bag led by ICT stop-hunt liquidity + supply/demand zone rejection. Discretionary zones/levels, no numeric rules; mechanical analogs already live.",
+    "retired_at": "2026-07-07T20:58:06.923191+00:00"
   },
   "DAnXM7C16h0": {
     "url": "https://www.youtube.com/watch?v=DAnXM7C16h0",
@@ -704,7 +713,10 @@
     "processed_at": "2026-07-07T18:55:19.961436+00:00",
     "duration_s": 631,
     "frames": 7,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Momentum-loss candlestick reversal at discretionary key S/R (shrinking candles + long wicks + doji). Discretionary anchor + fuzzy candle read; mean-rev cousin already live (fear_dip / BB-3SD).",
+    "retired_at": "2026-07-07T20:58:06.780299+00:00"
   },
   "0L6Rcgp6j7Y": {
     "status": "rejected",
@@ -1019,7 +1031,10 @@
     "processed_at": "2026-07-07T18:56:29.252123+00:00",
     "duration_s": 607,
     "frames": 7,
-    "transcript": true
+    "transcript": true,
+    "status": "passed",
+    "reason": "Larry Connors RSI-10 pullback (above 200SMA, RSI10<30 entry, exit RSI10>40 or 10-day time stop, no hard stop). Daily stocks: OOS PF 1.31, +0.10R, win 68%, IS 1.59->OOS 1.31, n 18k, beats control 0.90. PASS (candidate).",
+    "retired_at": "2026-07-07T20:58:52.591609+00:00"
   },
   "O5eC5lY7ZXY": {
     "url": "https://www.youtube.com/watch?v=O5eC5lY7ZXY",

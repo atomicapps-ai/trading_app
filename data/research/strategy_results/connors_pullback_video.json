@@ -1,0 +1,47 @@
+{
+  "n_symbols": 955,
+  "results": {
+    "connors_rsi10_pullback": {
+      "all": {
+        "n": 18358,
+        "win_pct": 69.0,
+        "expectancy_R": 0.1203,
+        "profit_factor": 1.43,
+        "avg_win_R": 0.581,
+        "avg_loss_R": -0.904,
+        "max_dd_R": -410.73,
+        "total_R": 2208.0
+      },
+      "in_sample": {
+        "n": 9179,
+        "win_pct": 69.7,
+        "expectancy_R": 0.1404,
+        "profit_factor": 1.59,
+        "avg_win_R": 0.542,
+        "avg_loss_R": -0.783,
+        "max_dd_R": -239.98,
+        "total_R": 1289.2
+      },
+      "out_sample": {
+        "n": 9179,
+        "win_pct": 68.3,
+        "expectancy_R": 0.1001,
+        "profit_factor": 1.31,
+        "avg_win_R": 0.62,
+        "avg_loss_R": -1.02,
+        "max_dd_R": -410.73,
+        "total_R": 918.8
+      },
+      "random_control": {
+        "n": 18358,
+        "win_pct": 48.3,
+        "expectancy_R": -0.0375,
+        "profit_factor": 0.9,
+        "avg_win_R": 0.684,
+        "avg_loss_R": -0.711,
+        "max_dd_R": -693.09,
+        "total_R": -687.7
+      }
+    }
+  }
+}
