@@ -1,0 +1,6 @@
+{
+  "video_id": "qcFpcTAzWXQ",
+  "status": "rejected",
+  "reason": "intraday 30-min ORB break-and-retest (5m entries, NQ futures, 9:30-11 window); out of scope",
+  "retired_at": "2026-07-07T08:26:04.206782+00:00"
+}

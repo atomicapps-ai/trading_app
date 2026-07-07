@@ -205,7 +205,10 @@
     "processed_at": "2026-06-29T20:05:10.350835+00:00",
     "duration_s": 562,
     "frames": 6,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "discretionary pullback-to-level (S/R/trendline/MA + engulfing/counter-trendline); duplicate of cKKLujAdvzk; kernel break-even",
+    "retired_at": "2026-07-07T08:29:14.577792+00:00"
   },
   "n-SEsjdZaMo": {
     "url": "https://www.youtube.com/watch?v=n-SEsjdZaMo",
@@ -491,14 +494,20 @@
     "processed_at": "2026-07-07T07:57:53.025771+00:00",
     "duration_s": 1046,
     "frames": 12,
-    "transcript": true
+    "transcript": true,
+    "status": "passed",
+    "reason": "4-down-days mean-rev PASS: OOS PF 1.39-1.42 (MA/time exits), avg-R +0.09/+0.14, beats control",
+    "retired_at": "2026-07-07T08:28:33.904841+00:00"
   },
   "r7gzyEnPTwg": {
     "url": "https://www.youtube.com/watch?v=r7gzyEnPTwg",
     "processed_at": "2026-07-07T07:57:58.742506+00:00",
     "duration_s": 453,
     "frames": 5,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Donchian channel breakout = same family already PASSED via Turtle (2ElrQnn2cZE, OOS PF 1.40); duplicate",
+    "retired_at": "2026-07-07T08:29:58.269504+00:00"
   },
   "1FdgVZX55AY": {
     "url": "https://www.youtube.com/watch?v=1FdgVZX55AY",
@@ -594,5 +603,124 @@
     "duration_s": 1406,
     "frames": 16,
     "transcript": true
+  },
+  "eK2yatANcNU": {
+    "url": "https://www.youtube.com/watch?v=eK2yatANcNU",
+    "processed_at": "2026-07-07T08:24:31.454710+00:00",
+    "duration_s": 0,
+    "frames": 0,
+    "transcript": false
+  },
+  "0kJ_fWP5fKU": {
+    "url": "https://www.youtube.com/watch?v=0kJ_fWP5fKU",
+    "processed_at": "2026-07-07T08:24:37.549899+00:00",
+    "duration_s": 0,
+    "frames": 0,
+    "transcript": false
+  },
+  "R5paDQRdk0c": {
+    "url": "https://www.youtube.com/watch?v=R5paDQRdk0c",
+    "processed_at": "2026-07-07T08:24:44.182927+00:00",
+    "duration_s": 0,
+    "frames": 0,
+    "transcript": false
+  },
+  "hVpKSBUp4zk": {
+    "url": "https://www.youtube.com/watch?v=hVpKSBUp4zk",
+    "processed_at": "2026-07-07T08:24:50.001704+00:00",
+    "duration_s": 0,
+    "frames": 0,
+    "transcript": false
+  },
+  "FdU3q1wspbk": {
+    "url": "https://www.youtube.com/watch?v=FdU3q1wspbk",
+    "processed_at": "2026-07-07T08:24:56.338539+00:00",
+    "duration_s": 0,
+    "frames": 0,
+    "transcript": false
+  },
+  "YFzlBQCeynQ": {
+    "url": "https://www.youtube.com/watch?v=YFzlBQCeynQ",
+    "processed_at": "2026-07-07T08:25:02.315086+00:00",
+    "duration_s": 0,
+    "frames": 0,
+    "transcript": false
+  },
+  "j1qjX0Zxpd0": {
+    "url": "https://www.youtube.com/watch?v=j1qjX0Zxpd0",
+    "processed_at": "2026-07-07T08:25:08.910826+00:00",
+    "duration_s": 0,
+    "frames": 0,
+    "transcript": false
+  },
+  "8EmDCJUgnrw": {
+    "url": "https://www.youtube.com/watch?v=8EmDCJUgnrw",
+    "processed_at": "2026-07-07T08:25:14.919016+00:00",
+    "duration_s": 0,
+    "frames": 0,
+    "transcript": false
+  },
+  "OKl208tuiIs": {
+    "url": "https://www.youtube.com/watch?v=OKl208tuiIs",
+    "processed_at": "2026-07-07T08:25:21.300185+00:00",
+    "duration_s": 0,
+    "frames": 0,
+    "transcript": false
+  },
+  "c9-SIpy3dEw": {
+    "url": "https://www.youtube.com/watch?v=c9-SIpy3dEw",
+    "processed_at": "2026-07-07T08:25:27.565188+00:00",
+    "duration_s": 0,
+    "frames": 0,
+    "transcript": false
+  },
+  "LsLv-m1AAK4": {
+    "url": "https://www.youtube.com/watch?v=LsLv-m1AAK4",
+    "processed_at": "2026-07-07T08:25:34.469375+00:00",
+    "duration_s": 0,
+    "frames": 0,
+    "transcript": false
+  },
+  "8P9BHSVD_vI": {
+    "url": "https://www.youtube.com/watch?v=8P9BHSVD_vI",
+    "processed_at": "2026-07-07T08:25:40.834160+00:00",
+    "duration_s": 0,
+    "frames": 0,
+    "transcript": false
+  },
+  "gX8FjjKR7ec": {
+    "url": "https://www.youtube.com/watch?v=gX8FjjKR7ec",
+    "processed_at": "2026-07-07T08:25:47.733827+00:00",
+    "duration_s": 0,
+    "frames": 0,
+    "transcript": false
+  },
+  "NojfYk31_xI": {
+    "url": "https://www.youtube.com/watch?v=NojfYk31_xI",
+    "processed_at": "2026-07-07T08:25:54.376806+00:00",
+    "duration_s": 0,
+    "frames": 0,
+    "transcript": false
+  },
+  "6NWcKpupjJo": {
+    "url": "https://www.youtube.com/watch?v=6NWcKpupjJo",
+    "processed_at": "2026-07-07T08:26:00.812293+00:00",
+    "duration_s": 0,
+    "frames": 0,
+    "transcript": false
+  },
+  "9nefht65xxE": {
+    "url": "https://www.youtube.com/watch?v=9nefht65xxE",
+    "processed_at": "2026-07-07T08:26:07.398758+00:00",
+    "duration_s": 0,
+    "frames": 0,
+    "transcript": false
+  },
+  "H-2T8Uh7Nfw": {
+    "url": "https://www.youtube.com/watch?v=H-2T8Uh7Nfw",
+    "processed_at": "2026-07-07T08:26:13.637537+00:00",
+    "duration_s": 0,
+    "frames": 0,
+    "transcript": false
   }
 }
