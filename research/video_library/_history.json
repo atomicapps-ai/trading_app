@@ -528,7 +528,10 @@
     "processed_at": "2026-07-07T17:29:49.205918+00:00",
     "duration_s": 462,
     "frames": 5,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "S/R range breakout + momentum-candle confirmation + optional retest. Discretionary levels; kernel already live as momentum_breakout (vol confirm) / coil_breakout (expansion thrust).",
+    "retired_at": "2026-07-07T20:46:38.322273+00:00"
   },
   "R3T1zRyZdMc": {
     "url": "https://www.youtube.com/watch?v=R3T1zRyZdMc",
@@ -645,14 +648,20 @@
     "processed_at": "2026-07-07T18:51:40.276033+00:00",
     "duration_s": 6575,
     "frames": 73,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "110-min Chart Fanatics liquidity interview/live stream. Discretionary ICT liquidity concept, no numeric entry/stop/target. Covered by marginal sweep-reversal / live fvg_continuation.",
+    "retired_at": "2026-07-07T20:46:38.190753+00:00"
   },
   "FjxG1-dGzyU": {
     "url": "https://www.youtube.com/watch?v=FjxG1-dGzyU",
     "processed_at": "2026-07-07T18:52:27.785183+00:00",
     "duration_s": 927,
     "frames": 10,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Trendline break + confirmation (Point C). Trendline drawing inherently discretionary; no deterministic entry/stop/target. Mechanizable cousin already live as momentum/coil breakout.",
+    "retired_at": "2026-07-07T20:46:38.442306+00:00"
   },
   "8LQsR7B2vQ0": {
     "url": "https://www.youtube.com/watch?v=8LQsR7B2vQ0",
@@ -679,7 +688,10 @@
     "processed_at": "2026-07-07T18:54:43.454653+00:00",
     "duration_s": 881,
     "frames": 10,
-    "transcript": true
+    "transcript": true,
+    "status": "passed",
+    "reason": "BB 3SD 'Extreme Fade' mean-reversion. Daily stocks long: OOS PF 1.22 (target=mean) to 1.40 (target=opp band), avg-R +0.14/+0.28, IS 1.34/1.70->OOS holds, n 9.8k, beats control 0.78-0.82. FX intraday fails (band-hugging, as author warns). PASS on equities (candidate).",
+    "retired_at": "2026-07-07T20:47:47.678827+00:00"
   },
   "VXahxp3hNQg": {
     "url": "https://www.youtube.com/watch?v=VXahxp3hNQg",
@@ -1025,7 +1037,10 @@
     "processed_at": "2026-07-07T18:58:42.981265+00:00",
     "duration_s": 463,
     "frames": 5,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Trendline-break fakeout avoidance; conceptual + discretionary trendline. No numeric rules.",
+    "retired_at": "2026-07-07T20:46:38.566955+00:00"
   },
   "bKPs2aOsvsk": {
     "url": "https://www.youtube.com/watch?v=bKPs2aOsvsk",

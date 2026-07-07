@@ -1,0 +1,6 @@
+{
+  "video_id": "FqxEKDxemtI",
+  "status": "passed",
+  "reason": "BB 3SD 'Extreme Fade' mean-reversion. Daily stocks long: OOS PF 1.22 (target=mean) to 1.40 (target=opp band), avg-R +0.14/+0.28, IS 1.34/1.70->OOS holds, n 9.8k, beats control 0.78-0.82. FX intraday fails (band-hugging, as author warns). PASS on equities (candidate).",
+  "retired_at": "2026-07-07T20:47:47.678827+00:00"
+}
