@@ -60,9 +60,9 @@ async def live_status(request: Request):
             # booked today), via AccountState.day_pnl_usd. Falls back to
             # realized+unrealized for brokers that don't report last_equity.
             day_pnl_usd = float(state.day_pnl_usd or 0.0)
-            # OPEN P&L = live unrealized across current open positions (the
-            # "how much am I up right now" number, independent of the day).
-            open_pnl_usd = float(state.unrealized_pnl_today or 0.0)
+            # OPEN P&L is summed from the per-position unrealized in the loop
+            # below (robust: some adapters — e.g. IBKR — populate per-position
+            # P&L but leave the account-level unrealized_pnl_today at 0).
 
             # Pull the open-orders book once so we can hang TP/SL prices
             # off each position in a single broker call. Bracket orders
@@ -95,6 +95,15 @@ async def live_status(request: Request):
                     "tp_price":   tp_price,
                     "sl_price":   sl_price,
                 })
+
+            # OPEN P&L = sum of the exact per-position P&L the chips show, so
+            # the pill always agrees with the chips even when the adapter's
+            # account-level unrealized is 0 (IBKR). If the broker DID report a
+            # non-zero account unrealized, prefer the larger-magnitude of the two.
+            open_pnl_usd = sum(p["pnl_usd"] for p in positions)
+            _acct_unreal = float(state.unrealized_pnl_today or 0.0)
+            if abs(_acct_unreal) > abs(open_pnl_usd):
+                open_pnl_usd = _acct_unreal
     except Exception as exc:                                          # noqa: BLE001
         logger.warning("live_status: broker fetch failed: %s", exc)
         error = f"{type(exc).__name__}: {exc}"

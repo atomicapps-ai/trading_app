@@ -203,7 +203,12 @@ class IbkrAdapter(BrokerAdapter):
             account_id=summ.get("AccountType", self._label), broker=self._label, type="margin",
             equity=f("NetLiquidation"), cash=f("TotalCashValue"),
             buying_power=f("BuyingPower"), open_positions=positions,
-            unrealized_pnl_today=f("UnrealizedPnL"), trading_halted=False,
+            # The account-summary UnrealizedPnL tag is frequently 0/absent on
+            # paper, so sum the per-position unrealized from portfolio() (the
+            # same numbers the position chips show); fall back to the tag.
+            unrealized_pnl_today=(sum(p.unrealized_pnl_usd for p in positions)
+                                  or f("UnrealizedPnL")),
+            trading_halted=False,
             ts_snapshot=self._now(),
         )
 
