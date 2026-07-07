@@ -1,0 +1,131 @@
+﻿{
+  "n_symbols": 955,
+  "results": {
+    "turtle_s1_20_10_trend": {
+      "all": {
+        "n": 42006,
+        "win_pct": 35.4,
+        "expectancy_R": 0.1503,
+        "profit_factor": 1.27,
+        "avg_win_R": 1.973,
+        "avg_loss_R": -0.848,
+        "max_dd_R": -823.59,
+        "total_R": 6315.5
+      },
+      "in_sample": {
+        "n": 21003,
+        "win_pct": 35.5,
+        "expectancy_R": 0.1684,
+        "profit_factor": 1.31,
+        "avg_win_R": 2.015,
+        "avg_loss_R": -0.846,
+        "max_dd_R": -665.02,
+        "total_R": 3537.8
+      },
+      "out_sample": {
+        "n": 21003,
+        "win_pct": 35.3,
+        "expectancy_R": 0.1323,
+        "profit_factor": 1.24,
+        "avg_win_R": 1.931,
+        "avg_loss_R": -0.849,
+        "max_dd_R": -823.59,
+        "total_R": 2777.7
+      },
+      "random_control": {
+        "n": 42006,
+        "win_pct": 49.3,
+        "expectancy_R": -0.0461,
+        "profit_factor": 0.93,
+        "avg_win_R": 1.203,
+        "avg_loss_R": -1.262,
+        "max_dd_R": -2023.58,
+        "total_R": -1938.0
+      }
+    },
+    "turtle_s2_55_20_trend": {
+      "all": {
+        "n": 25767,
+        "win_pct": 31.4,
+        "expectancy_R": 0.2828,
+        "profit_factor": 1.44,
+        "avg_win_R": 2.937,
+        "avg_loss_R": -0.932,
+        "max_dd_R": -1216.37,
+        "total_R": 7287.4
+      },
+      "in_sample": {
+        "n": 12883,
+        "win_pct": 31.6,
+        "expectancy_R": 0.3092,
+        "profit_factor": 1.48,
+        "avg_win_R": 2.995,
+        "avg_loss_R": -0.933,
+        "max_dd_R": -443.58,
+        "total_R": 3983.6
+      },
+      "out_sample": {
+        "n": 12884,
+        "win_pct": 31.2,
+        "expectancy_R": 0.2564,
+        "profit_factor": 1.4,
+        "avg_win_R": 2.877,
+        "avg_loss_R": -0.931,
+        "max_dd_R": -1216.37,
+        "total_R": 3303.8
+      },
+      "random_control": {
+        "n": 25767,
+        "win_pct": 49.7,
+        "expectancy_R": -0.059,
+        "profit_factor": 0.93,
+        "avg_win_R": 1.494,
+        "avg_loss_R": -1.595,
+        "max_dd_R": -1535.76,
+        "total_R": -1520.1
+      }
+    },
+    "turtle_s1_20_10_notrend": {
+      "all": {
+        "n": 50081,
+        "win_pct": 35.6,
+        "expectancy_R": 0.1496,
+        "profit_factor": 1.27,
+        "avg_win_R": 1.951,
+        "avg_loss_R": -0.846,
+        "max_dd_R": -860.89,
+        "total_R": 7491.8
+      },
+      "in_sample": {
+        "n": 25040,
+        "win_pct": 35.2,
+        "expectancy_R": 0.1601,
+        "profit_factor": 1.29,
+        "avg_win_R": 2.004,
+        "avg_loss_R": -0.841,
+        "max_dd_R": -758.5,
+        "total_R": 4007.9
+      },
+      "out_sample": {
+        "n": 25041,
+        "win_pct": 36.0,
+        "expectancy_R": 0.1391,
+        "profit_factor": 1.26,
+        "avg_win_R": 1.9,
+        "avg_loss_R": -0.852,
+        "max_dd_R": -860.89,
+        "total_R": 3483.8
+      },
+      "random_control": {
+        "n": 50081,
+        "win_pct": 49.2,
+        "expectancy_R": -0.0445,
+        "profit_factor": 0.93,
+        "avg_win_R": 1.204,
+        "avg_loss_R": -1.251,
+        "max_dd_R": -2300.25,
+        "total_R": -2228.4
+      }
+    }
+  }
+}

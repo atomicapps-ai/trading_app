@@ -85,7 +85,10 @@
     "processed_at": "2026-06-29T17:15:30.875001+00:00",
     "duration_s": 1705,
     "frames": 19,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "crypto perps + 1-min ICT/FVG scalping; discretionary, out of scope",
+    "retired_at": "2026-07-07T07:16:17.146823+00:00"
   },
   "4Pc_von1wS4": {
     "url": "https://www.youtube.com/watch?v=4Pc_von1wS4",
@@ -165,7 +168,10 @@
     "processed_at": "2026-06-29T20:04:23.078546+00:00",
     "duration_s": 1107,
     "frames": 12,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "intraday small-cap gap-and-go day-trading; 1-min entries + live scanner; out of scope",
+    "retired_at": "2026-07-07T07:29:05.403102+00:00"
   },
   "R2hZlnh37fQ": {
     "url": "https://www.youtube.com/watch?v=R2hZlnh37fQ",
@@ -242,7 +248,10 @@
     "processed_at": "2026-06-29T20:29:53.639168+00:00",
     "duration_s": 687,
     "frames": 8,
-    "transcript": true
+    "transcript": true,
+    "status": "passed",
+    "reason": "",
+    "retired_at": "2026-07-07T07:23:41.098353+00:00"
   },
   "bXOXc49IbCI": {
     "url": "https://www.youtube.com/watch?v=bXOXc49IbCI",
@@ -277,7 +286,10 @@
     "processed_at": "2026-06-29T21:04:18.698228+00:00",
     "duration_s": 608,
     "frames": 7,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "failed-breakout reversal; long-only OOS PF 1.13 (below 1.2 bar), short side negative; discretionary+proprietary indicator",
+    "retired_at": "2026-07-07T07:28:27.084541+00:00"
   },
   "E3McKlAp3qk": {
     "url": "https://www.youtube.com/watch?v=E3McKlAp3qk",
@@ -355,5 +367,10 @@
     "duration_s": 0,
     "frames": 0,
     "transcript": false
+  },
+  "0L6Rcgp6j7Y": {
+    "status": "rejected",
+    "reason": "educational 4-concepts montage; no single mechanical system; author admits low standalone edge",
+    "retired_at": "2026-07-07T07:16:45.101491+00:00"
   }
 }

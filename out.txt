@@ -1,0 +1,1 @@
+TradeAgent PROD (single worker) -> http://localhost:5000
