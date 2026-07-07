@@ -126,3 +126,6 @@ detections*.csv
 
 # FVG raw 1m parquet cache (regenerate via scripts/fetch_fvg_data.py)
 data/fx_hist/
+
+# Runtime strategy-config adoption archives (local, like the backtest cache)
+strategies/config_archive/
