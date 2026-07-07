@@ -110,11 +110,11 @@ async def _real_account_or_stub() -> dict:
         "max_positions":  max_positions,
         "trades_today":   st.trades_today,
         "unrealized_pnl": unreal,
-        # day_pnl_* — Alpaca doesn't separate intraday realized P&L from
-        # account totals (Phase 6 trade-log derive). For now surface the
-        # unrealized component so the widget has a meaningful number.
-        "day_pnl_usd":    unreal,
-        "day_pnl_pct":    (unreal / equity * 100.0) if equity else 0.0,
+        # TRUE day P&L = equity − prior-close equity (AccountState.day_pnl_usd),
+        # matching the live status bar. Falls back to unrealized for brokers
+        # that don't report last_equity.
+        "day_pnl_usd":    st.day_pnl_usd,
+        "day_pnl_pct":    st.day_pnl_pct,
         "mode":           st.mode if hasattr(st, "mode") else "paper",
         "connected":      True,
         "is_real":        True,

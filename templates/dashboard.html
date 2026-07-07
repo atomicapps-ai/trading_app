@@ -38,8 +38,8 @@
 {# ============================================================ #}
 <div class="tab-pane tab-pane-active" data-pane="portfolio">
 
-  {# Stat row — loaded via HTMX on page open #}
-  <div hx-get="/api/dashboard/stats" hx-trigger="load" hx-swap="innerHTML">
+  {# Stat row — HTMX poll every 5s so Day P&L stays live (matches the top status bar) #}
+  <div hx-get="/api/dashboard/stats" hx-trigger="load, every 5s" hx-swap="innerHTML">
     <div class="stat-grid">
       <div class="stat-card"><span class="stat-label">Loading…</span></div>
       <div class="stat-card"><span class="stat-label">Loading…</span></div>

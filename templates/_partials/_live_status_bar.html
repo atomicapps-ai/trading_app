@@ -31,7 +31,7 @@
     {# ===== Per-position chips (only symbols with open positions) ===== #}
     {% if positions %}
       {% for p in positions %}
-        <a href="/strategy-live/dl?symbols={{ p.symbol }}"
+        <a href="/positions/{{ p.symbol }}"
            class="live-bar-pos-chip {{ 'live-bar-pos' if p.pnl_usd >= 0 else 'live-bar-neg' }}"
            data-toggle-pnl
            data-pnl-usd="{{ "%.2f"|format(p.pnl_usd) }}"

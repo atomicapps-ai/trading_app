@@ -55,7 +55,10 @@ async def live_status(request: Request):
             state = await adapter.get_account_state()
             equity = float(state.equity or 0.0)
             cash   = float(state.cash or 0.0)
-            day_pnl_usd = float(state.unrealized_pnl_today or 0.0)
+            # TRUE day P&L = equity − prior-close equity (realized + unrealized
+            # booked today), via AccountState.day_pnl_usd. Falls back to
+            # realized+unrealized for brokers that don't report last_equity.
+            day_pnl_usd = float(state.day_pnl_usd or 0.0)
 
             # Pull the open-orders book once so we can hang TP/SL prices
             # off each position in a single broker call. Bracket orders
