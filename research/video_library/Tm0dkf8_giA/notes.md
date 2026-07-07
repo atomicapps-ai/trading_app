@@ -1,12 +1,12 @@
-# Tm0dkf8_giA — "Volatility Contraction Pattern (VCP)" (Trendline / Minervini)
+# Tm0dkf8_giA — "How to Trade Breakouts with the Volatility Contraction Pattern" (TraderLion)
 
-Source: <https://www.youtube.com/watch?v=Tm0dkf8_giA> · ~11 min.
+Source: <https://www.youtube.com/watch?v=Tm0dkf8_giA>
 
-## Rules (mechanical)
-- entry: Buy the breakout through the "pivot" (prior resistance high of the base) on above-average volume, after a Volatility Contraction Pattern forms: a price base showing ≥2 progressively tighter pullbacks (contractions) left-to-right, the last contraction ideally <10% from prior high, with volume drying up into the pivot then surging on the breakout.
-- exit/stop/target: Stop at the low of the last (tightest) contraction, or low of the breakout day for tighter risk. Move to break-even after a quick 5–10% gain, then trail. No fixed target — ride the trend, trail stops up.
-- filters/params: Prior strong uptrend (relative strength) before the base; ≥2 contractions, each tighter; last contraction <10%; volume contraction into pivot + above-average (10d/50d) volume on breakout; holds 21-EMA / 10-day SMA after breakout as strength tell.
+## Rules (mechanical) — daily/weekly US stocks
+- **VCP base:** consolidation tightening left-to-right under a prior high, ≥2 successive contractions each shallower than the last, volume drying up into a tight final contraction (<~10%), preceded by a strong uptrend / relative strength.
+- **Entry:** breakout through the pivot (prior resistance) on above-average volume.
+- **Stop:** low of the last contraction (or low of day). Move to break-even quickly; you're right fast or out for a small loss.
 
-## Verdict: 🟡 SHELVED-INTRADAY — daily-bar in timeframe, but the core (counting progressively-tighter "contractions" and hand-drawing the pivot) is pattern-recognition discretion, not an objective rule set; partial mechanization possible but ambiguous.
-The breakout-on-volume leg overlaps our deployed 126-day-high Momentum Breakout (high + volume≥1.5x + ADX), so the only novel element is the contraction-tightening pre-filter — which is exactly the discretionary, hard-to-define part. A mechanical proxy (e.g. ATR/Bollinger-width declining over the base + breakout to N-day high on volume) is plausible but would be a derivative of the deployed breakout, not a clean new strategy; better suited to the planned price_action_pattern_recog_matrix than a rule backtest.
-Status: shelved-intraday (mechanical proxy overlaps deployed Momentum Breakout)
+## Verdict: REJECT — duplicate family / needs a custom detector.
+This is the same **volatility-contraction-then-breakout** thesis already assessed for video I8Usc5lza_Y and already **deployed live as `coil_breakout`** (ATR10<ATR50 contraction → expansion breakout, uptrend), validated at **OOS PF 2.13 / +0.42R**. A faithful Minervini VCP (detecting successive decreasing-depth contractions + pivot) needs a dedicated detector — `agents/detectors/vcp_absorption.py` exists but isn't wired into the live registry (`ALL_DETECTORS`) and replay_swing has no exit branch for it, so it can't be scored without new code. Recorded as duplicate — the vol-contraction-breakout edge is already on the books as a pass (coil_breakout); a distinct faithful VCP would need a custom detector not built here.
+Status: rejected

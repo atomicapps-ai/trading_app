@@ -1,0 +1,47 @@
+{
+  "n_symbols": 955,
+  "results": {
+    "sma825": {
+      "all": {
+        "n": 199657,
+        "win_pct": 66.4,
+        "expectancy_R": 0.0006,
+        "profit_factor": 1.0,
+        "avg_win_R": 0.288,
+        "avg_loss_R": -0.567,
+        "max_dd_R": -1801.34,
+        "total_R": 125.3
+      },
+      "in_sample": {
+        "n": 99828,
+        "win_pct": 66.5,
+        "expectancy_R": 0.0037,
+        "profit_factor": 1.02,
+        "avg_win_R": 0.287,
+        "avg_loss_R": -0.558,
+        "max_dd_R": -1398.42,
+        "total_R": 367.5
+      },
+      "out_sample": {
+        "n": 99829,
+        "win_pct": 66.3,
+        "expectancy_R": -0.0024,
+        "profit_factor": 0.99,
+        "avg_win_R": 0.29,
+        "avg_loss_R": -0.577,
+        "max_dd_R": -1735.19,
+        "total_R": -242.3
+      },
+      "random_control": {
+        "n": 199657,
+        "win_pct": 46.9,
+        "expectancy_R": -0.0366,
+        "profit_factor": 0.83,
+        "avg_win_R": 0.384,
+        "avg_loss_R": -0.408,
+        "max_dd_R": -7314.41,
+        "total_R": -7307.1
+      }
+    }
+  }
+}

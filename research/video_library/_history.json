@@ -342,7 +342,10 @@
     "processed_at": "2026-06-29T21:03:54.715645+00:00",
     "duration_s": 685,
     "frames": 8,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "VCP breakout = vol-contraction family already live as coil_breakout (OOS PF 2.13); faithful VCP needs custom detector (dup of I8Usc5lza_Y)",
+    "retired_at": "2026-07-07T08:41:04.566256+00:00"
   },
   "4cT8WTyxhYY": {
     "url": "https://www.youtube.com/watch?v=4cT8WTyxhYY",
@@ -597,7 +600,10 @@
     "processed_at": "2026-07-07T07:59:07.992336+00:00",
     "duration_s": 675,
     "frames": 7,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "how-to-backtest tutorial (Forex Tester 5 sponsored); throwaway forex break-of-structure/supply-demand demo; not a strategy",
+    "retired_at": "2026-07-07T08:36:39.506257+00:00"
   },
   "PVMgOxHUqFA": {
     "url": "https://www.youtube.com/watch?v=PVMgOxHUqFA",
@@ -614,123 +620,126 @@
     "processed_at": "2026-07-07T07:59:45.669481+00:00",
     "duration_s": 1406,
     "frames": 16,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "ChatGPT-backtest tutorial; 8/25 SMA demo break-even on stocks (OOS PF 0.99, avg-R 0); forex demo",
+    "retired_at": "2026-07-07T08:38:29.273505+00:00"
   },
   "eK2yatANcNU": {
     "url": "https://www.youtube.com/watch?v=eK2yatANcNU",
-    "processed_at": "2026-07-07T08:31:20.218810+00:00",
+    "processed_at": "2026-07-07T08:38:56.962679+00:00",
     "duration_s": 0,
     "frames": 0,
     "transcript": false
   },
   "0kJ_fWP5fKU": {
     "url": "https://www.youtube.com/watch?v=0kJ_fWP5fKU",
-    "processed_at": "2026-07-07T08:31:26.264168+00:00",
+    "processed_at": "2026-07-07T08:39:02.814504+00:00",
     "duration_s": 0,
     "frames": 0,
     "transcript": false
   },
   "R5paDQRdk0c": {
     "url": "https://www.youtube.com/watch?v=R5paDQRdk0c",
-    "processed_at": "2026-07-07T08:31:32.669063+00:00",
+    "processed_at": "2026-07-07T08:39:09.487747+00:00",
     "duration_s": 0,
     "frames": 0,
     "transcript": false
   },
   "hVpKSBUp4zk": {
     "url": "https://www.youtube.com/watch?v=hVpKSBUp4zk",
-    "processed_at": "2026-07-07T08:31:38.146291+00:00",
+    "processed_at": "2026-07-07T08:39:15.835736+00:00",
     "duration_s": 0,
     "frames": 0,
     "transcript": false
   },
   "FdU3q1wspbk": {
     "url": "https://www.youtube.com/watch?v=FdU3q1wspbk",
-    "processed_at": "2026-07-07T08:31:44.150088+00:00",
+    "processed_at": "2026-07-07T08:39:22.089381+00:00",
     "duration_s": 0,
     "frames": 0,
     "transcript": false
   },
   "YFzlBQCeynQ": {
     "url": "https://www.youtube.com/watch?v=YFzlBQCeynQ",
-    "processed_at": "2026-07-07T08:31:50.407599+00:00",
+    "processed_at": "2026-07-07T08:39:28.813927+00:00",
     "duration_s": 0,
     "frames": 0,
     "transcript": false
   },
   "j1qjX0Zxpd0": {
     "url": "https://www.youtube.com/watch?v=j1qjX0Zxpd0",
-    "processed_at": "2026-07-07T08:31:56.519132+00:00",
+    "processed_at": "2026-07-07T08:39:35.329536+00:00",
     "duration_s": 0,
     "frames": 0,
     "transcript": false
   },
   "8EmDCJUgnrw": {
     "url": "https://www.youtube.com/watch?v=8EmDCJUgnrw",
-    "processed_at": "2026-07-07T08:32:03.014714+00:00",
+    "processed_at": "2026-07-07T08:39:40.994885+00:00",
     "duration_s": 0,
     "frames": 0,
     "transcript": false
   },
   "OKl208tuiIs": {
     "url": "https://www.youtube.com/watch?v=OKl208tuiIs",
-    "processed_at": "2026-07-07T08:32:09.218304+00:00",
+    "processed_at": "2026-07-07T08:39:47.314924+00:00",
     "duration_s": 0,
     "frames": 0,
     "transcript": false
   },
   "c9-SIpy3dEw": {
     "url": "https://www.youtube.com/watch?v=c9-SIpy3dEw",
-    "processed_at": "2026-07-07T08:32:15.709952+00:00",
+    "processed_at": "2026-07-07T08:39:54.073007+00:00",
     "duration_s": 0,
     "frames": 0,
     "transcript": false
   },
   "LsLv-m1AAK4": {
     "url": "https://www.youtube.com/watch?v=LsLv-m1AAK4",
-    "processed_at": "2026-07-07T08:32:22.127717+00:00",
+    "processed_at": "2026-07-07T08:40:00.445723+00:00",
     "duration_s": 0,
     "frames": 0,
     "transcript": false
   },
   "8P9BHSVD_vI": {
     "url": "https://www.youtube.com/watch?v=8P9BHSVD_vI",
-    "processed_at": "2026-07-07T08:32:28.428757+00:00",
+    "processed_at": "2026-07-07T08:40:06.767900+00:00",
     "duration_s": 0,
     "frames": 0,
     "transcript": false
   },
   "gX8FjjKR7ec": {
     "url": "https://www.youtube.com/watch?v=gX8FjjKR7ec",
-    "processed_at": "2026-07-07T08:32:35.490561+00:00",
+    "processed_at": "2026-07-07T08:40:13.459184+00:00",
     "duration_s": 0,
     "frames": 0,
     "transcript": false
   },
   "NojfYk31_xI": {
     "url": "https://www.youtube.com/watch?v=NojfYk31_xI",
-    "processed_at": "2026-07-07T08:32:42.061843+00:00",
+    "processed_at": "2026-07-07T08:40:19.354269+00:00",
     "duration_s": 0,
     "frames": 0,
     "transcript": false
   },
   "6NWcKpupjJo": {
     "url": "https://www.youtube.com/watch?v=6NWcKpupjJo",
-    "processed_at": "2026-07-07T08:32:48.002747+00:00",
+    "processed_at": "2026-07-07T08:40:25.416846+00:00",
     "duration_s": 0,
     "frames": 0,
     "transcript": false
   },
   "9nefht65xxE": {
     "url": "https://www.youtube.com/watch?v=9nefht65xxE",
-    "processed_at": "2026-07-07T08:32:54.611577+00:00",
+    "processed_at": "2026-07-07T08:40:31.780458+00:00",
     "duration_s": 0,
     "frames": 0,
     "transcript": false
   },
   "H-2T8Uh7Nfw": {
     "url": "https://www.youtube.com/watch?v=H-2T8Uh7Nfw",
-    "processed_at": "2026-07-07T08:33:00.863258+00:00",
+    "processed_at": "2026-07-07T08:40:37.987193+00:00",
     "duration_s": 0,
     "frames": 0,
     "transcript": false
