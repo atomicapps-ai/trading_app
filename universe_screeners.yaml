@@ -1,11 +1,11 @@
 version: 1
 exported_at: '2026-07-01T18:48:26.225256+00:00'
 screeners:
-- name: core_universe_100
+- name: core_universe
   title: Core Universe 100 (research)
   description: Quality-filtered research universe; ATR%-trend gated; mega-caps via
     FORCE_INCLUDE
-  notes: Seeded from strategies/CORE_UNIVERSE_100.md (44 names). Refresh via scripts/build_core_universe_100.py.
+  notes: Seeded from strategies/CORE_UNIVERSE_100.md (44 names). Refresh via scripts/build_core_universe.py.
   is_active: true
   filters:
     cap: midover

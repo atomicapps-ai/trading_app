@@ -58,7 +58,7 @@ def fetch_one(symbol: str, limit: int = 40) -> pd.DataFrame:
 
 async def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--screener", default="core_universe_100")
+    ap.add_argument("--screener", default="core_universe")
     ap.add_argument("--limit", type=int, default=40,
                     help="quarters of history per symbol (yfinance caps at ~50)")
     args = ap.parse_args()

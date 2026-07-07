@@ -78,7 +78,7 @@ def fetch_one(symbol: str) -> pd.DataFrame:
 
 async def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--screener", default="core_universe_100")
+    ap.add_argument("--screener", default="core_universe")
     args = ap.parse_args()
 
     symbols = await _resolve_symbols(args.screener)

@@ -344,7 +344,7 @@ presets:
     - WHR
     - WIX
     - WM
-  core_universe_100:
+  core_universe:
     refreshed_at: '2026-06-29T14:27:28.954327+00:00'
     source: index:sp500
     tickers:

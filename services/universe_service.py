@@ -269,6 +269,35 @@ async def get_preset_db(name: str) -> dict | None:
     return await db_service.get_universe_preset(name)
 
 
+async def get_core_universe() -> dict | None:
+    """The master 'core' universe — the base pool strategies filter from."""
+    from services import db_service
+    return await db_service.get_core_universe_preset()
+
+
+async def set_core_universe(name: str) -> bool:
+    from services import db_service
+    ok = await db_service.set_core_universe_preset(name)
+    if ok:
+        await export_screeners_to_yaml()
+    return ok
+
+
+async def set_manual_lists(
+    name: str,
+    *,
+    manual_includes: list[str] | None = None,
+    manual_excludes: list[str] | None = None,
+) -> bool:
+    from services import db_service
+    ok = await db_service.set_universe_manual_lists(
+        name, manual_includes=manual_includes, manual_excludes=manual_excludes,
+    )
+    if ok:
+        await export_screeners_to_yaml()
+    return ok
+
+
 async def create_preset_db(
     *,
     name: str,

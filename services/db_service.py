@@ -124,8 +124,11 @@ _SCHEMA = [
         title TEXT NOT NULL DEFAULT '',
         description TEXT DEFAULT '',
         is_active INTEGER NOT NULL DEFAULT 0,
+        is_core INTEGER NOT NULL DEFAULT 0,
         filters_json TEXT NOT NULL DEFAULT '{}',
         output_tags_json TEXT NOT NULL DEFAULT '[]',
+        manual_includes_json TEXT NOT NULL DEFAULT '[]',
+        manual_excludes_json TEXT NOT NULL DEFAULT '[]',
         notes TEXT DEFAULT '',
         tickers_json TEXT,
         tickers_refreshed_at TEXT,
@@ -377,8 +380,13 @@ _PENDING_EXPECTED_COLUMNS = {
     "execution_ts", "execution_reject_reason",
 }
 
-# universe_presets columns added after initial schema
-_UNIVERSE_EXPECTED_COLUMNS = {"title"}
+# universe_presets columns added after initial schema (col -> SQL type/default)
+_UNIVERSE_EXPECTED_COLUMNS = {
+    "title": "TEXT NOT NULL DEFAULT ''",
+    "is_core": "INTEGER NOT NULL DEFAULT 0",
+    "manual_includes_json": "TEXT NOT NULL DEFAULT '[]'",
+    "manual_excludes_json": "TEXT NOT NULL DEFAULT '[]'",
+}
 
 # followed_politicians columns added after initial schema
 _FOLLOWED_EXPECTED_COLUMNS = {
@@ -410,15 +418,48 @@ async def _migrate_universe_presets(db: aiosqlite.Connection) -> None:
     cursor = await db.execute("PRAGMA table_info(universe_presets)")
     rows = await cursor.fetchall()
     existing = {r[1] for r in rows}
-    for col in _UNIVERSE_EXPECTED_COLUMNS - existing:
+    for col, sqltype in _UNIVERSE_EXPECTED_COLUMNS.items():
+        if col in existing:
+            continue
         try:
             await db.execute(
-                f"ALTER TABLE universe_presets ADD COLUMN {col} TEXT NOT NULL DEFAULT ''"
+                f"ALTER TABLE universe_presets ADD COLUMN {col} {sqltype}"
             )
             logger.info("db_service: added column universe_presets.%s", col)
         except aiosqlite.OperationalError as e:
             if "duplicate column" not in str(e).lower():
                 logger.warning("db_service: migrate add %s failed: %s", col, e)
+
+    # One-time rename: core_universe_100 -> core_universe (the "100" was
+    # misleading — it holds ~500). Only if the new name is free. Also promote
+    # it to the core (master) universe so downstream selection has a base.
+    try:
+        cur = await db.execute(
+            "SELECT name FROM universe_presets WHERE name IN "
+            "('core_universe_100','core_universe')"
+        )
+        names = {r[0] for r in await cur.fetchall()}
+        if "core_universe_100" in names and "core_universe" not in names:
+            await db.execute(
+                "UPDATE universe_presets SET name='core_universe' "
+                "WHERE name='core_universe_100'"
+            )
+            logger.info("db_service: renamed core_universe_100 -> core_universe")
+        # If nothing is flagged core yet, promote core_universe (or the active
+        # preset) so there's always exactly one master.
+        cur = await db.execute("SELECT COUNT(*) FROM universe_presets WHERE is_core=1")
+        has_core = (await cur.fetchone())[0]
+        if not has_core:
+            await db.execute(
+                "UPDATE universe_presets SET is_core=1 WHERE name='core_universe'"
+            )
+            cur = await db.execute("SELECT changes()")
+            if not (await cur.fetchone())[0]:
+                await db.execute(
+                    "UPDATE universe_presets SET is_core=1 WHERE is_active=1"
+                )
+    except aiosqlite.OperationalError as e:
+        logger.warning("db_service: universe core migration skipped: %s", e)
 
 
 async def _migrate_pending_approvals(db: aiosqlite.Connection) -> None:
@@ -595,6 +636,53 @@ async def set_active_universe_preset(name: str) -> bool:
         return cur.rowcount > 0
 
 
+async def get_core_universe_preset() -> dict | None:
+    """The master 'core' universe — the base pool strategies filter from."""
+    async with _dbmod.connect() as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM universe_presets WHERE is_core = 1 LIMIT 1"
+        )
+        row = await cur.fetchone()
+    return _preset_row_to_dict(row) if row else None
+
+
+async def set_core_universe_preset(name: str) -> bool:
+    """Designate one preset the core (master) universe; clear the flag on all
+    others so there's exactly one core."""
+    async with _dbmod.connect() as db:
+        await db.execute("UPDATE universe_presets SET is_core = 0")
+        cur = await db.execute(
+            "UPDATE universe_presets SET is_core = 1 WHERE name = ?", (name,)
+        )
+        await db.commit()
+        return cur.rowcount > 0
+
+
+async def set_universe_manual_lists(
+    name: str,
+    *,
+    manual_includes: list[str] | None = None,
+    manual_excludes: list[str] | None = None,
+) -> bool:
+    """Update the cherry-pick lists (always-in / always-out) for a preset."""
+    existing = await get_universe_preset(name)
+    if not existing:
+        return False
+    inc = manual_includes if manual_includes is not None else existing["manual_includes"]
+    exc = manual_excludes if manual_excludes is not None else existing["manual_excludes"]
+    now = datetime.now(timezone.utc).isoformat()
+    async with _dbmod.connect() as db:
+        cur = await db.execute(
+            "UPDATE universe_presets SET manual_includes_json=?, "
+            "manual_excludes_json=?, updated_at=? WHERE name=?",
+            (json.dumps([s.upper() for s in inc]),
+             json.dumps([s.upper() for s in exc]), now, name),
+        )
+        await db.commit()
+        return cur.rowcount > 0
+
+
 async def save_universe_preset_tickers(
     name: str,
     tickers: list[str],
@@ -658,16 +746,21 @@ def _preset_row_to_dict(row: Any) -> dict:
     keys = set(row.keys())
     raw_title = row["title"] if "title" in keys else ""
     name = row["name"]
+    inc_raw = row["manual_includes_json"] if "manual_includes_json" in keys else "[]"
+    exc_raw = row["manual_excludes_json"] if "manual_excludes_json" in keys else "[]"
     return {
         "id": row["id"],
         "name": name,
         "title": raw_title or name,
         "description": row["description"] or "",
         "is_active": bool(row["is_active"]),
+        "is_core": bool(row["is_core"]) if "is_core" in keys else False,
         "filters": json.loads(filters_raw),
         "filters_json_raw": filters_raw,
         "output_tags": json.loads(output_tags_raw),
         "output_tags_json_raw": output_tags_raw,
+        "manual_includes": json.loads(inc_raw or "[]"),
+        "manual_excludes": json.loads(exc_raw or "[]"),
         "notes": row["notes"] or "",
         "tickers": json.loads(tickers_raw) if tickers_raw else [],
         "tickers_refreshed_at": row["tickers_refreshed_at"],

@@ -25,7 +25,7 @@ Usage
     python -m scripts.backfill_all --active
 
     # A specific screener, only daily + 30m:
-    python -m scripts.backfill_all --screener core_universe_100 --intervals 1d,30m
+    python -m scripts.backfill_all --screener core_universe --intervals 1d,30m
 
     # Equities only (gateway not running):
     python -m scripts.backfill_all --active --no-fx

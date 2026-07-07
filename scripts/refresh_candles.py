@@ -14,7 +14,7 @@ Usage
     python -m scripts.refresh_candles AAPL NVDA --intervals 30m,15m,5m
 
     # Refresh a whole screener across several intervals:
-    python -m scripts.refresh_candles --screener core_universe_100 --intervals 1d,30m
+    python -m scripts.refresh_candles --screener core_universe --intervals 1d,30m
 """
 from __future__ import annotations
 

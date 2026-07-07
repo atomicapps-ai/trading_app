@@ -1,7 +1,7 @@
 """cleanup_app — trim the app down to the two live strategies.
 
 KEEPS: momentum_breakout + fear_dip_reversion (configs + scan workflows) and the
-core_universe_100 screener. REMOVES: the other strategy configs, their workflows,
+core_universe screener. REMOVES: the other strategy configs, their workflows,
 and all other screeners. Detector code + the entire video pipeline are left
 untouched (the two strategies use a detector whitelist, so old detectors never fire).
 
@@ -21,7 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DB = ROOT / "data" / "claude_trading_app.db"
 SCREENERS_YAML = ROOT / "universe_screeners.yaml"
-KEEP_SCREENER = "core_universe_100"
+KEEP_SCREENER = "core_universe"
 STRATEGY_FILES = ["double_lock.yaml", "swing_momentum.yaml", "video_daily.yaml"]
 WORKFLOW_FILES = [
     "double_lock_1030.yaml", "evening_run.yaml", "morning_run.yaml",

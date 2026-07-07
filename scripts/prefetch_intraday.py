@@ -16,7 +16,7 @@ Usage
     python -m scripts.prefetch_intraday
 
     # Warm every symbol in a named screener's saved universe:
-    python -m scripts.prefetch_intraday --screener core_universe_100
+    python -m scripts.prefetch_intraday --screener core_universe
 
     # Warm the active screener's universe:
     python -m scripts.prefetch_intraday --active

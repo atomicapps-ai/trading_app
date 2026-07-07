@@ -7,7 +7,7 @@ the app's Stock Lists already use — which is reliable and gives a broad, liqui
 established-company universe ("high volume + doing well" by index membership).
 
 Usage (run on your machine, with the app's venv):
-    python scripts/populate_universe.py                       # S&P 500  -> core_universe_100
+    python scripts/populate_universe.py                       # S&P 500  -> core_universe
     python scripts/populate_universe.py --index sp500+sp400   # S&P 500 + 400 mid-cap (~900)
     python scripts/populate_universe.py --preset liquid_momentum_core
 """
@@ -40,8 +40,8 @@ async def main() -> None:
     ap = argparse.ArgumentParser(description="Populate a screener universe from an index (no Finviz).")
     ap.add_argument("--index", default="sp500",
                     help="'+'-joined: sp500 | sp400 | sp500+sp400  (default sp500)")
-    ap.add_argument("--preset", default="core_universe_100",
-                    help="screener name to save into (default core_universe_100)")
+    ap.add_argument("--preset", default="core_universe",
+                    help="screener name to save into (default core_universe)")
     args = ap.parse_args()
 
     parts = [p.strip() for p in args.index.split("+") if p.strip()]
