@@ -1,0 +1,131 @@
+{
+  "n_symbols": 955,
+  "results": {
+    "pull_ema_mkt": {
+      "all": {
+        "n": 40355,
+        "win_pct": 26.9,
+        "expectancy_R": 0.012,
+        "profit_factor": 1.02,
+        "avg_win_R": 2.174,
+        "avg_loss_R": -0.784,
+        "max_dd_R": -1918.5,
+        "total_R": 483.8
+      },
+      "in_sample": {
+        "n": 20177,
+        "win_pct": 27.7,
+        "expectancy_R": 0.0306,
+        "profit_factor": 1.05,
+        "avg_win_R": 2.176,
+        "avg_loss_R": -0.79,
+        "max_dd_R": -747.9,
+        "total_R": 616.7
+      },
+      "out_sample": {
+        "n": 20178,
+        "win_pct": 26.1,
+        "expectancy_R": -0.0066,
+        "profit_factor": 0.99,
+        "avg_win_R": 2.172,
+        "avg_loss_R": -0.777,
+        "max_dd_R": -1694.42,
+        "total_R": -132.9
+      },
+      "random_control": {
+        "n": 40355,
+        "win_pct": 46.5,
+        "expectancy_R": -0.1131,
+        "profit_factor": 0.82,
+        "avg_win_R": 1.079,
+        "avg_loss_R": -1.149,
+        "max_dd_R": -4636.29,
+        "total_R": -4565.4
+      }
+    },
+    "pull_3R_mkt": {
+      "all": {
+        "n": 33716,
+        "win_pct": 29.5,
+        "expectancy_R": 0.0343,
+        "profit_factor": 1.04,
+        "avg_win_R": 2.75,
+        "avg_loss_R": -1.102,
+        "max_dd_R": -1535.68,
+        "total_R": 1157.3
+      },
+      "in_sample": {
+        "n": 16858,
+        "win_pct": 30.6,
+        "expectancy_R": 0.0695,
+        "profit_factor": 1.09,
+        "avg_win_R": 2.748,
+        "avg_loss_R": -1.113,
+        "max_dd_R": -703.76,
+        "total_R": 1171.6
+      },
+      "out_sample": {
+        "n": 16858,
+        "win_pct": 28.4,
+        "expectancy_R": -0.0009,
+        "profit_factor": 1.0,
+        "avg_win_R": 2.751,
+        "avg_loss_R": -1.091,
+        "max_dd_R": -1535.68,
+        "total_R": -14.3
+      },
+      "random_control": {
+        "n": 33716,
+        "win_pct": 49.9,
+        "expectancy_R": -0.1136,
+        "profit_factor": 0.86,
+        "avg_win_R": 1.435,
+        "avg_loss_R": -1.653,
+        "max_dd_R": -3879.99,
+        "total_R": -3831.1
+      }
+    },
+    "pull_ema_nomkt": {
+      "all": {
+        "n": 52637,
+        "win_pct": 27.7,
+        "expectancy_R": 0.0236,
+        "profit_factor": 1.04,
+        "avg_win_R": 2.108,
+        "avg_loss_R": -0.776,
+        "max_dd_R": -1851.5,
+        "total_R": 1242.6
+      },
+      "in_sample": {
+        "n": 26318,
+        "win_pct": 28.2,
+        "expectancy_R": 0.0376,
+        "profit_factor": 1.07,
+        "avg_win_R": 2.124,
+        "avg_loss_R": -0.781,
+        "max_dd_R": -646.08,
+        "total_R": 989.6
+      },
+      "out_sample": {
+        "n": 26319,
+        "win_pct": 27.3,
+        "expectancy_R": 0.0096,
+        "profit_factor": 1.02,
+        "avg_win_R": 2.091,
+        "avg_loss_R": -0.77,
+        "max_dd_R": -1665.21,
+        "total_R": 252.9
+      },
+      "random_control": {
+        "n": 52637,
+        "win_pct": 47.1,
+        "expectancy_R": -0.0973,
+        "profit_factor": 0.84,
+        "avg_win_R": 1.07,
+        "avg_loss_R": -1.136,
+        "max_dd_R": -5164.54,
+        "total_R": -5119.0
+      }
+    }
+  }
+}

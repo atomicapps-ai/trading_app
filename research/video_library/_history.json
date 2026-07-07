@@ -157,7 +157,10 @@
     "processed_at": "2026-06-29T20:03:19.165482+00:00",
     "duration_s": 599,
     "frames": 7,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "discretionary pullback-to-level strategy (S/R/trendline/MA + candlestick/RSI confirm); forex; kernel already tested break-even",
+    "retired_at": "2026-07-07T07:41:48.343011+00:00"
   },
   "S2HaCa0b-bY": {
     "url": "https://www.youtube.com/watch?v=S2HaCa0b-bY",
@@ -273,14 +276,20 @@
     "processed_at": "2026-06-29T21:02:53.586448+00:00",
     "duration_s": 1014,
     "frames": 11,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "trend-identification framework only; no entry/stop/target; regime filter already in suite",
+    "retired_at": "2026-07-07T07:40:09.639212+00:00"
   },
   "AKkeB8RJ6jM": {
     "url": "https://www.youtube.com/watch?v=AKkeB8RJ6jM",
     "processed_at": "2026-06-29T21:03:13.145779+00:00",
     "duration_s": 731,
     "frames": 8,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "21-EMA pullback continuation; mechanized OOS PF ~1.0 avg-R 0 (break-even), below 1.2 bar; edge is discretionary",
+    "retired_at": "2026-07-07T07:39:37.126487+00:00"
   },
   "_dcYd5T1Lyg": {
     "url": "https://www.youtube.com/watch?v=_dcYd5T1Lyg",
@@ -346,7 +355,10 @@
     "processed_at": "2026-06-29T21:07:11.340714+00:00",
     "duration_s": 525,
     "frames": 6,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "discretionary break-and-retest w/ Fib+FVG confluence on gold; no objective trigger, out of scope",
+    "retired_at": "2026-07-07T07:40:40.317787+00:00"
   },
   "W722Ca8tS7g": {
     "url": "https://www.youtube.com/watch?v=W722Ca8tS7g",
@@ -387,5 +399,10 @@
     "status": "rejected",
     "reason": "educational 4-concepts montage; no single mechanical system; author admits low standalone edge",
     "retired_at": "2026-07-07T07:16:45.101491+00:00"
+  },
+  "Cj09mzu5_oU": {
+    "status": "rejected",
+    "reason": "discretionary ICT 5-entry reversal model (imbalance/FVG/order block, multi-TF, 1m execution); out of scope",
+    "retired_at": "2026-07-07T07:41:13.559558+00:00"
   }
 }

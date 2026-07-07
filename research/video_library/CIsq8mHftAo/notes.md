@@ -1,12 +1,13 @@
-# CIsq8mHftAo — "Break and Retest strategy" (confluence/Fibonacci/FVG)
+# CIsq8mHftAo — "Break and Retest" (Fib / FVG confluence)
 
-Source: <https://www.youtube.com/watch?v=CIsq8mHftAo> · ~9 min.
+Source: <https://www.youtube.com/watch?v=CIsq8mHftAo>
 
-## Rules (mechanical)
-- entry: price breaks a resistance level with a large "energetic" candle, then retests the broken level (now flipped to support); enter on a bullish reaction candle (engulfing / series of higher highs) at the retest. Mirror for shorts.
-- exit/stop/target: stop below the retest swing low (above the high for shorts); "target your levels higher" — no defined target.
-- filters/params: trade only in trend direction; require "Confluence" — Fibonacci golden pocket (0.5/0.618), fair value gaps, point of control, moving average all lining up with the level.
+## Rules (as described)
+- **Instrument/timeframe:** "all timeframes and assets"; examples on **gold**.
+- **Setup:** price breaks a swing high/low "with energy" (a candle larger than prior), then retests the flipped level; enter on a bullish/bearish candlestick reaction (e.g. engulfing) at that level.
+- **Confluence (required, discretionary):** Fibonacci golden pocket (0.5/0.618), fair-value gaps, point of control, moving averages must line up with the level.
+- **Stop:** beyond the retest swing low/high. **Target:** next levels.
 
-## Verdict: ❌ REJECT — irreducibly discretionary
-Every input is hand-drawn or subjective: which swing is the "key level," where the Fib anchors go, what counts as a fair value gap, what an acceptable "reaction" candle is, and the target is undefined. There is no objective rule set that survives mechanization on daily bars, and the broken-level/retest entry is qualitatively a discretionary version of the breakout-pullback theme already in the deployed Momentum Breakout strategy.
+## Verdict: REJECT — discretionary, not objectively mechanical; out of scope.
+The entry hinges on subjective choices: which level to mark, whether the breakout candle is "energetic," which Fib/FVG confluence counts, and reading a candlestick "reaction." No objective, codifiable trigger. Demonstrated on gold with ICT-flavored fair-value-gap/liquidity concepts and multi-asset/multi-timeframe framing. The mechanical skeleton (breakout then buy the pullback to the level) is already represented by the suite's breakout members (momentum_breakout / Turtle) and doesn't add a testable distinct edge here.
 Status: rejected

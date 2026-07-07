@@ -1,0 +1,15 @@
+
+=== p1_pullback_21ema ===
+  ALL: n=51436 win=26.8% exp=-30.1935R PF=0.05 avgWin=5.979 avgLoss=-43.407
+  OOS: n=25718 win=26.3% exp=-29.4002R PF=0.07
+  CTL: PF=0.02 exp=-32.7211
+
+=== p2_coil_breakout ===
+  ALL: n=4364 win=50.9% exp=0.2776R PF=1.65 avgWin=1.378 avgLoss=-0.865
+  OOS: n=2182 win=50.5% exp=0.254R PF=1.6
+  CTL: PF=0.98 exp=-0.014
+
+=== p3_fib_pullback ===
+  ALL: n=64138 win=25.1% exp=-79.8362R PF=0.01 avgWin=2.365 avgLoss=-107.384
+  OOS: n=32069 win=24.6% exp=-67.3419R PF=0.01
+  CTL: PF=0.01 exp=-79.9278
