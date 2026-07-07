@@ -165,10 +165,17 @@ async def run_strategy(
                     "n_symbols": cached["n_symbols"], "n_trades": cached["n_trades"],
                     "keep": v["KEEP"], "drop": v["DROP"], "thin": v["THIN"]}
 
-    is_trades = await replay(symbols, is_since, split, strategy,
-                             progress=progress, overrides=overrides)
-    oos_trades = await replay(symbols, split, until, strategy,
-                              progress=progress, overrides=overrides)
+    # The replay is heavy synchronous CPU work. Run it on a worker thread so it
+    # doesn't block the web event loop (the page stays responsive + progress
+    # polls keep working during the multi-minute run).
+    import asyncio
+
+    def _blocking(since, until):
+        return asyncio.run(replay(symbols, since, until, strategy,
+                                  progress=progress, overrides=overrides))
+
+    is_trades = await asyncio.to_thread(_blocking, is_since, split)
+    oos_trades = await asyncio.to_thread(_blocking, split, until)
 
     by_is: dict[str, list] = {}
     by_oos: dict[str, list] = {}
