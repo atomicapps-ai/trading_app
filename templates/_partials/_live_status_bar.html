@@ -20,9 +20,18 @@
     <span class="live-bar-pill {{ 'live-bar-pos' if day_pnl_usd >= 0 else 'live-bar-neg' }}"
           data-toggle-pnl
           data-pnl-usd="{{ "%.2f"|format(day_pnl_usd) }}"
-          data-pnl-pct="{{ "%.2f"|format(day_pnl_pct) }}">
+          data-pnl-pct="{{ "%.2f"|format(day_pnl_pct) }}"
+          title="Today's change: equity minus prior-day close">
       <span class="live-bar-label">DAY P&amp;L</span>
       <span class="mono live-bar-pnl-value">{{ "%+.2f"|format(day_pnl_usd) }}</span>
+    </span>
+    <span class="live-bar-pill {{ 'live-bar-pos' if open_pnl_usd >= 0 else 'live-bar-neg' }}"
+          data-toggle-pnl
+          data-pnl-usd="{{ "%.2f"|format(open_pnl_usd) }}"
+          data-pnl-pct="{{ "%.2f"|format(open_pnl_pct) }}"
+          title="Open P&amp;L: total live unrealized across current positions">
+      <span class="live-bar-label">OPEN P&amp;L</span>
+      <span class="mono live-bar-pnl-value">{{ "%+.2f"|format(open_pnl_usd) }}</span>
     </span>
 
     {# Divider between account totals and per-position chips. #}
