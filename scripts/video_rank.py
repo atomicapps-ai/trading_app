@@ -59,6 +59,53 @@ def works_mentions(comments: list[dict]) -> int:
             neg += 1
     return pos - neg
 
+
+# ---- VALIDATION classifier (operator req): a comment counts ONLY if it attests, with
+# confidence, that the commenter TESTED the strategy and it ACTUALLY WORKS / made results.
+# Generic positivity ("great video, thanks!", "love this", "so clear") does NOT count.
+_EXPERIENCE_RE = re.compile(
+    r"\b(back ?tested|backtest|i tested|tested (it|this)|tried (it|this)|used (it|this)|"
+    r"been using|using this|i (trade|traded|use) this|paper ?trade[d]?|forward ?test|"
+    r"on demo|took (this|the) trade|for (the )?(past )?(a )?(week|month|year|day)s?|"
+    r"past (week|month|year)|every ?day|so far|last (week|month|year))\b", re.I)
+_RESULT_RE = re.compile(
+    r"\b(works|worked|working|profitable|profit|made (me )?(money|profit|pips|\$|\d)|"
+    r"win ?rate|winrate|\d{1,3}\s?%|accura(te|cy)|consistent(ly)?|paid off|"
+    r"hit (my |the )?target|green|up \d|passed (my|the) (funded|challenge|eval)|"
+    r"changed my (trading|life)|best strateg)\b", re.I)
+# Unambiguous standalone validation phrases (imply tested-and-works on their own).
+_STRONG_VALID_RE = re.compile(
+    r"\b(can confirm|actually works|really works|it works|this works|does work|"
+    r"back ?tested.*(profit|win|work)|\d{1,3}\s?% win|been using this for|"
+    r"tried this.*(work|profit|win)|tested this.*(work|profit|win)|100% works|"
+    r"this is legit|it'?s legit)\b", re.I)
+
+
+def is_validation(text: str) -> bool:
+    """True only for a confident, evidence-based 'I tested it and it works' comment."""
+    t = (text or "").lower()
+    if not t.strip():
+        return False
+    if NEG_RE.search(t) or "doesn't work" in t or "does not work" in t or "not profitable" in t:
+        return False
+    if _STRONG_VALID_RE.search(t):
+        return True
+    return bool(_RESULT_RE.search(t) and _EXPERIENCE_RE.search(t))
+
+
+def validation_stats(comments: list[dict], window_months: int = 12) -> dict:
+    """Count validation comments (total + within window)."""
+    import time as _t
+    now = _t.time(); window = window_months * 2_629_800
+    valid = recent = 0
+    for c in comments[:80]:
+        if is_validation(c.get("text") or ""):
+            valid += 1
+            ts = c.get("timestamp") or 0
+            if ts and now - ts <= window:
+                recent += 1
+    return {"valid": valid, "valid_recent": recent}
+
 try:
     from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
     _VADER = SentimentIntensityAnalyzer()
@@ -125,7 +172,7 @@ def recency_score(comments: list[dict], upload_date: str, window_months: int = 1
     window = window_months * 2_629_800          # ~seconds/month
     pos_recent = pos_dated = 0
     for c in comments[:80]:
-        if _classify(c.get("text") or "") <= 0:
+        if not is_validation(c.get("text") or ""):     # recency of VALIDATION, not generic praise
             continue
         ts = c.get("timestamp") or 0
         if ts <= 0:
@@ -244,7 +291,9 @@ def main() -> None:
     ap.add_argument("--pos-ratio", type=float, default=0.8,
                     help="HARD gate: fraction of opinionated comments that must be positive (0.8 = 8 of 10)")
     ap.add_argument("--min-opinion", type=int, default=10,
-                    help="HARD gate: minimum opinionated comments needed to judge the ratio")
+                    help="(soft) minimum opinionated comments to judge the sentiment ratio")
+    ap.add_argument("--min-validation", type=int, default=3,
+                    help="HARD gate: min # of VALIDATION comments (people who tested it and confirm it works)")
     args = ap.parse_args()
 
     rows = parse_candidates()
@@ -270,23 +319,26 @@ def main() -> None:
         st = comment_stats(cmts)
         r["pos"] = st["pos"]; r["neg"] = st["neg"]
         r["opinion"] = st["opinion"]; r["ratio"] = st["ratio"]
-        r["recent"] = recency_score(cmts, r["upload"])   # 12-mo praise/upload recency (ranking pref)
+        vs = validation_stats(cmts)
+        r["valid"] = vs["valid"]; r["valid_recent"] = vs["valid_recent"]   # tested-and-works comments
+        r["recent"] = recency_score(cmts, r["upload"])   # 12-mo VALIDATION/upload recency (ranking pref)
 
-    pv, pl, ps, pc, pp, pr = (pct([r[k] for r in s2]) for k in
-                              ("views", "lv", "subs", "comments_n", "praise", "recent"))
+    pv, pl, ps, pr, pvd = (pct([r[k] for r in s2]) for k in
+                           ("views", "lv", "subs", "recent", "valid"))
     for r in s2:
         r["score"] = round(
-            0.20 * pp(r["praise"]) + 0.15 * pr(r["recent"]) + 0.17 * pl(r["lv"])
-            + 0.13 * pv(r["views"]) + 0.10 * ps(r["subs"]) + 0.07 * pc(r["comments_n"])
-            + 0.09 * length_fit(r["min"]) + 0.09 * title_quality(r["title"]), 3)
+            0.30 * pvd(r["valid"]) + 0.15 * pr(r["recent"]) + 0.15 * pl(r["lv"])
+            + 0.12 * pv(r["views"]) + 0.10 * ps(r["subs"])
+            + 0.08 * length_fit(r["min"]) + 0.10 * title_quality(r["title"]), 3)
     s2.sort(key=lambda r: r["score"], reverse=True)
 
     # HARD gates (operator criteria): >=100k subs AND comments overwhelmingly
     # positive (>= pos-ratio of opinionated comments, with a minimum sample).
     def _passes(r: dict) -> bool:
+        # HARD gate (operator req): enough subscribers AND enough VALIDATION comments
+        # (people who state, with confidence, that they tested it and it works).
         return (r.get("subs", 0) >= args.min_subs
-                and r.get("opinion", 0) >= args.min_opinion
-                and r.get("ratio", 0.0) >= args.pos_ratio)
+                and r.get("valid", 0) >= args.min_validation)
 
     survivors = [r for r in s2 if _passes(r)]
     picks = survivors[:args.pick]
@@ -295,26 +347,25 @@ def main() -> None:
     lines = ["# Ranked candidates", "",
              f"Top {len(s2)} of {len(rows)} scored on praise / likes / views / subs / "
              "length / title quality.",
-             f"HARD gates: subs >= {args.min_subs:,} AND >= {int(args.pos_ratio*100)}% of "
-             f">= {args.min_opinion} opinionated comments positive. "
+             f"HARD gates: subs >= {args.min_subs:,} AND >= {args.min_validation} VALIDATION comments "
+             "(people stating with confidence they tested it and it works). "
              f"{len(survivors)} passed; PICK = top {len(picks)} to ingest.",
              "Reminder: engagement is a weak proxy — the backtest is the real test.", "",
-             "| # | pick | score | pos/neg | ratio | recent12mo | subs | views | praise | min | channel | title | url |",
+             "| # | pick | score | valid | val_recent | recent12mo | pos/neg | subs | views | min | channel | title | url |",
              "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for i, r in enumerate(s2, 1):
         gate = "PASS" if _passes(r) else "-"
         mark = ("PICK " if r["id"] in pick_ids else "") + gate
-        lines.append(f"| {i} | {mark} | {r['score']} | {r.get('pos',0)}/{r.get('neg',0)} | "
-                     f"{r.get('ratio',0.0):.0%} | {r.get('recent',0.0):.2f} | {r['subs']:,} | {r['views']:,} | "
-                     f"{r['praise']:+.2f} | {r['min']} | "
-                     f"{r['channel'][:20]} | {r['title'][:60]} | {r['url']} |")
+        lines.append(f"| {i} | {mark} | {r['score']} | {r.get('valid',0)} | {r.get('valid_recent',0)} | "
+                     f"{r.get('recent',0.0):.2f} | {r.get('pos',0)}/{r.get('neg',0)} | {r['subs']:,} | {r['views']:,} | "
+                     f"{r['min']} | {r['channel'][:20]} | {r['title'][:60]} | {r['url']} |")
     out = LIB / "_candidates_ranked.md"
     out.write_text("\n".join(lines), encoding="utf-8")
     pick_urls = " ".join(f'"{r["url"]}"' for r in picks)
     (LIB / "_picks.txt").write_text("\n".join(r["url"] for r in picks), encoding="utf-8")
     print(f"\nRanked -> {out.relative_to(ROOT)}")
     print(f"{len(survivors)} passed hard gates (subs>={args.min_subs:,}, "
-          f">={int(args.pos_ratio*100)}% of >={args.min_opinion} comments positive); "
+          f">={args.min_validation} validation comments = tested-and-confirmed-works); "
           f"picking {len(picks)}.")
     print(f"Ingest the picks:\n  python scripts/video_ingest.py --ingest {pick_urls}")
 
