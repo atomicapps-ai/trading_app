@@ -1,0 +1,299 @@
+{
+  "n_symbols": 80,
+  "results": {
+    "vwap_revert_base": {
+      "all": {
+        "n": 4759,
+        "win_pct": 46.1,
+        "expectancy_R": -0.1288,
+        "profit_factor": 0.54,
+        "avg_win_R": 0.324,
+        "avg_loss_R": -0.515,
+        "max_dd_R": -617.22,
+        "total_R": -613.0
+      },
+      "in_sample": {
+        "n": 2379,
+        "win_pct": 45.3,
+        "expectancy_R": -0.1361,
+        "profit_factor": 0.53,
+        "avg_win_R": 0.343,
+        "avg_loss_R": -0.532,
+        "max_dd_R": -327.71,
+        "total_R": -323.8
+      },
+      "out_sample": {
+        "n": 2380,
+        "win_pct": 46.8,
+        "expectancy_R": -0.1215,
+        "profit_factor": 0.54,
+        "avg_win_R": 0.305,
+        "avg_loss_R": -0.498,
+        "max_dd_R": -292.75,
+        "total_R": -289.2
+      },
+      "random_control": {
+        "n": 4759,
+        "win_pct": 41.2,
+        "expectancy_R": -0.1288,
+        "profit_factor": 0.54,
+        "avg_win_R": 0.374,
+        "avg_loss_R": -0.481,
+        "max_dd_R": -615.27,
+        "total_R": -613.0
+      }
+    },
+    "gap_fade_1_3_full": {
+      "all": {
+        "n": 2960,
+        "win_pct": 49.5,
+        "expectancy_R": -0.1,
+        "profit_factor": 0.7,
+        "avg_win_R": 0.472,
+        "avg_loss_R": -0.66,
+        "max_dd_R": -302.95,
+        "total_R": -296.1
+      },
+      "in_sample": {
+        "n": 1480,
+        "win_pct": 46.1,
+        "expectancy_R": -0.1435,
+        "profit_factor": 0.6,
+        "avg_win_R": 0.474,
+        "avg_loss_R": -0.673,
+        "max_dd_R": -218.12,
+        "total_R": -212.4
+      },
+      "out_sample": {
+        "n": 1480,
+        "win_pct": 52.8,
+        "expectancy_R": -0.0565,
+        "profit_factor": 0.81,
+        "avg_win_R": 0.47,
+        "avg_loss_R": -0.645,
+        "max_dd_R": -111.27,
+        "total_R": -83.7
+      },
+      "random_control": {
+        "n": 2960,
+        "win_pct": 44.0,
+        "expectancy_R": -0.1065,
+        "profit_factor": 0.69,
+        "avg_win_R": 0.533,
+        "avg_loss_R": -0.61,
+        "max_dd_R": -318.49,
+        "total_R": -315.3
+      }
+    },
+    "gap_fade_1_3_half": {
+      "all": {
+        "n": 2960,
+        "win_pct": 54.7,
+        "expectancy_R": -0.1122,
+        "profit_factor": 0.62,
+        "avg_win_R": 0.333,
+        "avg_loss_R": -0.651,
+        "max_dd_R": -332.47,
+        "total_R": -332.2
+      },
+      "in_sample": {
+        "n": 1480,
+        "win_pct": 51.2,
+        "expectancy_R": -0.1484,
+        "profit_factor": 0.55,
+        "avg_win_R": 0.347,
+        "avg_loss_R": -0.668,
+        "max_dd_R": -221.98,
+        "total_R": -219.6
+      },
+      "out_sample": {
+        "n": 1480,
+        "win_pct": 58.2,
+        "expectancy_R": -0.0761,
+        "profit_factor": 0.71,
+        "avg_win_R": 0.322,
+        "avg_loss_R": -0.631,
+        "max_dd_R": -126.1,
+        "total_R": -112.6
+      },
+      "random_control": {
+        "n": 2960,
+        "win_pct": 42.3,
+        "expectancy_R": -0.1379,
+        "profit_factor": 0.57,
+        "avg_win_R": 0.434,
+        "avg_loss_R": -0.557,
+        "max_dd_R": -408.5,
+        "total_R": -408.0
+      }
+    },
+    "gap_fade_1_3_full_trend": {
+      "all": {
+        "n": 1669,
+        "win_pct": 48.8,
+        "expectancy_R": -0.1219,
+        "profit_factor": 0.65,
+        "avg_win_R": 0.47,
+        "avg_loss_R": -0.685,
+        "max_dd_R": -207.1,
+        "total_R": -203.5
+      },
+      "in_sample": {
+        "n": 834,
+        "win_pct": 46.0,
+        "expectancy_R": -0.1473,
+        "profit_factor": 0.6,
+        "avg_win_R": 0.474,
+        "avg_loss_R": -0.678,
+        "max_dd_R": -134.0,
+        "total_R": -122.8
+      },
+      "out_sample": {
+        "n": 835,
+        "win_pct": 51.5,
+        "expectancy_R": -0.0966,
+        "profit_factor": 0.71,
+        "avg_win_R": 0.466,
+        "avg_loss_R": -0.694,
+        "max_dd_R": -84.06,
+        "total_R": -80.6
+      },
+      "random_control": {
+        "n": 1669,
+        "win_pct": 42.3,
+        "expectancy_R": -0.1469,
+        "profit_factor": 0.6,
+        "avg_win_R": 0.525,
+        "avg_loss_R": -0.64,
+        "max_dd_R": -244.87,
+        "total_R": -245.2
+      }
+    },
+    "gap_fade_1_3_half_trend": {
+      "all": {
+        "n": 1669,
+        "win_pct": 53.6,
+        "expectancy_R": -0.1317,
+        "profit_factor": 0.58,
+        "avg_win_R": 0.338,
+        "avg_loss_R": -0.673,
+        "max_dd_R": -220.08,
+        "total_R": -219.8
+      },
+      "in_sample": {
+        "n": 834,
+        "win_pct": 50.6,
+        "expectancy_R": -0.1571,
+        "profit_factor": 0.53,
+        "avg_win_R": 0.35,
+        "avg_loss_R": -0.677,
+        "max_dd_R": -137.1,
+        "total_R": -131.1
+      },
+      "out_sample": {
+        "n": 835,
+        "win_pct": 56.5,
+        "expectancy_R": -0.1063,
+        "profit_factor": 0.63,
+        "avg_win_R": 0.326,
+        "avg_loss_R": -0.669,
+        "max_dd_R": -89.14,
+        "total_R": -88.8
+      },
+      "random_control": {
+        "n": 1669,
+        "win_pct": 43.4,
+        "expectancy_R": -0.1311,
+        "profit_factor": 0.59,
+        "avg_win_R": 0.443,
+        "avg_loss_R": -0.571,
+        "max_dd_R": -219.79,
+        "total_R": -218.8
+      }
+    },
+    "gap_fade_05_2_half": {
+      "all": {
+        "n": 5290,
+        "win_pct": 52.4,
+        "expectancy_R": -0.1264,
+        "profit_factor": 0.51,
+        "avg_win_R": 0.253,
+        "avg_loss_R": -0.543,
+        "max_dd_R": -669.75,
+        "total_R": -668.6
+      },
+      "in_sample": {
+        "n": 2645,
+        "win_pct": 51.2,
+        "expectancy_R": -0.1417,
+        "profit_factor": 0.48,
+        "avg_win_R": 0.253,
+        "avg_loss_R": -0.556,
+        "max_dd_R": -378.22,
+        "total_R": -374.9
+      },
+      "out_sample": {
+        "n": 2645,
+        "win_pct": 53.5,
+        "expectancy_R": -0.111,
+        "profit_factor": 0.55,
+        "avg_win_R": 0.252,
+        "avg_loss_R": -0.529,
+        "max_dd_R": -293.12,
+        "total_R": -293.7
+      },
+      "random_control": {
+        "n": 5290,
+        "win_pct": 39.9,
+        "expectancy_R": -0.1324,
+        "profit_factor": 0.53,
+        "avg_win_R": 0.375,
+        "avg_loss_R": -0.47,
+        "max_dd_R": -701.18,
+        "total_R": -700.3
+      }
+    },
+    "gap_fade_2_5_full": {
+      "all": {
+        "n": 1387,
+        "win_pct": 44.5,
+        "expectancy_R": -0.138,
+        "profit_factor": 0.65,
+        "avg_win_R": 0.583,
+        "avg_loss_R": -0.716,
+        "max_dd_R": -217.64,
+        "total_R": -191.4
+      },
+      "in_sample": {
+        "n": 693,
+        "win_pct": 37.4,
+        "expectancy_R": -0.2288,
+        "profit_factor": 0.48,
+        "avg_win_R": 0.575,
+        "avg_loss_R": -0.709,
+        "max_dd_R": -158.58,
+        "total_R": -158.6
+      },
+      "out_sample": {
+        "n": 694,
+        "win_pct": 51.6,
+        "expectancy_R": -0.0474,
+        "profit_factor": 0.87,
+        "avg_win_R": 0.589,
+        "avg_loss_R": -0.725,
+        "max_dd_R": -57.98,
+        "total_R": -32.9
+      },
+      "random_control": {
+        "n": 1387,
+        "win_pct": 46.2,
+        "expectancy_R": -0.088,
+        "profit_factor": 0.76,
+        "avg_win_R": 0.604,
+        "avg_loss_R": -0.682,
+        "max_dd_R": -141.56,
+        "total_R": -122.0
+      }
+    }
+  }
+}
