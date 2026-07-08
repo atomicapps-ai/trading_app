@@ -142,3 +142,5 @@ research/video_library/_tscheck.log*
 # exported YouTube session cookies (sensitive) - never commit
 *cookies*.json
 _yt_cookies*
+
+data/historical_1m/
