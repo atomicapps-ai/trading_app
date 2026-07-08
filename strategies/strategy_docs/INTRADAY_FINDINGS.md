@@ -67,6 +67,29 @@ Conclusion: stop tuning the standard kernels. The now-fair rig (per-symbol cost 
 ready, and the value is in sourcing **novel, less-crowded** intraday edges (academic microstructure,
 futures, quant-community code) rather than re-testing crowded classics.
 
+## Track B first result (2026-07) — academic intraday momentum doesn't replicate
+
+Sourced the best-known *rigorous, less-crowded* intraday edge: **Market Intraday Momentum**
+(Gao, Han, Li & Zhou, JFE) — the first half-hour return predicts the last half-hour return; go
+long/short the last 30 min by the sign of the first-30-min return. Tested on our data with the
+fair per-symbol cost (`scripts/bt_intraday_momentum.py`):
+
+| Variant | universe | n | GROSS OOS PF | NET (fair) | control |
+|---|---|---|---|---|---|
+| base (r1) | SPY/QQQ/IWM/DIA + 10 stocks | 16,578 | 0.96 | 0.79 | 0.98 |
+| base (r1) | 4 ETFs only | 2,764 | 0.90 | 0.67 | 0.96 |
+| enhanced (r1+r12) | 4 ETFs only | 2,764 | 0.95 | 0.71 | 1.00 |
+
+A coin flip in every cut. **Two reasons, both important:**
+1. **Post-publication decay** — the paper studied **1993–2013**; anomalies decay ~50% after
+   publication (McLean–Pontiff), and intraday momentum has weakened. By 2021–2026 it's gone.
+2. **Data-period limit** — Alpaca gives us only **~2021–2026** intraday history, so we literally
+   cannot test the era (pre-2013) where the edge existed.
+
+So even a fair rig on real data + a rigorous academic source returns a coin flip — not because the
+rig is wrong (it's now demonstrably fair), but because the tradeable intraday edges have decayed
+and we lack the historical depth to test them where they lived.
+
 ## Recommendation
 
 Do **not** promote any intraday stock day-trade from this pass. The scaffold (`intraday_reversion`
