@@ -214,6 +214,7 @@ _ALPACA_INTERVAL_TO_SDK = {
     "30m": (30, "Minute"),
     "15m": (15, "Minute"),
     "5m": (5, "Minute"),
+    "1m": (1, "Minute"),
 }
 
 
@@ -294,7 +295,7 @@ def _normalize_alpaca_frame(df: pd.DataFrame, interval: str) -> pd.DataFrame:
     # Filter intraday bars to RTH (9:30-16:00 ET) so the saved CSV matches
     # what yfinance returns (RTH-only) — detectors that key off `bar.time()`
     # for c1/c2 slot identification rely on this contract.
-    if interval in ("30m", "15m", "5m", "1h"):
+    if interval in ("30m", "15m", "5m", "1h", "1m"):
         et = df.index.tz_convert("America/New_York")
         rth_mask = (
             ((et.hour == 9) & (et.minute >= 30))
