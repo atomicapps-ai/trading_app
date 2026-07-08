@@ -1,3 +1,10 @@
+> ⭐ **STATUS: EXCEPTION — RETAINED (not rejected).** The unfiltered strategy is a coin flip on 20yr
+> SPY/QQQ (33% win, gross PF 0.97, net-losing). BUT the operator identified a **clear visual pattern
+> separating winners from losers** in the trade gallery, so this is kept as a **selection-filter
+> candidate**: the hypothesis is that a filter on the winning setups converts the coin flip into an edge.
+> Do NOT retire/delete. Next step: quantify that winner/loser feature and re-backtest the filtered subset
+> against the PASS bar (OOS PF ≥ 1.2, beats control). Marked exception 2026-07-08.
+
 # One Box Scalper (First Candle) — mechanical spec
 Source: Scarface Trades, "My Simple 5 Minute 'First Candle' Scalping Strategy" (FEmD-hK1-yU).
 Extracted from transcript + chart frames (00120 box, 00300 confirmation patterns, 00435 retest, 00795 daily boxes).

@@ -10,7 +10,7 @@ and retire in _history.json with a verdict. "Opening-range family" was already t
 ### A. Opening-range / first-candle / 9:30 box (~15 — maps to tested family, expect NULL)
 | video | channel | note |
 |---|---|---|
-| FEmD-hK1-yU | Scarface | One Box Scalper — **DONE** (one_box_scalper: 33% win, PF 0.97, net-losing) |
+| FEmD-hK1-yU | Scarface | One Box Scalper — **⭐ EXCEPTION / RETAINED**: coin flip unfiltered, but operator sees a clear winner-vs-loser pattern → kept as a **selection-filter candidate** (quantify feature → re-backtest filtered subset). Not rejected. |
 | jq-fpkPv3-A | Scarface | 9:30 one-candle scalp (first-candle box variant) |
 | FOVhnNiP8AI | Scarface | opening range strategy |
 | ptcscbVgFC8 | Scarface | <90-min scalp schedule (box/ORB) |
