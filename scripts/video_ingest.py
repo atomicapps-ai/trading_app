@@ -131,7 +131,7 @@ def ytdlp_subs(url: str, folder: Path) -> list[dict]:
     (a different endpoint YouTube blocks far less), parse the .vtt into rows."""
     folder.mkdir(parents=True, exist_ok=True)
     tmpl = str(folder / "_sub.%(ext)s")
-    cmd = ["yt-dlp", "--remote-components", "ejs:github", *_cookie_args(),
+    cmd = [sys.executable, "-m", "yt_dlp", "--remote-components", "ejs:github", *_cookie_args(),
            "--skip-download",
            "--write-auto-subs", "--write-subs", "--sub-langs", "en,en-US,en-orig",
            "--sub-format", "vtt", "--no-playlist", "-o", tmpl, url]
@@ -208,7 +208,7 @@ def do_transcript(url: str, vid: str, folder: Path) -> None:
 
 def stream_url(url: str) -> str:
     out = subprocess.check_output(
-        ["yt-dlp", "--remote-components", "ejs:github", *_cookie_args(),
+        [sys.executable, "-m", "yt_dlp", "--remote-components", "ejs:github", *_cookie_args(),
          "-f", "bestvideo[height<=720][ext=mp4]/best[height<=720]/best",
          "-g", url], text=True, timeout=120)
     return out.strip().splitlines()[0]
@@ -233,7 +233,7 @@ def do_frames(url: str, vid: str, folder: Path, seconds: list[int],
     mp4 = folder / "_video.mp4"
     if not mp4.exists():
         print("Downloading video (one-time) for local frame extraction ...")
-        dl = ["yt-dlp", "--remote-components", "ejs:github", *_cookie_args(),
+        dl = [sys.executable, "-m", "yt_dlp", "--remote-components", "ejs:github", *_cookie_args(),
               "-f", "best[height<=720][ext=mp4]/best[height<=720]/best",
               "--no-playlist", "-o", str(mp4), url]
         try:

@@ -144,9 +144,10 @@ def fetch(url: str) -> dict | None:
         except Exception:  # noqa: BLE001
             pass
     try:
+        _ck = ["--cookies", os.environ["VIDEO_COOKIES"]] if os.environ.get("VIDEO_COOKIES") else []
         out = subprocess.run(
-            ["yt-dlp", "-J", "--write-comments", "--no-warnings",
-             "--remote-components", "ejs:github",
+            [sys.executable, "-m", "yt_dlp", "-J", "--write-comments", "--no-warnings",
+             "--remote-components", "ejs:github", *_ck,
              "--extractor-args", "youtube:max_comments=60,60,0,0", url],
             capture_output=True, text=True, timeout=150)
         d = json.loads(out.stdout) if out.stdout.strip() else None
