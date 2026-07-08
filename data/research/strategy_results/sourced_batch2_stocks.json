@@ -1,0 +1,90 @@
+{
+  "universe": "stocks",
+  "n_symbols": 955,
+  "results": {
+    "double7": {
+      "all": {
+        "n": 118837,
+        "win_pct": 66.7,
+        "expectancy_R": 0.0798,
+        "profit_factor": 1.25,
+        "avg_win_R": 0.602,
+        "avg_loss_R": -0.965,
+        "max_dd_R": -2684.93,
+        "total_R": 9484.5
+      },
+      "in_sample": {
+        "n": 59418,
+        "win_pct": 67.4,
+        "expectancy_R": 0.0998,
+        "profit_factor": 1.38,
+        "avg_win_R": 0.542,
+        "avg_loss_R": -0.817,
+        "max_dd_R": -831.06,
+        "total_R": 5931.6
+      },
+      "out_sample": {
+        "n": 59419,
+        "win_pct": 66.0,
+        "expectancy_R": 0.0598,
+        "profit_factor": 1.16,
+        "avg_win_R": 0.662,
+        "avg_loss_R": -1.107,
+        "max_dd_R": -2684.93,
+        "total_R": 3552.9
+      },
+      "random_control": {
+        "n": 118837,
+        "win_pct": 47.8,
+        "expectancy_R": -0.0408,
+        "profit_factor": 0.9,
+        "avg_win_R": 0.729,
+        "avg_loss_R": -0.746,
+        "max_dd_R": -4914.61,
+        "total_R": -4848.2
+      }
+    },
+    "halloween": {
+      "all": {
+        "n": 14220,
+        "win_pct": 66.6,
+        "expectancy_R": 2.1114,
+        "profit_factor": 3.08,
+        "avg_win_R": 4.691,
+        "avg_loss_R": -3.041,
+        "max_dd_R": -1933.8,
+        "total_R": 30024.3
+      },
+      "in_sample": {
+        "n": 7110,
+        "win_pct": 72.7,
+        "expectancy_R": 2.2635,
+        "profit_factor": 4.49,
+        "avg_win_R": 4.008,
+        "avg_loss_R": -2.376,
+        "max_dd_R": -318.18,
+        "total_R": 16093.7
+      },
+      "out_sample": {
+        "n": 7110,
+        "win_pct": 60.6,
+        "expectancy_R": 1.9593,
+        "profit_factor": 2.42,
+        "avg_win_R": 5.511,
+        "avg_loss_R": -3.501,
+        "max_dd_R": -1933.8,
+        "total_R": 13930.6
+      },
+      "random_control": {
+        "n": 14220,
+        "win_pct": 49.6,
+        "expectancy_R": -0.0713,
+        "profit_factor": 0.97,
+        "avg_win_R": 4.116,
+        "avg_loss_R": -4.192,
+        "max_dd_R": -1235.48,
+        "total_R": -1013.9
+      }
+    }
+  }
+}

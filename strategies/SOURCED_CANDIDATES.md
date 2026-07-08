@@ -13,6 +13,13 @@ Reported stats below are the *source's* claims (our prior), NOT our validation.
 | 2 | **Turn-of-the-Month** | seasonality / calendar | QuantifiedStrategies; Quantpedia | Enter at close on the **5th-last trading day**; exit at close on the **3rd trading day** of the new month. | SPY CAGR 2.87%, MaxDD 12%, ~25% exposure; works internationally. | ✅ **PASS + DIVERSIFIER** — OOS PF **1.28** (IS 1.35), +0.11R, 53% win, n=173k, beats control 0.92; **max corr to live 0.36** (seasonality is orthogonal to the trend/mean-rev book). `scripts/bt_tom.py`, `bt_tom_corr.py`. Ready to wire (`active:false`) pending human review. |
 | 3 | Overnight anomaly | session / anomaly | Quantpedia; Alpha Architect; Elm Wealth | Buy at close, sell at next open (Mon/Tue/Thu variant). | Most S&P gains are overnight — **BUT** Alpha Architect: "trading costs wipe out" it; OHLC data-artifact risk. | deprioritized (cost-fragile; needs close/open exec) |
 
+## Batch 2 (2026-07) — tested, not promoted
+
+| Candidate | Family | Source | Result | Verdict |
+|---|---|---|---|---|
+| **Double-7s** (Connors/Alvarez) | mean-rev | QuantifiedStrategies / *Short Term Trading Strategies That Work* | close>200MA, buy 7-day low, sell 7-day high. Stocks OOS PF **1.16** (IS 1.38); ETFs OOS **1.01** (IS 1.52). | ⚠️ **reject** — classic IS→OOS decay (simple mean-reversion faded post-2010); also overlaps our RSI mean-rev family. `scripts/bt_sourced_batch2.py` |
+| **Halloween / Sell-in-May** | seasonality (beta overlay) | QuantifiedStrategies / Quantpedia | Long Nov→Apr, flat May→Oct. Stocks OOS PF **2.42**, +1.96R, 67% win, n=14k; ETFs 3.37. | ⚠️ **hold — beta-timing, not alpha.** The huge R is just the 6-month equity drift; it's long-market exposure with a seasonal switch, so it beats a short-flipped control only because stocks rise, and it correlates with the long book by construction. Real effect, but needs a **market-neutral / excess-vs-buy-&-hold** framing before it's treated as a diversifier. Same caveat class as `ma_crossover`. |
+
 ## Backlog to source next (distinct families preferred)
 
 - **Connors TPS / cumulative-RSI** (mean-rev — likely overlaps our RSI Pullback; low priority)
