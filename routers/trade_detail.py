@@ -133,6 +133,68 @@ async def trade_detail(
     except Exception:                                             # noqa: BLE001
         company_name = ""
 
+    # ── Trade intelligence: payoff geometry + live technical read ────────
+    # Populated for ANY trade (incl. manual, no-strategy) so the card is never
+    # blank. Strategy win-rate (`prob`) is layered on top when available.
+    intel: dict = {"payoff": None, "technical": None}
+    try:
+        e, sp = trade.entry_price, trade.stop_price
+        if e and sp and e != sp:
+            direction = (trade.direction or "long").lower()
+            risk = abs(e - sp)
+
+            def _rr(tp):
+                if not tp:
+                    return None
+                reward = (tp - e) if direction == "long" else (e - tp)
+                return round(reward / risk, 2) if risk else None
+
+            def _be(r):
+                return round(100.0 / (1.0 + r), 1) if (r and r > 0) else None
+
+            rr1, rr2 = _rr(trade.tp1_price), _rr(trade.tp2_price)
+            intel["payoff"] = {
+                "risk_per_share": round(risk, 2),
+                "rr1": rr1, "rr2": rr2,
+                "breakeven_wr1": _be(rr1), "breakeven_wr2": _be(rr2),
+            }
+    except Exception:                                             # noqa: BLE001
+        pass
+    try:
+        import pandas as pd
+        from services import data_service, indicator_service
+        df = await data_service.get_bars(trade.symbol, "1d")
+        if df is not None and len(df) >= 30:
+            df = indicator_service.add_indicators(df)
+            row = df.iloc[-1]
+
+            def _g(k):
+                v = row.get(k)
+                return float(v) if (v is not None and pd.notna(v)) else None
+
+            close, sma50, sma200 = _g("close"), _g("sma_50"), _g("sma_200")
+            rsi, atrp, adx = _g("rsi_14"), _g("atr_14_pct"), _g("adx_14")
+            trend = "n/a"
+            if close and sma50 and sma200:
+                if close > sma50 > sma200:   trend = "uptrend"
+                elif close < sma50 < sma200: trend = "downtrend"
+                else:                        trend = "mixed"
+            rsi_label = None
+            if rsi is not None:
+                rsi_label = "overbought" if rsi >= 70 else ("oversold" if rsi <= 30 else "neutral")
+            intel["technical"] = {
+                "close": round(close, 2) if close else None,
+                "trend": trend,
+                "above_sma50": (close > sma50) if (close and sma50) else None,
+                "above_sma200": (close > sma200) if (close and sma200) else None,
+                "rsi": round(rsi, 1) if rsi is not None else None,
+                "rsi_label": rsi_label,
+                "atr_pct": round(atrp, 2) if atrp is not None else None,
+                "adx": round(adx, 1) if adx is not None else None,
+            }
+    except Exception as _e:                                       # noqa: BLE001
+        logger.warning("trade_detail: technical read failed for %s: %s", trade.symbol, _e)
+
     return templates.TemplateResponse(
         request=request,
         name="trades/detail.html",
@@ -142,6 +204,7 @@ async def trade_detail(
             "active_page": "trades",
             "trade": trade,
             "company_name": company_name,
+            "intel": intel,
             "probability": prob,
             "tradingview_url": tradingview_url,
             "news_items": news_items,
