@@ -116,6 +116,37 @@ def praise_score(comments: list[dict]) -> float:
     return wsum / tot if tot else 0.0
 
 
+def recency_score(comments: list[dict], upload_date: str, window_months: int = 12) -> float:
+    """RANKING preference (not a gate): how fresh is the positive reception?
+    = fraction of POSITIVE comments posted within `window_months`, blended with upload recency.
+    Range [0,1]; comments with no timestamp are ignored in the numerator."""
+    import time as _t
+    now = _t.time()
+    window = window_months * 2_629_800          # ~seconds/month
+    pos_recent = pos_dated = 0
+    for c in comments[:80]:
+        if _classify(c.get("text") or "") <= 0:
+            continue
+        ts = c.get("timestamp") or 0
+        if ts <= 0:
+            continue
+        pos_dated += 1
+        if now - ts <= window:
+            pos_recent += 1
+    comment_recency = (pos_recent / pos_dated) if pos_dated else 0.0
+    # upload recency: 1.0 if uploaded within the window, decaying after
+    up = 0.0
+    if upload_date and len(upload_date) == 8:
+        try:
+            import datetime as _d
+            dt = _d.datetime.strptime(upload_date, "%Y%m%d").replace(tzinfo=_d.timezone.utc)
+            months = (now - dt.timestamp()) / 2_629_800
+            up = 1.0 if months <= window_months else max(0.0, 1.0 - (months - window_months) / 36.0)
+        except Exception:  # noqa: BLE001
+            up = 0.0
+    return round(0.7 * comment_recency + 0.3 * up, 3)
+
+
 def _vid_of(url: str) -> str:
     m = re.search(r"v=([A-Za-z0-9_-]{11})", url)
     return m.group(1) if m else url
@@ -128,7 +159,8 @@ def _trim(d: dict) -> dict:
         "comment_count": d.get("comment_count") or 0,
         "channel_follower_count": d.get("channel_follower_count") or 0,
         "upload_date": d.get("upload_date") or "",
-        "comments": [{"text": c.get("text") or "", "like_count": c.get("like_count") or 0}
+        "comments": [{"text": c.get("text") or "", "like_count": c.get("like_count") or 0,
+                      "timestamp": c.get("timestamp") or 0}       # unix secs (yt-dlp), 0 if unknown
                      for c in (d.get("comments") or [])],
     }
 
@@ -148,7 +180,7 @@ def fetch(url: str) -> dict | None:
         out = subprocess.run(
             [sys.executable, "-m", "yt_dlp", "-J", "--write-comments", "--no-warnings",
              "--remote-components", "ejs:github", *_ck,
-             "--extractor-args", "youtube:max_comments=60,60,0,0", url],
+             "--extractor-args", "youtube:comment_sort=new;max_comments=80,80,0,0", url],
             capture_output=True, text=True, timeout=150)
         d = json.loads(out.stdout) if out.stdout.strip() else None
     except Exception:  # noqa: BLE001
@@ -238,14 +270,15 @@ def main() -> None:
         st = comment_stats(cmts)
         r["pos"] = st["pos"]; r["neg"] = st["neg"]
         r["opinion"] = st["opinion"]; r["ratio"] = st["ratio"]
+        r["recent"] = recency_score(cmts, r["upload"])   # 12-mo praise/upload recency (ranking pref)
 
-    pv, pl, ps, pc, pp = (pct([r[k] for r in s2]) for k in
-                          ("views", "lv", "subs", "comments_n", "praise"))
+    pv, pl, ps, pc, pp, pr = (pct([r[k] for r in s2]) for k in
+                              ("views", "lv", "subs", "comments_n", "praise", "recent"))
     for r in s2:
         r["score"] = round(
-            0.25 * pp(r["praise"]) + 0.20 * pl(r["lv"]) + 0.15 * pv(r["views"])
-            + 0.10 * ps(r["subs"]) + 0.10 * pc(r["comments_n"])
-            + 0.10 * length_fit(r["min"]) + 0.10 * title_quality(r["title"]), 3)
+            0.20 * pp(r["praise"]) + 0.15 * pr(r["recent"]) + 0.17 * pl(r["lv"])
+            + 0.13 * pv(r["views"]) + 0.10 * ps(r["subs"]) + 0.07 * pc(r["comments_n"])
+            + 0.09 * length_fit(r["min"]) + 0.09 * title_quality(r["title"]), 3)
     s2.sort(key=lambda r: r["score"], reverse=True)
 
     # HARD gates (operator criteria): >=100k subs AND comments overwhelmingly
@@ -266,13 +299,13 @@ def main() -> None:
              f">= {args.min_opinion} opinionated comments positive. "
              f"{len(survivors)} passed; PICK = top {len(picks)} to ingest.",
              "Reminder: engagement is a weak proxy — the backtest is the real test.", "",
-             "| # | pick | score | pos/neg | ratio | subs | views | praise | min | channel | title | url |",
-             "|---|---|---|---|---|---|---|---|---|---|---|---|"]
+             "| # | pick | score | pos/neg | ratio | recent12mo | subs | views | praise | min | channel | title | url |",
+             "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for i, r in enumerate(s2, 1):
         gate = "PASS" if _passes(r) else "-"
         mark = ("PICK " if r["id"] in pick_ids else "") + gate
         lines.append(f"| {i} | {mark} | {r['score']} | {r.get('pos',0)}/{r.get('neg',0)} | "
-                     f"{r.get('ratio',0.0):.0%} | {r['subs']:,} | {r['views']:,} | "
+                     f"{r.get('ratio',0.0):.0%} | {r.get('recent',0.0):.2f} | {r['subs']:,} | {r['views']:,} | "
                      f"{r['praise']:+.2f} | {r['min']} | "
                      f"{r['channel'][:20]} | {r['title'][:60]} | {r['url']} |")
     out = LIB / "_candidates_ranked.md"
