@@ -14,13 +14,14 @@ After a video is assessed, retire it:
     python scripts/video_retire.py --all-rejected            # prune every history-rejected video
 """
 from __future__ import annotations
-import argparse, json, shutil, sys
+import argparse, json, os, shutil, sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-LIB = ROOT / "research" / "video_library"
-HIST = LIB / "_history.json"
+BASE = ROOT / "research" / "video_library"
+LIB = BASE / os.environ.get("VIDEO_STYLE", "day_intra")   # per-style lane (swing|day_intra|scalp)
+HIST = BASE / "_history.json"                             # global across lanes
 
 
 def load_hist() -> dict:

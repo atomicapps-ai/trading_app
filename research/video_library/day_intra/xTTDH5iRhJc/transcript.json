@@ -1,0 +1,2182 @@
+[
+  {
+    "text": "This daily trading pattern has made my",
+    "start": 0.0,
+    "duration": 5.12
+  },
+  {
+    "text": "trading unbelievably simple. It takes",
+    "start": 2.52,
+    "duration": 4.88
+  },
+  {
+    "text": "advantage of the first 2 and 1/2 hours",
+    "start": 5.12,
+    "duration": 3.88
+  },
+  {
+    "text": "of the market open. It helps me to",
+    "start": 7.4,
+    "duration": 5.2
+  },
+  {
+    "text": "understand one, when to take a trade,",
+    "start": 9.0,
+    "duration": 7.64
+  },
+  {
+    "text": "two, the level of where to take a trade,",
+    "start": 12.6,
+    "duration": 7.04
+  },
+  {
+    "text": "and three, and most importantly, where",
+    "start": 16.64,
+    "duration": 5.76
+  },
+  {
+    "text": "the market is heading next. After having",
+    "start": 19.64,
+    "duration": 4.92
+  },
+  {
+    "text": "traded this strategy for years and",
+    "start": 22.4,
+    "duration": 3.72
+  },
+  {
+    "text": "teaching it to hundreds of other",
+    "start": 24.56,
+    "duration": 4.26
+  },
+  {
+    "text": "traders, I can confidently say that",
+    "start": 26.12,
+    "duration": 5.44
+  },
+  {
+    "text": "[music] this strategy is changing the",
+    "start": 28.82,
+    "duration": 5.5
+  },
+  {
+    "text": "way that people trade in a profound way",
+    "start": 31.56,
+    "duration": 5.88
+  },
+  {
+    "text": "while still being stupidly simple. It's",
+    "start": 34.32,
+    "duration": 5.04
+  },
+  {
+    "text": "called the break and [music] bounce",
+    "start": 37.44,
+    "duration": 4.24
+  },
+  {
+    "text": "strategy, and in today's video, I will",
+    "start": 39.36,
+    "duration": 4.52
+  },
+  {
+    "text": "explain this daily pattern in three",
+    "start": 41.68,
+    "duration": 4.56
+  },
+  {
+    "text": "simple steps, and then I will take that",
+    "start": 43.88,
+    "duration": 4.56
+  },
+  {
+    "text": "process and I will trade it in a live",
+    "start": 46.24,
+    "duration": 4.68
+  },
+  {
+    "text": "market so that you know how to apply it.",
+    "start": 48.44,
+    "duration": 4.32
+  },
+  {
+    "text": "My name is Carl, and I've been trading",
+    "start": 50.92,
+    "duration": 4.64
+  },
+  {
+    "text": "for 20 years. This is a trading strategy",
+    "start": 52.76,
+    "duration": 5.28
+  },
+  {
+    "text": "that I've been using a lot recently, and",
+    "start": 55.56,
+    "duration": 4.56
+  },
+  {
+    "text": "in today's video, we'll be going over",
+    "start": 58.04,
+    "duration": 4.6
+  },
+  {
+    "text": "how we can use this strategy on a",
+    "start": 60.12,
+    "duration": 4.8
+  },
+  {
+    "text": "consistent basis in our trading. So,",
+    "start": 62.64,
+    "duration": 4.32
+  },
+  {
+    "text": "these three steps are done on three",
+    "start": 64.92,
+    "duration": 5.32
+  },
+  {
+    "text": "different time frames, one time frame",
+    "start": 66.96,
+    "duration": 5.6
+  },
+  {
+    "text": "per step. The first step is done on a",
+    "start": 70.24,
+    "duration": 4.6
+  },
+  {
+    "text": "daily time frame. The second step is",
+    "start": 72.56,
+    "duration": 5.32
+  },
+  {
+    "text": "done on the 15-minute time frame.",
+    "start": 74.84,
+    "duration": 4.88
+  },
+  {
+    "text": "And the third step is done on the",
+    "start": 77.88,
+    "duration": 4.36
+  },
+  {
+    "text": "5-minute time frame.",
+    "start": 79.72,
+    "duration": 4.52
+  },
+  {
+    "text": "So, we're not looking at plenty of",
+    "start": 82.24,
+    "duration": 3.8
+  },
+  {
+    "text": "indicators here. We will actually not",
+    "start": 84.24,
+    "duration": 4.56
+  },
+  {
+    "text": "use a single indicator. Instead, we will",
+    "start": 86.04,
+    "duration": 5.28
+  },
+  {
+    "text": "go down time frame by time frame and",
+    "start": 88.8,
+    "duration": 5.08
+  },
+  {
+    "text": "then make the trade. So, the first step",
+    "start": 91.32,
+    "duration": 4.64
+  },
+  {
+    "text": "is to open whatever asset you are",
+    "start": 93.88,
+    "duration": 5.4
+  },
+  {
+    "text": "trading on a daily chart.",
+    "start": 95.96,
+    "duration": 6.04
+  },
+  {
+    "text": "For this example, I'm going to use",
+    "start": 99.28,
+    "duration": 5.12
+  },
+  {
+    "text": "Netflix, but it works with any asset.",
+    "start": 102.0,
+    "duration": 4.8
+  },
+  {
+    "text": "Just make sure it's on the daily chart.",
+    "start": 104.4,
+    "duration": 4.44
+  },
+  {
+    "text": "This is 2 days ago. So, what we do is",
+    "start": 106.8,
+    "duration": 4.76
+  },
+  {
+    "text": "take our box drawing tool and we draw a",
+    "start": 108.84,
+    "duration": 5.32
+  },
+  {
+    "text": "box from the high of the day, so the",
+    "start": 111.56,
+    "duration": 5.0
+  },
+  {
+    "text": "very top of this week, to the low of the",
+    "start": 114.16,
+    "duration": 4.8
+  },
+  {
+    "text": "day, so the very bottom of this week,",
+    "start": 116.56,
+    "duration": 5.64
+  },
+  {
+    "text": "and then we extend it 1 day into the",
+    "start": 118.96,
+    "duration": 6.12
+  },
+  {
+    "text": "future. And that's step one. So simple,",
+    "start": 122.2,
+    "duration": 4.12
+  },
+  {
+    "text": "right?",
+    "start": 125.08,
+    "duration": 3.24
+  },
+  {
+    "text": "The daily candle is the blueprint for",
+    "start": 126.32,
+    "duration": 3.96
+  },
+  {
+    "text": "this strategy, and [music] it's so",
+    "start": 128.32,
+    "duration": 3.92
+  },
+  {
+    "text": "important because there is liquidity",
+    "start": 130.28,
+    "duration": 3.92
+  },
+  {
+    "text": "resting above your previous day high,",
+    "start": 132.24,
+    "duration": 4.84
+  },
+  {
+    "text": "and there's liquidity resting below the",
+    "start": 134.2,
+    "duration": 5.16
+  },
+  {
+    "text": "previous day's low. This is the level",
+    "start": 137.08,
+    "duration": 3.68
+  },
+  {
+    "text": "where the strongest buyer got in",
+    "start": 139.36,
+    "duration": 3.64
+  },
+  {
+    "text": "yesterday, and this is the level where",
+    "start": 140.76,
+    "duration": 4.64
+  },
+  {
+    "text": "the strongest seller got in yesterday.",
+    "start": 143.0,
+    "duration": 4.04
+  },
+  {
+    "text": "What's great is that there's no bias in",
+    "start": 145.4,
+    "duration": 3.44
+  },
+  {
+    "text": "this strategy. We are simply going to",
+    "start": 147.04,
+    "duration": 3.8
+  },
+  {
+    "text": "enter the market at these two key",
+    "start": 148.84,
+    "duration": 4.04
+  },
+  {
+    "text": "levels, and we're going to do it",
+    "start": 150.84,
+    "duration": 4.84
+  },
+  {
+    "text": "mechanically, meaning that we can't",
+    "start": 152.88,
+    "duration": 4.8
+  },
+  {
+    "text": "trade this strategy the wrong way.",
+    "start": 155.68,
+    "duration": 4.04
+  },
+  {
+    "text": "Either we get the signal or we don't get",
+    "start": 157.68,
+    "duration": 5.2
+  },
+  {
+    "text": "the signal. There's no interpretation or",
+    "start": 159.72,
+    "duration": 4.8
+  },
+  {
+    "text": "emotions involved with this. We will",
+    "start": 162.88,
+    "duration": 2.181
+  },
+  {
+    "text": "just",
+    "start": 164.52,
+    "duration": 0.56
+  },
+  {
+    "text": ">> [music]",
+    "start": 165.061,
+    "duration": 2.379
+  },
+  {
+    "text": ">> execute according to the rules, the",
+    "start": 165.08,
+    "duration": 4.76
+  },
+  {
+    "text": "rules that I will go through with you",
+    "start": 167.44,
+    "duration": 4.28
+  },
+  {
+    "text": "now. So, we don't have to guess if the",
+    "start": 169.84,
+    "duration": 3.68
+  },
+  {
+    "text": "price is going higher or if it's going",
+    "start": 171.72,
+    "duration": 3.76
+  },
+  {
+    "text": "lower. We're just going to use the box,",
+    "start": 173.52,
+    "duration": 4.6
+  },
+  {
+    "text": "and we are going to enter a trade when",
+    "start": 175.48,
+    "duration": 6.2
+  },
+  {
+    "text": "we get a reaction at the two key levels.",
+    "start": 178.12,
+    "duration": 5.96
+  },
+  {
+    "text": "It's going to give us a clear picture of",
+    "start": 181.68,
+    "duration": 4.36
+  },
+  {
+    "text": "where the market wants to head. If we",
+    "start": 184.08,
+    "duration": 3.92
+  },
+  {
+    "text": "break above, we are likely to head",
+    "start": 186.04,
+    "duration": 4.8
+  },
+  {
+    "text": "higher. If we break below, we are likely",
+    "start": 188.0,
+    "duration": 6.36
+  },
+  {
+    "text": "to head lower. And not only do we have a",
+    "start": 190.84,
+    "duration": 5.84
+  },
+  {
+    "text": "probable direction of the market, we can",
+    "start": 194.36,
+    "duration": 5.84
+  },
+  {
+    "text": "also use this box to set our targets and",
+    "start": 196.68,
+    "duration": 5.6
+  },
+  {
+    "text": "our stop [music] losses. And this is why",
+    "start": 200.2,
+    "duration": 4.36
+  },
+  {
+    "text": "this daily pattern is so powerful and",
+    "start": 202.28,
+    "duration": 4.08
+  },
+  {
+    "text": "effective. Now, before we go into the",
+    "start": 204.56,
+    "duration": 4.64
+  },
+  {
+    "text": "second step, let me show you some proof",
+    "start": 206.36,
+    "duration": 5.04
+  },
+  {
+    "text": "that this strategy is indeed working.",
+    "start": 209.2,
+    "duration": 5.24
+  },
+  {
+    "text": "So, about 9 months ago, I actually coded",
+    "start": 211.4,
+    "duration": 5.24
+  },
+  {
+    "text": "a trading algorithm out of this strategy",
+    "start": 214.44,
+    "duration": 4.52
+  },
+  {
+    "text": "after having traded it manually for",
+    "start": 216.64,
+    "duration": 4.32
+  },
+  {
+    "text": "years. This is how it has performed",
+    "start": 218.96,
+    "duration": 6.16
+  },
+  {
+    "text": "since then. It has a win rate of 70%,",
+    "start": 220.96,
+    "duration": 6.982
+  },
+  {
+    "text": "and it has a profit factor of 1.6.",
+    "start": 225.12,
+    "duration": 2.96
+  },
+  {
+    "text": ">> [music]",
+    "start": 227.942,
+    "duration": 1.978
+  },
+  {
+    "text": ">> So, this is real live results of my",
+    "start": 228.08,
+    "duration": 3.28
+  },
+  {
+    "text": "algorithm, which is trading this",
+    "start": 229.92,
+    "duration": 3.48
+  },
+  {
+    "text": "strategy in this exact three-step",
+    "start": 231.36,
+    "duration": 3.92
+  },
+  {
+    "text": "process. I suggest that you start",
+    "start": 233.4,
+    "duration": 3.92
+  },
+  {
+    "text": "trading this strategy manually so that",
+    "start": 235.28,
+    "duration": 4.68
+  },
+  {
+    "text": "you understand it, but if you want to",
+    "start": 237.32,
+    "duration": 4.4
+  },
+  {
+    "text": "start it automatically, I'm actually",
+    "start": 239.96,
+    "duration": 3.44
+  },
+  {
+    "text": "giving away the code for free. There's a",
+    "start": 241.72,
+    "duration": 4.4
+  },
+  {
+    "text": "link in the description, and in return,",
+    "start": 243.4,
+    "duration": 5.48
+  },
+  {
+    "text": "I'm going to ask you to like the video",
+    "start": 246.12,
+    "duration": 3.437
+  },
+  {
+    "text": "and",
+    "start": 248.88,
+    "duration": 0.8
+  },
+  {
+    "text": ">> [music]",
+    "start": 249.557,
+    "duration": 2.043
+  },
+  {
+    "text": ">> to subscribe to the channel. I",
+    "start": 249.68,
+    "duration": 4.2
+  },
+  {
+    "text": "appreciate it. Okay, so let's go to step",
+    "start": 251.6,
+    "duration": 4.4
+  },
+  {
+    "text": "two, which is a crucial step, and this",
+    "start": 253.88,
+    "duration": 4.919
+  },
+  {
+    "text": "step is to identify when we have a",
+    "start": 256.0,
+    "duration": 5.239
+  },
+  {
+    "text": "breakout from the range that we boxed in",
+    "start": 258.799,
+    "duration": 3.801
+  },
+  {
+    "text": "in [music] step one. And what we are",
+    "start": 261.239,
+    "duration": 4.041
+  },
+  {
+    "text": "looking for is either a breakout above",
+    "start": 262.6,
+    "duration": 5.24
+  },
+  {
+    "text": "the high level or a breakout below the",
+    "start": 265.28,
+    "duration": 4.64
+  },
+  {
+    "text": "low level. And the reason that this",
+    "start": 267.84,
+    "duration": 3.92
+  },
+  {
+    "text": "strategy is called the break and bounce",
+    "start": 269.92,
+    "duration": 4.24
+  },
+  {
+    "text": "is because what usually happens is that",
+    "start": 271.76,
+    "duration": 4.88
+  },
+  {
+    "text": "if the price breaks out of the level, it",
+    "start": 274.16,
+    "duration": 5.36
+  },
+  {
+    "text": "will usually retest the breakout level",
+    "start": 276.64,
+    "duration": 6.0
+  },
+  {
+    "text": "and then bounce on that level back up",
+    "start": 279.52,
+    "duration": 5.32
+  },
+  {
+    "text": "into the direction of the breakout. So,",
+    "start": 282.64,
+    "duration": 4.76
+  },
+  {
+    "text": "in this step, we only focus on this one",
+    "start": 284.84,
+    "duration": 5.0
+  },
+  {
+    "text": "thing, identifying if we have a",
+    "start": 287.4,
+    "duration": 5.16
+  },
+  {
+    "text": "breakout, and we do this on the",
+    "start": 289.84,
+    "duration": 6.2
+  },
+  {
+    "text": "15-minute time frame.",
+    "start": 292.56,
+    "duration": 3.48
+  },
+  {
+    "text": "So, switch your chart to the 15-minute",
+    "start": 298.12,
+    "duration": 5.56
+  },
+  {
+    "text": "time frame. Okay, so here's the box that",
+    "start": 301.64,
+    "duration": 4.2
+  },
+  {
+    "text": "we drew in in step one, but this is with",
+    "start": 303.68,
+    "duration": 4.08
+  },
+  {
+    "text": "15-minute candles. So, what you want to",
+    "start": 305.84,
+    "duration": 4.28
+  },
+  {
+    "text": "see here is a push of the price above",
+    "start": 307.76,
+    "duration": 5.4
+  },
+  {
+    "text": "the high for a continuation towards the",
+    "start": 310.12,
+    "duration": 5.28
+  },
+  {
+    "text": "upside, or we want to see a push of the",
+    "start": 313.16,
+    "duration": 6.16
+  },
+  {
+    "text": "price below the low for a continuation",
+    "start": 315.4,
+    "duration": 5.68
+  },
+  {
+    "text": "towards the downside. So, the way we",
+    "start": 319.32,
+    "duration": 3.96
+  },
+  {
+    "text": "decide if there is a breakout or not is",
+    "start": 321.08,
+    "duration": 4.36
+  },
+  {
+    "text": "if we have a close of the 15-minute",
+    "start": 323.28,
+    "duration": 5.52
+  },
+  {
+    "text": "candle above the high level, or if we",
+    "start": 325.44,
+    "duration": 5.32
+  },
+  {
+    "text": "have a close of the 15-minute candle",
+    "start": 328.8,
+    "duration": 4.68
+  },
+  {
+    "text": "below the low level. So, we don't just",
+    "start": 330.76,
+    "duration": 5.04
+  },
+  {
+    "text": "settle for the price moving above the",
+    "start": 333.48,
+    "duration": 4.72
+  },
+  {
+    "text": "level for a minute. We want a full",
+    "start": 335.8,
+    "duration": 5.2
+  },
+  {
+    "text": "15-minute candle close above the level,",
+    "start": 338.2,
+    "duration": 5.88
+  },
+  {
+    "text": "or a 15-minute candle close below the",
+    "start": 341.0,
+    "duration": 5.52
+  },
+  {
+    "text": "low level. So, we just need to wait. So,",
+    "start": 344.08,
+    "duration": 4.8
+  },
+  {
+    "text": "let's play this out. This is March 31st,",
+    "start": 346.52,
+    "duration": 4.88
+  },
+  {
+    "text": "and the day range that we boxed in was",
+    "start": 348.88,
+    "duration": 5.04
+  },
+  {
+    "text": "March 30th. Okay, we open up at the",
+    "start": 351.4,
+    "duration": 4.4
+  },
+  {
+    "text": "middle of previous day's range with a",
+    "start": 353.92,
+    "duration": 5.32
+  },
+  {
+    "text": "gap, and the price starts going up, and",
+    "start": 355.8,
+    "duration": 5.36
+  },
+  {
+    "text": "it's actually going up above the range",
+    "start": 359.24,
+    "duration": 4.08
+  },
+  {
+    "text": "in this first opening candle, but",
+    "start": 361.16,
+    "duration": 4.12
+  },
+  {
+    "text": "remember, this isn't a confirmed",
+    "start": 363.32,
+    "duration": 4.36
+  },
+  {
+    "text": "breakout. We need to wait for the candle",
+    "start": 365.28,
+    "duration": 4.36
+  },
+  {
+    "text": "to close. So, the price is going down",
+    "start": 367.68,
+    "duration": 4.52
+  },
+  {
+    "text": "again, and it closes within the range,",
+    "start": 369.64,
+    "duration": 4.44
+  },
+  {
+    "text": "meaning that we don't have a confirmed",
+    "start": 372.2,
+    "duration": 3.92
+  },
+  {
+    "text": "breakout yet. In this next candle, the",
+    "start": 374.08,
+    "duration": 4.4
+  },
+  {
+    "text": "price keeps going up, and we actually do",
+    "start": 376.12,
+    "duration": 5.08
+  },
+  {
+    "text": "get a close above the high, which means",
+    "start": 378.48,
+    "duration": 5.36
+  },
+  {
+    "text": "that we now have a confirmed breakout.",
+    "start": 381.2,
+    "duration": 4.88
+  },
+  {
+    "text": "And that's all for step two, which also",
+    "start": 383.84,
+    "duration": 4.16
+  },
+  {
+    "text": "was pretty easy, right? [music] We don't",
+    "start": 386.08,
+    "duration": 3.48
+  },
+  {
+    "text": "use any indicators. We don't use any",
+    "start": 388.0,
+    "duration": 3.88
+  },
+  {
+    "text": "fancy complex setups. We're just waiting",
+    "start": 389.56,
+    "duration": 4.88
+  },
+  {
+    "text": "for that 15-minute candle close above or",
+    "start": 391.88,
+    "duration": 4.04
+  },
+  {
+    "text": "below the range. Now, let's move on to",
+    "start": 394.44,
+    "duration": 2.88
+  },
+  {
+    "text": "the third and last step, which is to",
+    "start": 395.92,
+    "duration": 3.76
+  },
+  {
+    "text": "make the perfect entry for what usually",
+    "start": 397.32,
+    "duration": 5.04
+  },
+  {
+    "text": "comes after this, which is a retest of",
+    "start": 399.68,
+    "duration": 6.72
+  },
+  {
+    "text": "this level and a bounce. So, our levels",
+    "start": 402.36,
+    "duration": 6.28
+  },
+  {
+    "text": "are drawn in. That is step one. We have",
+    "start": 406.4,
+    "duration": 4.4
+  },
+  {
+    "text": "that 15-minute candle close above our",
+    "start": 408.64,
+    "duration": 4.92
+  },
+  {
+    "text": "previous day's high. That's step two.",
+    "start": 410.8,
+    "duration": 6.2
+  },
+  {
+    "text": "And this step we do on the 5-minute time",
+    "start": 413.56,
+    "duration": 4.96
+  },
+  {
+    "text": "frame.",
+    "start": 417.0,
+    "duration": 5.8
+  },
+  {
+    "text": "So, we switch the chart to the 5-minute",
+    "start": 418.52,
+    "duration": 5.8
+  },
+  {
+    "text": "time frame. Now, from here, what we",
+    "start": 422.8,
+    "duration": 3.2
+  },
+  {
+    "text": "need, which is the most important part",
+    "start": 424.32,
+    "duration": 4.08
+  },
+  {
+    "text": "of this video, we need one out of two",
+    "start": 426.0,
+    "duration": 4.64
+  },
+  {
+    "text": "types of candles to appear at this key",
+    "start": 428.4,
+    "duration": 4.16
+  },
+  {
+    "text": "level. And I say it's the most important",
+    "start": 430.64,
+    "duration": 3.72
+  },
+  {
+    "text": "part because if none of these candles",
+    "start": 432.56,
+    "duration": 2.364
+  },
+  {
+    "text": "appear,",
+    "start": 434.36,
+    "duration": 0.72
+  },
+  {
+    "text": ">> [music]",
+    "start": 434.924,
+    "duration": 2.396
+  },
+  {
+    "text": ">> then it's not ready to be reversed",
+    "start": 435.08,
+    "duration": 4.2
+  },
+  {
+    "text": "because that movement could continue",
+    "start": 437.32,
+    "duration": 4.24
+  },
+  {
+    "text": "back into the range. So, we want one of",
+    "start": 439.28,
+    "duration": 3.96
+  },
+  {
+    "text": "these two candles to appear at this",
+    "start": 441.56,
+    "duration": 3.6
+  },
+  {
+    "text": "level. Also, remember we will only take",
+    "start": 443.24,
+    "duration": 3.92
+  },
+  {
+    "text": "the trade if this happens within the",
+    "start": 445.16,
+    "duration": 3.84
+  },
+  {
+    "text": "first 2 and 1/2 hours of the market",
+    "start": 447.16,
+    "duration": 4.24
+  },
+  {
+    "text": "open. If that doesn't happen, the",
+    "start": 449.0,
+    "duration": 5.32
+  },
+  {
+    "text": "opportunity is lost, and we will not",
+    "start": 451.4,
+    "duration": 4.6
+  },
+  {
+    "text": "take the trade. So, if you know about",
+    "start": 454.32,
+    "duration": 3.44
+  },
+  {
+    "text": "reversal candlesticks or have watched",
+    "start": 456.0,
+    "duration": 3.68
+  },
+  {
+    "text": "any of my previous videos, you already",
+    "start": 457.76,
+    "duration": 3.84
+  },
+  {
+    "text": "know what the two types of candles are.",
+    "start": 459.68,
+    "duration": 3.72
+  },
+  {
+    "text": "The two types of candles that I'm going",
+    "start": 461.6,
+    "duration": 4.04
+  },
+  {
+    "text": "to be looking for are either the hammer",
+    "start": 463.4,
+    "duration": 4.4
+  },
+  {
+    "text": "or the inverted hammer candle, [music]",
+    "start": 465.64,
+    "duration": 5.4
+  },
+  {
+    "text": "or the bullish or bearish engulfing",
+    "start": 467.8,
+    "duration": 5.88
+  },
+  {
+    "text": "candle. And let me explain why these two",
+    "start": 471.04,
+    "duration": 5.12
+  },
+  {
+    "text": "candles are important and must be used",
+    "start": 473.68,
+    "duration": 4.12
+  },
+  {
+    "text": "in this trading setup. Let's start with",
+    "start": 476.16,
+    "duration": 3.72
+  },
+  {
+    "text": "the hammer candle to the long side. This",
+    "start": 477.8,
+    "duration": 5.04
+  },
+  {
+    "text": "must come after a clear red negative",
+    "start": 479.88,
+    "duration": 5.16
+  },
+  {
+    "text": "movement. The confirmation comes from",
+    "start": 482.84,
+    "duration": 5.12
+  },
+  {
+    "text": "within the wick itself, right here. The",
+    "start": 485.04,
+    "duration": 5.0
+  },
+  {
+    "text": "wick represents that the largest buyer",
+    "start": 487.96,
+    "duration": 4.24
+  },
+  {
+    "text": "took advantage of this liquidity, and",
+    "start": 490.04,
+    "duration": 5.24
+  },
+  {
+    "text": "that the institutions bought into that",
+    "start": 492.2,
+    "duration": 4.92
+  },
+  {
+    "text": "weakness. And I've said this in past",
+    "start": 495.28,
+    "duration": 3.16
+  },
+  {
+    "text": "videos that you need to think about it",
+    "start": 497.12,
+    "duration": 3.6
+  },
+  {
+    "text": "this way, that if someone with that",
+    "start": 498.44,
+    "duration": 4.68
+  },
+  {
+    "text": "amount of buying power is going to step",
+    "start": 500.72,
+    "duration": 4.96
+  },
+  {
+    "text": "in there and buy this dip, it's not",
+    "start": 503.12,
+    "duration": 5.36
+  },
+  {
+    "text": "going to go lower in most cases. And",
+    "start": 505.68,
+    "duration": 4.28
+  },
+  {
+    "text": "that's where the edge is because they're",
+    "start": 508.48,
+    "duration": 3.679
+  },
+  {
+    "text": "too big, they are too strong, and they",
+    "start": 509.96,
+    "duration": 4.36
+  },
+  {
+    "text": "have announced their intentions, and",
+    "start": 512.159,
+    "duration": 4.681
+  },
+  {
+    "text": "most likely the price will go higher",
+    "start": 514.32,
+    "duration": 4.68
+  },
+  {
+    "text": "from here. Not all the times, but in",
+    "start": 516.84,
+    "duration": 4.72
+  },
+  {
+    "text": "most cases it will. So, the entry is",
+    "start": 519.0,
+    "duration": 4.599
+  },
+  {
+    "text": "going to be very simple. You're going to",
+    "start": 521.56,
+    "duration": 4.68
+  },
+  {
+    "text": "wait for the break of this 5-minute",
+    "start": 523.599,
+    "duration": 4.801
+  },
+  {
+    "text": "hammer candle here, and the entry would",
+    "start": 526.24,
+    "duration": 4.4
+  },
+  {
+    "text": "be right here, and the stop loss would",
+    "start": 528.4,
+    "duration": 4.36
+  },
+  {
+    "text": "be set at the low.",
+    "start": 530.64,
+    "duration": 4.0
+  },
+  {
+    "text": "The inverted hammer would be something",
+    "start": 532.76,
+    "duration": 4.52
+  },
+  {
+    "text": "that comes after a clear green positive",
+    "start": 534.64,
+    "duration": 4.2
+  },
+  {
+    "text": "movement. You would have the wick coming",
+    "start": 537.28,
+    "duration": 3.36
+  },
+  {
+    "text": "from the top. Again, the confirmation",
+    "start": 538.84,
+    "duration": 3.72
+  },
+  {
+    "text": "comes from within the wick itself, right",
+    "start": 540.64,
+    "duration": 3.92
+  },
+  {
+    "text": "here. The entry would be at the break of",
+    "start": 542.56,
+    "duration": 4.44
+  },
+  {
+    "text": "the candle, and we would set the stop",
+    "start": 544.56,
+    "duration": 5.28
+  },
+  {
+    "text": "loss slightly above the high. Now, the",
+    "start": 547.0,
+    "duration": 5.04
+  },
+  {
+    "text": "engulfing candles have the same exact",
+    "start": 549.84,
+    "duration": 4.2
+  },
+  {
+    "text": "significance, but they look different.",
+    "start": 552.04,
+    "duration": 4.64
+  },
+  {
+    "text": "They are called engulfing because this",
+    "start": 554.04,
+    "duration": 5.76
+  },
+  {
+    "text": "large candle here engulfs the previous",
+    "start": 556.68,
+    "duration": 5.32
+  },
+  {
+    "text": "smaller candle, meaning that the low of",
+    "start": 559.8,
+    "duration": 4.24
+  },
+  {
+    "text": "the candle is lower than the previous",
+    "start": 562.0,
+    "duration": 4.56
+  },
+  {
+    "text": "candle's low, and that the high of the",
+    "start": 564.04,
+    "duration": 5.6
+  },
+  {
+    "text": "candle is higher than the previous",
+    "start": 566.56,
+    "duration": 6.12
+  },
+  {
+    "text": "candle's high. So, fully engulfing the",
+    "start": 569.64,
+    "duration": 5.4
+  },
+  {
+    "text": "previous smaller candle. For engulfing",
+    "start": 572.68,
+    "duration": 4.48
+  },
+  {
+    "text": "candles, though, I like to set the entry",
+    "start": 575.04,
+    "duration": 3.92
+  },
+  {
+    "text": "already at the high of the previous",
+    "start": 577.16,
+    "duration": 4.52
+  },
+  {
+    "text": "candle, and not wait until the engulfing",
+    "start": 578.96,
+    "duration": 4.96
+  },
+  {
+    "text": "candle closes. So, for the bullish",
+    "start": 581.68,
+    "duration": 4.8
+  },
+  {
+    "text": "engulfing candle, I would set my long",
+    "start": 583.92,
+    "duration": 4.84
+  },
+  {
+    "text": "entry here at the high of this red",
+    "start": 586.48,
+    "duration": 4.24
+  },
+  {
+    "text": "candle, and I would place the stop loss",
+    "start": 588.76,
+    "duration": 4.92
+  },
+  {
+    "text": "slightly below the low of the engulfing",
+    "start": 590.72,
+    "duration": 4.6
+  },
+  {
+    "text": "candle. And for bearish engulfing",
+    "start": 593.68,
+    "duration": 3.56
+  },
+  {
+    "text": "candles, we enter the short trade",
+    "start": 595.32,
+    "duration": 4.011
+  },
+  {
+    "text": "already at the low of the previous",
+    "start": 597.24,
+    "duration": 4.4
+  },
+  {
+    "text": "[music] green candle and place the stop",
+    "start": 599.331,
+    "duration": 5.029
+  },
+  {
+    "text": "loss slightly above the high. So, if you",
+    "start": 601.64,
+    "duration": 4.52
+  },
+  {
+    "text": "didn't follow all of this, don't worry,",
+    "start": 604.36,
+    "duration": 3.84
+  },
+  {
+    "text": "we're going to go through this step by",
+    "start": 606.16,
+    "duration": 4.48
+  },
+  {
+    "text": "step now. Let's replay this again. Step",
+    "start": 608.2,
+    "duration": 4.6
+  },
+  {
+    "text": "one, we go to that daily timeframe and",
+    "start": 610.64,
+    "duration": 3.48
+  },
+  {
+    "text": "the first [music] thing that we do in",
+    "start": 612.8,
+    "duration": 3.32
+  },
+  {
+    "text": "the morning is to box in yesterday's",
+    "start": 614.12,
+    "duration": 4.88
+  },
+  {
+    "text": "range and we extend it until today. Step",
+    "start": 616.12,
+    "duration": 5.08
+  },
+  {
+    "text": "two, we go to the 15-minute timeframe",
+    "start": 619.0,
+    "duration": 4.72
+  },
+  {
+    "text": "and we identify that we have a candle",
+    "start": 621.2,
+    "duration": 5.56
+  },
+  {
+    "text": "close outside that box and step three,",
+    "start": 623.72,
+    "duration": 5.52
+  },
+  {
+    "text": "we go to the 5-minute timeframe and we",
+    "start": 626.76,
+    "duration": 5.92
+  },
+  {
+    "text": "wait for a hammer candle or a [music]",
+    "start": 629.24,
+    "duration": 6.48
+  },
+  {
+    "text": "engulfing candle at that high low level.",
+    "start": 632.68,
+    "duration": 4.28
+  },
+  {
+    "text": "Okay, so let's see if we get that",
+    "start": 635.72,
+    "duration": 3.76
+  },
+  {
+    "text": "retest, if we get that reversal candle",
+    "start": 636.96,
+    "duration": 5.52
+  },
+  {
+    "text": "and if we get that bounce. So, the price",
+    "start": 639.48,
+    "duration": 5.88
+  },
+  {
+    "text": "actually rapidly retest the level here",
+    "start": 642.48,
+    "duration": 5.28
+  },
+  {
+    "text": "in the next 5-minute candle. So, we're",
+    "start": 645.36,
+    "duration": 4.56
+  },
+  {
+    "text": "waiting for the reversal candlestick",
+    "start": 647.76,
+    "duration": 5.24
+  },
+  {
+    "text": "formation somewhere around this level.",
+    "start": 649.92,
+    "duration": 5.12
+  },
+  {
+    "text": "In this next candle, price goes up",
+    "start": 653.0,
+    "duration": 4.88
+  },
+  {
+    "text": "again, no reversal candlesticks yet and",
+    "start": 655.04,
+    "duration": 4.799
+  },
+  {
+    "text": "the next two candles were green as well.",
+    "start": 657.88,
+    "duration": 4.44
+  },
+  {
+    "text": "Price goes up again but without any",
+    "start": 659.839,
+    "duration": 4.601
+  },
+  {
+    "text": "reversal candles. Okay, here we actually",
+    "start": 662.32,
+    "duration": 4.6
+  },
+  {
+    "text": "get a hammer candlestick but remember,",
+    "start": 664.44,
+    "duration": 4.92
+  },
+  {
+    "text": "we only enter on hammer candles if it",
+    "start": 666.92,
+    "duration": 4.68
+  },
+  {
+    "text": "was preceded by a clear negative",
+    "start": 669.36,
+    "duration": 4.92
+  },
+  {
+    "text": "movement and not when it's looking like",
+    "start": 671.6,
+    "duration": 4.239
+  },
+  {
+    "text": "this. Okay, the price goes down again",
+    "start": 674.28,
+    "duration": 3.88
+  },
+  {
+    "text": "for a third retest. Okay, around here,",
+    "start": 675.839,
+    "duration": 4.601
+  },
+  {
+    "text": "90 minutes after market open, you should",
+    "start": 678.16,
+    "duration": 4.56
+  },
+  {
+    "text": "see what I'm seeing. We are once again",
+    "start": 680.44,
+    "duration": 4.16
+  },
+  {
+    "text": "around this breakout level. We've got a",
+    "start": 682.72,
+    "duration": 4.36
+  },
+  {
+    "text": "low of this candle that is lower than",
+    "start": 684.6,
+    "duration": 4.239
+  },
+  {
+    "text": "the previous candle, meaning that if the",
+    "start": 687.08,
+    "duration": 3.68
+  },
+  {
+    "text": "price goes up from here to the high of",
+    "start": 688.839,
+    "duration": 3.801
+  },
+  {
+    "text": "the previous candle, we could very well",
+    "start": 690.76,
+    "duration": 4.12
+  },
+  {
+    "text": "have a bullish engulfing candle. So, the",
+    "start": 692.64,
+    "duration": 4.24
+  },
+  {
+    "text": "entry would be straightforward. We would",
+    "start": 694.88,
+    "duration": 3.8
+  },
+  {
+    "text": "enter the long trade at the high of the",
+    "start": 696.88,
+    "duration": 3.64
+  },
+  {
+    "text": "previous candle here and we would set",
+    "start": 698.68,
+    "duration": 3.68
+  },
+  {
+    "text": "the stop loss below the low of the",
+    "start": 700.52,
+    "duration": 5.04
+  },
+  {
+    "text": "candle and I would set a target profit",
+    "start": 702.36,
+    "duration": 6.4
+  },
+  {
+    "text": "to three times the stop loss. Okay, so",
+    "start": 705.56,
+    "duration": 5.64
+  },
+  {
+    "text": "our trade is set. Let's see how it plays",
+    "start": 708.76,
+    "duration": 6.44
+  },
+  {
+    "text": "out. So, the price continues up and we",
+    "start": 711.2,
+    "duration": 6.4
+  },
+  {
+    "text": "enter the trade. We reach our target",
+    "start": 715.2,
+    "duration": 4.639
+  },
+  {
+    "text": "profit here already 15 minutes later. In",
+    "start": 717.6,
+    "duration": 5.52
+  },
+  {
+    "text": "this trade, we entered at 94.51. We put",
+    "start": 719.839,
+    "duration": 5.961
+  },
+  {
+    "text": "the stop loss at 94.34",
+    "start": 723.12,
+    "duration": 4.96
+  },
+  {
+    "text": "and we set the target [music] profit at",
+    "start": 725.8,
+    "duration": 4.2
+  },
+  {
+    "text": "95.02.",
+    "start": 728.08,
+    "duration": 5.44
+  },
+  {
+    "text": "So, this trade had a 17 point stop loss",
+    "start": 730.0,
+    "duration": 6.72
+  },
+  {
+    "text": "and we made a 51 points win, which is",
+    "start": 733.52,
+    "duration": 4.68
+  },
+  {
+    "text": "pretty good, right? And this isn't",
+    "start": 736.72,
+    "duration": 3.32
+  },
+  {
+    "text": "cherry-picked. So, if we look back at",
+    "start": 738.2,
+    "duration": 3.48
+  },
+  {
+    "text": "previous times that we had this breakout",
+    "start": 740.04,
+    "duration": 5.24
+  },
+  {
+    "text": "setup, the last time was March 26th and",
+    "start": 741.68,
+    "duration": 5.4
+  },
+  {
+    "text": "we had this pattern here, too. We had a",
+    "start": 745.28,
+    "duration": 4.12
+  },
+  {
+    "text": "positive breakout. We reversed down",
+    "start": 747.08,
+    "duration": 4.72
+  },
+  {
+    "text": "again for a retest and then we bounced",
+    "start": 749.4,
+    "duration": 5.4
+  },
+  {
+    "text": "up higher. March 23rd, we have this",
+    "start": 751.8,
+    "duration": 5.44
+  },
+  {
+    "text": "pattern here, too. A positive breakout,",
+    "start": 754.8,
+    "duration": 5.4
+  },
+  {
+    "text": "a retest, a hammer candle and then",
+    "start": 757.24,
+    "duration": 5.12
+  },
+  {
+    "text": "bouncing up. Of course, there are",
+    "start": 760.2,
+    "duration": 5.36
+  },
+  {
+    "text": "losses, too. If we go back to March 9th,",
+    "start": 762.36,
+    "duration": 5.88
+  },
+  {
+    "text": "we got a bearish engulfing candle here",
+    "start": 765.56,
+    "duration": 5.6
+  },
+  {
+    "text": "but it's false and the price actually",
+    "start": 768.24,
+    "duration": 5.4
+  },
+  {
+    "text": "goes back into the range again. So, this",
+    "start": 771.16,
+    "duration": 4.8
+  },
+  {
+    "text": "strategy doesn't have a 100% win rate",
+    "start": 773.64,
+    "duration": 4.52
+  },
+  {
+    "text": "but almost every time that the price",
+    "start": 775.96,
+    "duration": 4.24
+  },
+  {
+    "text": "breaks out like this, it will retest the",
+    "start": 778.16,
+    "duration": 4.32
+  },
+  {
+    "text": "breakout level and then it will bounce.",
+    "start": 780.2,
+    "duration": 4.6
+  },
+  {
+    "text": "So, this breakout setup doesn't happen",
+    "start": 782.48,
+    "duration": 4.92
+  },
+  {
+    "text": "every day. Sometimes we trade within the",
+    "start": 784.8,
+    "duration": 4.56
+  },
+  {
+    "text": "range for the full day. Sometimes the",
+    "start": 787.4,
+    "duration": 4.36
+  },
+  {
+    "text": "breakout happens but it's not within the",
+    "start": 789.36,
+    "duration": 4.6
+  },
+  {
+    "text": "first two and a half hours. Sometimes",
+    "start": 791.76,
+    "duration": 3.92
+  },
+  {
+    "text": "the breakout happens within the two and",
+    "start": 793.96,
+    "duration": 4.2
+  },
+  {
+    "text": "a half hours but we don't get a reversal",
+    "start": 795.68,
+    "duration": 4.4
+  },
+  {
+    "text": "candle and this means that we only get",
+    "start": 798.16,
+    "duration": 4.72
+  },
+  {
+    "text": "this setup two or three times per month",
+    "start": 800.08,
+    "duration": 4.6
+  },
+  {
+    "text": "per stock. So, if you want to trade this",
+    "start": 802.88,
+    "duration": 3.8
+  },
+  {
+    "text": "strategy daily, that means that you need",
+    "start": 804.68,
+    "duration": 4.2
+  },
+  {
+    "text": "to scan a number of different stocks",
+    "start": 806.68,
+    "duration": 4.24
+  },
+  {
+    "text": "every morning to find suitable breakout.",
+    "start": 808.88,
+    "duration": 3.56
+  },
+  {
+    "text": "Now, let me show you how to trade this",
+    "start": 810.92,
+    "duration": 3.28
+  },
+  {
+    "text": "live. It's already after lunch, so I",
+    "start": 812.44,
+    "duration": 5.04
+  },
+  {
+    "text": "will be back tomorrow.",
+    "start": 814.2,
+    "duration": 3.28
+  },
+  {
+    "text": "Okay, so I'm back. It's actually been a",
+    "start": 817.56,
+    "duration": 4.68
+  },
+  {
+    "text": "few days since you saw me last time. I",
+    "start": 820.2,
+    "duration": 3.48
+  },
+  {
+    "text": "didn't get the trade setup the next",
+    "start": 822.24,
+    "duration": 3.36
+  },
+  {
+    "text": "morning but hopefully we will get it",
+    "start": 823.68,
+    "duration": 4.08
+  },
+  {
+    "text": "today. So, the market opens in 10",
+    "start": 825.6,
+    "duration": 4.16
+  },
+  {
+    "text": "minutes and we can start by doing step",
+    "start": 827.76,
+    "duration": 4.28
+  },
+  {
+    "text": "one, which is to box in yesterday's",
+    "start": 829.76,
+    "duration": 4.16
+  },
+  {
+    "text": "trading range. So, we take our box",
+    "start": 832.04,
+    "duration": 4.2
+  },
+  {
+    "text": "drawing tool. We draw a box from the",
+    "start": 833.92,
+    "duration": 5.32
+  },
+  {
+    "text": "high to the low and we extend it until",
+    "start": 836.24,
+    "duration": 5.92
+  },
+  {
+    "text": "today. So, that's step one. Again, we",
+    "start": 839.24,
+    "duration": 5.28
+  },
+  {
+    "text": "are on Netflix. So, the high level is",
+    "start": 842.16,
+    "duration": 4.96
+  },
+  {
+    "text": "97.19.",
+    "start": 844.52,
+    "duration": 6.334
+  },
+  {
+    "text": "The low level is at 94.27.",
+    "start": 847.12,
+    "duration": 3.76
+  },
+  {
+    "text": ">> [snorts]",
+    "start": 850.854,
+    "duration": 2.306
+  },
+  {
+    "text": ">> Let's go to the 15-minute timeframe and",
+    "start": 850.88,
+    "duration": 4.24
+  },
+  {
+    "text": "let's wait for the market open. Okay,",
+    "start": 853.16,
+    "duration": 5.16
+  },
+  {
+    "text": "here we go. We opened around the middle",
+    "start": 855.12,
+    "duration": 5.959
+  },
+  {
+    "text": "of yesterday's range and we're going up",
+    "start": 858.32,
+    "duration": 3.669
+  },
+  {
+    "text": "and then down.",
+    "start": 861.079,
+    "duration": 0.961
+  },
+  {
+    "text": ">> [music]",
+    "start": 861.989,
+    "duration": 2.131
+  },
+  {
+    "text": ">> Okay, now finally, here you should see",
+    "start": 862.04,
+    "duration": 5.24
+  },
+  {
+    "text": "what I see. Uh so, we have a 15-minute",
+    "start": 864.12,
+    "duration": 5.839
+  },
+  {
+    "text": "candle close here above the range",
+    "start": 867.28,
+    "duration": 6.6
+  },
+  {
+    "text": "around 75 minutes after the market open.",
+    "start": 869.959,
+    "duration": 7.041
+  },
+  {
+    "text": "So, that's step two. We have a confirmed",
+    "start": 873.88,
+    "duration": 6.0
+  },
+  {
+    "text": "breakout and step three is to dial in",
+    "start": 877.0,
+    "duration": 4.92
+  },
+  {
+    "text": "that perfect trade. So, we go into the",
+    "start": 879.88,
+    "duration": 4.76
+  },
+  {
+    "text": "5-minute timeframe and we wait for a",
+    "start": 881.92,
+    "duration": 4.68
+  },
+  {
+    "text": "hammer or a bullish engulfing",
+    "start": 884.64,
+    "duration": 4.439
+  },
+  {
+    "text": "candlestick and we wait for it to happen",
+    "start": 886.6,
+    "duration": 4.68
+  },
+  {
+    "text": "around this level. If this was a",
+    "start": 889.079,
+    "duration": 4.361
+  },
+  {
+    "text": "negative breakout, we would instead wait",
+    "start": 891.28,
+    "duration": 5.4
+  },
+  {
+    "text": "for a inverted hammer or a bearish",
+    "start": 893.44,
+    "duration": 5.72
+  },
+  {
+    "text": "engulfing candlestick and we would wait",
+    "start": 896.68,
+    "duration": 4.84
+  },
+  {
+    "text": "for [music] it to happen around the low",
+    "start": 899.16,
+    "duration": 5.08
+  },
+  {
+    "text": "level. So, here look, we have something",
+    "start": 901.52,
+    "duration": 5.96
+  },
+  {
+    "text": "that might turn into a hammer. The wick",
+    "start": 904.24,
+    "duration": 6.32
+  },
+  {
+    "text": "exactly touches this level. So, if the",
+    "start": 907.48,
+    "duration": 5.32
+  },
+  {
+    "text": "candle closes like this, then we will",
+    "start": 910.56,
+    "duration": 5.44
+  },
+  {
+    "text": "enter immediately at the candle close.",
+    "start": 912.8,
+    "duration": 4.44
+  },
+  {
+    "text": "Okay, so there it's closed. It's",
+    "start": 916.0,
+    "duration": 3.8
+  },
+  {
+    "text": "definitely a hammer, so I will enter a",
+    "start": 917.24,
+    "duration": 5.2
+  },
+  {
+    "text": "long position. I will set the stop loss",
+    "start": 919.8,
+    "duration": 5.039
+  },
+  {
+    "text": "a bit under this level here. I will set",
+    "start": 922.44,
+    "duration": 6.32
+  },
+  {
+    "text": "it at 97.15,",
+    "start": 924.839,
+    "duration": 7.0
+  },
+  {
+    "text": "which means that it's a 39 cents stop",
+    "start": 928.76,
+    "duration": 5.12
+  },
+  {
+    "text": "loss and I want to set a target profit",
+    "start": 931.839,
+    "duration": 5.801
+  },
+  {
+    "text": "that is twice that. So, that's 78 cents,",
+    "start": 933.88,
+    "duration": 5.56
+  },
+  {
+    "text": "which means that the target profit",
+    "start": 937.64,
+    "duration": 3.84
+  },
+  {
+    "text": "should be set at",
+    "start": 939.44,
+    "duration": 5.04
+  },
+  {
+    "text": "98.32.",
+    "start": 941.48,
+    "duration": 3.0
+  },
+  {
+    "text": "And that's step three. Let's see how it",
+    "start": 944.92,
+    "duration": 5.4
+  },
+  {
+    "text": "plays out. This is taking longer than",
+    "start": 947.64,
+    "duration": 5.84
+  },
+  {
+    "text": "usual. We are still in trade.",
+    "start": 950.32,
+    "duration": 5.335
+  },
+  {
+    "text": "We're still in latent gain but it's been",
+    "start": 953.48,
+    "duration": 3.0
+  },
+  {
+    "text": "[music]",
+    "start": 955.655,
+    "duration": 4.145
+  },
+  {
+    "text": "in trade for almost two hours now. By",
+    "start": 956.48,
+    "duration": 5.08
+  },
+  {
+    "text": "the way, I forgot to say this but if we",
+    "start": 959.8,
+    "duration": 4.039
+  },
+  {
+    "text": "are still in position by the time the",
+    "start": 961.56,
+    "duration": 3.6
+  },
+  {
+    "text": "market closes, we [music] want to",
+    "start": 963.839,
+    "duration": 5.281
+  },
+  {
+    "text": "manually close the trade. Oh, okay. This",
+    "start": 965.16,
+    "duration": 7.48
+  },
+  {
+    "text": "is taking time. Finally, so we reached",
+    "start": 969.12,
+    "duration": 5.52
+  },
+  {
+    "text": "our target profit here. The average",
+    "start": 972.64,
+    "duration": 4.04
+  },
+  {
+    "text": "trade duration is usually like one or",
+    "start": 974.64,
+    "duration": 4.16
+  },
+  {
+    "text": "two hours, so this is unusually long.",
+    "start": 976.68,
+    "duration": 4.36
+  },
+  {
+    "text": "Again, I would have closed the trade at",
+    "start": 978.8,
+    "duration": 4.2
+  },
+  {
+    "text": "the closing if we hadn't reached our",
+    "start": 981.04,
+    "duration": 4.08
+  },
+  {
+    "text": "target profit here. Anyway, we made some",
+    "start": 983.0,
+    "duration": 4.24
+  },
+  {
+    "text": "money. We made a good trade. We followed",
+    "start": 985.12,
+    "duration": 4.32
+  },
+  {
+    "text": "the steps and",
+    "start": 987.24,
+    "duration": 3.92
+  },
+  {
+    "text": "that's all we need to do. All right,",
+    "start": 989.44,
+    "duration": 3.56
+  },
+  {
+    "text": "guys. I hope you learned something",
+    "start": 991.16,
+    "duration": 4.08
+  },
+  {
+    "text": "today. Please make sure to do your own",
+    "start": 993.0,
+    "duration": 4.88
+  },
+  {
+    "text": "due diligence and your own backtests",
+    "start": 995.24,
+    "duration": 4.96
+  },
+  {
+    "text": "before running any of these strategies.",
+    "start": 997.88,
+    "duration": 4.199
+  },
+  {
+    "text": "Historic results are no guarantee for",
+    "start": 1000.2,
+    "duration": 4.56
+  },
+  {
+    "text": "future results and with that being said,",
+    "start": 1002.079,
+    "duration": 4.921
+  },
+  {
+    "text": "I hope you guys enjoyed this video. If",
+    "start": 1004.76,
+    "duration": 3.92
+  },
+  {
+    "text": "you did enjoy it, please [music] give it",
+    "start": 1007.0,
+    "duration": 4.52
+  },
+  {
+    "text": "a thumbs up and subscribe to the channel",
+    "start": 1008.68,
+    "duration": 6.36
+  },
+  {
+    "text": "and I will see you again soon for a",
+    "start": 1011.52,
+    "duration": 5.68
+  },
+  {
+    "text": "brand new strategy.",
+    "start": 1015.04,
+    "duration": 4.48
+  },
+  {
+    "text": "Bye.",
+    "start": 1017.2,
+    "duration": 2.32
+  }
+]

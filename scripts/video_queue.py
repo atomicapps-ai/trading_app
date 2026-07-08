@@ -14,9 +14,11 @@ import argparse
 import json
 from pathlib import Path
 
+import os
 ROOT = Path(__file__).resolve().parent.parent
-LIB = ROOT / "research" / "video_library"
-HIST = LIB / "_history.json"
+BASE = ROOT / "research" / "video_library"
+LIB = BASE / os.environ.get("VIDEO_STYLE", "day_intra")   # per-style lane (swing|day_intra|scalp)
+HIST = BASE / "_history.json"                             # global across lanes
 
 
 def load_hist() -> dict:

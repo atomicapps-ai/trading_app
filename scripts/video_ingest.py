@@ -33,7 +33,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-LIB = PROJECT_ROOT / "research" / "video_library"
+import os
+BASE = PROJECT_ROOT / "research" / "video_library"          # global _history.json lives here
+LIB = BASE / os.environ.get("VIDEO_STYLE", "day_intra")     # per-style lane (swing|day_intra|scalp)
+LIB.mkdir(parents=True, exist_ok=True)
 
 # Optional Netscape cookies.txt (exported from a signed-in browser) to bypass
 # YouTube's "confirm you're not a bot" gate + caption IP-blocks. Set via --cookies.
@@ -291,7 +294,7 @@ def do_manifest(path: str) -> None:
 # One-command ingest: transcript + auto-frames, with duplicate detection
 # --------------------------------------------------------------------------- #
 
-HISTORY_FILE = LIB / "_history.json"
+HISTORY_FILE = BASE / "_history.json"   # global across all style lanes
 
 
 def load_history() -> dict:
@@ -319,13 +322,17 @@ def _duration_for(folder: Path) -> int:
 
 
 def do_ingest(urls: list[str], interval: int = 90, force: bool = False,
-              keep_video: bool = False, sleep_s: float = 0.0) -> None:
-    """End-to-end: for each NEW url, save transcript + auto-extract frames at
-    even intervals. Skips any video already in the history (or with a transcript
+              keep_video: bool = False, sleep_s: float = 0.0,
+              no_frames: bool = False) -> None:
+    """End-to-end: for each NEW url, save transcript + (optionally) auto-extract frames
+    at even intervals. Skips any video already in the history (or with a transcript
     on disk) unless --force. The history file is the record of what's been run.
 
-    sleep_s: pause between processed videos to stay under YouTube rate limits."""
-    import time
+    Anti-block: sleep_s is the BASE pause between videos; actual pause is randomized
+    jitter in [0.6, 1.6]x to look less bot-like. --no-frames keeps footprint light
+    (transcript-only = one lightweight caption request; frames stream the video via
+    yt-dlp and are the heavier, more block-prone call)."""
+    import time, random
     hist = load_history()
     done = skipped = 0
     for url in urls:
@@ -352,7 +359,9 @@ def do_ingest(urls: list[str], interval: int = 90, force: bool = False,
                 print(f"  transcript failed: {e}")
 
         dur = _duration_for(folder)
-        if dur > 45:
+        if no_frames:
+            secs = []
+        elif dur > 45:
             secs = list(range(30, dur - 15, max(15, interval)))
         elif dur:
             secs = [max(1, dur // 2)]
@@ -373,7 +382,7 @@ def do_ingest(urls: list[str], interval: int = 90, force: bool = False,
         save_history(hist)
         done += 1
         if sleep_s > 0:
-            time.sleep(sleep_s)
+            time.sleep(random.uniform(0.6 * sleep_s, 1.6 * sleep_s))   # jittered pacing
 
     print(f"\nIngested {done}, skipped {skipped} duplicate(s). "
           f"Library: research/video_library/  ·  history: {HISTORY_FILE.name}")
@@ -440,7 +449,16 @@ def main() -> None:
     ap.add_argument("--frames", help="single video: comma-separated seconds, e.g. 120,355,610")
     ap.add_argument("--frames-file", help="single video: text file, one timestamp (seconds) per line")
     ap.add_argument("--frames-manifest", help="JSON {video: [seconds,...]} — batch frames for many videos")
+    ap.add_argument("--no-frames", action="store_true",
+                    help="transcript-only ingest (light footprint; skip frame extraction to avoid IP-blocks)")
+    ap.add_argument("--style", choices=["swing", "day_intra", "scalp"],
+                    help="library lane (overrides VIDEO_STYLE env; video dirs saved here, history global)")
     args = ap.parse_args()
+
+    if getattr(args, "style", None):
+        global LIB
+        LIB = BASE / args.style
+        LIB.mkdir(parents=True, exist_ok=True)
 
     global _COOKIES
     if getattr(args, "cookies", None):
@@ -463,7 +481,7 @@ def main() -> None:
         if not urls:
             raise SystemExit("Provide one or more YouTube URLs with --ingest.")
         do_ingest(urls, interval=args.interval, force=args.force,
-                  keep_video=args.keep_video, sleep_s=args.sleep)
+                  keep_video=args.keep_video, sleep_s=args.sleep, no_frames=args.no_frames)
         return
 
     urls = expand_urls(args.urls)

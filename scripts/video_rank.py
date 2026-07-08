@@ -14,11 +14,12 @@ with the top picks flagged. Then ingest the picks with video_ingest.py --ingest.
     python scripts/video_rank.py --stage2 40 --pick 10
 """
 from __future__ import annotations
-import argparse, json, math, re, subprocess, sys
+import argparse, json, math, os, re, subprocess, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-LIB = ROOT / "research" / "video_library"
+BASE = ROOT / "research" / "video_library"
+LIB = BASE / os.environ.get("VIDEO_STYLE", "day_intra")   # per-style lane (swing|day_intra|scalp)
 CAND = LIB / "_candidates.md"
 CACHE = LIB / "_rankcache"   # trimmed per-video metadata+comments, so gate tweaks never re-fetch
 
@@ -205,8 +206,8 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--stage2", type=int, default=30)
     ap.add_argument("--pick", type=int, default=8)
-    ap.add_argument("--min-subs", type=int, default=100_000,
-                    help="HARD gate: drop channels below this subscriber count")
+    ap.add_argument("--min-subs", type=int, default=10_000,
+                    help="HARD gate: drop channels below this subscriber count (operator req: >10k)")
     ap.add_argument("--pos-ratio", type=float, default=0.8,
                     help="HARD gate: fraction of opinionated comments that must be positive (0.8 = 8 of 10)")
     ap.add_argument("--min-opinion", type=int, default=10,
