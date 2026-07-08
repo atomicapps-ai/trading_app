@@ -123,6 +123,16 @@ async def trade_detail(
     from services.tradingview import tv_for_trade
     tradingview_url = tv_for_trade(trade.symbol, trade.strategy_name)
 
+    # Company name for the header label + faint chart watermark (cached;
+    # off-thread so a first-time yfinance lookup can't block the event loop).
+    company_name = ""
+    try:
+        import asyncio
+        from services import company_service
+        company_name = (await asyncio.to_thread(company_service.get_name, trade.symbol)) or ""
+    except Exception:                                             # noqa: BLE001
+        company_name = ""
+
     return templates.TemplateResponse(
         request=request,
         name="trades/detail.html",
@@ -131,6 +141,7 @@ async def trade_detail(
             "app_version": "0.1.0",
             "active_page": "trades",
             "trade": trade,
+            "company_name": company_name,
             "probability": prob,
             "tradingview_url": tradingview_url,
             "news_items": news_items,

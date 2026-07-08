@@ -20,6 +20,7 @@ object can read ``view.raw``.
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
@@ -178,21 +179,37 @@ def _stage_from_status(status: str) -> TradeStage:
     return "unknown"
 
 
+_UUID_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.I)
+
+
+def _clean_strategy(v) -> str | None:
+    """Return a display-worthy strategy name, or None. Filters out raw UUIDs
+    (some manual trades store an id in thesis.strategy) so the header doesn't
+    show a meaningless GUID badge."""
+    if not isinstance(v, str):
+        return None
+    v = v.strip()
+    if not v or _UUID_RE.match(v):
+        return None
+    return v
+
+
 def _strategy_from_thesis(thesis: dict) -> str | None:
     """Extract strategy_name. Stored under thesis.strategy or in the
     summary; for now we look in a couple of likely places."""
     if not thesis:
         return None
     for k in ("strategy", "strategy_name", "summary"):
-        v = thesis.get(k)
-        if isinstance(v, str) and v:
-            # `summary` is freeform — only use if no dedicated key exists
-            if k != "summary":
-                return v
-    # Fallback: first contributing pattern name
+        if k == "summary":
+            continue  # freeform — not a strategy label
+        v = _clean_strategy(thesis.get(k))
+        if v:
+            return v
+    # Fallback: first contributing pattern name (if not a UUID)
     pats = thesis.get("patterns") or thesis.get("signal_ids") or []
     if isinstance(pats, list) and pats:
-        return str(pats[0])
+        return _clean_strategy(str(pats[0]))
     return None
 
 
