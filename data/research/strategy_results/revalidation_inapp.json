@@ -1,83 +1,82 @@
 {
-  "n_symbols": 30,
-  "since": "2019-01-01",
+  "n_symbols": 500,
   "results": {
     "rsi_pullback": {
       "all": {
-        "n": 276,
-        "win_pct": 67.8,
-        "expectancy_R": 0.0456,
-        "profit_factor": 1.21
+        "n": 9989,
+        "win_pct": 69.8,
+        "expectancy_R": 0.0751,
+        "profit_factor": 1.42
       },
       "in_sample": {
-        "n": 138,
-        "win_pct": 68.8,
-        "expectancy_R": 0.0348,
-        "profit_factor": 1.14
+        "n": 4994,
+        "win_pct": 71.0,
+        "expectancy_R": 0.078,
+        "profit_factor": 1.46
       },
       "out_sample": {
-        "n": 138,
-        "win_pct": 66.7,
-        "expectancy_R": 0.0564,
-        "profit_factor": 1.32
+        "n": 4995,
+        "win_pct": 68.7,
+        "expectancy_R": 0.0722,
+        "profit_factor": 1.38
       },
       "random_control": {
-        "n": 276,
-        "win_pct": 56.2,
-        "expectancy_R": 0.0411,
-        "profit_factor": 1.19
+        "n": 9989,
+        "win_pct": 50.4,
+        "expectancy_R": 0.0052,
+        "profit_factor": 1.02
       }
     },
     "band_extreme_fade": {
       "all": {
-        "n": 322,
-        "win_pct": 43.8,
-        "expectancy_R": 0.1998,
-        "profit_factor": 1.39
+        "n": 11299,
+        "win_pct": 40.5,
+        "expectancy_R": 0.1619,
+        "profit_factor": 1.3
       },
       "in_sample": {
-        "n": 161,
-        "win_pct": 43.5,
-        "expectancy_R": 0.3306,
-        "profit_factor": 1.63
+        "n": 5649,
+        "win_pct": 39.8,
+        "expectancy_R": 0.1269,
+        "profit_factor": 1.24
       },
       "out_sample": {
-        "n": 161,
-        "win_pct": 44.1,
-        "expectancy_R": 0.069,
-        "profit_factor": 1.14
+        "n": 5650,
+        "win_pct": 41.3,
+        "expectancy_R": 0.197,
+        "profit_factor": 1.37
       },
       "random_control": {
-        "n": 322,
-        "win_pct": 46.6,
-        "expectancy_R": 0.0785,
-        "profit_factor": 1.14
+        "n": 11299,
+        "win_pct": 49.0,
+        "expectancy_R": 0.0182,
+        "profit_factor": 1.03
       }
     },
     "hidden_divergence": {
       "all": {
-        "n": 243,
-        "win_pct": 35.4,
-        "expectancy_R": 0.1239,
-        "profit_factor": 1.54
+        "n": 8272,
+        "win_pct": 36.2,
+        "expectancy_R": 0.0899,
+        "profit_factor": 1.4
       },
       "in_sample": {
-        "n": 121,
-        "win_pct": 38.0,
-        "expectancy_R": 0.0359,
-        "profit_factor": 1.17
+        "n": 4136,
+        "win_pct": 36.3,
+        "expectancy_R": 0.0633,
+        "profit_factor": 1.28
       },
       "out_sample": {
-        "n": 122,
-        "win_pct": 32.8,
-        "expectancy_R": 0.2112,
-        "profit_factor": 1.84
+        "n": 4136,
+        "win_pct": 36.1,
+        "expectancy_R": 0.1165,
+        "profit_factor": 1.52
       },
       "random_control": {
-        "n": 243,
-        "win_pct": 49.0,
-        "expectancy_R": -0.0109,
-        "profit_factor": 0.96
+        "n": 8272,
+        "win_pct": 48.2,
+        "expectancy_R": 0.0076,
+        "profit_factor": 1.03
       }
     }
   }

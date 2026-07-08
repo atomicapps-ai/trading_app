@@ -11,6 +11,12 @@ mode: paper
 active: true
 holding_period: swing_days
 
+# Trade type (surfaced as badges + grouping on /strategies)
+style: swing              # swing | day_trade
+family: trend_breakout    # the category of edge (a proxy for what it correlates with)
+instrument: us_equity     # us_equity | fx
+direction: long           # long | long_short
+
 # Technical lens scoped to ONLY the breakout detector.
 detectors:
   - s7_breakout_continuation

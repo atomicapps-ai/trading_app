@@ -333,6 +333,10 @@ async def _strategies_bucket_page(request: Request, s: Settings, bucket: str,
             "version": c.get("version"),
             "mode": c.get("mode", "research"),
             "holding_period": c.get("holding_period"),
+            "style": c.get("style") or ("day_trade" if c.get("holding_period") == "intraday" else "swing"),
+            "family": c.get("family"),
+            "instrument": c.get("instrument"),
+            "direction": c.get("direction"),
             "active": eff_active,
             "active_yaml": bool(c.get("active", False)),
             "active_overridden": has_override,
@@ -348,6 +352,12 @@ async def _strategies_bucket_page(request: Request, s: Settings, bucket: str,
             "validation": validation,
             "last_run": last_run,
         })
+
+    # Group by style (swing first, then day_trade), then family, then title — so the
+    # template can render contiguous "Swing trades" / "Day trades" sections.
+    _style_order = {"swing": 0, "day_trade": 1}
+    rows.sort(key=lambda r: (_style_order.get(r.get("style"), 2),
+                             (r.get("family") or "zz"), r.get("title") or ""))
 
     counts = await _bucket_counts()
     tabs = [

@@ -13,6 +13,12 @@ mode: paper
 active: true
 holding_period: intraday
 
+# Trade type (surfaced as badges + grouping on /strategies)
+style: day_trade           # swing | day_trade  (intraday, flat by EOD)
+family: fvg_continuation   # the category of edge (a proxy for what it correlates with)
+instrument: fx             # us_equity | fx
+direction: long_short      # long | long_short
+
 # Review is REPLAY-ONLY until the FX broker (IBKR Pro) is live + an intraday workflow
 # is wired. No live scan workflow yet — see BROKER_INTEGRATION.md remaining-work list.
 broker_required: ibkr

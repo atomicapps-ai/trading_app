@@ -5,10 +5,10 @@ description: >
   liquid_momentum_core, runs only the hidden_divergence detector, builds plans, queues to /pending.
   Paper mode.
 default_mode: paper
-# schedule DISABLED — candidate (active:false). Uncomment to activate (16:45 ET Mon-Fri) AND set
-# active:true in strategy_configs/hidden_divergence.yaml, then restart the app so the scheduler
-# picks it up.
-# schedule: "45 16 * * 1-5"
+# Enable/disable from the /strategies UI (or active: in the config). The cron is registered but
+# skipped at fire-time unless the strategy is effectively enabled — no restart needed to arm.
+# Ships disabled (active:false) until reviewed.
+schedule: "45 16 * * 1-5"   # 16:45 ET Mon-Fri
 
 steps:
   - id: filter_universe

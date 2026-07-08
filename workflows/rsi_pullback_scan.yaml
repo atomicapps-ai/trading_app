@@ -4,12 +4,10 @@ description: >
   vs Fear-Dip at 0.40 corr). Screens liquid_momentum_core, runs only the rsi_pullback detector,
   builds plans, queues to /pending for human approval. Paper mode.
 default_mode: paper
-# schedule DISABLED — this strategy is a candidate (active:false). The scheduler registers a cron
-# for any workflow with a `schedule:` field regardless of the strategy's active flag, so the
-# schedule is the real on-switch. To activate: uncomment the line below (16:35 ET Mon-Fri,
-# staggered after macd at 16:30) AND set active:true in strategy_configs/rsi_pullback.yaml, then
-# restart the app so the scheduler picks it up.
-# schedule: "35 16 * * 1-5"
+# Enable/disable from the /strategies UI (or active: in the config). The cron is registered, but
+# the scheduler skips the run at fire-time unless the strategy is effectively enabled — so no app
+# restart is needed to arm/disarm. Ships disabled (active:false) until reviewed.
+schedule: "35 16 * * 1-5"   # 16:35 ET Mon-Fri (staggered after macd at 16:30)
 
 steps:
   - id: filter_universe

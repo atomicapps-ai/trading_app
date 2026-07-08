@@ -44,7 +44,14 @@
     </p>
   </div>
 {% else %}
+  {% set ns = namespace(cur='__none__') %}
   {% for s in strategies %}
+  {% if s.style != ns.cur %}
+    {% set ns.cur = s.style %}
+    <h3 style="margin:18px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-secondary);border-bottom:1px solid var(--border);padding-bottom:4px;">
+      {{ 'Day trades — intraday (flat by close)' if s.style=='day_trade' else 'Swing trades — multi-day' }}
+    </h3>
+  {% endif %}
   <div class="card strategy-card" data-strategy="{{ s.name }}">
     <div class="card-header" style="align-items:flex-start;">
       <div style="flex:1;min-width:0;">
@@ -52,7 +59,12 @@
           <span class="card-title" style="font-size:14px;">{{ s.title }}</span>
           {% if s.active %}<span class="badge badge-green">active</span>{% else %}<span class="badge badge-gray">inactive</span>{% endif %}
           <span class="badge badge-blue">{{ s.mode }}</span>
-          {% if s.holding_period %}<span class="badge badge-gray">{{ s.holding_period }}</span>{% endif %}
+          {% if s.style %}<span class="badge"
+                style="background: {{ 'rgba(245,158,11,0.18)' if s.style=='day_trade' else 'rgba(148,163,184,0.15)' }}; color: {{ '#f59e0b' if s.style=='day_trade' else 'var(--text-secondary)' }};"
+                title="Trade style — how long a position is held">{{ 'day trade' if s.style=='day_trade' else 'swing' }}</span>{% endif %}
+          {% if s.family %}<span class="badge badge-gray" title="Edge family — the kind of bet, and a proxy for what it correlates with">{{ s.family|replace('_',' ') }}</span>{% endif %}
+          {% if s.instrument %}<span class="badge badge-gray" title="Instrument">{{ 'FX' if s.instrument=='fx' else 'stocks' }}</span>{% endif %}
+          {% if s.holding_period %}<span class="badge badge-gray" title="Max hold before the time-stop" style="opacity:0.7;">{{ s.holding_period }}</span>{% endif %}
           {% if s.auto_approve %}
             <span class="badge"
                   style="background: rgba(59,130,246,0.18); color: var(--accent-blue);"

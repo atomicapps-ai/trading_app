@@ -641,12 +641,52 @@ async def _run_workflow_job(workflow_id: str) -> None:
     from services.job_log_buffer import capture
 
     with capture(f"wf_{workflow_id}"):
+        # Enable gate: a SCHEDULED scan only runs when its strategy is effectively
+        # enabled (UI toggle override, else config active:). Checked at fire-time so the
+        # /strategies Enable/Disable button arms/disarms without an app restart. A manual
+        # "Run now" from the UI calls run_workflow_by_id directly and is NOT gated here.
+        if not await _workflow_enabled(workflow_id):
+            logger.info("Scheduled workflow %s skipped — strategy disabled", workflow_id)
+            return
         logger.info("Scheduled workflow run: %s", workflow_id)
         try:
             result = await run_workflow_by_id(workflow_id)
             logger.info("Workflow %s complete: %s", workflow_id, result.get("status"))
         except Exception as exc:
             logger.exception("Workflow %s failed: %s", workflow_id, exc)
+
+
+async def _workflow_enabled(workflow_id: str) -> bool:
+    """True if the workflow drives no strategy (unconditional job) or at least one of its
+    strategies is effectively enabled. Fail-open on any error so a lookup glitch never
+    silently kills a live scan."""
+    import yaml
+
+    from services.settings_service import PROJECT_ROOT
+    from services.strategy_state import get_effective_active, workflow_strategies
+
+    try:
+        path = None
+        for ext in ("yaml", "yml"):
+            for p in (PROJECT_ROOT / "workflows").glob(f"*.{ext}"):
+                wf = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+                if (wf.get("workflow_id") or wf.get("id") or p.stem) == workflow_id:
+                    path = wf
+                    break
+            if path:
+                break
+        if not path:
+            return True
+        strategies = workflow_strategies(path)
+        if not strategies:
+            return True
+        for s in strategies:
+            if await get_effective_active(s):
+                return True
+        return False
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("enable-gate check failed for %s (%s) — allowing run", workflow_id, exc)
+        return True
 
 
 # --------------------------------------------------------------------------- #

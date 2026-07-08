@@ -12,6 +12,12 @@ mode: paper
 active: false
 holding_period: swing_days
 
+# Trade type (surfaced as badges + grouping on /strategies)
+style: swing                # swing | day_trade
+family: trend_continuation  # the category of edge (a proxy for what it correlates with)
+instrument: us_equity       # us_equity | fx
+direction: long             # long | long_short
+
 detectors:
   - hidden_divergence
 

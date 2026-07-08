@@ -5,10 +5,11 @@ description: >
   liquid_momentum_core, runs only the band_extreme_fade detector, builds plans, queues to /pending.
   Paper mode.
 default_mode: paper
-# schedule DISABLED — candidate (active:false). Uncomment to activate (16:40 ET Mon-Fri) AND set
-# active:true in strategy_configs/band_extreme_fade.yaml, then restart the app. NOTE: this one is
-# the weakest of the three on in-app re-validation — clear a full-universe in-app run first.
-# schedule: "40 16 * * 1-5"
+# Enable/disable from the /strategies UI (or active: in the config). The cron is registered but
+# skipped at fire-time unless the strategy is effectively enabled — no restart needed to arm.
+# Ships disabled (active:false); NOTE this one is the weakest of the three on in-app
+# re-validation — clear a full-universe in-app run before enabling.
+schedule: "40 16 * * 1-5"   # 16:40 ET Mon-Fri
 
 steps:
   - id: filter_universe
