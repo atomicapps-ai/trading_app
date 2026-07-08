@@ -1,0 +1,34 @@
+workflow_id: intraday_reversion_scan
+description: >
+  ⚠️ SCAFFOLD — in-session scan for the intraday_reversion day-trade example. Screens
+  liquid_momentum_core, runs the INTRADAY analyst (30m bars) for the intraday_reversion detector,
+  builds same-day plans (flat by close), queues to /pending. Paper mode.
+default_mode: paper
+# Enable/disable from the /strategies UI (or active: in the config). The cron is registered but
+# skipped at fire-time unless the strategy is effectively enabled — no restart needed to arm.
+# Ships DISABLED (active:false) and UNVALIDATED. Intraday cadence note: this fires every 30 min
+# during the session; a real intraday strategy needs a per-symbol/per-day dedup guard so repeated
+# scans don't re-enter the same setup. Handle that before enabling.
+schedule: "0,30 10-14 * * 1-5"   # every 30 min, 10:00-14:30 ET Mon-Fri (leaves runway to flatten by 15:00)
+
+steps:
+  - id: filter_universe
+    kind: filter_universe
+    params:
+      preset: liquid_momentum_core
+      shortlist_size: 300
+  - id: compute_macro
+    kind: compute_macro
+    depends_on: [filter_universe]
+  - id: analyze
+    kind: analyze
+    params:
+      strategy: intraday_reversion
+      intraday_30m: true          # dispatches run_intraday_on_shortlist (30m bars + VIX)
+      lenses: [technical, macro]
+    depends_on: [compute_macro]
+  - id: plan
+    kind: plan
+    params:
+      strategy: intraday_reversion
+    depends_on: [analyze]

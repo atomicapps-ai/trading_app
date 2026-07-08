@@ -1,0 +1,48 @@
+{
+  "detector": "intraday_reversion",
+  "n_symbols": 12,
+  "results": {
+    "intraday_reversion": {
+      "all": {
+        "n": 1031,
+        "win_pct": 25.3,
+        "expectancy_R": -1.0172,
+        "profit_factor": 0.26,
+        "avg_win_R": 1.385,
+        "avg_loss_R": -1.831,
+        "max_dd_R": -1053.49,
+        "total_R": -1048.7
+      },
+      "in_sample": {
+        "n": 515,
+        "win_pct": 23.5,
+        "expectancy_R": -1.0863,
+        "profit_factor": 0.25,
+        "avg_win_R": 1.528,
+        "avg_loss_R": -1.889,
+        "max_dd_R": -564.21,
+        "total_R": -559.4
+      },
+      "out_sample": {
+        "n": 516,
+        "win_pct": 27.1,
+        "expectancy_R": -0.9482,
+        "profit_factor": 0.27,
+        "avg_win_R": 1.26,
+        "avg_loss_R": -1.771,
+        "max_dd_R": -489.35,
+        "total_R": -489.3
+      },
+      "random_control": {
+        "n": 1031,
+        "win_pct": 29.0,
+        "expectancy_R": -0.9728,
+        "profit_factor": 0.19,
+        "avg_win_R": 0.79,
+        "avg_loss_R": -1.693,
+        "max_dd_R": -1002.36,
+        "total_R": -1002.9
+      }
+    }
+  }
+}

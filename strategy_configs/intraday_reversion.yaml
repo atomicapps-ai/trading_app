@@ -1,0 +1,46 @@
+strategy_name: intraday_reversion
+version: "0.1"
+description: >
+  ⚠️ SCAFFOLD / EXAMPLE for the day-trade (intraday) lane — NOT a validated edge. Intraday VWAP
+  mean-reversion snap-back on 30-minute bars: in a daily uptrend, buy a stretch below the session
+  VWAP and target the mean; FLAT BY THE SESSION CLOSE. Exists to prove the intraday path
+  end-to-end (detector → intraday workflow → same-day TimeStop → executioner flatten). Backtest on
+  scripts/bt_intraday.py and clear the bar (OOS PF ≥ ~1.2, avg-R > 0, ≥ ~100 trades, beats control)
+  before ever enabling. See strategies/strategy_docs/INTRADAY_SCAFFOLD.md.
+universe_filter_preset: liquid_momentum_core
+mode: paper
+active: false
+
+# Trade type (surfaced as badges + grouping on /strategies)
+style: day_trade          # intraday — flat by the session close
+family: mean_reversion    # the category of edge
+instrument: us_equity     # us_equity | fx
+direction: long           # long | long_short
+holding_period: intraday
+
+detectors:
+  - intraday_reversion
+
+min_signal_strength: 0.55
+
+portfolio_rules:
+  single_signal_override: 0.55
+  min_patterns_agreeing: 1
+  min_lenses_agreeing: 2
+  trail_mode: none
+  # Same-day exit: portfolio_manager anchors the TimeStop deadline to today's close (ET),
+  # and executioner.close_at_time flattens the position there.
+  time_stop_close_et_hour: 15
+  time_stop_close_et_minute: 0
+
+risk:
+  max_risk_pct_per_trade: 0.40
+  max_position_pct_of_equity: 6.0
+  min_rr_ratio: 1.0
+
+pattern_thresholds:
+  intraday_reversion:
+    min_bars: 3          # need a few 30m bars to form a stable session VWAP
+    stretch_pct: 0.5     # % below VWAP to trigger a snap-back long
+    stop_buffer_pct: 0.1
+    require_trend: true  # daily close > SMA200

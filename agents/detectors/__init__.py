@@ -32,6 +32,7 @@ from agents.detectors.hidden_divergence import detect_hidden_divergence
 from agents.detectors.double_bottom_top import detect_double_bottom_top
 from agents.detectors.double_lock_filtered import detect_double_lock_filtered
 from agents.detectors.inside_bar_nr7 import detect_inside_bar_nr7
+from agents.detectors.intraday_reversion import detect_intraday_reversion
 from agents.detectors.macd_run import detect_macd_run
 from agents.detectors.rsi_divergence import detect_rsi_divergence
 from agents.detectors.rsi_pullback import detect_rsi_pullback
@@ -74,6 +75,9 @@ ALL_DETECTORS = {
 # rather than the standard swing analyst.
 INTRADAY_DETECTORS = {
     "double_lock_filtered": detect_double_lock_filtered,
+    # Day-trade lane scaffold/example (flat by session close). NOT validated —
+    # backtest via scripts/bt_intraday.py before enabling. See INTRADAY_SCAFFOLD.md.
+    "intraday_reversion": detect_intraday_reversion,
 }
 
 __all__ = [
@@ -88,6 +92,7 @@ __all__ = [
     "detect_double_lock_filtered",
     "detect_hidden_divergence",
     "detect_inside_bar_nr7",
+    "detect_intraday_reversion",
     "detect_macd_run",
     "detect_rsi_divergence",
     "detect_rsi_pullback",
