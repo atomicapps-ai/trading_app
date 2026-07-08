@@ -1,0 +1,42 @@
+strategy_name: turn_of_month
+version: "1.0"
+description: >
+  Turn-of-the-Month seasonality (sourced: QuantifiedStrategies / Quantpedia). Buy near month-end
+  (the 5th-last trading day) and exit a few days into the new month — capturing the well-documented
+  month-boundary drift (salary/dividend/pension reinvestment). Validated on the daily US-stock
+  universe: OOS PF 1.28, +0.11R, 53% win; correlation-gated DIVERSIFIER (max |corr| 0.36 to the
+  live book — a seasonality family orthogonal to trend/mean-reversion). active:false pending human
+  review. See strategies/SOURCED_CANDIDATES.md and strategies/STRATEGY_GRID.md.
+universe_filter_preset: liquid_momentum_core
+mode: paper
+active: false
+
+# Trade type (surfaced as badges + grouping on /strategies)
+style: swing              # swing | day_trade
+family: seasonality       # calendar edge — orthogonal to the price-signal families
+instrument: us_equity     # us_equity | fx
+direction: long           # long | long_short
+holding_period: swing_days
+
+detectors:
+  - turn_of_month
+
+min_signal_strength: 0.55
+
+portfolio_rules:
+  single_signal_override: 0.55
+  min_patterns_agreeing: 1
+  min_lenses_agreeing: 2
+  trail_mode: none          # calendar exit (~3rd trading day of next month), handled in replay
+  time_stop_sessions: 7
+
+risk:
+  max_risk_pct_per_trade: 0.40
+  max_position_pct_of_equity: 6.0
+  min_rr_ratio: 1.0         # no price target; disaster stop only
+
+pattern_thresholds:
+  turn_of_month:
+    k_last: 5               # fire on the 5th-last trading day of the month
+    hold_bars: 7            # ~3rd trading day of the new month
+    stop_atr_mult: 3.0      # wide disaster stop (calendar exit is primary)

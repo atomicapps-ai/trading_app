@@ -191,6 +191,13 @@ def _simulate(pattern, ei, entry, stop, tp2, h, l, c, sma50, n, breakeven_r=0.0)
             if l[j] <= eff: return eff, ("TRAIL" if eff > stop else "STOP"), j
             if be_trig is not None and h[j] >= be_trig and eff < entry: eff = entry
         return float(c[horizon - 1]), "TIME", horizon - 1
+    if pattern == "turn_of_month":
+        # Calendar hold ~7 sessions (5th-last trading day -> ~3rd of next month); disaster stop only.
+        horizon = min(ei + 7, n); eff = stop
+        for j in range(ei, horizon):
+            hit, eff = _hit_stop(j, eff)
+            if hit: return hit
+        return float(c[horizon - 1]), "CAL_EXIT", horizon - 1
     # s5_mean_reversion: stop / target=mean(tp2) / time 45
     horizon = min(ei + 45, n); eff = stop
     for j in range(ei, horizon):

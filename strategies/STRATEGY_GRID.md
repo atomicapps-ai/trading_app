@@ -67,6 +67,23 @@ full-universe in-app run is slow). rsi_pullback and hidden_divergence reproduce 
 standalone edge; band_extreme_fade is marginal here and must clear a fuller in-app run before it's
 activated. None flips to `active: true` without a human review.
 
+## 🌐 Sourced from reviewed platforms (2026-07) — beyond YouTube
+
+Broadened the input funnel to reviewed/curated sources (Quantpedia, QuantifiedStrategies, academic
+papers) — see `STRATEGY_SOURCES.md` (catalog) + `SOURCED_CANDIDATES.md` (queue). First batch:
+
+| Strategy | Slug | Family | Source | Standalone OOS PF | Corr → live | Verdict |
+|---|---|---|---|---|---|---|
+| **Turn-of-the-Month** | `turn_of_month` | **seasonality** | QuantifiedStrategies / Quantpedia | **1.28** (stocks) / **1.35** (ETFs) | 0.36 | ✅ **DIVERSIFIER — wired, active:false** (in-app sample 1.17; calendar-exit approximation) |
+| IBS mean-reversion | (held) | mean-rev | Pagonidis 2013 / QuantifiedStrategies | 1.16 (stocks) / 1.12 (ETFs) | 0.44 | ⚠️ marginal both universes; an index effect — re-test with QQQ/more index ETFs |
+| Overnight anomaly | — | session | Quantpedia / Alpha Architect | — | — | ⛔ cost-fragile ("trading costs wipe out"); not tested |
+
+Turn-of-the-Month is the first **seasonality/calendar** strategy in the book — an orthogonal family
+(0.36 max corr) that clears the rig on both stocks and ETFs. Wired end-to-end (`turn_of_month`
+detector + config + workflow + doc + `_simulate` calendar-exit branch), `active: false` pending
+review. The business-day + fixed-7-session-hold approximations (no exchange-calendar lib) are the
+in-app fidelity gap vs the exact-calendar standalone; documented, easy to tighten.
+
 ## ⚠️ Intraday FX / futures strategies — SHELVED (need intraday FX data we don't have)
 
 Specced and registered, but **not testable on daily stock bars** — their edge (if any) lives in

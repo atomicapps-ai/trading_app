@@ -38,6 +38,7 @@ from agents.detectors.rsi_divergence import detect_rsi_divergence
 from agents.detectors.rsi_pullback import detect_rsi_pullback
 from agents.detectors.s5_mean_reversion import detect_s5_mean_reversion
 from agents.detectors.s7_breakout_continuation import detect_s7_breakout_continuation
+from agents.detectors.turn_of_month import detect_turn_of_month
 from agents.detectors.volatility_squeeze import detect_volatility_squeeze
 from agents.detectors.vwap_reclaim import detect_vwap_reclaim
 from agents.detectors.wyckoff_accumulation import detect_wyckoff_accumulation
@@ -67,6 +68,8 @@ ALL_DETECTORS = {
     "rsi_pullback": detect_rsi_pullback,
     "band_extreme_fade": detect_band_extreme_fade,
     "hidden_divergence": detect_hidden_divergence,
+    # Sourced from reviewed platforms (QuantifiedStrategies/Quantpedia); validated + gated.
+    "turn_of_month": detect_turn_of_month,
 }
 
 # Intraday detectors — different signature than ALL_DETECTORS. Each
@@ -97,6 +100,7 @@ __all__ = [
     "detect_rsi_divergence",
     "detect_rsi_pullback",
     "detect_s5_mean_reversion",
+    "detect_turn_of_month",
     "detect_s7_breakout_continuation",
     "detect_volatility_squeeze",
     "detect_vwap_reclaim",

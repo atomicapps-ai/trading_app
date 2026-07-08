@@ -1,0 +1,147 @@
+{
+  "universe": "cached ETFs",
+  "n_symbols": 13,
+  "symbols": [
+    "SPY",
+    "IWM",
+    "XLK",
+    "XLF",
+    "XLE",
+    "XLV",
+    "XLI",
+    "XLP",
+    "XLY",
+    "XLU",
+    "XLB",
+    "XLRE",
+    "XLC"
+  ],
+  "results": {
+    "ibs_etf": {
+      "all": {
+        "n": 6355,
+        "win_pct": 59.9,
+        "expectancy_R": 0.0196,
+        "profit_factor": 1.13,
+        "avg_win_R": 0.279,
+        "avg_loss_R": -0.368,
+        "max_dd_R": -58.21,
+        "total_R": 124.4
+      },
+      "in_sample": {
+        "n": 3177,
+        "win_pct": 59.8,
+        "expectancy_R": 0.0208,
+        "profit_factor": 1.14,
+        "avg_win_R": 0.283,
+        "avg_loss_R": -0.369,
+        "max_dd_R": -58.21,
+        "total_R": 66.2
+      },
+      "out_sample": {
+        "n": 3178,
+        "win_pct": 60.1,
+        "expectancy_R": 0.0183,
+        "profit_factor": 1.12,
+        "avg_win_R": 0.275,
+        "avg_loss_R": -0.367,
+        "max_dd_R": -50.83,
+        "total_R": 58.2
+      },
+      "random_control": {
+        "n": 6355,
+        "win_pct": 45.7,
+        "expectancy_R": -0.0422,
+        "profit_factor": 0.77,
+        "avg_win_R": 0.31,
+        "avg_loss_R": -0.34,
+        "max_dd_R": -272.73,
+        "total_R": -268.4
+      }
+    },
+    "ibs_etf_hold3": {
+      "all": {
+        "n": 6575,
+        "win_pct": 58.3,
+        "expectancy_R": 0.0131,
+        "profit_factor": 1.09,
+        "avg_win_R": 0.275,
+        "avg_loss_R": -0.354,
+        "max_dd_R": -68.66,
+        "total_R": 86.0
+      },
+      "in_sample": {
+        "n": 3287,
+        "win_pct": 58.2,
+        "expectancy_R": 0.0139,
+        "profit_factor": 1.09,
+        "avg_win_R": 0.283,
+        "avg_loss_R": -0.36,
+        "max_dd_R": -58.11,
+        "total_R": 45.8
+      },
+      "out_sample": {
+        "n": 3288,
+        "win_pct": 58.5,
+        "expectancy_R": 0.0122,
+        "profit_factor": 1.08,
+        "avg_win_R": 0.267,
+        "avg_loss_R": -0.347,
+        "max_dd_R": -54.45,
+        "total_R": 40.1
+      },
+      "random_control": {
+        "n": 6575,
+        "win_pct": 44.2,
+        "expectancy_R": -0.0424,
+        "profit_factor": 0.77,
+        "avg_win_R": 0.314,
+        "avg_loss_R": -0.324,
+        "max_dd_R": -281.19,
+        "total_R": -279.0
+      }
+    },
+    "tom_etf_5_3": {
+      "all": {
+        "n": 2849,
+        "win_pct": 56.4,
+        "expectancy_R": 0.0788,
+        "profit_factor": 1.41,
+        "avg_win_R": 0.484,
+        "avg_loss_R": -0.445,
+        "max_dd_R": -39.48,
+        "total_R": 224.6
+      },
+      "in_sample": {
+        "n": 1424,
+        "win_pct": 57.8,
+        "expectancy_R": 0.0906,
+        "profit_factor": 1.46,
+        "avg_win_R": 0.5,
+        "avg_loss_R": -0.47,
+        "max_dd_R": -39.48,
+        "total_R": 129.1
+      },
+      "out_sample": {
+        "n": 1425,
+        "win_pct": 54.9,
+        "expectancy_R": 0.067,
+        "profit_factor": 1.35,
+        "avg_win_R": 0.468,
+        "avg_loss_R": -0.422,
+        "max_dd_R": -34.56,
+        "total_R": 95.5
+      },
+      "random_control": {
+        "n": 2849,
+        "win_pct": 48.0,
+        "expectancy_R": -0.0164,
+        "profit_factor": 0.93,
+        "avg_win_R": 0.476,
+        "avg_loss_R": -0.472,
+        "max_dd_R": -63.84,
+        "total_R": -46.6
+      }
+    }
+  }
+}

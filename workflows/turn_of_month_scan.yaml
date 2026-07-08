@@ -1,0 +1,32 @@
+workflow_id: turn_of_month_scan
+description: >
+  Daily post-close scan for the Turn-of-the-Month seasonality strategy. The detector only fires on
+  the 5th-last trading day of the month, so a daily scan is fine — it no-ops the rest of the month.
+  Screens liquid_momentum_core, builds plans (calendar exit ~3rd trading day of next month), queues
+  to /pending. Paper mode.
+default_mode: paper
+# Enable/disable from the /strategies UI (or active: in the config). The cron is registered but
+# skipped at fire-time unless the strategy is effectively enabled — no restart needed to arm.
+# Ships disabled (active:false) until reviewed.
+schedule: "50 16 * * 1-5"   # 16:50 ET Mon-Fri
+
+steps:
+  - id: filter_universe
+    kind: filter_universe
+    params:
+      preset: liquid_momentum_core
+      shortlist_size: 500
+  - id: compute_macro
+    kind: compute_macro
+    depends_on: [filter_universe]
+  - id: analyze
+    kind: analyze
+    params:
+      strategy: turn_of_month
+      lenses: [technical, macro]
+    depends_on: [compute_macro]
+  - id: plan
+    kind: plan
+    params:
+      strategy: turn_of_month
+    depends_on: [analyze]
