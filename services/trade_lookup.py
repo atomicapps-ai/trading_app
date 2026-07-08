@@ -20,6 +20,7 @@ object can read ``view.raw``.
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
@@ -169,13 +170,29 @@ def _view_from_plan(plan: dict[str, Any]) -> TradeView:
 
 def _stage_from_status(status: str) -> TradeStage:
     s = (status or "").lower()
-    if s in ("pending", "awaiting_ack"):     return "pending"
-    if s in ("approved", "awaiting_fill"):   return "approved"
-    if s in ("filled", "open"):              return "open"
-    if s in ("rejected",):                   return "rejected"
-    if s in ("expired",):                    return "expired"
-    if s in ("closed",):                     return "closed"
+    if s in ("pending", "awaiting_ack"):        return "pending"
+    if s in ("approved", "awaiting_fill"):      return "approved"
+    if s in ("filled", "open", "executed"):     return "open"
+    if s in ("rejected", "order_rejected"):     return "rejected"
+    if s in ("expired",):                       return "expired"
+    if s in ("closed",):                        return "closed"
     return "unknown"
+
+
+_UUID_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.I)
+
+
+def _clean_strategy(v) -> str | None:
+    """Return a display-worthy strategy name, or None. Filters out raw UUIDs
+    (some manual trades store an id in thesis.strategy) so the header doesn't
+    show a meaningless GUID badge."""
+    if not isinstance(v, str):
+        return None
+    v = v.strip()
+    if not v or _UUID_RE.match(v):
+        return None
+    return v
 
 
 def _strategy_from_thesis(thesis: dict) -> str | None:
@@ -184,15 +201,15 @@ def _strategy_from_thesis(thesis: dict) -> str | None:
     if not thesis:
         return None
     for k in ("strategy", "strategy_name", "summary"):
-        v = thesis.get(k)
-        if isinstance(v, str) and v:
-            # `summary` is freeform — only use if no dedicated key exists
-            if k != "summary":
-                return v
-    # Fallback: first contributing pattern name
+        if k == "summary":
+            continue  # freeform — not a strategy label
+        v = _clean_strategy(thesis.get(k))
+        if v:
+            return v
+    # Fallback: first contributing pattern name (if not a UUID)
     pats = thesis.get("patterns") or thesis.get("signal_ids") or []
     if isinstance(pats, list) and pats:
-        return str(pats[0])
+        return _clean_strategy(str(pats[0]))
     return None
 
 

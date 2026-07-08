@@ -9,6 +9,9 @@
     <div>
       <h2 class="trade-detail-title">
         <span class="mono">{{ trade.symbol }}</span>
+        {% if company_name and company_name != trade.symbol %}
+          <span class="text-tertiary" style="font-weight:400;font-size:0.6em;letter-spacing:0.2px;">{{ company_name }}</span>
+        {% endif %}
         {% if trade.direction %}
           <span class="badge {% if trade.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">
             {{ trade.direction|upper }}
@@ -195,6 +198,7 @@
   if (!window.ChartTools) return;
 
   const SYMBOL = {{ trade.symbol|tojson }};
+  const COMPANY = {{ (company_name or '')|tojson }};
   const ENTRY  = {{ trade.entry_price|tojson if trade.entry_price else "null" }};
   const STOP   = {{ trade.stop_price|tojson  if trade.stop_price  else "null" }};
   const TP1    = {{ trade.tp1_price|tojson   if trade.tp1_price   else "null" }};
@@ -247,6 +251,18 @@
     });
     if (!inst) return;
     planLines.forEach(pl => inst.addPriceLine(pl));
+    // Faint company-name watermark behind the candles.
+    if (COMPANY && inst.priceChart && inst.priceChart.applyOptions) {
+      try {
+        inst.priceChart.applyOptions({
+          watermark: {
+            visible: true, text: COMPANY,
+            color: 'rgba(148,163,184,0.10)', fontSize: 40,
+            horzAlign: 'center', vertAlign: 'center', fontStyle: '600',
+          },
+        });
+      } catch (e) { /* watermark unsupported on this LW version — ignore */ }
+    }
     panes[idx] = inst;
   });
   ChartTools.renderTradeLegend(document.getElementById('trade-chart-legend'));

@@ -786,7 +786,11 @@ input, select, textarea { font: inherit; color: inherit; }
 /* Dual synced panes on the trade-detail page. Tall by default, and
    drag-to-resize via the native grip (ChartTools' ResizeObserver reflows
    the chart to the new height). */
-.trade-detail-pane {
+/* Higher specificity (.trade-detail-page ancestor) so these win over the
+   ChartTools-injected `.ct-chart-root { height:100% }` on the same mount —
+   otherwise 100% has no parent height to fill and the pane collapses to the
+   260px min-height (looked like a broken/short chart). */
+.trade-detail-page .trade-detail-pane {
   height: 640px; min-height: 260px;
   resize: vertical; overflow: hidden;
 }
@@ -1772,8 +1776,9 @@ input, select, textarea { font: inherit; color: inherit; }
   .live-bar-equity { position: sticky; left: 0; z-index: 2; }
 
   /* Trade-detail dual panes on a phone — taller than a single card but
-     still draggable via the resize grip. */
-  .trade-detail-pane { height: 440px; }
+     still draggable via the resize grip. Higher specificity to beat
+     .ct-chart-root { height:100% } (see the base rule). */
+  .trade-detail-page .trade-detail-pane { height: 440px; }
 
   /* Common wide layouts stack on a phone. minmax(0, …) lets cells
      shrink below their content's min-content instead of overflowing. */
