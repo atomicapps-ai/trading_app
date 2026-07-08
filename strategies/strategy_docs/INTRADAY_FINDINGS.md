@@ -42,6 +42,31 @@ JSON: `data/research/strategy_results/intraday_research.json`.
   (strong on the 30m first candle) do **not** survive intraday TP/SL because MAE is too large.
   Stock intraday history here is also only ~5 years, so OOS confidence is lower than the 20-yr daily rig.
 
+## Update (2026-07) — fair-cost + finer-data re-test (Track A)
+
+We suspected the null might be a data/cost artifact: the sweep above used **30-minute bars and a
+flat 10-bps cost**, which is ~6.7× too high for liquid intraday names. So we (a) built a per-symbol
+cost model (`scripts/cost_model.py`; SPY/QQQ/AAPL/NVDA ≈ **1.5 bps** round-trip, not 10), (b) fetched
+**5-minute** bars, and re-ran the kernels (`scripts/bt_intraday_fair.py`, 60 symbols).
+
+| Kernel | GROSS PF (5m) | NET fair (~1.5bps) | NET old (10bps) |
+|---|---|---|---|
+| vwap_revert | 0.96 | 0.67 | 0.50 |
+| gap_fade 1–3% full | 0.86 | 0.66 | 0.57 |
+| gap_fade 0.5–2% half | 0.93 | 0.61 | 0.44 |
+
+Two honest takeaways:
+1. **Fair cost matters** — net PF rises materially (0.44–0.57 → 0.58–0.67), confirming the flat 10-bps
+   was unfairly punitive. The process critique was right; the infrastructure is now fair.
+2. **But it's NOT a cost/data artifact.** Even **gross of cost, on finer 5m bars, every kernel is
+   < 1.0** — *worse* than at 30m — because finer bars add noise/whipsaw to these mean-reversion/gap
+   kernels. Fair cost + finer data did not reveal a hidden edge; it confirmed the absence of one for
+   these standard retail kernels.
+
+Conclusion: stop tuning the standard kernels. The now-fair rig (per-symbol cost + 1m/5m data) is
+ready, and the value is in sourcing **novel, less-crowded** intraday edges (academic microstructure,
+futures, quant-community code) rather than re-testing crowded classics.
+
 ## Recommendation
 
 Do **not** promote any intraday stock day-trade from this pass. The scaffold (`intraday_reversion`
