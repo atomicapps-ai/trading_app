@@ -144,3 +144,6 @@ research/video_library/_tscheck.log*
 _yt_cookies*
 
 data/historical_1m/
+
+# Backtest review images (regenerable from ledgers on demand)
+data/backtest_images/
