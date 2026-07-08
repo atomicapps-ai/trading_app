@@ -30,10 +30,13 @@ def load_1m(symbol: str) -> pd.DataFrame | None:
 
 def resample(df: pd.DataFrame, interval: str) -> pd.DataFrame:
     if interval == "1m":
-        out = df.copy()
-    else:
-        out = df.resample(RULE[interval], label="left", closed="left").agg(AGG).dropna(subset=["open"])
-    return out
+        return df.copy()
+    if interval == "1d":
+        # Group by ET trading date (avoids UTC-midnight splits); bar-stamp at 00:00 UTC of that date.
+        et = df.tz_convert("America/New_York")
+        g = et.groupby(et.index.normalize().tz_convert("UTC")).agg(AGG).dropna(subset=["open"])
+        return g
+    return df.resample(RULE[interval], label="left", closed="left").agg(AGG).dropna(subset=["open"])
 
 
 def write_csv(df: pd.DataFrame, symbol: str, interval: str) -> int:
