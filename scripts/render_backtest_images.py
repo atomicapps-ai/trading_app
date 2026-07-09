@@ -111,6 +111,23 @@ def _draw(t, bars, out_path, interval):
                                edgecolor="#e3b341", linewidth=1.6, zorder=8))
         ax.annotate("ENTRY", (ei, y1), textcoords="offset points", xytext=(0, 5),
                     ha="center", color="#e3b341", fontsize=6.5, fontweight="bold", zorder=8)
+    # EXIT marker (where the trade actually closed — target, stop, or signal exit)
+    xi = None
+    if interval in _INTRADAY and t.get("exit_time"):
+        tl = [ts.strftime("%H:%M") for ts in bars.index]
+        if t["exit_time"] in tl:
+            xi = tl.index(t["exit_time"])
+    elif interval not in _INTRADAY and t.get("exit_date"):
+        ds = [str(x) for x in bars["_d"]]
+        if str(t["exit_date"]) in ds:
+            ds = ds  # noqa
+            xi = [i for i, v in enumerate(ds) if v == str(t["exit_date"])]
+            xi = xi[0] if xi else None
+    if xi is not None and t.get("exit") is not None:
+        ax.scatter([xi], [float(t["exit"])], marker="x", s=70, color="#58a6ff",
+                   linewidths=1.6, zorder=8)
+        ax.annotate("EXIT", (xi, float(t["exit"])), textcoords="offset points", xytext=(0, 6),
+                    ha="center", color="#58a6ff", fontsize=6.5, fontweight="bold", zorder=8)
     r = t.get("r_gross", t.get("r", 0)); rn = t.get("r_net", r)
     won = r > 0
     # time (intraday) or date (daily) labels on the x-axis

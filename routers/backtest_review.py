@@ -74,6 +74,29 @@ def _metrics(strategy: str, manifest: dict) -> dict:
     return m
 
 
+def _windowed(strategy: str) -> list[dict]:
+    """Metrics over the last 5 / 10 / 20 years — regimes differ, so consistency matters more than a
+    single 20-year average."""
+    led = _ledger_for(strategy)
+    dated = [t for t in led if t.get("date")]
+    if not dated:
+        return []
+    latest_year = max(int(t["date"][:4]) for t in dated)
+    out = []
+    for yrs in (5, 10, 20):
+        cutoff = f"{latest_year - yrs + 1}-01-01"
+        sub = [t for t in dated if t["date"] >= cutoff]
+        if not sub:
+            continue
+        g = [t.get("r_gross", t.get("r", 0)) for t in sub]
+        net = [t.get("r_net", t.get("r_gross", t.get("r", 0))) for t in sub]
+        out.append({"yrs": yrs, "n": len(sub),
+                    "win": round(sum(1 for x in g if x > 0) / len(sub) * 100, 1),
+                    "gross_pf": _pf(g), "net_pf": _pf(net),
+                    "avg": round(statistics.mean(net), 3)})
+    return out
+
+
 def _strategies() -> list[dict]:
     out = []
     if not IMG_ROOT.exists():
@@ -158,6 +181,12 @@ async def review_detail(strategy: str):
         return ("<table><tr><th>symbol</th><th>date</th><th>dir</th><th>entry</th><th>stop</th>"
                 f"<th>target</th><th>R gross</th><th>R net</th></tr>{rows}</table>")
 
+    win_rows = "".join(
+        f'<tr><td>last {w["yrs"]}y</td><td>{w["n"]}</td><td>{w["win"]}%</td>'
+        f'<td>{w["gross_pf"]}</td><td class="{"w" if w["net_pf"]>=1 else "l"}">{w["net_pf"]}</td>'
+        f'<td>{w["avg"]}</td></tr>' for w in _windowed(strategy))
+    win_tbl = (f'<table style="max-width:460px;margin:8px 0"><tr><th>window</th><th>n</th><th>win%</th>'
+               f'<th>gross PF</th><th>net PF</th><th>net avg R</th></tr>{win_rows}</table>') if win_rows else ""
     oos = f' · OOS PF <b>{m["oos_pf"]}</b> vs control <b>{m.get("ctrl_pf")}</b>' if m.get("oos_pf") else ""
     html = f"""{_HEAD}
 <a href="/backtest-review" class=m>← all strategies</a>
@@ -165,6 +194,7 @@ async def review_detail(strategy: str):
 <div class=m style="margin-bottom:6px">{m['interval']} · <b>{m['n']}</b> trades · win <b>{m['win']}%</b>
  · gross PF <b>{m['gross_pf']}</b> · net PF <b>{m['net_pf']}</b> · net avg <b>{m['net_avg_r']}</b>R{oos}<br>
  <span style="font-size:11px">{m['source']}</span></div>
+<div class=m style="margin-top:8px">Consistency by window <span style="font-size:11px">(regimes differ — is it alive lately?)</span></div>{win_tbl}
 <div class=tabs>
  <div class=tab onclick="show('win',this)">✓ Winners ({len(wins)})</div>
  <div class="tab on" onclick="show('all',this)">Metrics / Trades</div>
