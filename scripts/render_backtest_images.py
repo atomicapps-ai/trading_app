@@ -53,13 +53,18 @@ def _load(sym: str, interval: str) -> pd.DataFrame | None:
     return df
 
 
+_INTRADAY = {"1m", "5m", "15m", "30m", "1h", "60min"}
+
+
 def _window(sym, date, interval, pad_days):
     df = _load(sym, interval)
     if df is None:
         return None
     d = pd.Timestamp(date).date()
-    if interval == "1m":
-        return df[df["_d"] == d].between_time(time(9, 30), time(12, 30), inclusive="left")
+    if interval in _INTRADAY:
+        # render the trade's own session (RTH), not a multi-day window
+        s = df[df["_d"] == d].between_time(time(9, 30), time(16, 0), inclusive="left")
+        return s if len(s) else None
     dates = sorted(set(df["_d"]))
     if d not in dates:
         return None
