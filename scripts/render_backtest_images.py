@@ -223,6 +223,16 @@ def main():
         bars = _window(t["symbol"], t["date"], args.interval, args.pad_days)
         if bars is None or len(bars) < 5:
             continue
+        # intraday: focus the chart on the TRADE — a short lead-in before entry through exit + a little after
+        if args.interval in _INTRADAY and t.get("entry_time"):
+            tl = [ts.strftime("%H:%M") for ts in bars.index]
+            if t["entry_time"] in tl:
+                ei = tl.index(t["entry_time"])
+                xi = tl.index(t["exit_time"]) if t.get("exit_time") in tl else ei
+                lo = max(0, ei - 10)                       # ~10 bars of pre-entry context
+                hi = min(len(bars), max(xi, ei) + 12)      # exit + a little aftermath
+                if hi - lo >= 5:
+                    bars = bars.iloc[lo:hi]
         rsig = f"{t['r_gross']:+.2f}".replace("-", "m").replace("+", "p")
         name = f"{t['symbol']}__{t['date']}__{t['direction']}__{side[:-1].upper()}__{rsig}.png"
         out = base / side / name
