@@ -27,6 +27,7 @@ HIST = ROOT / "data" / "historical"
 IMG_ROOT = ROOT / "data" / "backtest_images"
 _CACHE: dict[str, pd.DataFrame | None] = {}
 _INTRADAY = {"1m", "5m", "15m", "30m", "1h", "60min"}
+_VWAP_OVERLAY = False   # set by --vwap; draws session VWAP (the trailing-exit reference for band strategies)
 
 
 def _load(sym: str, interval: str) -> pd.DataFrame | None:
@@ -90,6 +91,15 @@ def _draw(t, bars, out_path, interval):
     if t.get("box_high") is not None and t.get("box_low") is not None:
         ax.add_patch(Rectangle((0, t["box_low"]), n - 1, t["box_high"] - t["box_low"],
                                facecolor="#388bfd", alpha=0.10, edgecolor="#388bfd", zorder=1))
+    # session VWAP overlay (the trailing-exit reference for band/VWAP strategies)
+    if _VWAP_OVERLAY and interval in _INTRADAY and "volume" in bars.columns:
+        vol = bars["volume"].values.astype(float)
+        tpv = (h + l + c) / 3.0
+        cv = np.cumsum(np.where(vol > 0, vol, 0.0)); cpv = np.cumsum(tpv * np.where(vol > 0, vol, 0.0))
+        vw = np.where(cv > 0, cpv / np.maximum(cv, 1e-9), c)
+        ax.plot(range(n), vw, color="#a371f7", linewidth=1.1, alpha=0.95, zorder=5)
+        ax.annotate("VWAP", (n - 1, vw[-1]), textcoords="offset points", xytext=(-2, 4),
+                    ha="right", color="#a371f7", fontsize=6, fontweight="bold", zorder=5)
     # entry index — match by TIME for any intraday interval, by DATE for daily
     ei = None
     if interval in _INTRADAY and t.get("entry_time"):
@@ -183,7 +193,10 @@ def main():
     ap.add_argument("--pad-days", type=int, default=25, help="daily window half-width around the trade")
     ap.add_argument("--max-per-side", type=int, default=40)
     ap.add_argument("--source-note", default="")
+    ap.add_argument("--vwap", action="store_true", help="overlay session VWAP (trailing-exit reference)")
     args = ap.parse_args()
+    global _VWAP_OVERLAY
+    _VWAP_OVERLAY = args.vwap
 
     ledger = json.loads(Path(args.ledger).read_text())
     for t in ledger:
