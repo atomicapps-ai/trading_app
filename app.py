@@ -21,6 +21,7 @@ from routers import (
     alerts,
     analysis,
     auth as auth_router,
+    backtest_review,
     bars,
     broker,
     copy_trading,
@@ -53,6 +54,7 @@ from routers import (
 from services import db_service, universe_service
 from services.broker_service import connect_adapter, get_adapter
 from services.settings_service import (
+    DATA_DIR,
     ENV_FILE,
     PROJECT_ROOT,
     STATIC_DIR,
@@ -164,6 +166,11 @@ else:
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
+# Backtest-review trade images (winner/loser PNG galleries)
+_BT_IMG_DIR = DATA_DIR / "backtest_images"
+_BT_IMG_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/bt-images", StaticFiles(directory=str(_BT_IMG_DIR)), name="bt-images")
+
 
 @app.middleware("http")
 async def _static_revalidate(request, call_next):
@@ -195,6 +202,7 @@ app.include_router(broker.router)
 app.include_router(positions_router.router)
 app.include_router(live_status_router.router)
 app.include_router(workflows.router)
+app.include_router(backtest_review.router)
 app.include_router(jobs.router)
 app.include_router(strategies_router.router)
 app.include_router(backtests_router.router)
