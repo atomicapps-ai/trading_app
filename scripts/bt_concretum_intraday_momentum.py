@@ -29,7 +29,7 @@ random.seed(13)
 SRC = ROOT / "data" / "historical_1m"
 OUT = ROOT / "data" / "research" / "strategy_results"; OUT.mkdir(parents=True, exist_ok=True)
 RF = 0.05                          # nominal R for reporting (no fixed stop)
-VM = 1.0
+VM = 1.0                           # volatility multiplier (band width); overridable via --vm
 MARKS = [time(h, m) for h in range(10, 16) for m in (0, 30)]   # 10:00 .. 15:30
 
 
@@ -144,7 +144,11 @@ def _window(led, latest_year, yrs):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--symbols", nargs="*", default=["SPY", "QQQ"])
+    ap.add_argument("--vm", type=float, default=1.0)
+    ap.add_argument("--tag", default="concretum_intraday_momentum")
     args = ap.parse_args()
+    global VM
+    VM = args.vm
     allt = []
     for sym in args.symbols:
         tr = backtest(sym)
@@ -153,13 +157,13 @@ def main():
             t["r_net"] = round(t["r_gross"] - cf / RF, 3)
         allt.extend(tr); print(f"{sym}: {len(tr)} trades")
     allt.sort(key=lambda t: (t["date"], t["symbol"]))
-    (OUT / "concretum_intraday_momentum_ledger.json").write_text(json.dumps(allt, indent=2))
+    (OUT / f"{args.tag}_ledger.json").write_text(json.dumps(allt, indent=2))
     gross = [t["r_gross"] for t in allt]; net = [t["r_net"] for t in allt]; mid = len(net) // 2
     ly = max(int(t["date"][:4]) for t in allt) if allt else 2026
     summary = {"n": len(allt), "gross": _stats(gross), "net": _stats(net),
                "net_OOS": _stats(net[mid:]), "control_OOS": _stats([x * random.choice([1, -1]) for x in net[mid:]]),
                "windows": [_window(allt, ly, y) for y in (5, 10, 20)]}
-    (OUT / "concretum_intraday_momentum.json").write_text(json.dumps(summary, indent=2))
+    (OUT / f"{args.tag}.json").write_text(json.dumps(summary, indent=2))
     g = summary["gross"]; na = summary["net"]; oo = summary["net_OOS"]; ct = summary["control_OOS"]
     print(f"\n=== Concretum Intraday Momentum ===")
     print(f"n={summary['n']}  GROSS win {g.get('win')}% PF {g.get('PF')} avgR {g.get('avgR')}")
