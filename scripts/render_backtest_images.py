@@ -101,10 +101,26 @@ def _draw(t, bars, out_path, interval):
         if t.get(key) is not None:
             ax.axhline(t[key], color=col, linewidth=0.8, linestyle="--", zorder=4)
     if ei is not None:
-        ax.axvline(ei, color="#e3b341", linewidth=0.8, alpha=0.6, zorder=2)
+        ax.axvline(ei, color="#e3b341", linewidth=1.0, alpha=0.55, zorder=2)
+        span = (max(h) - min(l)) or 1.0
+        is_long = t["direction"] == "long"
+        y_anchor = l[ei] - span * 0.05 if is_long else h[ei] + span * 0.05
+        ax.scatter([ei], [y_anchor], marker="^" if is_long else "v", s=85,
+                   color="#e3b341", edgecolors="#0d1117", linewidths=0.6, zorder=7)
+        ax.annotate("ENTRY", (ei, y_anchor), textcoords="offset points",
+                    xytext=(0, -12 if is_long else 8), ha="center",
+                    color="#e3b341", fontsize=6.5, fontweight="bold", zorder=7)
     r = t.get("r_gross", t.get("r", 0)); rn = t.get("r_net", r)
     won = r > 0
-    ax.set_title(f"{t['symbol']}  {t['date']}  {t['direction'].upper()}   "
+    # time (intraday) or date (daily) labels on the x-axis
+    if n > 2:
+        tk = list(range(0, n, max(1, n // 6)))
+        if interval in _INTRADAY:
+            labs = [bars.index[i].strftime("%H:%M") for i in tk]
+        else:
+            labs = [str(bars["_d"].iloc[i])[5:] for i in tk]
+        ax.set_xticks(tk); ax.set_xticklabels(labs, fontsize=5.5)
+    ax.set_title(f"{t['symbol']}  {t['date']}  {t['direction'].upper()}  ·  {interval}   "
                  f"{'+' if r>0 else ''}{r}R (net {rn})",
                  color="#3fb950" if won else "#f85149", fontsize=8)
     ax.tick_params(colors="#9da7b3", labelsize=6)
