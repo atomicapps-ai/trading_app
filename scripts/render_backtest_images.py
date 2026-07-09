@@ -26,6 +26,7 @@ SRC_1M = ROOT / "data" / "historical_1m"
 HIST = ROOT / "data" / "historical"
 IMG_ROOT = ROOT / "data" / "backtest_images"
 _CACHE: dict[str, pd.DataFrame | None] = {}
+_INTRADAY = {"1m", "5m", "15m", "30m", "1h", "60min"}
 
 
 def _load(sym: str, interval: str) -> pd.DataFrame | None:
@@ -48,6 +49,8 @@ def _load(sym: str, interval: str) -> pd.DataFrame | None:
         df[dc] = pd.to_datetime(df[dc], utc=True, errors="coerce")
         df = df.dropna(subset=[dc]).set_index(dc).sort_index()
         df.columns = [c.lower() for c in df.columns]
+        if interval in _INTRADAY:      # intraday CSVs are UTC -> convert to ET (daily left as-is)
+            df = df.tz_convert("America/New_York")
     df["_d"] = df.index.date
     _CACHE[key] = df
     return df
@@ -87,13 +90,13 @@ def _draw(t, bars, out_path, interval):
     if t.get("box_high") is not None and t.get("box_low") is not None:
         ax.add_patch(Rectangle((0, t["box_low"]), n - 1, t["box_high"] - t["box_low"],
                                facecolor="#388bfd", alpha=0.10, edgecolor="#388bfd", zorder=1))
-    # entry index (align by matching timestamp/date)
+    # entry index — match by TIME for any intraday interval, by DATE for daily
     ei = None
-    if interval == "1m" and t.get("entry_time"):
+    if interval in _INTRADAY and t.get("entry_time"):
         times = [ts.strftime("%H:%M") for ts in bars.index]
         if t["entry_time"] in times:
             ei = times.index(t["entry_time"])
-    else:
+    elif interval not in _INTRADAY:
         ds = [str(x) for x in bars["_d"]]
         if str(t["date"]) in ds:
             ei = ds.index(str(t["date"]))
@@ -101,15 +104,13 @@ def _draw(t, bars, out_path, interval):
         if t.get(key) is not None:
             ax.axhline(t[key], color=col, linewidth=0.8, linestyle="--", zorder=4)
     if ei is not None:
-        ax.axvline(ei, color="#e3b341", linewidth=1.0, alpha=0.55, zorder=2)
-        span = (max(h) - min(l)) or 1.0
-        is_long = t["direction"] == "long"
-        y_anchor = l[ei] - span * 0.05 if is_long else h[ei] + span * 0.05
-        ax.scatter([ei], [y_anchor], marker="^" if is_long else "v", s=85,
-                   color="#e3b341", edgecolors="#0d1117", linewidths=0.6, zorder=7)
-        ax.annotate("ENTRY", (ei, y_anchor), textcoords="offset points",
-                    xytext=(0, -12 if is_long else 8), ha="center",
-                    color="#e3b341", fontsize=6.5, fontweight="bold", zorder=7)
+        # rectangle outline around the ENTRY candle (its high-low, full candle width)
+        cw = 0.46
+        y0, y1 = float(l[ei]), float(h[ei])
+        ax.add_patch(Rectangle((ei - cw, y0), 2 * cw, (y1 - y0) or 1e-9, fill=False,
+                               edgecolor="#e3b341", linewidth=1.6, zorder=8))
+        ax.annotate("ENTRY", (ei, y1), textcoords="offset points", xytext=(0, 5),
+                    ha="center", color="#e3b341", fontsize=6.5, fontweight="bold", zorder=8)
     r = t.get("r_gross", t.get("r", 0)); rn = t.get("r_net", r)
     won = r > 0
     # time (intraday) or date (daily) labels on the x-axis
@@ -130,6 +131,31 @@ def _draw(t, bars, out_path, interval):
     fig.tight_layout(pad=0.4)
     fig.savefig(out_path, facecolor=fig.get_facecolor())
     plt.close(fig)
+
+
+def _write_gallery(base: Path, manifest: dict):
+    """Browsable one-page gallery: all winners grid + all losers grid, from the rendered PNGs."""
+    wins = [t for t in manifest["trades"] if t["outcome"] == "win"]
+    loss = [t for t in manifest["trades"] if t["outcome"] == "loss"]
+
+    def cell(t):
+        return (f'<figure><img loading="lazy" src="{t["image"]}">'
+                f'<figcaption>{t["symbol"]} {t["date"]} {t["direction"]} '
+                f'<b class="{ "w" if t["outcome"]=="win" else "l" }">{t["r_gross"]:+}R</b></figcaption></figure>')
+    html = f"""<!doctype html><meta charset=utf-8><title>{manifest['strategy']} — backtest gallery</title>
+<style>body{{background:#0d1117;color:#e6edf3;font-family:system-ui;margin:0;padding:18px}}
+h1{{font-size:19px;margin:0 0 2px}}.sub{{color:#9da7b3;font-size:13px;margin-bottom:14px}}
+h2{{font-size:15px;margin:18px 0 8px;border-bottom:1px solid #30363d;padding-bottom:4px}}
+.grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}}
+figure{{margin:0;background:#161b22;border:1px solid #30363d;border-radius:6px;padding:5px}}
+img{{width:100%;display:block;border-radius:4px}}figcaption{{font-size:11px;color:#9da7b3;padding:4px 2px}}
+b.w{{color:#3fb950}}b.l{{color:#f85149}}</style>
+<h1>{manifest['strategy']} — backtest trade gallery</h1>
+<div class=sub>{manifest['interval']} · {manifest['n_total']} total trades ({manifest['n_win']} win / {manifest['n_loss']} loss)
+· showing {len(wins)} winners + {len(loss)} losers spread across the full period · {manifest.get('source','')}</div>
+<h2 class=w style="color:#3fb950">✓ Winners ({len(wins)})</h2><div class=grid>{''.join(cell(t) for t in wins)}</div>
+<h2 class=l style="color:#f85149">✗ Losers ({len(loss)})</h2><div class=grid>{''.join(cell(t) for t in loss)}</div>"""
+    (base / "gallery.html").write_text(html, encoding="utf-8")
 
 
 def main():
@@ -179,7 +205,8 @@ def main():
             "image": f"{side}/{name}"})
         done += 1
     (base / "manifest.json").write_text(json.dumps(manifest, indent=2))
-    print(f"{args.strategy}: rendered {done} images -> {base}")
+    _write_gallery(base, manifest)
+    print(f"{args.strategy}: rendered {done} images -> {base}  (+ gallery.html)")
     print(f"  winners {len([p for p in picks if p[0]=='winners'])}  "
           f"losers {len([p for p in picks if p[0]=='losers'])}  manifest.json written")
 
