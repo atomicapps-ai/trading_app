@@ -1,0 +1,2092 @@
+[
+  {
+    "text": "The orb strategy is currently one of the",
+    "start": 0.0,
+    "duration": 1.92
+  },
+  {
+    "text": "most popular trading methods for day",
+    "start": 1.92,
+    "duration": 1.759
+  },
+  {
+    "text": "traders because it offers an easy trade",
+    "start": 3.679,
+    "duration": 2.0800000000000005
+  },
+  {
+    "text": "setup every single day of the week and",
+    "start": 5.759,
+    "duration": 1.681
+  },
+  {
+    "text": "this works with any asset that you might",
+    "start": 7.44,
+    "duration": 1.759999999999999
+  },
+  {
+    "text": "trade. But whilst it's one of the most",
+    "start": 9.2,
+    "duration": 1.6800000000000015
+  },
+  {
+    "text": "popular strategies, there are some very",
+    "start": 10.88,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "common mistakes that traders make when",
+    "start": 12.719,
+    "duration": 1.6010000000000009
+  },
+  {
+    "text": "using it. So in this video, we are going",
+    "start": 14.32,
+    "duration": 1.5999999999999996
+  },
+  {
+    "text": "to break down everything you need to",
+    "start": 15.92,
+    "duration": 1.4390000000000018
+  },
+  {
+    "text": "know about the or breakout strategy and",
+    "start": 17.359,
+    "duration": 1.8399999999999999
+  },
+  {
+    "text": "how you can also combine it with smart",
+    "start": 19.199,
+    "duration": 1.6809999999999974
+  },
+  {
+    "text": "money concepts to find the highest",
+    "start": 20.88,
+    "duration": 1.7600000000000016
+  },
+  {
+    "text": "probability entries for your setups.",
+    "start": 22.64,
+    "duration": 3.6799999999999997
+  },
+  {
+    "text": "So, let's waste no time and start with",
+    "start": 26.32,
+    "duration": 1.9199999999999982
+  },
+  {
+    "text": "step number one, which covers what the",
+    "start": 28.24,
+    "duration": 1.6000000000000014
+  },
+  {
+    "text": "orb trading strategy actually is and how",
+    "start": 29.84,
+    "duration": 2.16
+  },
+  {
+    "text": "we locate it on a chart. When people",
+    "start": 32.0,
+    "duration": 2.0790000000000006
+  },
+  {
+    "text": "talk about trading the orb, they're",
+    "start": 34.079,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "referring to the abbreviation that",
+    "start": 35.68,
+    "duration": 1.3599999999999994
+  },
+  {
+    "text": "stands for the opening range breakout.",
+    "start": 37.04,
+    "duration": 1.6000000000000014
+  },
+  {
+    "text": "And as the name implies, this strategy",
+    "start": 38.64,
+    "duration": 2.0790000000000006
+  },
+  {
+    "text": "involves trading the breakout of a",
+    "start": 40.719,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "range, but in terms of which range. We",
+    "start": 42.32,
+    "duration": 2.0790000000000006
+  },
+  {
+    "text": "aren't talking about using the current",
+    "start": 44.399,
+    "duration": 1.5210000000000008
+  },
+  {
+    "text": "external range liquidity levels. And",
+    "start": 45.92,
+    "duration": 2.0
+  },
+  {
+    "text": "this is because the range that is used",
+    "start": 47.92,
+    "duration": 1.519999999999996
+  },
+  {
+    "text": "for the orb strategy is found from one",
+    "start": 49.44,
+    "duration": 2.1600000000000037
+  },
+  {
+    "text": "single candle. But more specifically,",
+    "start": 51.6,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "the first candle that is created after a",
+    "start": 53.52,
+    "duration": 1.9199999999999946
+  },
+  {
+    "text": "new market session has opened. So let's",
+    "start": 55.44,
+    "duration": 2.0
+  },
+  {
+    "text": "explain how this works. One of the first",
+    "start": 57.44,
+    "duration": 2.0
+  },
+  {
+    "text": "things a trader learns about are market",
+    "start": 59.44,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "sessions, which are the hours during",
+    "start": 61.28,
+    "duration": 1.7590000000000003
+  },
+  {
+    "text": "each day that the markets are open for",
+    "start": 63.039,
+    "duration": 1.6809999999999974
+  },
+  {
+    "text": "trading within each region across the",
+    "start": 64.72,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "world. And the three main sessions",
+    "start": 66.64,
+    "duration": 1.7600000000000051
+  },
+  {
+    "text": "consist of the London session, the New",
+    "start": 68.4,
+    "duration": 1.8399999999999892
+  },
+  {
+    "text": "York session, and the Tokyo session. And",
+    "start": 70.24,
+    "duration": 2.0
+  },
+  {
+    "text": "whilst the orb strategy can work with",
+    "start": 72.24,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "any of these sessions, the New York",
+    "start": 73.92,
+    "duration": 1.6799999999999926
+  },
+  {
+    "text": "session is by far the most favored to",
+    "start": 75.6,
+    "duration": 1.7600000000000051
+  },
+  {
+    "text": "use for this strategy due to the higher",
+    "start": 77.36,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "volume of liquidity that is injected",
+    "start": 79.28,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "into the market during these hours. So",
+    "start": 80.88,
+    "duration": 1.9190000000000111
+  },
+  {
+    "text": "this is the session we are going to use",
+    "start": 82.799,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "in this video. But if you were to trade",
+    "start": 84.4,
+    "duration": 1.6799999999999926
+  },
+  {
+    "text": "using another session, the method for",
+    "start": 86.08,
+    "duration": 1.7600000000000051
+  },
+  {
+    "text": "trading the orb strategy would be the",
+    "start": 87.84,
+    "duration": 1.5989999999999895
+  },
+  {
+    "text": "same. So, now with the New York session",
+    "start": 89.439,
+    "duration": 2.0
+  },
+  {
+    "text": "highlighted, in terms of which candle we",
+    "start": 91.439,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "want to use for our orb range, we",
+    "start": 93.28,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "actually want to wait until the New York",
+    "start": 95.119,
+    "duration": 1.5210000000000008
+  },
+  {
+    "text": "Stock Exchange opens at 9:30 a.m. And",
+    "start": 96.64,
+    "duration": 2.3999999999999915
+  },
+  {
+    "text": "then all we need to do is sit back and",
+    "start": 99.03999999999999,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "let the first candle play out because",
+    "start": 100.88,
+    "duration": 1.7600000000000051
+  },
+  {
+    "text": "once this very first candle has closed,",
+    "start": 102.64,
+    "duration": 2.159000000000006
+  },
+  {
+    "text": "we will have our orb candle. And then in",
+    "start": 104.799,
+    "duration": 2.0
+  },
+  {
+    "text": "terms of marking out the range, we want",
+    "start": 106.799,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "to mark out our levels from the top and",
+    "start": 108.399,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "bottom wicks. And then the area within",
+    "start": 110.0,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "these levels is the range of the orb",
+    "start": 111.68,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "candle. But now you might be wondering",
+    "start": 113.6,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "which time frame we should be using to",
+    "start": 115.28,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "target this candle. But this is where",
+    "start": 117.03999999999999,
+    "duration": 1.6000000000000085
+  },
+  {
+    "text": "you have a few choices depending on your",
+    "start": 118.64,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "personal trading style. And this is",
+    "start": 120.479,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "because whilst we always use the first",
+    "start": 122.079,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "candle that forms after the 9:30 open,",
+    "start": 123.92,
+    "duration": 2.158999999999992
+  },
+  {
+    "text": "there are a handful of different orb",
+    "start": 126.079,
+    "duration": 1.4410000000000025
+  },
+  {
+    "text": "ranges to choose from based on which",
+    "start": 127.52,
+    "duration": 1.7600000000000051
+  },
+  {
+    "text": "time frame you actually pick. For",
+    "start": 129.28,
+    "duration": 1.679000000000002
+  },
+  {
+    "text": "example, this candle here on the left is",
+    "start": 130.959,
+    "duration": 2.080999999999989
+  },
+  {
+    "text": "the first 30inut candle which would give",
+    "start": 133.04,
+    "duration": 2.0
+  },
+  {
+    "text": "us the 30inut orb range. But on the",
+    "start": 135.04,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "other hand, if we chose to use the first",
+    "start": 137.2,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "candle of the 15-minut time frame, this",
+    "start": 139.04,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "would give us the 15-minute orb range",
+    "start": 141.12,
+    "duration": 1.7589999999999861
+  },
+  {
+    "text": "instead. And the same applies for the",
+    "start": 142.879,
+    "duration": 1.7609999999999957
+  },
+  {
+    "text": "5-minut time frame too. The first candle",
+    "start": 144.64,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "will give us the 5-minute orb. And as",
+    "start": 146.72,
+    "duration": 2.0
+  },
+  {
+    "text": "you can see, the main difference between",
+    "start": 148.72,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "using the orb on different time frames",
+    "start": 150.4,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "is the size of the ranges. The 30-inut",
+    "start": 152.239,
+    "duration": 2.320999999999998
+  },
+  {
+    "text": "time frame tends to have a much wider",
+    "start": 154.56,
+    "duration": 1.679000000000002
+  },
+  {
+    "text": "spread, whereas the 5-minut range is",
+    "start": 156.239,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "usually very small, which is why the",
+    "start": 158.16,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "15-minute orb is the most popular among",
+    "start": 160.07999999999998,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "traders due to its balance of risk and",
+    "start": 162.16,
+    "duration": 2.1590000000000202
+  },
+  {
+    "text": "reliability. So, this is the time frame",
+    "start": 164.31900000000002,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "we will use in our examples. But in",
+    "start": 166.239,
+    "duration": 1.8409999999999798
+  },
+  {
+    "text": "terms of strategy, the method for",
+    "start": 168.07999999999998,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "trading the orb would be the same on any",
+    "start": 169.599,
+    "duration": 1.761000000000024
+  },
+  {
+    "text": "time frame. So now that we have covered",
+    "start": 171.36,
+    "duration": 1.6799999999999784
+  },
+  {
+    "text": "how we identify the orb, let's move on",
+    "start": 173.04,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "to the next step which breaks down how",
+    "start": 174.879,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "we can actually use it for finding trade",
+    "start": 176.72,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "setups. So as we mentioned before, the",
+    "start": 178.48,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "first part for identifying the orb range",
+    "start": 181.2,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "involves waiting for the 9:30 US stock",
+    "start": 183.04,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "market to open and then we wait for the",
+    "start": 185.28,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "close of the first candle. And in this",
+    "start": 187.04,
+    "duration": 1.7600000000000193
+  },
+  {
+    "text": "example, we are wanting to use the",
+    "start": 188.8,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "15-minute orb range, which means this",
+    "start": 190.56,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "candle is the first 15-minute candle",
+    "start": 192.64,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "that formed after the 9:30 open. And",
+    "start": 194.48,
+    "duration": 2.0
+  },
+  {
+    "text": "once we have correctly identified this",
+    "start": 196.48,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "candle, all we do from here is draw out",
+    "start": 198.07999999999998,
+    "duration": 2.0
+  },
+  {
+    "text": "a level from the end of the top wick",
+    "start": 200.07999999999998,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "which gives us what we call the orb",
+    "start": 201.76,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "range high and then another level from",
+    "start": 203.2,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "the bottom wick which gives us our orb",
+    "start": 204.959,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "range low. And this is all that we need",
+    "start": 206.879,
+    "duration": 1.7609999999999957
+  },
+  {
+    "text": "to do for finding our orb range. So now",
+    "start": 208.64,
+    "duration": 2.0
+  },
+  {
+    "text": "we can move down into the 1 minute time",
+    "start": 210.64,
+    "duration": 1.6790000000000305
+  },
+  {
+    "text": "frame to get a better look at the market",
+    "start": 212.31900000000002,
+    "duration": 1.7609999999999673
+  },
+  {
+    "text": "structure. And when we mentioned using",
+    "start": 214.07999999999998,
+    "duration": 1.4390000000000214
+  },
+  {
+    "text": "the 1 minute time frame, it should go",
+    "start": 215.519,
+    "duration": 1.6809999999999832
+  },
+  {
+    "text": "without saying that trading the orb",
+    "start": 217.2,
+    "duration": 1.3600000000000136
+  },
+  {
+    "text": "range is considered a scalping method",
+    "start": 218.56,
+    "duration": 1.679000000000002
+  },
+  {
+    "text": "which involves fast-paced trades that",
+    "start": 220.239,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "aren't lasting for too long of a period.",
+    "start": 222.159,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "But the benefit is that the orb can",
+    "start": 224.07999999999998,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "offer great trading opportunities at the",
+    "start": 225.599,
+    "duration": 1.761000000000024
+  },
+  {
+    "text": "same time of the day, every day of the",
+    "start": 227.36,
+    "duration": 1.6799999999999784
+  },
+  {
+    "text": "week. So now in terms of how the orb",
+    "start": 229.04,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "range works, we treat the orb range high",
+    "start": 230.799,
+    "duration": 2.0
+  },
+  {
+    "text": "and the orb range low as support and",
+    "start": 232.799,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "resistance levels. And the idea behind",
+    "start": 234.879,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "this is that by analyzing how the market",
+    "start": 236.799,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "interacts with these levels, it can",
+    "start": 238.879,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "offer us signals for determining which",
+    "start": 240.48,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "direction the market intends to move",
+    "start": 242.239,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "next. But there are actually a variety",
+    "start": 243.84,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "of different strategies and setups that",
+    "start": 245.68,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "can be used from just these two levels.",
+    "start": 247.28,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "So let's start with the first strategy,",
+    "start": 249.2,
+    "duration": 1.679000000000002
+  },
+  {
+    "text": "which involves trading a breakout of the",
+    "start": 250.879,
+    "duration": 1.7609999999999957
+  },
+  {
+    "text": "orb range. And as the name would imply,",
+    "start": 252.64,
+    "duration": 2.2390000000000043
+  },
+  {
+    "text": "this strategy involves waiting for the",
+    "start": 254.879,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "price action to break through either the",
+    "start": 256.479,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "orb range high or the orb range low. But",
+    "start": 258.079,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "the important detail here is that we are",
+    "start": 260.479,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "wanting to see the candle actually close",
+    "start": 262.32,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "over the level because if the candle",
+    "start": 264.0,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "just wicks above it, this isn't",
+    "start": 265.6,
+    "duration": 1.3599999999999568
+  },
+  {
+    "text": "considered a breakout. So in the",
+    "start": 266.96,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "instance that we have a candle that has",
+    "start": 268.479,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "closed over the level and we can confirm",
+    "start": 270.08,
+    "duration": 1.6790000000000305
+  },
+  {
+    "text": "a breakout has occurred, this is where",
+    "start": 271.759,
+    "duration": 1.7609999999999673
+  },
+  {
+    "text": "there are now three different options",
+    "start": 273.52,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "for how you could potentially look for a",
+    "start": 274.96,
+    "duration": 1.6790000000000305
+  },
+  {
+    "text": "trade entry. The first option involves",
+    "start": 276.639,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "taking an entry as soon as this candle",
+    "start": 278.56,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "has closed because this suggests that",
+    "start": 280.32,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "the market is looking to move further in",
+    "start": 282.08,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "that direction. And whilst this will",
+    "start": 283.68,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "make sure that you don't miss any",
+    "start": 285.199,
+    "duration": 1.120999999999981
+  },
+  {
+    "text": "breakout trades, the problem is that",
+    "start": 286.32,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "it's extremely common for false",
+    "start": 288.0,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "breakouts to occur, which is when the",
+    "start": 289.44,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "price simply just pulls back into the",
+    "start": 291.04,
+    "duration": 1.5989999999999895
+  },
+  {
+    "text": "range. And if you're using a sensible",
+    "start": 292.639,
+    "duration": 1.7609999999999673
+  },
+  {
+    "text": "stop-loss, this would just close your",
+    "start": 294.4,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "trade early, which obviously isn't",
+    "start": 296.08,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "ideal. So this leads us onto the next",
+    "start": 298.0,
+    "duration": 2.0
+  },
+  {
+    "text": "entry option which involves waiting for",
+    "start": 300.0,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "the market to push back down to the orb",
+    "start": 301.84,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "range for a retest to see whether the",
+    "start": 303.68,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "resistance level will now be respected",
+    "start": 305.52,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "as support. And if it seems as though",
+    "start": 307.28,
+    "duration": 1.4400000000000546
+  },
+  {
+    "text": "the market is respecting the level, this",
+    "start": 308.72,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "offers another opportunity to enter into",
+    "start": 310.56,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "a long trade. And then as for the third",
+    "start": 312.4,
+    "duration": 1.7600000000000477
+  },
+  {
+    "text": "option, you could wait for the retest to",
+    "start": 314.16,
+    "duration": 1.7589999999999577
+  },
+  {
+    "text": "play out followed by waiting to see if",
+    "start": 315.919,
+    "duration": 1.68100000000004
+  },
+  {
+    "text": "the next move manages to push up and",
+    "start": 317.6,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "break past the previous high that was",
+    "start": 319.44,
+    "duration": 1.5989999999999895
+  },
+  {
+    "text": "created during the first breakout move.",
+    "start": 321.039,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "And the idea behind this is that it",
+    "start": 322.96,
+    "duration": 1.6790000000000305
+  },
+  {
+    "text": "would confirm that the breakout of the",
+    "start": 324.639,
+    "duration": 1.2799999999999727
+  },
+  {
+    "text": "orb range is legitimate and a further",
+    "start": 325.919,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "move up can be expected. But then the",
+    "start": 327.84,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "issue with this is that your trade entry",
+    "start": 329.68,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "is now much further away from the orb",
+    "start": 331.6,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "range which isn't ideal for risk",
+    "start": 333.36,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "management. So in terms of trading an",
+    "start": 335.12,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "orb range breakout these are the three",
+    "start": 336.8,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "popular methods and each have their",
+    "start": 338.639,
+    "duration": 1.7609999999999673
+  },
+  {
+    "text": "benefits and disadvantages as we",
+    "start": 340.4,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "mentioned but for our preference we like",
+    "start": 342.15999999999997,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "to use the second option which involves",
+    "start": 343.919,
+    "duration": 1.9210000000000491
+  },
+  {
+    "text": "trading the retest of the orb. And the",
+    "start": 345.84000000000003,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "reason behind why is because it allows",
+    "start": 347.759,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "us to incorporate smart money concepts",
+    "start": 349.6,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "to find setups that offer a much higher",
+    "start": 351.52,
+    "duration": 2.0
+  },
+  {
+    "text": "probability. But before we explain how",
+    "start": 353.52,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "we can do that, it's worth just",
+    "start": 355.36,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "mentioning that in these examples, we",
+    "start": 356.8,
+    "duration": 1.599999999999966
+  },
+  {
+    "text": "have shown the breakout of the orb range",
+    "start": 358.4,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "high. But if the market was to instead",
+    "start": 360.08,
+    "duration": 1.6790000000000305
+  },
+  {
+    "text": "break through the orb range low, the",
+    "start": 361.759,
+    "duration": 1.6809999999999832
+  },
+  {
+    "text": "whole process would be just the same,",
+    "start": 363.44,
+    "duration": 1.5989999999999895
+  },
+  {
+    "text": "but it would instead be inverted, which",
+    "start": 365.039,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "in simple terms means we would be",
+    "start": 366.88,
+    "duration": 1.4390000000000214
+  },
+  {
+    "text": "looking for a breakout to the downside",
+    "start": 368.319,
+    "duration": 1.6809999999999832
+  },
+  {
+    "text": "instead of the upside. So with that",
+    "start": 370.0,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "covered, let's now move on to the next",
+    "start": 371.84,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "step where we can look at how we can",
+    "start": 373.52,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "incorporate smart money concepts into",
+    "start": 375.12,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "our orb trading strategies.",
+    "start": 376.88,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "So as usual, we are again going to use",
+    "start": 379.36,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "the 15-minute orb, which is the first",
+    "start": 381.28,
+    "duration": 2.0
+  },
+  {
+    "text": "15-minute candle that formed after the",
+    "start": 383.28,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "9:30 open, but this time we are going to",
+    "start": 385.12,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "instead move down only one time frame to",
+    "start": 387.44,
+    "duration": 2.478999999999985
+  },
+  {
+    "text": "the 5-minute chart. And then we are",
+    "start": 389.919,
+    "duration": 1.68100000000004
+  },
+  {
+    "text": "going to move forward in time till a",
+    "start": 391.6,
+    "duration": 1.4389999999999645
+  },
+  {
+    "text": "breakout occurs, which it didn't take",
+    "start": 393.039,
+    "duration": 1.521000000000015
+  },
+  {
+    "text": "long to do. But now, if we are wishing",
+    "start": 394.56,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "to incorporate smart money concepts into",
+    "start": 396.24,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "our orb trading strategy, we are of",
+    "start": 398.15999999999997,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "course going to want to look for PDAs",
+    "start": 400.0,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "that are able to strengthen the",
+    "start": 401.759,
+    "duration": 1.2799999999999727
+  },
+  {
+    "text": "potential of our breakout setup. And",
+    "start": 403.039,
+    "duration": 1.68100000000004
+  },
+  {
+    "text": "this chart gives us a great example",
+    "start": 404.72,
+    "duration": 1.7589999999999577
+  },
+  {
+    "text": "because during this impulsive move that",
+    "start": 406.479,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "broke up and through the orb range high,",
+    "start": 408.08,
+    "duration": 1.6790000000000305
+  },
+  {
+    "text": "we can see that a bullish fair value gap",
+    "start": 409.759,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "was created. And what this means is that",
+    "start": 411.68,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "we now have a bullish PDA that is",
+    "start": 413.6,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "overlapping with our or breakout, which",
+    "start": 415.68,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "justifies our bias for looking for a",
+    "start": 417.44,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "long trade. And going back to what we",
+    "start": 419.36,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "mentioned earlier, out of the three",
+    "start": 421.199,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "options we can choose between for",
+    "start": 422.639,
+    "duration": 1.440999999999974
+  },
+  {
+    "text": "trading a breakout. If we were to use",
+    "start": 424.08,
+    "duration": 1.6790000000000305
+  },
+  {
+    "text": "the FG as a target for our entry, it",
+    "start": 425.759,
+    "duration": 2.3209999999999695
+  },
+  {
+    "text": "would involve using the second option,",
+    "start": 428.08,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "which would be to wait for a retest of",
+    "start": 429.84,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "the orb level. So to show what this",
+    "start": 431.44,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "looks like, the market pushes down and",
+    "start": 433.28,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "into the FEG. It then briefly touched",
+    "start": 435.039,
+    "duration": 2.0810000000000173
+  },
+  {
+    "text": "the orb level before then rejecting back",
+    "start": 437.12,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "into the upward direction, which means",
+    "start": 439.039,
+    "duration": 1.761000000000024
+  },
+  {
+    "text": "in this case, the FEG was respected",
+    "start": 440.8,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "whilst also creating a retest of the orb",
+    "start": 442.96,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "range. But the markets are not likely to",
+    "start": 445.12,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "always make moves as clean as this one.",
+    "start": 447.36,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "And this is because when it comes to",
+    "start": 449.28,
+    "duration": 1.3590000000000373
+  },
+  {
+    "text": "fair value gaps, we know that there are",
+    "start": 450.639,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "times when an FG might barely be touched",
+    "start": 452.479,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "before the price reverses. Whereas other",
+    "start": 454.639,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "times the whole fair value gap might be",
+    "start": 456.8,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "attacked, which would mean that the",
+    "start": 458.72,
+    "duration": 1.2799999999999727
+  },
+  {
+    "text": "market would actually be overextending",
+    "start": 460.0,
+    "duration": 1.5989999999999895
+  },
+  {
+    "text": "past the orb range level. But the point",
+    "start": 461.599,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "is all three of these examples are valid",
+    "start": 463.52,
+    "duration": 2.2390000000000327
+  },
+  {
+    "text": "rejections. And the strength of having",
+    "start": 465.759,
+    "duration": 1.7609999999999673
+  },
+  {
+    "text": "two different arrays overlapping each",
+    "start": 467.52,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "other is what makes these setups higher",
+    "start": 469.039,
+    "duration": 1.761000000000024
+  },
+  {
+    "text": "probability. However, if the market was",
+    "start": 470.8,
+    "duration": 2.0
+  },
+  {
+    "text": "to push past the orb range level to then",
+    "start": 472.8,
+    "duration": 2.0790000000000077
+  },
+  {
+    "text": "close below the fair value gap, this is",
+    "start": 474.879,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "when the setup would become invalidated,",
+    "start": 476.8,
+    "duration": 2.0
+  },
+  {
+    "text": "which is why it's always important to",
+    "start": 478.8,
+    "duration": 1.599999999999966
+  },
+  {
+    "text": "keep a tight stop-loss for a trade like",
+    "start": 480.4,
+    "duration": 1.9190000000000396
+  },
+  {
+    "text": "this. So, as for this 5minut setup we",
+    "start": 482.319,
+    "duration": 2.0809999999999604
+  },
+  {
+    "text": "were looking at before, we can move down",
+    "start": 484.4,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "into the 1 minute time frame to take a",
+    "start": 486.0,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "look at its market structure. And the",
+    "start": 487.759,
+    "duration": 1.5209999999999582
+  },
+  {
+    "text": "thing worth mentioning here is that if",
+    "start": 489.28,
+    "duration": 1.5990000000000464
+  },
+  {
+    "text": "we look closely, there was actually a 1",
+    "start": 490.879,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "minute fair value gap that formed during",
+    "start": 492.72,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "the breakout of the orb range. But the",
+    "start": 494.4,
+    "duration": 1.9190000000000396
+  },
+  {
+    "text": "issue with this is that a 1 minute PDA",
+    "start": 496.319,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "is just too small of a time frame to",
+    "start": 498.639,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "trust. Some people do use them, but to",
+    "start": 500.319,
+    "duration": 2.0
+  },
+  {
+    "text": "find higher probability trades, you",
+    "start": 502.319,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "should try to filter for higher time",
+    "start": 504.16,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "frame setups with the minimum being the",
+    "start": 505.68,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "five or 15 minute time frames for PD",
+    "start": 507.52,
+    "duration": 2.0790000000000077
+  },
+  {
+    "text": "rays. But trading breakouts isn't the",
+    "start": 509.599,
+    "duration": 2.0
+  },
+  {
+    "text": "only type of strategy that the orb can",
+    "start": 511.599,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "offer us, which moves us on to the next",
+    "start": 513.279,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "step, which involves understanding how",
+    "start": 515.12,
+    "duration": 1.5990000000000464
+  },
+  {
+    "text": "to use false breakouts to your",
+    "start": 516.719,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "advantage. So, here we have another",
+    "start": 518.159,
+    "duration": 2.4809999999999945
+  },
+  {
+    "text": "example of a 15-minute orb range. And",
+    "start": 520.64,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "just from a quick glance, you should be",
+    "start": 522.8,
+    "duration": 1.5990000000000464
+  },
+  {
+    "text": "able to see that this is an example of a",
+    "start": 524.399,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "false breakout. Because during the",
+    "start": 526.0,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "second candle, we can see a long top",
+    "start": 527.6,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "wick, which tells us that at some point",
+    "start": 529.36,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "during the candle's duration, it had",
+    "start": 530.88,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "actually broken through the orb range",
+    "start": 532.56,
+    "duration": 1.6800000000000637
+  },
+  {
+    "text": "high. But by the time the candle had",
+    "start": 534.24,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "closed, it was back within the range of",
+    "start": 535.92,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "the orb. And this might not seem like it",
+    "start": 537.68,
+    "duration": 1.8390000000000555
+  },
+  {
+    "text": "means much, but depending on what",
+    "start": 539.519,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "happened during this failed breakout,",
+    "start": 541.279,
+    "duration": 1.5209999999999582
+  },
+  {
+    "text": "there could actually be a potential",
+    "start": 542.8,
+    "duration": 1.4400000000000546
+  },
+  {
+    "text": "trade setup. And in order to see how, we",
+    "start": 544.24,
+    "duration": 2.0
+  },
+  {
+    "text": "must move down to the 5-minut time",
+    "start": 546.24,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "frame. So now looking at the market",
+    "start": 548.0,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "structure on this lower time frame, we",
+    "start": 549.76,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "can see where the orb range was created",
+    "start": 551.519,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "which was during the first three",
+    "start": 553.279,
+    "duration": 1.280999999999949
+  },
+  {
+    "text": "candles. And then we can also see where",
+    "start": 554.56,
+    "duration": 1.9200000000000728
+  },
+  {
+    "text": "the false breakout occurred as well as",
+    "start": 556.48,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "where the market fell back inside the",
+    "start": 558.24,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "range. But when observing the market",
+    "start": 559.76,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "structure for PD rays, we can see that",
+    "start": 561.519,
+    "duration": 1.9210000000000491
+  },
+  {
+    "text": "during the pullback move, a bearish fair",
+    "start": 563.44,
+    "duration": 2.0
+  },
+  {
+    "text": "value gap was created which also",
+    "start": 565.44,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "happened to overlap with the orb range",
+    "start": 567.12,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "level. And this is useful to us because",
+    "start": 568.8,
+    "duration": 2.0
+  },
+  {
+    "text": "in the same way that we can use a",
+    "start": 570.8,
+    "duration": 1.4400000000000546
+  },
+  {
+    "text": "bullish fair value gap that overlaps",
+    "start": 572.24,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "with the orb level for a bullish setup,",
+    "start": 574.0,
+    "duration": 1.8389999999999418
+  },
+  {
+    "text": "we can also use bearish fair value gaps",
+    "start": 575.8389999999999,
+    "duration": 2.0
+  },
+  {
+    "text": "to trade the orb level as an area of",
+    "start": 577.8389999999999,
+    "duration": 1.6800000000000637
+  },
+  {
+    "text": "resistance. And in terms of how we would",
+    "start": 579.519,
+    "duration": 1.9210000000000491
+  },
+  {
+    "text": "look to trade a setup like this, it",
+    "start": 581.44,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "would again involve a retest of the orb",
+    "start": 583.12,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "level. But this time, we are going to",
+    "start": 585.04,
+    "duration": 1.6800000000000637
+  },
+  {
+    "text": "want to take a short entry from the",
+    "start": 586.72,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "bearish fair value gap. With the theory",
+    "start": 588.24,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "being that if the orb range high is",
+    "start": 590.08,
+    "duration": 1.7589999999999009
+  },
+  {
+    "text": "currently being respected as an area of",
+    "start": 591.8389999999999,
+    "duration": 1.761000000000081
+  },
+  {
+    "text": "resistance, it's likely that the next",
+    "start": 593.6,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "move that we will see will be the market",
+    "start": 595.519,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "pushing further down. Which essentially",
+    "start": 597.36,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "means that whether the market creates a",
+    "start": 599.2,
+    "duration": 1.599999999999909
+  },
+  {
+    "text": "breakout or a false breakout. In both",
+    "start": 600.8,
+    "duration": 2.0
+  },
+  {
+    "text": "cases, there are opportunities for trade",
+    "start": 602.8,
+    "duration": 1.9200000000000728
+  },
+  {
+    "text": "setups to occur. And another interesting",
+    "start": 604.72,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "observation for this type of false",
+    "start": 606.64,
+    "duration": 1.4400000000000546
+  },
+  {
+    "text": "breakout setup is that if we move back",
+    "start": 608.08,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "to the 15minute time frame, you might",
+    "start": 609.76,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "have noticed that this market structure",
+    "start": 611.68,
+    "duration": 1.5990000000000464
+  },
+  {
+    "text": "has created a CRT setup, which is",
+    "start": 613.279,
+    "duration": 2.0810000000000173
+  },
+  {
+    "text": "another trading method that you can use",
+    "start": 615.36,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "to identify the rejection of a breakout,",
+    "start": 616.8,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "which we have already covered in another",
+    "start": 618.64,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "video. So, with that said, we now need",
+    "start": 620.399,
+    "duration": 1.9210000000000491
+  },
+  {
+    "text": "to move on to the next step, which",
+    "start": 622.32,
+    "duration": 1.5189999999998918
+  },
+  {
+    "text": "involves understanding what external",
+    "start": 623.8389999999999,
+    "duration": 1.6010000000001128
+  },
+  {
+    "text": "levels and market structures you must be",
+    "start": 625.44,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "aware of when trading the orb, which is",
+    "start": 627.2,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "where most traders make mistakes when",
+    "start": 628.88,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "using this strategy. So, here we have",
+    "start": 630.56,
+    "duration": 2.32000000000005
+  },
+  {
+    "text": "another example of a 15-minute orb. And",
+    "start": 632.88,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "when we move forward a few candles, we",
+    "start": 635.04,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "can see what seems to be a great example",
+    "start": 636.88,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "of a breakout. But the problem is when",
+    "start": 638.399,
+    "duration": 1.9210000000000491
+  },
+  {
+    "text": "we move up to a higher time frame and",
+    "start": 640.32,
+    "duration": 1.8399999999999181
+  },
+  {
+    "text": "zoom out to look at the external market",
+    "start": 642.16,
+    "duration": 1.6789999999999736
+  },
+  {
+    "text": "structure, we can see that the market",
+    "start": 643.8389999999999,
+    "duration": 1.6010000000001128
+  },
+  {
+    "text": "price of this current candle is",
+    "start": 645.44,
+    "duration": 1.3599999999999
+  },
+  {
+    "text": "attacking the previous day's high. And",
+    "start": 646.8,
+    "duration": 1.9200000000000728
+  },
+  {
+    "text": "the reason why this is something to be",
+    "start": 648.72,
+    "duration": 1.3589999999999236
+  },
+  {
+    "text": "aware of is because, as we know, the",
+    "start": 650.079,
+    "duration": 2.0
+  },
+  {
+    "text": "highs and lows of previous daily candles",
+    "start": 652.079,
+    "duration": 2.0
+  },
+  {
+    "text": "are liquidity areas that the market",
+    "start": 654.079,
+    "duration": 1.68100000000004
+  },
+  {
+    "text": "routinely likes to target. And whilst it",
+    "start": 655.76,
+    "duration": 2.0
+  },
+  {
+    "text": "doesn't necessarily mean that the market",
+    "start": 657.76,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "will reverse when it hits this level,",
+    "start": 659.36,
+    "duration": 1.5989999999999327
+  },
+  {
+    "text": "the point is that it needs to be treated",
+    "start": 660.959,
+    "duration": 1.5210000000000719
+  },
+  {
+    "text": "as an area of interest with caution for",
+    "start": 662.48,
+    "duration": 2.0799999999999272
+  },
+  {
+    "text": "the possible outcomes that could occur.",
+    "start": 664.56,
+    "duration": 1.7600000000001046
+  },
+  {
+    "text": "Because in this example, when we move",
+    "start": 666.32,
+    "duration": 1.599999999999909
+  },
+  {
+    "text": "forward in time after the market pushed",
+    "start": 667.92,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "up to attack the previous daily high",
+    "start": 669.76,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "instead of continuing higher, it creates",
+    "start": 671.68,
+    "duration": 1.8390000000000555
+  },
+  {
+    "text": "a liquidity sweep before then making a",
+    "start": 673.519,
+    "duration": 2.0
+  },
+  {
+    "text": "complete nose dive. And if it were the",
+    "start": 675.519,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "case that we were currently in a long",
+    "start": 677.12,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "trade, this is exactly the type of",
+    "start": 678.56,
+    "duration": 1.7600000000001046
+  },
+  {
+    "text": "scenario that we would want to avoid.",
+    "start": 680.32,
+    "duration": 1.7589999999999009
+  },
+  {
+    "text": "And to show how, if we now go back down",
+    "start": 682.079,
+    "duration": 1.9210000000000491
+  },
+  {
+    "text": "to the 15-minute time frame to take a",
+    "start": 684.0,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "look at how this move played out, we can",
+    "start": 685.76,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "see that whilst the orb candle was",
+    "start": 687.36,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "originally respected, the draw on",
+    "start": 688.8,
+    "duration": 1.6800000000000637
+  },
+  {
+    "text": "liquidity was the previous day's high,",
+    "start": 690.48,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "which meant that when that level was",
+    "start": 692.399,
+    "duration": 1.280999999999949
+  },
+  {
+    "text": "hit, it completely invalidated this",
+    "start": 693.68,
+    "duration": 1.8390000000000555
+  },
+  {
+    "text": "setup on the lower time frame. And this",
+    "start": 695.519,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "isn't the only type of PDR you need to",
+    "start": 697.36,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "be aware of on the chart. There's a",
+    "start": 699.12,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "whole list of higher time frame PDAs",
+    "start": 700.72,
+    "duration": 2.0799999999999272
+  },
+  {
+    "text": "that can affect your orb trading setups.",
+    "start": 702.8,
+    "duration": 2.0
+  },
+  {
+    "text": "Some will benefit your setups, whilst",
+    "start": 704.8,
+    "duration": 1.6800000000000637
+  },
+  {
+    "text": "others will invalidate them, and we have",
+    "start": 706.48,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "already made videos that cover each of",
+    "start": 708.32,
+    "duration": 1.7589999999999009
+  },
+  {
+    "text": "these on the channel. But the important",
+    "start": 710.079,
+    "duration": 1.68100000000004
+  },
+  {
+    "text": "thing to understand here is that when it",
+    "start": 711.76,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "comes to trading the orb, it should only",
+    "start": 713.519,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "be treated as a tool for observing the",
+    "start": 715.12,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "immediate directional market bias after",
+    "start": 716.88,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "a new market session is opened, which",
+    "start": 718.64,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "means you still need to incorporate the",
+    "start": 720.399,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "rest of your SMC analysis into your",
+    "start": 722.079,
+    "duration": 2.0
+  },
+  {
+    "text": "trade setups. But with that said, it is",
+    "start": 724.079,
+    "duration": 2.0
+  },
+  {
+    "text": "still a very strong strategy to use when",
+    "start": 726.079,
+    "duration": 2.161000000000058
+  },
+  {
+    "text": "used correctly. We are currently",
+    "start": 728.24,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "building a Trading View indicator for",
+    "start": 729.92,
+    "duration": 1.5200000000000955
+  },
+  {
+    "text": "the orb strategies in this video, as",
+    "start": 731.44,
+    "duration": 1.8389999999999418
+  },
+  {
+    "text": "well as all of the other smart money",
+    "start": 733.279,
+    "duration": 1.441000000000031
+  },
+  {
+    "text": "concept strategies that we have already",
+    "start": 734.72,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "covered on the channel. So, if you want",
+    "start": 736.48,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "to try it out, there will be links for",
+    "start": 737.92,
+    "duration": 1.6800000000000637
+  },
+  {
+    "text": "everything in the description. And if",
+    "start": 739.6,
+    "duration": 1.6789999999999736
+  },
+  {
+    "text": "you found this video helpful, please",
+    "start": 741.279,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "leave a like and then comment what",
+    "start": 742.959,
+    "duration": 1.6800000000000637
+  },
+  {
+    "text": "trading concept you'd like to see us",
+    "start": 744.639,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "cover next.",
+    "start": 746.24,
+    "duration": 0
+  }
+]

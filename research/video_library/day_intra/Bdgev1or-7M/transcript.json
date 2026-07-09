@@ -1,0 +1,1312 @@
+[
+  {
+    "text": "This 5-minute scalping strategy",
+    "start": 0.0,
+    "duration": 2.16
+  },
+  {
+    "text": "surprised me. I back tested over 330",
+    "start": 2.16,
+    "duration": 2.92
+  },
+  {
+    "text": "trades across three different entry",
+    "start": 5.08,
+    "duration": 2.12
+  },
+  {
+    "text": "models on the 5-minute time frame, and",
+    "start": 7.2,
+    "duration": 2.2399999999999993
+  },
+  {
+    "text": "the data was interesting. Model one came",
+    "start": 9.44,
+    "duration": 2.4000000000000004
+  },
+  {
+    "text": "in at 72%, two at 77, and three tested",
+    "start": 11.84,
+    "duration": 4.120000000000001
+  },
+  {
+    "text": "at 86. Now, before you get excited, this",
+    "start": 15.96,
+    "duration": 2.919999999999998
+  },
+  {
+    "text": "is historical testing. Back tests are",
+    "start": 18.88,
+    "duration": 2.240000000000002
+  },
+  {
+    "text": "not a guarantee of future performance,",
+    "start": 21.12,
+    "duration": 2.0799999999999983
+  },
+  {
+    "text": "but what matters most is the structure",
+    "start": 23.2,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "behind it. Today, I'm breaking down",
+    "start": 25.12,
+    "duration": 2.0
+  },
+  {
+    "text": "exactly how this model works, how I",
+    "start": 27.12,
+    "duration": 2.3200000000000003
+  },
+  {
+    "text": "filter direction, and where most traders",
+    "start": 29.44,
+    "duration": 2.0
+  },
+  {
+    "text": "mess this up. So, if you're serious",
+    "start": 31.44,
+    "duration": 1.7600000000000016
+  },
+  {
+    "text": "about improving your execution on the",
+    "start": 33.2,
+    "duration": 1.7199999999999989
+  },
+  {
+    "text": "5-minute time frame, smash the like",
+    "start": 34.92,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "button, subscribe to the channel, watch",
+    "start": 37.08,
+    "duration": 2.1600000000000037
+  },
+  {
+    "text": "the disclaimer, and let's dive in.",
+    "start": 39.24,
+    "duration": 4.32
+  },
+  {
+    "text": "Most traders focus on entries, but in my",
+    "start": 43.56,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "experience, consistency starts before",
+    "start": 46.28,
+    "duration": 2.1999999999999957
+  },
+  {
+    "text": "the entry ever happens. There are two",
+    "start": 48.48,
+    "duration": 2.440000000000005
+  },
+  {
+    "text": "core things I focus on every single day.",
+    "start": 50.92,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "Step one, market direction, and step",
+    "start": 53.64,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "two, entry model selection. I'll show",
+    "start": 56.2,
+    "duration": 2.1999999999999957
+  },
+  {
+    "text": "you both in detail using examples on the",
+    "start": 58.4,
+    "duration": 2.8400000000000034
+  },
+  {
+    "text": "charts, but first, let's start with",
+    "start": 61.24,
+    "duration": 1.8399999999999963
+  },
+  {
+    "text": "direction, a simple framework I use to",
+    "start": 63.08,
+    "duration": 2.480000000000004
+  },
+  {
+    "text": "determine whether I should be looking",
+    "start": 65.56,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "for sells or buys. Step one, market",
+    "start": 67.16,
+    "duration": 2.960000000000008
+  },
+  {
+    "text": "direction. Every morning, I'm looking at",
+    "start": 70.12,
+    "duration": 2.039999999999992
+  },
+  {
+    "text": "the Asian and London session, then I",
+    "start": 72.16,
+    "duration": 2.200000000000003
+  },
+  {
+    "text": "place my trades during the New York",
+    "start": 74.36,
+    "duration": 1.7999999999999972
+  },
+  {
+    "text": "session after my toddler wakes me up.",
+    "start": 76.16,
+    "duration": 2.4000000000000057
+  },
+  {
+    "text": "What happens in Asia and London will",
+    "start": 78.56,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "tell me if I want to look for buys,",
+    "start": 81.0,
+    "duration": 2.039999999999992
+  },
+  {
+    "text": "sells, or not trade at all and look for",
+    "start": 83.03999999999999,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "another pair that day. I always want to",
+    "start": 85.6,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "see a tight Asian range, an aggressive",
+    "start": 87.84,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "push in London, and then I can expect",
+    "start": 90.72,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "price to reverse in New York. It's a",
+    "start": 92.96000000000001,
+    "duration": 2.280000000000001
+  },
+  {
+    "text": "simple AMD model. We have the",
+    "start": 95.24000000000001,
+    "duration": 3.2399999999999807
+  },
+  {
+    "text": "accumulation, the manipulation, and the",
+    "start": 98.47999999999999,
+    "duration": 2.640000000000015
+  },
+  {
+    "text": "distribution. This works because there's",
+    "start": 101.12,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "liquidity below and above the Asian",
+    "start": 103.44,
+    "duration": 3.200000000000003
+  },
+  {
+    "text": "range. And when the big players enter",
+    "start": 106.64,
+    "duration": 2.0799999999999983
+  },
+  {
+    "text": "the market during the London session, I",
+    "start": 108.72,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "expect price to sweep the Asian low or",
+    "start": 110.84,
+    "duration": 3.0
+  },
+  {
+    "text": "the Asian high, and then look for that",
+    "start": 113.84,
+    "duration": 2.280000000000001
+  },
+  {
+    "text": "market to balance during the New York",
+    "start": 116.12,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "session reversal sweeping the other side",
+    "start": 118.32,
+    "duration": 2.720000000000013
+  },
+  {
+    "text": "of the range. This works because the",
+    "start": 121.04,
+    "duration": 2.0
+  },
+  {
+    "text": "market is always seeking liquidity and",
+    "start": 123.04,
+    "duration": 2.4799999999999898
+  },
+  {
+    "text": "trying to find balance. Now, if the",
+    "start": 125.52,
+    "duration": 2.879000000000005
+  },
+  {
+    "text": "Asian range is too big like this, the",
+    "start": 128.399,
+    "duration": 2.3600000000000136
+  },
+  {
+    "text": "accumulation phase failed. Or if the",
+    "start": 130.75900000000001,
+    "duration": 2.400999999999982
+  },
+  {
+    "text": "London session doesn't give us that",
+    "start": 133.16,
+    "duration": 2.200000000000017
+  },
+  {
+    "text": "aggressive push, the manipulation stage",
+    "start": 135.36,
+    "duration": 3.0
+  },
+  {
+    "text": "failed. And in these cases, I simply",
+    "start": 138.36,
+    "duration": 2.119999999999976
+  },
+  {
+    "text": "look for trades on other charts, and",
+    "start": 140.48,
+    "duration": 2.0400000000000205
+  },
+  {
+    "text": "I'll give you my favorite pairs and",
+    "start": 142.52,
+    "duration": 1.9599999999999795
+  },
+  {
+    "text": "charts later in the video. But before we",
+    "start": 144.48,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "do anything else, I just want you to",
+    "start": 146.64,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "leave a comment right now telling me",
+    "start": 148.8,
+    "duration": 2.158999999999992
+  },
+  {
+    "text": "your favorite thing about trading, and",
+    "start": 150.959,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "I'll give seven of you free access to my",
+    "start": 152.88,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "VIP trading room. Now, let's jump into",
+    "start": 155.2,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "the charts so I can show you some real",
+    "start": 157.76,
+    "duration": 2.0400000000000205
+  },
+  {
+    "text": "examples of this exact process",
+    "start": 159.8,
+    "duration": 3.079999999999984
+  },
+  {
+    "text": "happening. Now, let's jump into the",
+    "start": 162.88,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "charts and look at some examples. Based",
+    "start": 164.48,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "on the Asian range and the London push,",
+    "start": 167.04,
+    "duration": 2.8400000000000034
+  },
+  {
+    "text": "I'll be looking for buy trades during",
+    "start": 169.88,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "the New York reversal. And as you can",
+    "start": 172.2,
+    "duration": 2.280000000000001
+  },
+  {
+    "text": "see, price reverses [music]",
+    "start": 174.48,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "perfectly. Same thing here, Asian range,",
+    "start": 176.32,
+    "duration": 2.919000000000011
+  },
+  {
+    "text": "London push, New York reversal. Asian",
+    "start": 179.239,
+    "duration": 3.1210000000000093
+  },
+  {
+    "text": "range, London push, New York reversal.",
+    "start": 182.36,
+    "duration": 3.519999999999982
+  },
+  {
+    "text": "Accumulation, manipulation,",
+    "start": 185.88,
+    "duration": 2.5200000000000102
+  },
+  {
+    "text": "distribution. Asian range, London push,",
+    "start": 188.4,
+    "duration": 3.6399999999999864
+  },
+  {
+    "text": "New York reversal. On this one, the",
+    "start": 192.04,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "Asian range isn't as tight, but the move",
+    "start": 194.2,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "is explosive, so I'd still look for that",
+    "start": 196.92000000000002,
+    "duration": 2.9599999999999795
+  },
+  {
+    "text": "New York reversal. Same thing here, not",
+    "start": 199.88,
+    "duration": 2.8400000000000034
+  },
+  {
+    "text": "a tight range, but huge red candles on",
+    "start": 202.72,
+    "duration": 3.2390000000000043
+  },
+  {
+    "text": "that London push, so I'm looking for",
+    "start": 205.959,
+    "duration": 2.2009999999999934
+  },
+  {
+    "text": "those buys again. Asian range, London",
+    "start": 208.16,
+    "duration": 2.9199999999999875
+  },
+  {
+    "text": "push, New York reversal. Asian range,",
+    "start": 211.07999999999998,
+    "duration": 3.0800000000000125
+  },
+  {
+    "text": "liquidity swept out the bottom of that",
+    "start": 214.16,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "range, New York reversal sweeping",
+    "start": 216.6,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "liquidity out the top of the range.",
+    "start": 219.48,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "Perfect. The Asian range, the London",
+    "start": 221.6,
+    "duration": 3.240000000000009
+  },
+  {
+    "text": "push, the creation of a level of demand,",
+    "start": 224.84,
+    "duration": 3.5200000000000102
+  },
+  {
+    "text": "a perfect place to enter a trading",
+    "start": 228.36,
+    "duration": 2.839999999999975
+  },
+  {
+    "text": "position here during that New York",
+    "start": 231.2,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "reversal. Entry models are coming next",
+    "start": 233.68,
+    "duration": 2.8400000000000034
+  },
+  {
+    "text": "and our last example, Asian range,",
+    "start": 236.52,
+    "duration": 2.4799999999999898
+  },
+  {
+    "text": "London push, New York reversal. This",
+    "start": 239.0,
+    "duration": 3.280000000000001
+  },
+  {
+    "text": "really works, but I have to show you how",
+    "start": 242.28,
+    "duration": 2.359999999999985
+  },
+  {
+    "text": "I place the trades. So, let's get into",
+    "start": 244.64,
+    "duration": 2.5200000000000102
+  },
+  {
+    "text": "step two of this 5-minute scalping",
+    "start": 247.16,
+    "duration": 2.200000000000017
+  },
+  {
+    "text": "strategy, entry models. There are three",
+    "start": 249.36,
+    "duration": 2.9599999999999795
+  },
+  {
+    "text": "entry models. I use all three. Let's",
+    "start": 252.32,
+    "duration": 2.5999999999999943
+  },
+  {
+    "text": "start with number one, support and",
+    "start": 254.92,
+    "duration": 1.8789999999999907
+  },
+  {
+    "text": "resist. So, now I'm on the 5-minute time",
+    "start": 256.799,
+    "duration": 2.1210000000000377
+  },
+  {
+    "text": "frame. I'm on Euro USD and this is a",
+    "start": 258.92,
+    "duration": 2.5989999999999895
+  },
+  {
+    "text": "live trade that I took. You could see we",
+    "start": 261.519,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "had the tight Asian range, the",
+    "start": 263.44,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "aggressive London push, and then I'm",
+    "start": 265.6,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "looking to get in on a buy during the",
+    "start": 267.8,
+    "duration": 2.0
+  },
+  {
+    "text": "New York reversal. So, the first thing I",
+    "start": 269.8,
+    "duration": 2.519999999999982
+  },
+  {
+    "text": "do is I set up a support zone. You could",
+    "start": 272.32,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "see this zone was used as support right",
+    "start": 274.96,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "here, used as resistance right here. As",
+    "start": 276.88,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "the London push came down, sweeping the",
+    "start": 279.76,
+    "duration": 3.3999999999999773
+  },
+  {
+    "text": "Asian low right here, we took liquidity",
+    "start": 283.15999999999997,
+    "duration": 2.560000000000059
+  },
+  {
+    "text": "below the level of support and got an",
+    "start": 285.72,
+    "duration": 2.519999999999982
+  },
+  {
+    "text": "immediate push up. So, at this point I'm",
+    "start": 288.24,
+    "duration": 2.839999999999975
+  },
+  {
+    "text": "looking to get into a trading",
+    "start": 291.08,
+    "duration": 1.9600000000000364
+  },
+  {
+    "text": "opportunity. Now, we got a pretty good",
+    "start": 293.04,
+    "duration": 1.8789999999999623
+  },
+  {
+    "text": "reaction off of this level all the way",
+    "start": 294.919,
+    "duration": 2.0
+  },
+  {
+    "text": "to here. So, I could have really got",
+    "start": 296.919,
+    "duration": 2.3210000000000264
+  },
+  {
+    "text": "into a trading position off of this",
+    "start": 299.24,
+    "duration": 2.8000000000000114
+  },
+  {
+    "text": "candle right here. Kind of a we had that",
+    "start": 302.04,
+    "duration": 3.0399999999999636
+  },
+  {
+    "text": "bullish engulfing candle pattern that I",
+    "start": 305.08,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "like to enter trades off of, but I",
+    "start": 307.64,
+    "duration": 2.080000000000041
+  },
+  {
+    "text": "didn't get in on that. I actually waited",
+    "start": 309.72,
+    "duration": 2.1989999999999554
+  },
+  {
+    "text": "a little bit longer. Look, I would have",
+    "start": 311.919,
+    "duration": 1.6410000000000196
+  },
+  {
+    "text": "won that trade if I want if I stayed",
+    "start": 313.56,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "into it, but instead I waited for this",
+    "start": 315.8,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "exact thing here. So, we came back to",
+    "start": 318.36,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "that support, we respected the level,",
+    "start": 321.24,
+    "duration": 2.920000000000016
+  },
+  {
+    "text": "and then I got my bullish engulfing",
+    "start": 324.16,
+    "duration": 2.67999999999995
+  },
+  {
+    "text": "pattern, okay? That just means that the",
+    "start": 326.84,
+    "duration": 2.3600000000000136
+  },
+  {
+    "text": "candle body of the green candle engulfed",
+    "start": 329.2,
+    "duration": 3.3600000000000136
+  },
+  {
+    "text": "the candle body of the red candle. That",
+    "start": 332.56,
+    "duration": 2.759999999999991
+  },
+  {
+    "text": "is my entry confirmation, taking that",
+    "start": 335.32,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "trade off of my level of support, and",
+    "start": 337.8,
+    "duration": 2.4799999999999613
+  },
+  {
+    "text": "then I was into the trading position,",
+    "start": 340.28,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "and it pushed up. Look, it almost",
+    "start": 342.52,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "smashed the take profit right away, and",
+    "start": 344.12,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "it hits it. After about 45 minutes. Now,",
+    "start": 345.88,
+    "duration": 3.9600000000000364
+  },
+  {
+    "text": "this exact entry would have also worked",
+    "start": 349.84000000000003,
+    "duration": 3.079999999999984
+  },
+  {
+    "text": "for a demand zone right here. You can",
+    "start": 352.92,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "see price created an obvious level of",
+    "start": 355.12,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "demand, gave us the entry pattern we",
+    "start": 357.84000000000003,
+    "duration": 2.1199999999999477
+  },
+  {
+    "text": "liked, and price shot up. And supply and",
+    "start": 359.96,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "demand happens to be the second entry",
+    "start": 362.4,
+    "duration": 2.0
+  },
+  {
+    "text": "model, so let me teach you that now.",
+    "start": 364.4,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "Now, let's look at a supply and demand",
+    "start": 366.32,
+    "duration": 2.2800000000000296
+  },
+  {
+    "text": "trade I took recently. Look, we had the",
+    "start": 368.6,
+    "duration": 2.0
+  },
+  {
+    "text": "Asian range. It was nice and tight. We",
+    "start": 370.6,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "took liquidity out the top. We got the",
+    "start": 372.88,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "London push, sweeping liquidity out the",
+    "start": 375.12,
+    "duration": 2.680000000000007
+  },
+  {
+    "text": "bottom. So, on this trade, look,",
+    "start": 377.8,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "liquidity was swept out the top and out",
+    "start": 379.32,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "the bottom, but it still formed the",
+    "start": 381.76,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "perfect pattern. So, I'm looking for",
+    "start": 383.68,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "that New York reversal, and I'm looking",
+    "start": 385.6,
+    "duration": 2.31899999999996
+  },
+  {
+    "text": "for buy trades. And I'm looking for",
+    "start": 387.919,
+    "duration": 2.3210000000000264
+  },
+  {
+    "text": "levels of demand, cuz I'm just looking",
+    "start": 390.24,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "for buy trades. And we get a level of",
+    "start": 392.15999999999997,
+    "duration": 1.8800000000000523
+  },
+  {
+    "text": "demand almost immediately. You see the",
+    "start": 394.04,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "red candle before the big push up. 1 2 3",
+    "start": 395.68,
+    "duration": 4.800000000000011
+  },
+  {
+    "text": "4 green candles in a row. A big fair",
+    "start": 400.48,
+    "duration": 3.0
+  },
+  {
+    "text": "value gap right there. A break of right",
+    "start": 403.48,
+    "duration": 3.240000000000009
+  },
+  {
+    "text": "here. All of these things tells us this",
+    "start": 406.72,
+    "duration": 2.439999999999941
+  },
+  {
+    "text": "is a good demand zone if it can hold.",
+    "start": 409.15999999999997,
+    "duration": 2.840000000000032
+  },
+  {
+    "text": "So, what are we doing? We're waiting for",
+    "start": 412.0,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "price to come back to that level of",
+    "start": 413.88,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "demand. Look, we want it to respect the",
+    "start": 416.32,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "level right there, and it does respect",
+    "start": 418.4,
+    "duration": 2.2800000000000296
+  },
+  {
+    "text": "the level. Look, perfectly. It doesn't",
+    "start": 420.68,
+    "duration": 1.7199999999999704
+  },
+  {
+    "text": "close beneath it. And as we zoom in",
+    "start": 422.4,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "here, look, I'm starting to get the",
+    "start": 424.88,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "pattern. I'm getting the bullish",
+    "start": 427.12,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "engulfing pattern. The green candle is",
+    "start": 429.32,
+    "duration": 3.319999999999993
+  },
+  {
+    "text": "engulfing the red candle. That tells me",
+    "start": 432.64,
+    "duration": 3.0
+  },
+  {
+    "text": "we have the momentum. I'm ready to get",
+    "start": 435.64,
+    "duration": 2.400000000000034
+  },
+  {
+    "text": "into a trading position. Now, what do I",
+    "start": 438.04,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "want to target? I'll have my stop loss",
+    "start": 440.36,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "right here, below the level of demand,",
+    "start": 442.52,
+    "duration": 2.5200000000000387
+  },
+  {
+    "text": "or I could put that down here. I believe",
+    "start": 445.04,
+    "duration": 2.599999999999966
+  },
+  {
+    "text": "I had it here on the real trade. And as",
+    "start": 447.64,
+    "duration": 2.400000000000034
+  },
+  {
+    "text": "we scroll out, let's take a look at a",
+    "start": 450.04,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "level right here that I like, okay? This",
+    "start": 452.2,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "was a very very obvious level of",
+    "start": 454.4,
+    "duration": 3.0400000000000205
+  },
+  {
+    "text": "resistance and support. It was used as",
+    "start": 457.44,
+    "duration": 2.6000000000000227
+  },
+  {
+    "text": "support right here, used as resistance",
+    "start": 460.04,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "right here on that push down. And",
+    "start": 462.92,
+    "duration": 1.9599999999999795
+  },
+  {
+    "text": "because the London session already swept",
+    "start": 464.88,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "the top and the bottom of that Asian",
+    "start": 467.52,
+    "duration": 2.920000000000016
+  },
+  {
+    "text": "range, I'm not expecting the New York to",
+    "start": 470.44,
+    "duration": 2.400000000000034
+  },
+  {
+    "text": "come all the way up and sweep it again.",
+    "start": 472.84000000000003,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "So, let's go ahead and play that",
+    "start": 475.48,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "position out very quickly, smashing the",
+    "start": 477.15999999999997,
+    "duration": 2.920000000000016
+  },
+  {
+    "text": "take profit right there. Could have",
+    "start": 480.08,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "targeted a little bit higher, but the",
+    "start": 481.92,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "pattern keeps playing out. Now, this is",
+    "start": 484.16,
+    "duration": 3.599999999999966
+  },
+  {
+    "text": "my favorite. It's the open range",
+    "start": 487.76,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "breakout trading entry model. You could",
+    "start": 489.84,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "see tight Asian range, the big London",
+    "start": 492.0,
+    "duration": 3.519999999999982
+  },
+  {
+    "text": "push, and then I'm expecting the New",
+    "start": 495.52,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "York reversal. So, I'm looking for buy",
+    "start": 497.64,
+    "duration": 2.920000000000016
+  },
+  {
+    "text": "trades. So, let's zoom in, and I'm",
+    "start": 500.56,
+    "duration": 3.160000000000025
+  },
+  {
+    "text": "looking at an open range breakout. So, I",
+    "start": 503.72,
+    "duration": 3.67999999999995
+  },
+  {
+    "text": "have to set my range right here. At at",
+    "start": 507.4,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "9:30 to 9:45, I'm looking at the first",
+    "start": 509.84,
+    "duration": 3.839999999999975
+  },
+  {
+    "text": "three five-minute candles, and I'm",
+    "start": 513.68,
+    "duration": 1.9190000000000964
+  },
+  {
+    "text": "setting up my range. I get the range",
+    "start": 515.599,
+    "duration": 2.600999999999999
+  },
+  {
+    "text": "high and the range low. Now, I'm just",
+    "start": 518.2,
+    "duration": 3.4799999999999045
+  },
+  {
+    "text": "looking for breaks out the top of the",
+    "start": 521.68,
+    "duration": 2.2390000000000327
+  },
+  {
+    "text": "range to confirm momentum, okay? So,",
+    "start": 523.919,
+    "duration": 3.161000000000058
+  },
+  {
+    "text": "right here, we don't have any, right?",
+    "start": 527.08,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "There's no breaks. We just have wicks.",
+    "start": 529.0,
+    "duration": 2.4400000000000546
+  },
+  {
+    "text": "So, I'm waiting for a break. And then I",
+    "start": 531.44,
+    "duration": 2.119999999999891
+  },
+  {
+    "text": "get the break and candle close right",
+    "start": 533.56,
+    "duration": 2.400000000000091
+  },
+  {
+    "text": "here. That's what I want, right? So, now",
+    "start": 535.96,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "I'm looking for buys, and I'm already",
+    "start": 538.08,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "looking for buys, right? Because we're",
+    "start": 540.32,
+    "duration": 1.7199999999999136
+  },
+  {
+    "text": "in that New York reversal. So, then I'm",
+    "start": 542.04,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "setting up entry levels. Look, I have a",
+    "start": 544.52,
+    "duration": 2.080000000000041
+  },
+  {
+    "text": "level of demand right there. I could get",
+    "start": 546.6,
+    "duration": 2.2390000000000327
+  },
+  {
+    "text": "price to come back there. And I have a",
+    "start": 548.839,
+    "duration": 2.36099999999999
+  },
+  {
+    "text": "fair value gap right here. I'll use both",
+    "start": 551.2,
+    "duration": 2.599999999999909
+  },
+  {
+    "text": "of these to get entries when I'm trading",
+    "start": 553.8,
+    "duration": 2.9200000000000728
+  },
+  {
+    "text": "the orb. So, let's continue to play this",
+    "start": 556.72,
+    "duration": 2.839999999999918
+  },
+  {
+    "text": "out. Price has now entered the orb. Is",
+    "start": 559.56,
+    "duration": 2.5200000000000955
+  },
+  {
+    "text": "it going to break through the bottom? It",
+    "start": 562.08,
+    "duration": 1.7999999999999545
+  },
+  {
+    "text": "doesn't look like it is, right? It",
+    "start": 563.88,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "doesn't look like it does. So, it looks",
+    "start": 565.52,
+    "duration": 1.6800000000000637
+  },
+  {
+    "text": "like our fair value gap is our entry,",
+    "start": 567.2,
+    "duration": 2.3199999999999363
+  },
+  {
+    "text": "and we have the bullish engulfing candle",
+    "start": 569.52,
+    "duration": 3.0
+  },
+  {
+    "text": "pattern right there. The big candle",
+    "start": 572.52,
+    "duration": 2.2000000000000455
+  },
+  {
+    "text": "right here clearly engulfing this little",
+    "start": 574.72,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "candle right here. Take my stop loss,",
+    "start": 577.2,
+    "duration": 2.199999999999932
+  },
+  {
+    "text": "put it below the fair value gap, target",
+    "start": 579.4,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "about 1:2. Let's see if I scroll over",
+    "start": 582.04,
+    "duration": 3.2800000000000864
+  },
+  {
+    "text": "again. This level right here is a level",
+    "start": 585.32,
+    "duration": 3.3999999999999773
+  },
+  {
+    "text": "of supply and it's a level of",
+    "start": 588.72,
+    "duration": 2.0399999999999636
+  },
+  {
+    "text": "resistance. It was used as support right",
+    "start": 590.76,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "here, used as resistance right here, and",
+    "start": 593.0,
+    "duration": 2.4400000000000546
+  },
+  {
+    "text": "we have a huge level of supply right",
+    "start": 595.44,
+    "duration": 2.839999999999918
+  },
+  {
+    "text": "here. So, that's exactly where I want to",
+    "start": 598.28,
+    "duration": 2.519999999999982
+  },
+  {
+    "text": "target on this trading position and you",
+    "start": 600.8,
+    "duration": 2.0400000000000773
+  },
+  {
+    "text": "can see here it goes pretty well",
+    "start": 602.84,
+    "duration": 2.67999999999995
+  },
+  {
+    "text": "smashing my take profit right there.",
+    "start": 605.52,
+    "duration": 2.560000000000059
+  },
+  {
+    "text": "Let's see. Did I leave something on the",
+    "start": 608.08,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "table? No, look, it started to really",
+    "start": 610.2,
+    "duration": 2.519999999999982
+  },
+  {
+    "text": "respect this level right here, broke",
+    "start": 612.72,
+    "duration": 2.0799999999999272
+  },
+  {
+    "text": "above the level right there a little",
+    "start": 614.8,
+    "duration": 1.5200000000000955
+  },
+  {
+    "text": "bit. Let's continue to play that out,",
+    "start": 616.32,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "but pretty good target if you ask me.",
+    "start": 618.2,
+    "duration": 2.67999999999995
+  },
+  {
+    "text": "Obviously, I have videos on every single",
+    "start": 620.88,
+    "duration": 2.519999999999982
+  },
+  {
+    "text": "one of these entry models. You should",
+    "start": 623.4,
+    "duration": 1.5600000000000591
+  },
+  {
+    "text": "check those out to learn even more.",
+    "start": 624.96,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "Consider joining my VIP trading room or",
+    "start": 627.08,
+    "duration": 2.759999999999991
+  },
+  {
+    "text": "my trade with Pat robot that trades",
+    "start": 629.84,
+    "duration": 2.6000000000000227
+  },
+  {
+    "text": "these strategies for you automatically.",
+    "start": 632.44,
+    "duration": 2.7199999999999136
+  },
+  {
+    "text": "Leave a comment, smash the like button,",
+    "start": 635.16,
+    "duration": 2.2800000000000864
+  },
+  {
+    "text": "watch this video right here, definitely",
+    "start": 637.44,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "watch this video right here, and I'll be",
+    "start": 639.72,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "back next week. Much love.",
+    "start": 641.48,
+    "duration": 0
+  }
+]

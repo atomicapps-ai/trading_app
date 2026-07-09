@@ -1,0 +1,902 @@
+[
+  {
+    "text": "every single morning at exactly 10:00",
+    "start": 0.08,
+    "duration": 1.92
+  },
+  {
+    "text": "a.m. something specific happens in the",
+    "start": 2.0,
+    "duration": 2.16
+  },
+  {
+    "text": "market and if you get good at spotting",
+    "start": 4.16,
+    "duration": 2.04
+  },
+  {
+    "text": "it you can make a ton of money for",
+    "start": 6.2,
+    "duration": 2.7199999999999998
+  },
+  {
+    "text": "example here are the past nine trading",
+    "start": 8.92,
+    "duration": 2.0
+  },
+  {
+    "text": "days but if you look closely at exactly",
+    "start": 10.92,
+    "duration": 2.3599999999999994
+  },
+  {
+    "text": "10:00 a.m. on all of these charts our",
+    "start": 13.28,
+    "duration": 2.2390000000000008
+  },
+  {
+    "text": "strategy is taking place this strategy",
+    "start": 15.519,
+    "duration": 2.641
+  },
+  {
+    "text": "is a money-making machine and I'll even",
+    "start": 18.16,
+    "duration": 2.4800000000000004
+  },
+  {
+    "text": "prove that to you by sharing my own",
+    "start": 20.64,
+    "duration": 1.9600000000000009
+  },
+  {
+    "text": "personal private back test results at",
+    "start": 22.6,
+    "duration": 2.0799999999999983
+  },
+  {
+    "text": "the end of the video to break it down",
+    "start": 24.68,
+    "duration": 1.879999999999999
+  },
+  {
+    "text": "the main component of this strategy",
+    "start": 26.56,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "we'll be using AMD and I'm not talking",
+    "start": 28.48,
+    "duration": 2.919999999999998
+  },
+  {
+    "text": "about AMD the company I'm talking about",
+    "start": 31.4,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "AMD the strategy it's really pretty",
+    "start": 33.96,
+    "duration": 2.3999999999999986
+  },
+  {
+    "text": "simple actually you basically want price",
+    "start": 36.36,
+    "duration": 1.8789999999999978
+  },
+  {
+    "text": "to move sideways or to consolidate like",
+    "start": 38.239,
+    "duration": 2.7210000000000036
+  },
+  {
+    "text": "this which is called accumulation with",
+    "start": 40.96,
+    "duration": 2.3599999999999994
+  },
+  {
+    "text": "this accumulation there will be resting",
+    "start": 43.32,
+    "duration": 1.918999999999997
+  },
+  {
+    "text": "liquidity above and below these areas",
+    "start": 45.239,
+    "duration": 2.8400000000000034
+  },
+  {
+    "text": "which will give us fuel for a big move",
+    "start": 48.079,
+    "duration": 2.2010000000000005
+  },
+  {
+    "text": "next you want some form of a liquidity",
+    "start": 50.28,
+    "duration": 2.039999999999999
+  },
+  {
+    "text": "grab to the upside or downside which is",
+    "start": 52.32,
+    "duration": 2.8399999999999963
+  },
+  {
+    "text": "the manipulation if the chart is going",
+    "start": 55.16,
+    "duration": 1.7190000000000012
+  },
+  {
+    "text": "to move higher it needs to manipulate to",
+    "start": 56.879,
+    "duration": 2.2409999999999997
+  },
+  {
+    "text": "the downside first if the chart is going",
+    "start": 59.12,
+    "duration": 1.8800000000000026
+  },
+  {
+    "text": "to move lower it needs to manipulate to",
+    "start": 61.0,
+    "duration": 2.0
+  },
+  {
+    "text": "the upside First Once price manipulates",
+    "start": 63.0,
+    "duration": 2.2390000000000043
+  },
+  {
+    "text": "in either direction it tends the",
+    "start": 65.239,
+    "duration": 1.7609999999999957
+  },
+  {
+    "text": "Skyrocket to the opposite direction",
+    "start": 67.0,
+    "duration": 2.438999999999993
+  },
+  {
+    "text": "which is the distribution which gives us",
+    "start": 69.439,
+    "duration": 2.6410000000000053
+  },
+  {
+    "text": "accumulation manipulation and",
+    "start": 72.08,
+    "duration": 2.200000000000003
+  },
+  {
+    "text": "distribution or in other words AMD now",
+    "start": 74.28,
+    "duration": 3.0799999999999983
+  },
+  {
+    "text": "if the market is bullish you're going to",
+    "start": 77.36,
+    "duration": 1.6000000000000085
+  },
+  {
+    "text": "see an open a low than a high if the",
+    "start": 78.96000000000001,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "market is bearish you're going to see an",
+    "start": 81.84,
+    "duration": 1.7199999999999989
+  },
+  {
+    "text": "open a high then a low this concept is",
+    "start": 83.56,
+    "duration": 2.918999999999997
+  },
+  {
+    "text": "what's going to help us predict what the",
+    "start": 86.479,
+    "duration": 1.6000000000000085
+  },
+  {
+    "text": "market will do next but we we have some",
+    "start": 88.07900000000001,
+    "duration": 2.2409999999999854
+  },
+  {
+    "text": "important steps we need to do first",
+    "start": 90.32,
+    "duration": 1.8800000000000097
+  },
+  {
+    "text": "first step go to trading view if you",
+    "start": 92.2,
+    "duration": 1.7999999999999972
+  },
+  {
+    "text": "don't yet have it I'll put a link in my",
+    "start": 94.0,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "description Next Step you want to find a",
+    "start": 95.92,
+    "duration": 1.9599999999999937
+  },
+  {
+    "text": "bias for the day to do this I like to go",
+    "start": 97.88,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "on the 1H hour time frame usually this",
+    "start": 99.96000000000001,
+    "duration": 1.9599999999999937
+  },
+  {
+    "text": "will be pretty clear to spot if the",
+    "start": 101.92,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "market is making higher highs and higher",
+    "start": 103.84,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "lows it's an uptrend if the market is",
+    "start": 105.68,
+    "duration": 1.7589999999999861
+  },
+  {
+    "text": "making lower highs and lower lows it's a",
+    "start": 107.439,
+    "duration": 2.3200000000000074
+  },
+  {
+    "text": "downtrend pretty simple in this case the",
+    "start": 109.759,
+    "duration": 2.0400000000000063
+  },
+  {
+    "text": "market is clearly bullish so that will",
+    "start": 111.799,
+    "duration": 2.2009999999999934
+  },
+  {
+    "text": "be our bias Next Step go to the 5 minute",
+    "start": 114.0,
+    "duration": 2.7590000000000003
+  },
+  {
+    "text": "time frame we are only going to look for",
+    "start": 116.759,
+    "duration": 1.7199999999999989
+  },
+  {
+    "text": "trades at exactly 10. a.m. to 11:30 a.m.",
+    "start": 118.479,
+    "duration": 3.361000000000004
+  },
+  {
+    "text": "that's Eastern Standard Time or in other",
+    "start": 121.84,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "words 30 minutes after the market op so",
+    "start": 124.0,
+    "duration": 2.478999999999999
+  },
+  {
+    "text": "to make this easier we're going to mark",
+    "start": 126.479,
+    "duration": 1.6010000000000133
+  },
+  {
+    "text": "this time zone with two yellow lines one",
+    "start": 128.08,
+    "duration": 2.158999999999992
+  },
+  {
+    "text": "at 10:00 a.m. and one at 11:30 a.m. we",
+    "start": 130.239,
+    "duration": 2.8009999999999877
+  },
+  {
+    "text": "only look for a trade setup inside these",
+    "start": 133.04,
+    "duration": 2.2789999999999964
+  },
+  {
+    "text": "two yellow lines if a trade setup",
+    "start": 135.319,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "happens outside these yellow lines we do",
+    "start": 137.239,
+    "duration": 2.2409999999999854
+  },
+  {
+    "text": "not take that trade since we have a",
+    "start": 139.48,
+    "duration": 1.960000000000008
+  },
+  {
+    "text": "bullish bias we want to see two things",
+    "start": 141.44,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "happen inside these yellow lines",
+    "start": 143.56,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "accumulation and then directly after",
+    "start": 145.4,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "manipulation right at 10:00 a.m. we have",
+    "start": 147.72,
+    "duration": 2.158999999999992
+  },
+  {
+    "text": "sideways movement or in other words",
+    "start": 149.879,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "accumulation so we're good there next we",
+    "start": 151.959,
+    "duration": 2.5209999999999866
+  },
+  {
+    "text": "want to see some manipulation since we",
+    "start": 154.48,
+    "duration": 2.0390000000000157
+  },
+  {
+    "text": "have a bullish bias this manipulation",
+    "start": 156.519,
+    "duration": 2.2409999999999854
+  },
+  {
+    "text": "needs to head towards the downside which",
+    "start": 158.76,
+    "duration": 2.5200000000000102
+  },
+  {
+    "text": "is exactly what happens once both of",
+    "start": 161.28,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "these things happen we need to look for",
+    "start": 163.2,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "a spot to enter trade I prefer finding a",
+    "start": 165.04,
+    "duration": 2.3600000000000136
+  },
+  {
+    "text": "fair value gap for this a fair value Gap",
+    "start": 167.4,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "is simply just a large jump in price",
+    "start": 169.56,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "where there's a gap between the candle",
+    "start": 171.68,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "before the big move and the candle after",
+    "start": 173.28,
+    "duration": 2.359999999999985
+  },
+  {
+    "text": "the big move this is our fair value Gap",
+    "start": 175.64,
+    "duration": 2.319000000000017
+  },
+  {
+    "text": "after a manipulation to the downside we",
+    "start": 177.959,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "see a large spike in price leaving",
+    "start": 180.159,
+    "duration": 2.281000000000006
+  },
+  {
+    "text": "behind a fair value Gap this is where",
+    "start": 182.44,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "our entry will be wait for price to come",
+    "start": 184.68,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "back down to this Gap set her stop loss",
+    "start": 187.0,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "below the low and set her take profit at",
+    "start": 189.2,
+    "duration": 2.319000000000017
+  },
+  {
+    "text": "the high boom you got an easy winning",
+    "start": 191.519,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "trade but we ran into a slight problem",
+    "start": 193.68,
+    "duration": 2.478999999999985
+  },
+  {
+    "text": "so this stop- loss and takeprofit",
+    "start": 196.159,
+    "duration": 1.521000000000015
+  },
+  {
+    "text": "strategy is all good and all but there's",
+    "start": 197.68,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "a little trick you can do in order to",
+    "start": 199.76,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "get even better take-profit area first",
+    "start": 201.64,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "you want to grab your Fibonacci",
+    "start": 204.36,
+    "duration": 1.2799999999999727
+  },
+  {
+    "text": "retracement tool on the left next go to",
+    "start": 205.64,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "the settings and make sure you're on the",
+    "start": 207.76,
+    "duration": 1.6400000000000148
+  },
+  {
+    "text": "style Tab and you're going to want to",
+    "start": 209.4,
+    "duration": 1.3599999999999852
+  },
+  {
+    "text": "change these values to 1 0.79 0.62",
+    "start": 210.76,
+    "duration": 5.439999999999998
+  },
+  {
+    "text": "0-1 -2 -2.5 and -4 make sure all these",
+    "start": 216.2,
+    "duration": 4.800000000000011
+  },
+  {
+    "text": "values are gray then make -2 and -2.5",
+    "start": 221.0,
+    "duration": 3.920000000000016
+  },
+  {
+    "text": "red this will give you something that",
+    "start": 224.92000000000002,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "looks like this now go back to our",
+    "start": 226.68,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "previous trade example we still have the",
+    "start": 228.519,
+    "duration": 1.8810000000000002
+  },
+  {
+    "text": "same setup with accumulation and",
+    "start": 230.4,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "manipulation and we have price at our",
+    "start": 232.239,
+    "duration": 2.0
+  },
+  {
+    "text": "fair value gap for our entry you're",
+    "start": 234.239,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "going to grab your Fibonacci tool marked",
+    "start": 236.159,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "from the low of the manipulation move to",
+    "start": 238.0,
+    "duration": 2.2390000000000043
+  },
+  {
+    "text": "the most recent high this will give you",
+    "start": 240.239,
+    "duration": 2.1210000000000093
+  },
+  {
+    "text": "some really good levels to take profit",
+    "start": 242.36,
+    "duration": 2.158999999999992
+  },
+  {
+    "text": "this red zone is where you should be",
+    "start": 244.519,
+    "duration": 1.4809999999999945
+  },
+  {
+    "text": "looking to take the majority of your",
+    "start": 246.0,
+    "duration": 1.5989999999999895
+  },
+  {
+    "text": "profits it's even better if this red",
+    "start": 247.599,
+    "duration": 2.040999999999997
+  },
+  {
+    "text": "zone is in alignment with some other",
+    "start": 249.64,
+    "duration": 1.9590000000000032
+  },
+  {
+    "text": "confluences in this example it aligns",
+    "start": 251.599,
+    "duration": 2.320999999999998
+  },
+  {
+    "text": "with their buy side liquidity which is",
+    "start": 253.92,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "absolutely perfect now instead of taking",
+    "start": 256.0,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "profits at this level like we did last",
+    "start": 258.28,
+    "duration": 2.2390000000000327
+  },
+  {
+    "text": "time we now set her take profit at this",
+    "start": 260.519,
+    "duration": 2.36099999999999
+  },
+  {
+    "text": "Red Zone as we also know it aligns with",
+    "start": 262.88,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "a Confluence on a higher time frame we",
+    "start": 265.32,
+    "duration": 2.4390000000000214
+  },
+  {
+    "text": "let the trade play out and we get to",
+    "start": 267.759,
+    "duration": 1.6809999999999832
+  },
+  {
+    "text": "ride this move for some extra profit now",
+    "start": 269.44,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "if you know my Channel at all I like to",
+    "start": 271.84,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "test my strategies before sharing them",
+    "start": 273.68,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "with you so basically I do all the",
+    "start": 275.6,
+    "duration": 1.4389999999999645
+  },
+  {
+    "text": "vigorous testing using countless hours",
+    "start": 277.039,
+    "duration": 2.201000000000022
+  },
+  {
+    "text": "of my life and test the strategy day and",
+    "start": 279.24,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "night to see if the strategy is even",
+    "start": 281.32,
+    "duration": 1.8000000000000114
+  },
+  {
+    "text": "profitable in the first place while you",
+    "start": 283.12,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "eat a bag of potato chips and get the",
+    "start": 284.96,
+    "duration": 2.0790000000000077
+  },
+  {
+    "text": "results within a couple of seconds while",
+    "start": 287.039,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "watching my",
+    "start": 288.919,
+    "duration": 1.521000000000015
+  },
+  {
+    "text": "videos I back tested this strategy for a",
+    "start": 290.44,
+    "duration": 2.7199999999999704
+  },
+  {
+    "text": "whole month and the results are",
+    "start": 293.15999999999997,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "absolutely shocking but before we get",
+    "start": 295.32,
+    "duration": 2.0400000000000205
+  },
+  {
+    "text": "into the back test results let me show",
+    "start": 297.36,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "you something real quick so a couple",
+    "start": 299.24,
+    "duration": 1.6789999999999736
+  },
+  {
+    "text": "videos ago I said I was going to test",
+    "start": 300.919,
+    "duration": 1.8010000000000446
+  },
+  {
+    "text": "this copy trading feature on hanker",
+    "start": 302.72,
+    "duration": 2.0
+  },
+  {
+    "text": "trade it's basically a feature that",
+    "start": 304.72,
+    "duration": 1.599999999999966
+  },
+  {
+    "text": "allows you to copy top performing",
+    "start": 306.32,
+    "duration": 2.0400000000000205
+  },
+  {
+    "text": "trading anal while you see important",
+    "start": 308.36,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "information like how many people are",
+    "start": 310.199,
+    "duration": 1.8809999999999718
+  },
+  {
+    "text": "following them and their win rate all",
+    "start": 312.08,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "you have to do is simply click this",
+    "start": 313.96,
+    "duration": 1.7200000000000273
+  },
+  {
+    "text": "follow button and it'll automatically",
+    "start": 315.68,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "take all the trades the analyst take I",
+    "start": 317.52,
+    "duration": 2.640000000000043
+  },
+  {
+    "text": "tested this feature with $50,000 a",
+    "start": 320.16,
+    "duration": 2.7589999999999577
+  },
+  {
+    "text": "couple months ago and my account balance",
+    "start": 322.919,
+    "duration": 2.201000000000022
+  },
+  {
+    "text": "is now",
+    "start": 325.12,
+    "duration": 1.3199999999999932
+  },
+  {
+    "text": "231,000 yes you heard me right 2 231,000",
+    "start": 326.44,
+    "duration": 4.5989999999999895
+  },
+  {
+    "text": "just from clicking a follow button they",
+    "start": 331.039,
+    "duration": 2.4010000000000105
+  },
+  {
+    "text": "also released a mobile app so you can do",
+    "start": 333.44,
+    "duration": 2.1990000000000123
+  },
+  {
+    "text": "all of this directly from your phone if",
+    "start": 335.639,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "you want to check it out I'll leave a",
+    "start": 337.56,
+    "duration": 1.3199999999999932
+  },
+  {
+    "text": "link to hanker trade in my description",
+    "start": 338.88,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "okay let's get to those back test",
+    "start": 341.0,
+    "duration": 1.2799999999999727
+  },
+  {
+    "text": "results shall we while testing this",
+    "start": 342.28,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "strategy I gave the testing account",
+    "start": 343.88,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "$100,000 to start with and I let it",
+    "start": 345.96,
+    "duration": 2.2800000000000296
+  },
+  {
+    "text": "trade using the parameters of the",
+    "start": 348.24,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "strategy I just taught you the chart had",
+    "start": 350.0,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "to have accumulation and manipulation",
+    "start": 352.15999999999997,
+    "duration": 2.319000000000017
+  },
+  {
+    "text": "and it had to happen between 10:00 a.m.",
+    "start": 354.479,
+    "duration": 2.2410000000000423
+  },
+  {
+    "text": "and 11:30 I tested this strategy for a",
+    "start": 356.72,
+    "duration": 2.478999999999985
+  },
+  {
+    "text": "total of 20 trading days and it took a",
+    "start": 359.199,
+    "duration": 2.4809999999999945
+  },
+  {
+    "text": "total of 15 trades which means the chart",
+    "start": 361.68,
+    "duration": 2.798999999999978
+  },
+  {
+    "text": "fit our parameters for our strategy 15",
+    "start": 364.479,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "out of the 20 days or 75% of the time so",
+    "start": 366.919,
+    "duration": 3.400000000000034
+  },
+  {
+    "text": "you can see this setup happens pretty",
+    "start": 370.319,
+    "duration": 1.960999999999956
+  },
+  {
+    "text": "often Within These 15 trades it had a",
+    "start": 372.28,
+    "duration": 2.3590000000000373
+  },
+  {
+    "text": "win rate of",
+    "start": 374.639,
+    "duration": 1.9599999999999795
+  },
+  {
+    "text": "66.67% and at a total profit rate of",
+    "start": 376.599,
+    "duration": 3.6000000000000227
+  },
+  {
+    "text": "44.4% which means if you started with",
+    "start": 380.199,
+    "duration": 2.9209999999999923
+  },
+  {
+    "text": "$100,000 you would have made",
+    "start": 383.12,
+    "duration": 6.478999999999985
+  },
+  {
+    "text": "trading days not too shabby test it out",
+    "start": 389.599,
+    "duration": 2.4010000000000105
+  },
+  {
+    "text": "for yourself DM me on Instagram and let",
+    "start": 392.0,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "me know how it works for you thanks for",
+    "start": 394.4,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "watching and I'll see you guys next time",
+    "start": 396.24,
+    "duration": 0
+  }
+]

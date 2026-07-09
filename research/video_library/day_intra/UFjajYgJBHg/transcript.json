@@ -1,0 +1,2147 @@
+[
+  {
+    "text": "If you're a trader, you probably watched",
+    "start": 0.0,
+    "duration": 2.2
+  },
+  {
+    "text": "videos about 9:30 a.m. trading",
+    "start": 2.2,
+    "duration": 1.7599999999999998
+  },
+  {
+    "text": "strategies, also known as the orb",
+    "start": 3.96,
+    "duration": 2.12
+  },
+  {
+    "text": "strategy. And every trading guru has",
+    "start": 6.08,
+    "duration": 2.4000000000000004
+  },
+  {
+    "text": "their own version of it. But have you",
+    "start": 8.48,
+    "duration": 1.6399999999999988
+  },
+  {
+    "text": "ever wondered whether any of these",
+    "start": 10.12,
+    "duration": 1.4800000000000004
+  },
+  {
+    "text": "versions actually work? Me, too. So, I",
+    "start": 11.6,
+    "duration": 2.880000000000001
+  },
+  {
+    "text": "coded and back-tested those strategies",
+    "start": 14.48,
+    "duration": 2.0
+  },
+  {
+    "text": "in Python to reveal the truth. And in",
+    "start": 16.48,
+    "duration": 2.3200000000000003
+  },
+  {
+    "text": "that process, I found something in the",
+    "start": 18.8,
+    "duration": 2.039999999999999
+  },
+  {
+    "text": "data that no guru is telling you. And",
+    "start": 20.84,
+    "duration": 2.3200000000000003
+  },
+  {
+    "text": "that one thing got me a setup that",
+    "start": 23.16,
+    "duration": 1.8000000000000007
+  },
+  {
+    "text": "returned 531%",
+    "start": 24.96,
+    "duration": 2.2399999999999984
+  },
+  {
+    "text": "over 5 years. And I'm going to share all",
+    "start": 27.2,
+    "duration": 2.3200000000000003
+  },
+  {
+    "text": "the results. If you watch this video",
+    "start": 29.52,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "from start to end, you'll realize",
+    "start": 31.44,
+    "duration": 1.9999999999999964
+  },
+  {
+    "text": "everything you know about the 9:30 a.m.",
+    "start": 33.44,
+    "duration": 1.6799999999999997
+  },
+  {
+    "text": "strategy is wrong. Let's get into it.",
+    "start": 35.12,
+    "duration": 2.760000000000005
+  },
+  {
+    "text": "So, what is the 9:30 a.m. strategy? Even",
+    "start": 37.88,
+    "duration": 2.9199999999999946
+  },
+  {
+    "text": "if you already know it, stick with me.",
+    "start": 40.8,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "I've seen a lot of people think they",
+    "start": 42.92,
+    "duration": 1.3999999999999986
+  },
+  {
+    "text": "know it, but actually don't. At 9:30",
+    "start": 44.32,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "a.m. Eastern Standard Time, you mark the",
+    "start": 47.04,
+    "duration": 2.3200000000000003
+  },
+  {
+    "text": "high and low of a specific candle. For",
+    "start": 49.36,
+    "duration": 2.3200000000000003
+  },
+  {
+    "text": "example, a 15-minute candle. That high",
+    "start": 51.68,
+    "duration": 2.8800000000000026
+  },
+  {
+    "text": "and low range is called the opening",
+    "start": 54.56,
+    "duration": 1.6799999999999997
+  },
+  {
+    "text": "range.",
+    "start": 56.24,
+    "duration": 1.1999999999999957
+  },
+  {
+    "text": "Then you watch to see if candle breaks",
+    "start": 57.44,
+    "duration": 1.8800000000000026
+  },
+  {
+    "text": "out and closes out of that range using",
+    "start": 59.32,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "the same time frame or a lower one.",
+    "start": 61.48,
+    "duration": 2.7590000000000074
+  },
+  {
+    "text": "The basic assumption is that whichever",
+    "start": 64.239,
+    "duration": 1.6409999999999911
+  },
+  {
+    "text": "direction price breaks out, it will",
+    "start": 65.88,
+    "duration": 2.0400000000000063
+  },
+  {
+    "text": "continue in that direction.",
+    "start": 67.92,
+    "duration": 2.1199999999999903
+  },
+  {
+    "text": "So, you enter in the direction of the",
+    "start": 70.03999999999999,
+    "duration": 1.6400000000000148
+  },
+  {
+    "text": "breakout, in this case, long position.",
+    "start": 71.68,
+    "duration": 2.9599999999999937
+  },
+  {
+    "text": "Place a limit order at the edge of the",
+    "start": 74.64,
+    "duration": 2.0400000000000063
+  },
+  {
+    "text": "range. Stop loss goes on the opposite",
+    "start": 76.68,
+    "duration": 2.280000000000001
+  },
+  {
+    "text": "side of the range, and take profit is",
+    "start": 78.96000000000001,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "set at a predefined risk-reward ratio,",
+    "start": 81.03999999999999,
+    "duration": 2.5200000000000102
+  },
+  {
+    "text": "like 1:2 or 1:3.",
+    "start": 83.56,
+    "duration": 2.4799999999999898
+  },
+  {
+    "text": "Now, this is the most basic version. But",
+    "start": 86.03999999999999,
+    "duration": 2.6000000000000085
+  },
+  {
+    "text": "here's where it gets interesting. Every",
+    "start": 88.64,
+    "duration": 2.5999999999999943
+  },
+  {
+    "text": "guru claims this basic version doesn't",
+    "start": 91.24,
+    "duration": 2.720000000000013
+  },
+  {
+    "text": "work. And that you need their specific",
+    "start": 93.96000000000001,
+    "duration": 2.359999999999985
+  },
+  {
+    "text": "secret to make it profitable.",
+    "start": 96.32,
+    "duration": 2.3200000000000074
+  },
+  {
+    "text": "Some say you need to wait for a retest",
+    "start": 98.64,
+    "duration": 1.7199999999999989
+  },
+  {
+    "text": "before entering. Others say wait for a",
+    "start": 100.36,
+    "duration": 2.200000000000003
+  },
+  {
+    "text": "fair value gap during the breakout, or",
+    "start": 102.56,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "use candlestick patterns, and etc.",
+    "start": 104.68,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "And not only that, they all say",
+    "start": 107.4,
+    "duration": 1.6799999999999926
+  },
+  {
+    "text": "different things about which time frame",
+    "start": 109.08,
+    "duration": 1.5600000000000023
+  },
+  {
+    "text": "to use, where to put your stop loss,",
+    "start": 110.64,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "what risk-reward ratio to go with, and",
+    "start": 113.08,
+    "duration": 2.3999999999999915
+  },
+  {
+    "text": "etc.",
+    "start": 115.47999999999999,
+    "duration": 1.5200000000000102
+  },
+  {
+    "text": "There's even a guy named Casper who",
+    "start": 117.0,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "posts a 9:30 a.m. strategy video almost",
+    "start": 118.92,
+    "duration": 2.8400000000000034
+  },
+  {
+    "text": "every month and his setup changes every",
+    "start": 121.76,
+    "duration": 2.6400000000000006
+  },
+  {
+    "text": "single time.",
+    "start": 124.4,
+    "duration": 1.519999999999996
+  },
+  {
+    "text": "So, which version actually works? That's",
+    "start": 125.92,
+    "duration": 2.3999999999999915
+  },
+  {
+    "text": "what we're going to find out. So, the",
+    "start": 128.32,
+    "duration": 2.0790000000000077
+  },
+  {
+    "text": "first version I tested was from this",
+    "start": 130.399,
+    "duration": 2.040999999999997
+  },
+  {
+    "text": "video. In this video, Casper tells us to",
+    "start": 132.44,
+    "duration": 2.680000000000007
+  },
+  {
+    "text": "use the retest candle. His main argument",
+    "start": 135.12,
+    "duration": 2.680000000000007
+  },
+  {
+    "text": "is that you shouldn't enter right at the",
+    "start": 137.8,
+    "duration": 1.7199999999999989
+  },
+  {
+    "text": "breakout. Instead, you have to wait.",
+    "start": 139.52,
+    "duration": 3.1599999999999966
+  },
+  {
+    "text": "Wait for price to come back, retest the",
+    "start": 142.68,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "range, and only enter once that retest",
+    "start": 144.92000000000002,
+    "duration": 2.559999999999974
+  },
+  {
+    "text": "candle closes outside the range.",
+    "start": 147.48,
+    "duration": 2.960000000000008
+  },
+  {
+    "text": "He says this is what separates winners",
+    "start": 150.44,
+    "duration": 2.039999999999992
+  },
+  {
+    "text": "from losers.",
+    "start": 152.48,
+    "duration": 1.4790000000000134
+  },
+  {
+    "text": "For the rest of the rules, he stick to",
+    "start": 153.959,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "5-minute candles for everything. Put",
+    "start": 155.8,
+    "duration": 2.519999999999982
+  },
+  {
+    "text": "stop loss at the midpoint of the range",
+    "start": 158.32,
+    "duration": 2.0
+  },
+  {
+    "text": "and uses a 1:2 risk to reward.",
+    "start": 160.32,
+    "duration": 2.8000000000000114
+  },
+  {
+    "text": "He also claims this works on every",
+    "start": 163.12,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "asset.",
+    "start": 165.2,
+    "duration": 1.0400000000000205
+  },
+  {
+    "text": "So, is that true?",
+    "start": 166.24,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "I backtested it over 10 years on ES, NQ,",
+    "start": 167.68,
+    "duration": 3.6399999999999864
+  },
+  {
+    "text": "gold, and euro futures. For commissions,",
+    "start": 171.32,
+    "duration": 3.200000000000017
+  },
+  {
+    "text": "I used NinjaTrader fees. And for",
+    "start": 174.52,
+    "duration": 2.280000000000001
+  },
+  {
+    "text": "slippage, I set it 1.5 ticks per trade.",
+    "start": 176.8,
+    "duration": 3.319999999999993
+  },
+  {
+    "text": "For those of you who don't know",
+    "start": 180.12,
+    "duration": 1.1999999999999886
+  },
+  {
+    "text": "commissions and slippage, Google it and",
+    "start": 181.32,
+    "duration": 1.960000000000008
+  },
+  {
+    "text": "put it into your head because it's",
+    "start": 183.28,
+    "duration": 1.3599999999999852
+  },
+  {
+    "text": "really important concept that affects",
+    "start": 184.64,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "your performance directly when trading.",
+    "start": 186.48,
+    "duration": 3.3600000000000136
+  },
+  {
+    "text": "And here are the results for each asset.",
+    "start": 189.84,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "For ES, minus 66% in 10 years. NQ, plus",
+    "start": 192.56,
+    "duration": 4.840000000000003
+  },
+  {
+    "text": "14% in 10 years, which is better than",
+    "start": 197.4,
+    "duration": 2.5200000000000102
+  },
+  {
+    "text": "ES, but still not profitable enough.",
+    "start": 199.92000000000002,
+    "duration": 2.5989999999999895
+  },
+  {
+    "text": "Gold, minus 50%. Euro, minus 97%.",
+    "start": 202.519,
+    "duration": 4.841000000000008
+  },
+  {
+    "text": "It was complete garbage on every single",
+    "start": 207.36,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "asset.",
+    "start": 209.76,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "And here's where it gets really",
+    "start": 211.519,
+    "duration": 1.6409999999999911
+  },
+  {
+    "text": "interesting.",
+    "start": 213.16,
+    "duration": 1.2800000000000011
+  },
+  {
+    "text": "Casper posted this video in February",
+    "start": 214.44,
+    "duration": 2.039999999999992
+  },
+  {
+    "text": "2026 and to back up his strategy, he",
+    "start": 216.48,
+    "duration": 3.0390000000000157
+  },
+  {
+    "text": "showed a 1-month backtest claiming it",
+    "start": 219.519,
+    "duration": 2.36099999999999
+  },
+  {
+    "text": "was profitable.",
+    "start": 221.88,
+    "duration": 1.8000000000000114
+  },
+  {
+    "text": "And you know what? He wasn't lying.",
+    "start": 223.68,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "Look at this.",
+    "start": 226.12,
+    "duration": 1.079999999999984
+  },
+  {
+    "text": "This is the actual equity curve for the",
+    "start": 227.2,
+    "duration": 1.8000000000000114
+  },
+  {
+    "text": "1-month period leading up to when he",
+    "start": 229.0,
+    "duration": 1.8000000000000114
+  },
+  {
+    "text": "posted the video.",
+    "start": 230.8,
+    "duration": 1.5999999999999943
+  },
+  {
+    "text": "You can see that strategy actually did",
+    "start": 232.4,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "perform well on ES and NQ during that",
+    "start": 234.48,
+    "duration": 2.680000000000007
+  },
+  {
+    "text": "time.",
+    "start": 237.16,
+    "duration": 1.2800000000000011
+  },
+  {
+    "text": "But if you extend this curve by two more",
+    "start": 238.44,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "month from when he posted the video to",
+    "start": 240.32,
+    "duration": 2.5999999999999943
+  },
+  {
+    "text": "early April, watch what happens.",
+    "start": 242.92,
+    "duration": 3.0400000000000205
+  },
+  {
+    "text": "The line that was going up, it crashed",
+    "start": 245.96,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "all the way back down. So, if you",
+    "start": 248.16,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "watched his video and started trading",
+    "start": 250.0,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "right after, you would have gotten",
+    "start": 251.64,
+    "duration": 1.8000000000000114
+  },
+  {
+    "text": "absolutely crushed.",
+    "start": 253.44,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "And more importantly, that nice little",
+    "start": 255.56,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "profitable stretch from January to",
+    "start": 257.84,
+    "duration": 1.8000000000000114
+  },
+  {
+    "text": "February,",
+    "start": 259.64,
+    "duration": 1.1999999999999886
+  },
+  {
+    "text": "when you put it back into the full",
+    "start": 260.84,
+    "duration": 1.400000000000034
+  },
+  {
+    "text": "10-year picture, it's basically nothing.",
+    "start": 262.24,
+    "duration": 2.839999999999975
+  },
+  {
+    "text": "Just a tiny blip on an equity curve",
+    "start": 265.08,
+    "duration": 2.0400000000000205
+  },
+  {
+    "text": "that's been losing money slowly for",
+    "start": 267.12,
+    "duration": 2.0
+  },
+  {
+    "text": "years.",
+    "start": 269.12,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "And the same exact pattern showed up in",
+    "start": 270.72,
+    "duration": 1.9599999999999795
+  },
+  {
+    "text": "his other video, the one where he says",
+    "start": 272.68,
+    "duration": 2.0400000000000205
+  },
+  {
+    "text": "you need to use fair value gap to trade",
+    "start": 274.72,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "the 9:30 a.m. strategy. In that video,",
+    "start": 276.6,
+    "duration": 2.67999999999995
+  },
+  {
+    "text": "too, he runs a 1-month backtest and",
+    "start": 279.28,
+    "duration": 2.560000000000059
+  },
+  {
+    "text": "claims it's profitable. But when I",
+    "start": 281.84000000000003,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "tested it long-term, the results were",
+    "start": 284.12,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "bad. -20% in ES over 10 years, +18% in",
+    "start": 286.24,
+    "duration": 4.8799999999999955
+  },
+  {
+    "text": "NQ, which is profitable but extremely",
+    "start": 291.12,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "low profit,",
+    "start": 293.6,
+    "duration": 1.3599999999999568
+  },
+  {
+    "text": "-24% in gold, and -77% in euro. And just",
+    "start": 294.96,
+    "duration": 5.160000000000025
+  },
+  {
+    "text": "like before, it just happened to be",
+    "start": 300.12,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "profitable in the month leading up to",
+    "start": 302.2,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "when he posted the video.",
+    "start": 304.08,
+    "duration": 2.0
+  },
+  {
+    "text": "At this point, the pattern is pretty",
+    "start": 306.08,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "clear. It looks like he cherry-picks",
+    "start": 308.0,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "setups that happen to work in the month",
+    "start": 310.2,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "before he posts and uses that 1-month",
+    "start": 312.04,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "backtest to make the strategy look",
+    "start": 314.6,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "profitable. And this is exactly why you",
+    "start": 316.36,
+    "duration": 2.839999999999975
+  },
+  {
+    "text": "can't trust a quick backtest done by",
+    "start": 319.2,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "hand in TradingView. You need to",
+    "start": 321.28,
+    "duration": 1.9600000000000364
+  },
+  {
+    "text": "backtest properly on a long enough time",
+    "start": 323.24,
+    "duration": 2.0399999999999636
+  },
+  {
+    "text": "period.",
+    "start": 325.28,
+    "duration": 1.5200000000000387
+  },
+  {
+    "text": "Now, let's look at the next one, a guru",
+    "start": 326.8,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "named Scarface. His main difference from",
+    "start": 328.88,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "Casper is that he looks at the shape of",
+    "start": 331.32,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "the retest candle.",
+    "start": 333.44,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "Casper just enters at the retest candle",
+    "start": 335.36,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "close, no matter what. But Scarface only",
+    "start": 337.6,
+    "duration": 2.9599999999999795
+  },
+  {
+    "text": "enters if the candle shape confirms the",
+    "start": 340.56,
+    "duration": 2.519999999999982
+  },
+  {
+    "text": "direction. For example, since price",
+    "start": 343.08,
+    "duration": 2.8389999999999986
+  },
+  {
+    "text": "break above the range, this is a long",
+    "start": 345.919,
+    "duration": 2.001000000000033
+  },
+  {
+    "text": "setup. So, Scarface want to see a",
+    "start": 347.92,
+    "duration": 1.839999999999975
+  },
+  {
+    "text": "bullish retest candle.",
+    "start": 349.76,
+    "duration": 2.0
+  },
+  {
+    "text": "In this case, this candle retest the",
+    "start": 351.76,
+    "duration": 2.3600000000000136
+  },
+  {
+    "text": "range and it's bullish.",
+    "start": 354.12,
+    "duration": 2.0
+  },
+  {
+    "text": "Perfect. Scarface enters. But here in",
+    "start": 356.12,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "the second case, this candle retest the",
+    "start": 359.0,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "range perfectly, but it's not bullish.",
+    "start": 361.4,
+    "duration": 2.840000000000032
+  },
+  {
+    "text": "So, Scarface skip the trade. Casper",
+    "start": 364.24,
+    "duration": 2.680000000000007
+  },
+  {
+    "text": "would have entered here without a second",
+    "start": 366.92,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "thought, and that's the difference",
+    "start": 368.56,
+    "duration": 1.4800000000000182
+  },
+  {
+    "text": "between these two setups. There are some",
+    "start": 370.04,
+    "duration": 2.519999999999982
+  },
+  {
+    "text": "other small differences, too, like stop",
+    "start": 372.56,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "loss and time frames, but I'll skip",
+    "start": 374.8,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "those to keep this video from getting",
+    "start": 376.96,
+    "duration": 1.5200000000000387
+  },
+  {
+    "text": "too long.",
+    "start": 378.48,
+    "duration": 1.3199999999999932
+  },
+  {
+    "text": "Just like Casper, he claims this works",
+    "start": 379.8,
+    "duration": 2.680000000000007
+  },
+  {
+    "text": "on every asset. And to back it up, he",
+    "start": 382.48,
+    "duration": 2.680000000000007
+  },
+  {
+    "text": "shows a one-year backtest with a clean",
+    "start": 385.16,
+    "duration": 2.359999999999957
+  },
+  {
+    "text": "upward equity curve. So, easy, right?",
+    "start": 387.52,
+    "duration": 2.9600000000000364
+  },
+  {
+    "text": "When I ran his exact setup, results",
+    "start": 390.48,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "actually looked great over the past year",
+    "start": 392.76,
+    "duration": 2.0
+  },
+  {
+    "text": "in S&amp;P, gold, and euro.",
+    "start": 394.76,
+    "duration": 3.158999999999992
+  },
+  {
+    "text": "This equity curve shows what you'd get",
+    "start": 397.919,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "if you traded Scarface's setup on all",
+    "start": 399.88,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "three of these markets over the past",
+    "start": 402.08,
+    "duration": 1.9600000000000364
+  },
+  {
+    "text": "year.",
+    "start": 404.04,
+    "duration": 1.1599999999999682
+  },
+  {
+    "text": "But here's the catch. This equity curve",
+    "start": 405.2,
+    "duration": 2.5200000000000387
+  },
+  {
+    "text": "assumes zero commissions and zero",
+    "start": 407.72,
+    "duration": 2.359999999999957
+  },
+  {
+    "text": "slippage.",
+    "start": 410.08,
+    "duration": 1.7600000000000477
+  },
+  {
+    "text": "Once you factor those costs in, that",
+    "start": 411.84000000000003,
+    "duration": 2.359999999999957
+  },
+  {
+    "text": "profitable last year, it made almost no",
+    "start": 414.2,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "money.",
+    "start": 416.76,
+    "duration": 1.1999999999999886
+  },
+  {
+    "text": "And when you extend it to the full 10",
+    "start": 417.96,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "years with realistic cost, minus 98%",
+    "start": 419.64,
+    "duration": 4.080000000000041
+  },
+  {
+    "text": "complete disaster.",
+    "start": 423.72,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "So, here's what we just learned.",
+    "start": 425.88,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "Scarface was using a good-looking",
+    "start": 428.2,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "one-year backtest in his video, but once",
+    "start": 429.96,
+    "duration": 2.640000000000043
+  },
+  {
+    "text": "you factor in transaction costs, that",
+    "start": 432.6,
+    "duration": 2.31899999999996
+  },
+  {
+    "text": "one year wasn't actually that",
+    "start": 434.919,
+    "duration": 1.7210000000000036
+  },
+  {
+    "text": "profitable.",
+    "start": 436.64,
+    "duration": 1.4800000000000182
+  },
+  {
+    "text": "And in the long term, the strategy",
+    "start": 438.12,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "returned minus 98.79%",
+    "start": 439.8,
+    "duration": 3.0399999999999636
+  },
+  {
+    "text": "over 10 years.",
+    "start": 442.84,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "Last one, J Dub Trades.",
+    "start": 445.0,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "He uses the five-minute candle to define",
+    "start": 447.72,
+    "duration": 1.9599999999999795
+  },
+  {
+    "text": "the opening range and the one-minute",
+    "start": 449.68,
+    "duration": 1.599999999999966
+  },
+  {
+    "text": "candle for entries.",
+    "start": 451.28,
+    "duration": 1.7200000000000273
+  },
+  {
+    "text": "But he's not really clear on whether you",
+    "start": 453.0,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "enter right at the retest or wait to see",
+    "start": 454.919,
+    "duration": 2.281000000000006
+  },
+  {
+    "text": "the price action. The video kind of",
+    "start": 457.2,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "leaves it ambiguous.",
+    "start": 459.32,
+    "duration": 1.8000000000000114
+  },
+  {
+    "text": "So, I tested both versions, and just",
+    "start": 461.12,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "like the others, wasn't profitable on",
+    "start": 463.2,
+    "duration": 2.2800000000000296
+  },
+  {
+    "text": "ES, better in NQ, but still not",
+    "start": 465.48,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "profitable. Wasn't profitable in gold,",
+    "start": 467.68,
+    "duration": 2.759999999999991
+  },
+  {
+    "text": "wasn't profitable in euro. This strategy",
+    "start": 470.44,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "also didn't work in any asset.",
+    "start": 473.08,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "At this point, two questions came to",
+    "start": 475.96,
+    "duration": 1.8800000000000523
+  },
+  {
+    "text": "mind. First, what if the simplest",
+    "start": 477.84000000000003,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "version of the 9:30 a.m. strategy",
+    "start": 480.72,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "actually works better? Remember that",
+    "start": 482.8,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "basic version of the 9:30 a.m. strategy",
+    "start": 484.96,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "that I mentioned at the beginning of",
+    "start": 487.12,
+    "duration": 1.3999999999999773
+  },
+  {
+    "text": "this video?",
+    "start": 488.52,
+    "duration": 1.160000000000025
+  },
+  {
+    "text": "No retest, no FVG, no candlestick",
+    "start": 489.68,
+    "duration": 2.920000000000016
+  },
+  {
+    "text": "patterns, just placing a limit order at",
+    "start": 492.6,
+    "duration": 2.7199999999999704
+  },
+  {
+    "text": "the range right after price breaks out.",
+    "start": 495.32,
+    "duration": 3.0
+  },
+  {
+    "text": "Second, what if the entry rules from",
+    "start": 498.32,
+    "duration": 2.0400000000000205
+  },
+  {
+    "text": "these gurus are fine, but they're just",
+    "start": 500.36,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "using the wrong settings?",
+    "start": 502.48,
+    "duration": 1.7199999999999704
+  },
+  {
+    "text": "For example, Casper uses the 5-minute",
+    "start": 504.2,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "candle to define the range and to enter.",
+    "start": 506.4,
+    "duration": 2.5190000000000055
+  },
+  {
+    "text": "But what if you use the 15-minute for",
+    "start": 508.919,
+    "duration": 1.68100000000004
+  },
+  {
+    "text": "the range and the 5-minute for entries",
+    "start": 510.6,
+    "duration": 1.879000000000019
+  },
+  {
+    "text": "instead?",
+    "start": 512.479,
+    "duration": 1.2009999999999081
+  },
+  {
+    "text": "Or take Scarface, he uses 1:2",
+    "start": 513.68,
+    "duration": 2.2390000000000327
+  },
+  {
+    "text": "risk-to-reward ratio, but what about 1:1",
+    "start": 515.919,
+    "duration": 2.880999999999972
+  },
+  {
+    "text": "or 1:3 or 1:4?",
+    "start": 518.8,
+    "duration": 3.4400000000000546
+  },
+  {
+    "text": "So, I tested all of it. And that's how I",
+    "start": 522.24,
+    "duration": 2.5989999999999327
+  },
+  {
+    "text": "finally found a strategy that's actually",
+    "start": 524.8389999999999,
+    "duration": 2.441000000000031
+  },
+  {
+    "text": "profitable.",
+    "start": 527.28,
+    "duration": 1.9600000000000364
+  },
+  {
+    "text": "To do this, I took every single thing in",
+    "start": 529.24,
+    "duration": 2.3199999999999363
+  },
+  {
+    "text": "the 9:30 a.m. strategy that you can",
+    "start": 531.56,
+    "duration": 1.8000000000000682
+  },
+  {
+    "text": "change and turn them into a variable.",
+    "start": 533.36,
+    "duration": 3.199999999999932
+  },
+  {
+    "text": "First variable is the entry setup. There",
+    "start": 536.56,
+    "duration": 2.6400000000001
+  },
+  {
+    "text": "are four options I tested. Three are",
+    "start": 539.2,
+    "duration": 2.3599999999999
+  },
+  {
+    "text": "what the gurus talked about: retest,",
+    "start": 541.56,
+    "duration": 2.400000000000091
+  },
+  {
+    "text": "fair value gap, and candlestick.",
+    "start": 543.96,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "And the fourth is the basic version of",
+    "start": 546.36,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "9:30 a.m. strategy.",
+    "start": 547.96,
+    "duration": 2.3600000000000136
+  },
+  {
+    "text": "Second variable is the time frame.",
+    "start": 550.32,
+    "duration": 2.759999999999991
+  },
+  {
+    "text": "There are actually two time frames here.",
+    "start": 553.08,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "One is for defining the opening range.",
+    "start": 555.2,
+    "duration": 2.67999999999995
+  },
+  {
+    "text": "Other is for watching the breakout and",
+    "start": 557.88,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "entering.",
+    "start": 560.0,
+    "duration": 1.2000000000000455
+  },
+  {
+    "text": "If that sounds confusing, here's what it",
+    "start": 561.2,
+    "duration": 1.9599999999999227
+  },
+  {
+    "text": "means. Let's say your range time frame",
+    "start": 563.16,
+    "duration": 2.2000000000000455
+  },
+  {
+    "text": "is 15-minute and your entry time frame",
+    "start": 565.36,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "is 5-minute.",
+    "start": 567.48,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "That means you take the high and low of",
+    "start": 569.16,
+    "duration": 1.8000000000000682
+  },
+  {
+    "text": "the first 15-minute candle starting at",
+    "start": 570.96,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "9:30 a.m. and then you watch the",
+    "start": 573.12,
+    "duration": 2.080000000000041
+  },
+  {
+    "text": "5-minute candle to see if price breaks",
+    "start": 575.2,
+    "duration": 2.4799999999999045
+  },
+  {
+    "text": "out of that range.",
+    "start": 577.68,
+    "duration": 1.8000000000000682
+  },
+  {
+    "text": "Now, if both time frames are 5 minutes,",
+    "start": 579.48,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "you take the high and low of the first",
+    "start": 581.76,
+    "duration": 1.7999999999999545
+  },
+  {
+    "text": "5-minute candle, and you also watch the",
+    "start": 583.56,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "5-minute candle for the breakout. I",
+    "start": 585.68,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "tested every possible combination of",
+    "start": 587.92,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "these time frames to see which one works",
+    "start": 589.8,
+    "duration": 2.2000000000000455
+  },
+  {
+    "text": "best.",
+    "start": 592.0,
+    "duration": 1.4800000000000182
+  },
+  {
+    "text": "Third variable is where to put your stop",
+    "start": 593.48,
+    "duration": 2.199999999999932
+  },
+  {
+    "text": "loss.",
+    "start": 595.68,
+    "duration": 1.0
+  },
+  {
+    "text": "There are a lot of options here. You can",
+    "start": 596.68,
+    "duration": 2.160000000000082
+  },
+  {
+    "text": "put it at the midpoint of the range, at",
+    "start": 598.84,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "the opposite side of the range, or if",
+    "start": 600.76,
+    "duration": 2.0
+  },
+  {
+    "text": "you're using the retest setup, you can",
+    "start": 602.76,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "set it at the wick of the retest candle.",
+    "start": 604.68,
+    "duration": 2.7600000000001046
+  },
+  {
+    "text": "There are even more, but you get the",
+    "start": 607.44,
+    "duration": 1.8399999999999181
+  },
+  {
+    "text": "idea. I tested all of them.",
+    "start": 609.28,
+    "duration": 2.9200000000000728
+  },
+  {
+    "text": "Fourth variable is the risk to reward",
+    "start": 612.2,
+    "duration": 2.0
+  },
+  {
+    "text": "ratio.",
+    "start": 614.2,
+    "duration": 1.1200000000000045
+  },
+  {
+    "text": "Every single guru tells you to use 1:2,",
+    "start": 615.32,
+    "duration": 3.0799999999999272
+  },
+  {
+    "text": "but I don't think that's necessarily",
+    "start": 618.4,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "right. So, I tested 1:1, 1:2, 1:3, and",
+    "start": 620.04,
+    "duration": 4.519999999999982
+  },
+  {
+    "text": "1:4.",
+    "start": 624.56,
+    "duration": 1.5200000000000955
+  },
+  {
+    "text": "Fifth variable is the cutoff time.",
+    "start": 626.08,
+    "duration": 2.67999999999995
+  },
+  {
+    "text": "This is the time after which you stop",
+    "start": 628.76,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "looking for entries for the day.",
+    "start": 630.64,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "For example, if the cutoff time is 11:00",
+    "start": 632.92,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "a.m. and you haven't entered by 11:00",
+    "start": 635.64,
+    "duration": 1.9600000000000364
+  },
+  {
+    "text": "a.m., you don't take any trades that",
+    "start": 637.6,
+    "duration": 2.238999999999919
+  },
+  {
+    "text": "day. You just wait for the next day.",
+    "start": 639.8389999999999,
+    "duration": 2.6410000000000764
+  },
+  {
+    "text": "I tested four cutoff times: 10:00 a.m.,",
+    "start": 642.48,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "11:00 a.m., 12:00 p.m., and 1:00 p.m.",
+    "start": 645.2,
+    "duration": 3.7999999999999545
+  },
+  {
+    "text": "And there are way more variations I",
+    "start": 649.0,
+    "duration": 1.5599999999999454
+  },
+  {
+    "text": "tested, too many to cover here, but just",
+    "start": 650.56,
+    "duration": 2.6400000000001
+  },
+  {
+    "text": "know there's a lot more.",
+    "start": 653.2,
+    "duration": 2.0
+  },
+  {
+    "text": "Those were the variables I tested, but",
+    "start": 655.2,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "there were also some fixed settings I",
+    "start": 657.32,
+    "duration": 1.9599999999999227
+  },
+  {
+    "text": "used. Things like risk per trade,",
+    "start": 659.28,
+    "duration": 2.4400000000000546
+  },
+  {
+    "text": "slippage, and how I handled",
+    "start": 661.72,
+    "duration": 1.7200000000000273
+  },
+  {
+    "text": "over-fitting. I won't go through them in",
+    "start": 663.44,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "detail, too. It'll take too long. If",
+    "start": 665.32,
+    "duration": 2.5190000000000055
+  },
+  {
+    "text": "you're curious, pause the video and read",
+    "start": 667.839,
+    "duration": 2.200999999999908
+  },
+  {
+    "text": "through it. In total, I ended up testing",
+    "start": 670.04,
+    "duration": 2.840000000000032
+  },
+  {
+    "text": "90K combinations. For each asset, I",
+    "start": 672.88,
+    "duration": 3.32000000000005
+  },
+  {
+    "text": "picked the best parameters, the ones",
+    "start": 676.2,
+    "duration": 2.199999999999932
+  },
+  {
+    "text": "with the low drawdown and the highest",
+    "start": 678.4,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "returns. And here's what I found.",
+    "start": 680.28,
+    "duration": 2.9600000000000364
+  },
+  {
+    "text": "The best combination was completely",
+    "start": 683.24,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "different for each asset. For example,",
+    "start": 685.0,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "this combination worked very well on",
+    "start": 687.88,
+    "duration": 1.7200000000000273
+  },
+  {
+    "text": "Euro, but the moment I applied the exact",
+    "start": 689.6,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "parameters to ES, not that good. Look at",
+    "start": 692.0,
+    "duration": 3.159999999999968
+  },
+  {
+    "text": "this.",
+    "start": 695.16,
+    "duration": 0.9200000000000728
+  },
+  {
+    "text": "So, here's the lesson. All those gurus",
+    "start": 696.08,
+    "duration": 2.919999999999959
+  },
+  {
+    "text": "love to claim their exact setup works on",
+    "start": 699.0,
+    "duration": 2.6000000000000227
+  },
+  {
+    "text": "every asset. Now, you can see how",
+    "start": 701.6,
+    "duration": 2.0799999999999272
+  },
+  {
+    "text": "ridiculous that claim is.",
+    "start": 703.68,
+    "duration": 2.2000000000000455
+  },
+  {
+    "text": "If you've ever back-tested a single",
+    "start": 705.88,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "strategy across multiple assets for any",
+    "start": 708.0,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "decent length of time, you already know",
+    "start": 710.72,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "this.",
+    "start": 712.84,
+    "duration": 0.9199999999999591
+  },
+  {
+    "text": "There's no such thing as one strategy",
+    "start": 713.76,
+    "duration": 1.9600000000000364
+  },
+  {
+    "text": "that works on everything because every",
+    "start": 715.72,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "asset moves differently. Some trend",
+    "start": 718.36,
+    "duration": 2.3199999999999363
+  },
+  {
+    "text": "hard, some barely trend at all, some are",
+    "start": 720.68,
+    "duration": 2.6800000000000637
+  },
+  {
+    "text": "super volatile, some barely move. The",
+    "start": 723.36,
+    "duration": 2.759999999999991
+  },
+  {
+    "text": "price action is just too different.",
+    "start": 726.12,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "That's why you have to find the best",
+    "start": 728.84,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "strategy for each asset.",
+    "start": 730.48,
+    "duration": 2.519999999999982
+  },
+  {
+    "text": "Here are the equity curves for the best",
+    "start": 733.0,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "parameters on each asset over the past 5",
+    "start": 735.28,
+    "duration": 3.0
+  },
+  {
+    "text": "years. Blue line is ES equity curve,",
+    "start": 738.28,
+    "duration": 2.759999999999991
+  },
+  {
+    "text": "orange line is NQ, green line is gold,",
+    "start": 741.04,
+    "duration": 3.080000000000041
+  },
+  {
+    "text": "red line is euro. Let me walk you",
+    "start": 744.12,
+    "duration": 2.2000000000000455
+  },
+  {
+    "text": "through each one.",
+    "start": 746.32,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "Starting with the euro, this was the",
+    "start": 747.76,
+    "duration": 2.0
+  },
+  {
+    "text": "best-performing asset. The strategy",
+    "start": 749.76,
+    "duration": 2.32000000000005
+  },
+  {
+    "text": "returned 630%",
+    "start": 752.08,
+    "duration": 2.0799999999999272
+  },
+  {
+    "text": "over 5 years with a clean upward trend.",
+    "start": 754.16,
+    "duration": 3.240000000000009
+  },
+  {
+    "text": "Gold was the second best. Strong,",
+    "start": 757.4,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "consistent growth, 431%",
+    "start": 760.04,
+    "duration": 2.840000000000032
+  },
+  {
+    "text": "return over the same period. But ES and",
+    "start": 762.88,
+    "duration": 2.9589999999999463
+  },
+  {
+    "text": "NQ barely moved. ES returned only 77%",
+    "start": 765.8389999999999,
+    "duration": 4.201000000000022
+  },
+  {
+    "text": "and NQ was even worse at just 71%. Both",
+    "start": 770.04,
+    "duration": 4.080000000000041
+  },
+  {
+    "text": "were pretty much flat compared to the",
+    "start": 774.12,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "other two.",
+    "start": 775.8,
+    "duration": 1.1600000000000819
+  },
+  {
+    "text": "And here's the key takeaway. On euro and",
+    "start": 776.96,
+    "duration": 3.0
+  },
+  {
+    "text": "gold, the strategy worked great, but on",
+    "start": 779.96,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "ES and NQ, even the best parameters I",
+    "start": 782.44,
+    "duration": 2.5599999999999454
+  },
+  {
+    "text": "could find couldn't beat just buy and",
+    "start": 785.0,
+    "duration": 1.7999999999999545
+  },
+  {
+    "text": "hold. So, if you're trading ES or NQ,",
+    "start": 786.8,
+    "duration": 3.160000000000082
+  },
+  {
+    "text": "the 9:30 a.m. strategy isn't your",
+    "start": 789.96,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "answer.",
+    "start": 792.08,
+    "duration": 1.2799999999999727
+  },
+  {
+    "text": "So, now you might be wondering, what",
+    "start": 793.36,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "exactly made this strategy work on euro",
+    "start": 795.76,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "and gold? What were the actual",
+    "start": 798.4,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "parameters that produced these returns?",
+    "start": 800.56,
+    "duration": 2.880000000000109
+  },
+  {
+    "text": "There were three key findings that",
+    "start": 803.44,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "surprised me.",
+    "start": 805.2,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "First, the basic 9:30 a.m. strategy",
+    "start": 807.08,
+    "duration": 3.0
+  },
+  {
+    "text": "worked best and this was true for both",
+    "start": 810.08,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "Euro and gold. No retest, no fair value",
+    "start": 812.36,
+    "duration": 3.3199999999999363
+  },
+  {
+    "text": "gap, no candlestick patterns, just a",
+    "start": 815.68,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "limit order right after price breaks",
+    "start": 818.16,
+    "duration": 2.0
+  },
+  {
+    "text": "out. That's it. Every guru claims you",
+    "start": 820.16,
+    "duration": 3.32000000000005
+  },
+  {
+    "text": "need their secret to make this strategy",
+    "start": 823.48,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "work. But the reality, those secrets",
+    "start": 825.16,
+    "duration": 3.1200000000000045
+  },
+  {
+    "text": "actually made it worse. The basic",
+    "start": 828.28,
+    "duration": 2.32000000000005
+  },
+  {
+    "text": "version beat all of them.",
+    "start": 830.6,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "Second, the risk-reward ratio. For both",
+    "start": 833.24,
+    "duration": 3.1200000000000045
+  },
+  {
+    "text": "Euro and gold, the best ratio was lower",
+    "start": 836.36,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "than 1:2, so that always use 1:2 rule",
+    "start": 838.84,
+    "duration": 3.0399999999999636
+  },
+  {
+    "text": "every guru pushes, wrong.",
+    "start": 841.88,
+    "duration": 3.2000000000000455
+  },
+  {
+    "text": "Third, the time frame for defining the",
+    "start": 845.08,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "range. Using the 5-minute candle wasn't",
+    "start": 847.24,
+    "duration": 2.519999999999982
+  },
+  {
+    "text": "the best. A higher time frame like",
+    "start": 849.76,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "15-minute and 10-minute always worked",
+    "start": 851.88,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "better. Time frame for entering was the",
+    "start": 854.12,
+    "duration": 2.3600000000000136
+  },
+  {
+    "text": "same. You should use time frame higher",
+    "start": 856.48,
+    "duration": 2.3199999999999363
+  },
+  {
+    "text": "than 1-minute or 5-minute.",
+    "start": 858.8,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "Now, this was just the very rough",
+    "start": 861.28,
+    "duration": 1.8000000000000682
+  },
+  {
+    "text": "overview of what worked best. There are",
+    "start": 863.08,
+    "duration": 2.3600000000000136
+  },
+  {
+    "text": "a lot of more parameters I tested. For",
+    "start": 865.44,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "those of you who want faster updates and",
+    "start": 867.72,
+    "duration": 1.8399999999999181
+  },
+  {
+    "text": "more detailed breakdowns, I created a",
+    "start": 869.56,
+    "duration": 2.2789999999999964
+  },
+  {
+    "text": "Telegram channel. The link is in the",
+    "start": 871.8389999999999,
+    "duration": 1.9210000000000491
+  },
+  {
+    "text": "description below and on my channel",
+    "start": 873.76,
+    "duration": 2.0
+  },
+  {
+    "text": "page, come check it out. Most traders",
+    "start": 875.76,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "don't even backtest their strategies.",
+    "start": 878.48,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "They just jump straight into live",
+    "start": 880.72,
+    "duration": 1.3999999999999773
+  },
+  {
+    "text": "trading with a small account or if they",
+    "start": 882.12,
+    "duration": 2.2000000000000455
+  },
+  {
+    "text": "do backtest, they only do it for a month",
+    "start": 884.32,
+    "duration": 2.3599999999999
+  },
+  {
+    "text": "or two on TradingView manually. But",
+    "start": 886.68,
+    "duration": 2.32000000000005
+  },
+  {
+    "text": "after watching this video, I think you",
+    "start": 889.0,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "can see how meaningless that is. A",
+    "start": 890.6,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "1-month or 2-month backtest tells you",
+    "start": 892.88,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "almost nothing.",
+    "start": 895.16,
+    "duration": 2.0400000000000773
+  },
+  {
+    "text": "And not only that, most people don't",
+    "start": 897.2,
+    "duration": 2.0799999999999272
+  },
+  {
+    "text": "account for commissions or they overfit",
+    "start": 899.28,
+    "duration": 2.519999999999982
+  },
+  {
+    "text": "their parameters or cherry-pick the best",
+    "start": 901.8,
+    "duration": 2.2800000000000864
+  },
+  {
+    "text": "period to look at.",
+    "start": 904.08,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "There are so many ways to do it wrong.",
+    "start": 905.72,
+    "duration": 2.519999999999982
+  },
+  {
+    "text": "The real problem, doing it properly",
+    "start": 908.24,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "takes forever. Backtesting a single",
+    "start": 910.88,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "strategy over long period of time using",
+    "start": 913.36,
+    "duration": 2.199999999999932
+  },
+  {
+    "text": "hand takes weeks. And testing thousands",
+    "start": 915.56,
+    "duration": 2.840000000000032
+  },
+  {
+    "text": "of combinations like I did, that's",
+    "start": 918.4,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "basically impossible by",
+    "start": 920.64,
+    "duration": 3.0399999999999636
+  },
+  {
+    "text": "So, most people give up and just trust",
+    "start": 923.68,
+    "duration": 2.400000000000091
+  },
+  {
+    "text": "whatever strategy they find on YouTube.",
+    "start": 926.08,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "They lose months and thousands of",
+    "start": 928.48,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "dollars on strategies that were never",
+    "start": 930.16,
+    "duration": 1.9600000000000364
+  },
+  {
+    "text": "properly verified. And then those gurus",
+    "start": 932.12,
+    "duration": 2.840000000000032
+  },
+  {
+    "text": "blame you. They say things like, \"You",
+    "start": 934.96,
+    "duration": 2.3600000000000136
+  },
+  {
+    "text": "need to find the right strategy for",
+    "start": 937.32,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "you.\" Or even a good strategy fails",
+    "start": 938.76,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "without a discipline.",
+    "start": 941.24,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "As a systematic trader, I can tell you",
+    "start": 942.88,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "that's nonsense.",
+    "start": 945.28,
+    "duration": 1.9200000000000728
+  },
+  {
+    "text": "I find this whole situation pretty sad,",
+    "start": 947.2,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "and I want to help fix it. So, I'll be",
+    "start": 949.44,
+    "duration": 2.199999999999932
+  },
+  {
+    "text": "sharing more videos, tools, and",
+    "start": 951.64,
+    "duration": 2.2000000000000455
+  },
+  {
+    "text": "resources to help you actually verify",
+    "start": 953.84,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "strategies the right way.",
+    "start": 956.12,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "If that sounds useful, hit subscribe so",
+    "start": 958.24,
+    "duration": 2.3600000000000136
+  },
+  {
+    "text": "you don't miss the next one. And if you",
+    "start": 960.6,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "want to go deeper, check out my Telegram",
+    "start": 962.2,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "channel and website. Links are in the",
+    "start": 964.44,
+    "duration": 2.2399999999998954
+  },
+  {
+    "text": "description.",
+    "start": 966.68,
+    "duration": 0
+  }
+]

@@ -1,0 +1,1237 @@
+[
+  {
+    "text": "hey traders in this video you'll learn",
+    "start": 0.08,
+    "duration": 2.0
+  },
+  {
+    "text": "the simplest day trading strategy for",
+    "start": 2.08,
+    "duration": 2.279
+  },
+  {
+    "text": "beginners you literally don't need any",
+    "start": 4.359,
+    "duration": 2.4400000000000004
+  },
+  {
+    "text": "experience to be profitable and it's the",
+    "start": 6.799,
+    "duration": 2.2009999999999996
+  },
+  {
+    "text": "strategy I wish I would have known when",
+    "start": 9.0,
+    "duration": 1.6389999999999993
+  },
+  {
+    "text": "I first started out because it uses",
+    "start": 10.639,
+    "duration": 2.3610000000000007
+  },
+  {
+    "text": "Concepts that professional Traders use",
+    "start": 13.0,
+    "duration": 2.16
+  },
+  {
+    "text": "but simplified so much that anyone can",
+    "start": 15.16,
+    "duration": 2.6400000000000006
+  },
+  {
+    "text": "do it and just because the strategy is",
+    "start": 17.8,
+    "duration": 1.6389999999999993
+  },
+  {
+    "text": "simple doesn't mean it's not profitable",
+    "start": 19.439,
+    "duration": 2.280999999999999
+  },
+  {
+    "text": "as I've also did a back test of it and",
+    "start": 21.72,
+    "duration": 1.9600000000000009
+  },
+  {
+    "text": "it came out with a staggering 65% win",
+    "start": 23.68,
+    "duration": 2.7590000000000003
+  },
+  {
+    "text": "rate which is pretty good for just a",
+    "start": 26.439,
+    "duration": 1.9609999999999985
+  },
+  {
+    "text": "simple strategy so let's get started the",
+    "start": 28.4,
+    "duration": 2.84
+  },
+  {
+    "text": "strategy is so simple we only look at",
+    "start": 31.24,
+    "duration": 2.2399999999999984
+  },
+  {
+    "text": "one indicator and we don't have to think",
+    "start": 33.48,
+    "duration": 1.8000000000000043
+  },
+  {
+    "text": "about anything else and that indicator",
+    "start": 35.28,
+    "duration": 2.0799999999999983
+  },
+  {
+    "text": "is the 50 EMA the 50 EMA is the 50-day",
+    "start": 37.36,
+    "duration": 3.3200000000000003
+  },
+  {
+    "text": "exponential moving average it is a line",
+    "start": 40.68,
+    "duration": 2.0799999999999983
+  },
+  {
+    "text": "on a chart that shows an average price",
+    "start": 42.76,
+    "duration": 1.6799999999999997
+  },
+  {
+    "text": "of an asset over the last 50 days but",
+    "start": 44.44,
+    "duration": 2.6799999999999997
+  },
+  {
+    "text": "with more weight given to recent prices",
+    "start": 47.12,
+    "duration": 2.1600000000000037
+  },
+  {
+    "text": "to apply this strategy all we need to",
+    "start": 49.28,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "have on the screen is just a price chart",
+    "start": 51.44,
+    "duration": 1.8800000000000026
+  },
+  {
+    "text": "and the 50 EMA to do that pick the chart",
+    "start": 53.32,
+    "duration": 2.6799999999999997
+  },
+  {
+    "text": "you want to analyze and click indicators",
+    "start": 56.0,
+    "duration": 2.479999999999997
+  },
+  {
+    "text": "here we look for EMA",
+    "start": 58.48,
+    "duration": 3.0390000000000015
+  },
+  {
+    "text": "we open it and go to settings and set it",
+    "start": 61.519,
+    "duration": 2.8810000000000073
+  },
+  {
+    "text": "to 50 so what we're looking for is a",
+    "start": 64.4,
+    "duration": 3.0389999999999873
+  },
+  {
+    "text": "chart where the price is moving below",
+    "start": 67.439,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "the 50 EMA such as in this chart for",
+    "start": 69.28,
+    "duration": 2.680000000000007
+  },
+  {
+    "text": "example the strategy starts once the",
+    "start": 71.96000000000001,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "price breaks above the 50 EMA and a",
+    "start": 74.4,
+    "duration": 2.6799999999999926
+  },
+  {
+    "text": "candle closes above it as you can see in",
+    "start": 77.08,
+    "duration": 2.200000000000003
+  },
+  {
+    "text": "this chart so the first step of this",
+    "start": 79.28,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "strategy is complete a break above the",
+    "start": 81.4,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "50 EMA then we're going to wait for a",
+    "start": 83.72,
+    "duration": 2.718999999999994
+  },
+  {
+    "text": "pullback however we only consider a",
+    "start": 86.439,
+    "duration": 2.680000000000007
+  },
+  {
+    "text": "pullback a real pullback when we have at",
+    "start": 89.119,
+    "duration": 2.521000000000001
+  },
+  {
+    "text": "least two opposite candles coming down",
+    "start": 91.64,
+    "duration": 2.1189999999999998
+  },
+  {
+    "text": "so that's two backto back red candles",
+    "start": 93.759,
+    "duration": 2.2409999999999997
+  },
+  {
+    "text": "after we broke above the EMA once we see",
+    "start": 96.0,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "that happening we draw a horizontal line",
+    "start": 98.72,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "at the swing high point before we see",
+    "start": 100.88,
+    "duration": 1.960000000000008
+  },
+  {
+    "text": "that pullback then after we see the two",
+    "start": 102.84,
+    "duration": 2.5989999999999895
+  },
+  {
+    "text": "red candles we're going to wait for the",
+    "start": 105.439,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "price to break above the horizontal line",
+    "start": 107.6,
+    "duration": 2.6000000000000085
+  },
+  {
+    "text": "but remember the body of the candle",
+    "start": 110.2,
+    "duration": 1.8399999999999892
+  },
+  {
+    "text": "needs to close above the line and when",
+    "start": 112.03999999999999,
+    "duration": 2.3200000000000074
+  },
+  {
+    "text": "that happens such as it does here that's",
+    "start": 114.36,
+    "duration": 2.6000000000000085
+  },
+  {
+    "text": "when we buy but even when the setup is",
+    "start": 116.96000000000001,
+    "duration": 2.239999999999995
+  },
+  {
+    "text": "perfect a trade is not guaranteed to be",
+    "start": 119.2,
+    "duration": 2.6400000000000006
+  },
+  {
+    "text": "successful and that's why we need to set",
+    "start": 121.84,
+    "duration": 2.3190000000000026
+  },
+  {
+    "text": "a stop- loss to limit our risk to do",
+    "start": 124.159,
+    "duration": 2.239999999999995
+  },
+  {
+    "text": "that we add one more tool to our",
+    "start": 126.399,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "strategy so on trading view go to",
+    "start": 128.36,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "indicators again and type chandelier",
+    "start": 130.8,
+    "duration": 2.039999999999992
+  },
+  {
+    "text": "stop and click the one right here by pip",
+    "start": 132.84,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "Charlie once it is applied we place the",
+    "start": 135.08,
+    "duration": 2.6799999999999784
+  },
+  {
+    "text": "stop loss of our entry at the chandelier",
+    "start": 137.76,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "stop in this example that would be right",
+    "start": 139.84,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "here we then set a take profit Target at",
+    "start": 142.04,
+    "duration": 2.680000000000007
+  },
+  {
+    "text": "Double the stop loss which is right here",
+    "start": 144.72,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "now while the setup can look perfect",
+    "start": 147.16,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "that doesn't always always mean that",
+    "start": 149.0,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "it's a good trade I have two main things",
+    "start": 150.44,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "that invalidate the trade for me first",
+    "start": 152.56,
+    "duration": 2.519999999999982
+  },
+  {
+    "text": "when we get a pullback but price breaks",
+    "start": 155.07999999999998,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "below the EMA so let's say that all the",
+    "start": 156.92000000000002,
+    "duration": 2.6789999999999736
+  },
+  {
+    "text": "first steps in this strategy go",
+    "start": 159.599,
+    "duration": 1.4010000000000105
+  },
+  {
+    "text": "according to plan we break the EMA after",
+    "start": 161.0,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "trading below it for a while we then get",
+    "start": 163.44,
+    "duration": 2.0
+  },
+  {
+    "text": "a pullback of two consecutive candles",
+    "start": 165.44,
+    "duration": 2.4000000000000057
+  },
+  {
+    "text": "which means we can draw the horizontal",
+    "start": 167.84,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "line but then before we managed to break",
+    "start": 169.48,
+    "duration": 2.4790000000000134
+  },
+  {
+    "text": "that line the pullback was too deep that",
+    "start": 171.959,
+    "duration": 2.280000000000001
+  },
+  {
+    "text": "it broke below the EMA if this happens",
+    "start": 174.239,
+    "duration": 3.1610000000000014
+  },
+  {
+    "text": "the trade is automatically invalid",
+    "start": 177.4,
+    "duration": 1.8389999999999986
+  },
+  {
+    "text": "because it means that her pullback isn't",
+    "start": 179.239,
+    "duration": 1.8009999999999877
+  },
+  {
+    "text": "totally clean the second invalidation",
+    "start": 181.04,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "for me is if the breakout candle is way",
+    "start": 183.2,
+    "duration": 2.640000000000015
+  },
+  {
+    "text": "bigger than the average candle so if the",
+    "start": 185.84,
+    "duration": 2.478999999999985
+  },
+  {
+    "text": "breakout is three or four times as big",
+    "start": 188.319,
+    "duration": 2.200000000000017
+  },
+  {
+    "text": "as the average candle like in this",
+    "start": 190.519,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "example there's a high chance that the",
+    "start": 192.44,
+    "duration": 2.0
+  },
+  {
+    "text": "breakout is unsustainable and that price",
+    "start": 194.44,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "May reverse back down so this is also a",
+    "start": 196.76,
+    "duration": 2.680000000000007
+  },
+  {
+    "text": "type of setup that we should avoid now",
+    "start": 199.44,
+    "duration": 2.039999999999992
+  },
+  {
+    "text": "before I tell you more about the",
+    "start": 201.48,
+    "duration": 1.2800000000000011
+  },
+  {
+    "text": "strategy it's time to talk about the",
+    "start": 202.76,
+    "duration": 1.8799999999999955
+  },
+  {
+    "text": "sponsor of today's video and that is",
+    "start": 204.64,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "simple effects simple effects is a free",
+    "start": 206.72,
+    "duration": 2.5190000000000055
+  },
+  {
+    "text": "trading plan platform they have over 60",
+    "start": 209.239,
+    "duration": 2.040999999999997
+  },
+  {
+    "text": "different currency Pairs and basically",
+    "start": 211.28,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "all stocks crypto Commodities and",
+    "start": 213.2,
+    "duration": 2.640000000000015
+  },
+  {
+    "text": "indices that you could ever want to",
+    "start": 215.84,
+    "duration": 1.5989999999999895
+  },
+  {
+    "text": "trade from Bitcoin to the S&amp;P 500 to",
+    "start": 217.439,
+    "duration": 3.561000000000007
+  },
+  {
+    "text": "even Nidia stock they also come with a",
+    "start": 221.0,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "built-in trading view chart which means",
+    "start": 223.12,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "you can analyze traits and execute them",
+    "start": 225.04,
+    "duration": 2.1990000000000123
+  },
+  {
+    "text": "on the same platform simple effects",
+    "start": 227.239,
+    "duration": 2.280000000000001
+  },
+  {
+    "text": "allows you to deposit more than 70",
+    "start": 229.519,
+    "duration": 1.8810000000000002
+  },
+  {
+    "text": "different payment methods which means it",
+    "start": 231.4,
+    "duration": 2.0
+  },
+  {
+    "text": "couldn't be easier to get your money",
+    "start": 233.4,
+    "duration": 1.478999999999985
+  },
+  {
+    "text": "onto the platform and start trading and",
+    "start": 234.879,
+    "duration": 2.1210000000000093
+  },
+  {
+    "text": "to thank my viewers they want to give",
+    "start": 237.0,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "you all A40 deposit bonus if you deposit",
+    "start": 238.92000000000002,
+    "duration": 2.799999999999983
+  },
+  {
+    "text": "at least $100 so if you put $100 on the",
+    "start": 241.72,
+    "duration": 3.280000000000001
+  },
+  {
+    "text": "platform simple effects will give you a",
+    "start": 245.0,
+    "duration": 2.158999999999992
+  },
+  {
+    "text": "fre $40 extra to trade with so give it a",
+    "start": 247.159,
+    "duration": 2.8810000000000002
+  },
+  {
+    "text": "try because I think you'll love it now",
+    "start": 250.04,
+    "duration": 2.5589999999999975
+  },
+  {
+    "text": "back to the video so in the previous",
+    "start": 252.599,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "example we started from a chart where",
+    "start": 254.56,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "the price was trading below the 50 EMA",
+    "start": 256.72,
+    "duration": 2.638999999999953
+  },
+  {
+    "text": "but the strategy also works for the",
+    "start": 259.359,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "opposite if we take a chart that's",
+    "start": 261.32,
+    "duration": 1.6399999999999864
+  },
+  {
+    "text": "trading above the 50 ma such as this one",
+    "start": 262.96,
+    "duration": 3.080000000000041
+  },
+  {
+    "text": "wait for it to break out below it and",
+    "start": 266.04,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "then begin our strategy by following the",
+    "start": 268.24,
+    "duration": 2.0399999999999636
+  },
+  {
+    "text": "exact same steps which in this case we",
+    "start": 270.28,
+    "duration": 2.479000000000042
+  },
+  {
+    "text": "wait for the price to break below the 50",
+    "start": 272.759,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "Ma so when we get a dip below it we're",
+    "start": 274.72,
+    "duration": 2.5599999999999454
+  },
+  {
+    "text": "then going to look for two consecutive",
+    "start": 277.28,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "green candles so that we can draw the",
+    "start": 279.039,
+    "duration": 2.2409999999999854
+  },
+  {
+    "text": "horizontal line at the swing low and",
+    "start": 281.28,
+    "duration": 2.5200000000000387
+  },
+  {
+    "text": "then when price reverses and dips below",
+    "start": 283.8,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "that low that's where we have a sell",
+    "start": 286.12,
+    "duration": 1.63900000000001
+  },
+  {
+    "text": "opportunity so it's the exact same",
+    "start": 287.759,
+    "duration": 2.2409999999999854
+  },
+  {
+    "text": "pattern but in the opposite direction",
+    "start": 290.0,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "but okay now that we understand the",
+    "start": 292.72,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "strategy let's actually look at some",
+    "start": 294.8,
+    "duration": 1.7199999999999704
+  },
+  {
+    "text": "real life examples the first one is",
+    "start": 296.52,
+    "duration": 2.6000000000000227
+  },
+  {
+    "text": "discharge the US dollar against the",
+    "start": 299.12,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "Canadian dollar the blue line here is",
+    "start": 301.24,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "the EMA as you can see the price had",
+    "start": 303.36,
+    "duration": 2.4399999999999977
+  },
+  {
+    "text": "been trading below the 50 EMA for quite",
+    "start": 305.8,
+    "duration": 2.0399999999999636
+  },
+  {
+    "text": "some time until it broke out this is",
+    "start": 307.84,
+    "duration": 2.0
+  },
+  {
+    "text": "where I got interested I then wait for a",
+    "start": 309.84,
+    "duration": 2.1990000000000123
+  },
+  {
+    "text": "pullback of at least two consecutive red",
+    "start": 312.039,
+    "duration": 2.3210000000000264
+  },
+  {
+    "text": "candles after the breakout which",
+    "start": 314.36,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "happened right here that's where I drew",
+    "start": 316.12,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "the horizontal line at the highs it was",
+    "start": 318.28,
+    "duration": 2.32000000000005
+  },
+  {
+    "text": "then time to wait until we broke that",
+    "start": 320.6,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "line again when we did I bought right at",
+    "start": 322.68,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "the breakout candle close then I applied",
+    "start": 325.08,
+    "duration": 2.640000000000043
+  },
+  {
+    "text": "the chandelier stop set my stop loss and",
+    "start": 327.72,
+    "duration": 2.1989999999999554
+  },
+  {
+    "text": "take profits as you can see the price",
+    "start": 329.919,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "hits our takeprofit Target here's",
+    "start": 332.639,
+    "duration": 2.040999999999997
+  },
+  {
+    "text": "another example again on the usdcad",
+    "start": 334.68,
+    "duration": 2.7199999999999704
+  },
+  {
+    "text": "chart the pair was trading below the 50",
+    "start": 337.4,
+    "duration": 2.4400000000000546
+  },
+  {
+    "text": "ma for quite a while we waited for a",
+    "start": 339.84000000000003,
+    "duration": 2.0399999999999636
+  },
+  {
+    "text": "breakout and then the reversal of that",
+    "start": 341.88,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "breakout we then drew a horizontal line",
+    "start": 343.8,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "at the swing high and once I saw the",
+    "start": 345.96,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "candle close above the line it was a",
+    "start": 347.88,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "confirmed breakout and I entered a long",
+    "start": 349.72,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "position then I applied this chandelier",
+    "start": 351.88,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "stop indicator and place our stop- loss",
+    "start": 354.15999999999997,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "and takeprofit Target again price hits",
+    "start": 355.919,
+    "duration": 2.2800000000000296
+  },
+  {
+    "text": "our takeprofit region this one is an",
+    "start": 358.199,
+    "duration": 2.4809999999999945
+  },
+  {
+    "text": "example of the exact opposite in this",
+    "start": 360.68,
+    "duration": 2.2799999999999727
+  },
+  {
+    "text": "case the Aussie dollar pair was trading",
+    "start": 362.96,
+    "duration": 2.0
+  },
+  {
+    "text": "above the 50 EMA for quite a while until",
+    "start": 364.96,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "we broke it with two very long red",
+    "start": 367.28,
+    "duration": 2.1990000000000123
+  },
+  {
+    "text": "candles in a row then I waited for a",
+    "start": 369.479,
+    "duration": 2.201000000000022
+  },
+  {
+    "text": "pullback to the upside when we saw three",
+    "start": 371.68,
+    "duration": 2.3589999999999804
+  },
+  {
+    "text": "consecutive green candles that signaled",
+    "start": 374.039,
+    "duration": 2.040999999999997
+  },
+  {
+    "text": "I could draw the horizontal line at the",
+    "start": 376.08,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "point of the low and when we broke it it",
+    "start": 377.68,
+    "duration": 2.0790000000000077
+  },
+  {
+    "text": "was time to short and again it worked",
+    "start": 379.759,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "out we hit the take-profit target on the",
+    "start": 381.919,
+    "duration": 2.040999999999997
+  },
+  {
+    "text": "short entry just like knowing when a",
+    "start": 383.96,
+    "duration": 2.0
+  },
+  {
+    "text": "trade will go well is important it is",
+    "start": 385.96,
+    "duration": 2.0
+  },
+  {
+    "text": "also important to be able to recog",
+    "start": 387.96,
+    "duration": 1.7200000000000273
+  },
+  {
+    "text": "ognize when you should cancel a trade",
+    "start": 389.68,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "when the setup gets invalidated that's",
+    "start": 391.599,
+    "duration": 2.1210000000000377
+  },
+  {
+    "text": "why I also want to show you this example",
+    "start": 393.72,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "as you can see the setup looked good at",
+    "start": 395.84000000000003,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "first we were trading below the 50 EMA",
+    "start": 397.759,
+    "duration": 2.4009999999999536
+  },
+  {
+    "text": "for a while we then broke out and price",
+    "start": 400.15999999999997,
+    "duration": 2.0
+  },
+  {
+    "text": "reversed so I drew a horizontal line at",
+    "start": 402.15999999999997,
+    "duration": 2.080000000000041
+  },
+  {
+    "text": "the swing high but before we ever broke",
+    "start": 404.24,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "out of that horizontal line the trade",
+    "start": 406.56,
+    "duration": 2.0
+  },
+  {
+    "text": "already got invalidated because the",
+    "start": 408.56,
+    "duration": 1.8000000000000114
+  },
+  {
+    "text": "price went below the 50 EMA again and if",
+    "start": 410.36,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "we were to continue with the trade and",
+    "start": 413.0,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "bought at the breakout anyways the trade",
+    "start": 414.759,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "would have failed and the stop- loss",
+    "start": 416.72,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "would get hit so if one of the rules",
+    "start": 418.15999999999997,
+    "duration": 2.4390000000000214
+  },
+  {
+    "text": "that we set for the trade was not met we",
+    "start": 420.599,
+    "duration": 2.0
+  },
+  {
+    "text": "should try to get out of the trade",
+    "start": 422.599,
+    "duration": 1.761000000000024
+  },
+  {
+    "text": "because the setup was invalidated now",
+    "start": 424.36,
+    "duration": 2.558999999999969
+  },
+  {
+    "text": "it's important that I show you the back",
+    "start": 426.919,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "testing results of the strategy as you",
+    "start": 428.599,
+    "duration": 2.201000000000022
+  },
+  {
+    "text": "can see here this is every single setup",
+    "start": 430.8,
+    "duration": 2.1189999999999714
+  },
+  {
+    "text": "of our strategy that has occurred on the",
+    "start": 432.919,
+    "duration": 1.7200000000000273
+  },
+  {
+    "text": "Aussie Japanese dollar forour chart",
+    "start": 434.639,
+    "duration": 2.36099999999999
+  },
+  {
+    "text": "since 2020 to 2024 and the results the",
+    "start": 437.0,
+    "duration": 3.7590000000000146
+  },
+  {
+    "text": "trade was profitable 65% of cases and",
+    "start": 440.759,
+    "duration": 3.200999999999965
+  },
+  {
+    "text": "that's a really good average in that",
+    "start": 443.96,
+    "duration": 2.0
+  },
+  {
+    "text": "timeline I used the strategy for a total",
+    "start": 445.96,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "of 32 times and and 21 out of 32 trades",
+    "start": 448.08,
+    "duration": 3.3600000000000136
+  },
+  {
+    "text": "were profitable so it's proof that your",
+    "start": 451.44,
+    "duration": 2.0389999999999873
+  },
+  {
+    "text": "strategy doesn't have to be complicated",
+    "start": 453.479,
+    "duration": 2.040999999999997
+  },
+  {
+    "text": "if you want to make money with trading",
+    "start": 455.52,
+    "duration": 2.0
+  },
+  {
+    "text": "you just need to follow a few simple",
+    "start": 457.52,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "rules and follow them every single time",
+    "start": 459.28,
+    "duration": 2.3590000000000373
+  },
+  {
+    "text": "without any exceptions literally just",
+    "start": 461.639,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "stick to your plan I like this strategy",
+    "start": 463.8,
+    "duration": 2.1999999999999886
+  },
+  {
+    "text": "a lot and I think it's the most simple",
+    "start": 466.0,
+    "duration": 2.3600000000000136
+  },
+  {
+    "text": "profitable day trading strategy for",
+    "start": 468.36,
+    "duration": 1.7199999999999704
+  },
+  {
+    "text": "beginners in 2024 and if you want to try",
+    "start": 470.08,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "it out for yourself I have something for",
+    "start": 472.96,
+    "duration": 2.0
+  },
+  {
+    "text": "you before we get to the last part of",
+    "start": 474.96,
+    "duration": 2.0
+  },
+  {
+    "text": "the video I just want to take a moment",
+    "start": 476.96,
+    "duration": 1.9590000000000032
+  },
+  {
+    "text": "to talk about simple effects one more",
+    "start": 478.919,
+    "duration": 1.9600000000000364
+  },
+  {
+    "text": "time because I actually think it's the",
+    "start": 480.879,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "perfect platform to test this strategy",
+    "start": 483.039,
+    "duration": 2.0810000000000173
+  },
+  {
+    "text": "with as a beginner you don't want to use",
+    "start": 485.12,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "a complex platform because trading is",
+    "start": 487.28,
+    "duration": 2.039000000000044
+  },
+  {
+    "text": "already hard and you don't want to make",
+    "start": 489.319,
+    "duration": 1.6409999999999627
+  },
+  {
+    "text": "it harder because you don't understand",
+    "start": 490.96,
+    "duration": 1.799000000000035
+  },
+  {
+    "text": "the platform I love simple effects",
+    "start": 492.759,
+    "duration": 1.9610000000000127
+  },
+  {
+    "text": "because it's so easy to use and that's",
+    "start": 494.72,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "why it's so perfect for this beginner",
+    "start": 496.8,
+    "duration": 1.7989999999999782
+  },
+  {
+    "text": "strategy and to help you all out simple",
+    "start": 498.599,
+    "duration": 2.36099999999999
+  },
+  {
+    "text": "effects told me that they will give each",
+    "start": 500.96,
+    "duration": 1.7600000000000477
+  },
+  {
+    "text": "and every one of you a $40 deposit bonus",
+    "start": 502.72,
+    "duration": 2.839999999999975
+  },
+  {
+    "text": "if you deposit at least $100 so deposit",
+    "start": 505.56,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "$100 on on to the platform to start",
+    "start": 508.44,
+    "duration": 2.1990000000000123
+  },
+  {
+    "text": "trading and they will give you an extra",
+    "start": 510.639,
+    "duration": 1.68100000000004
+  },
+  {
+    "text": "$40 completely for free this makes it",
+    "start": 512.32,
+    "duration": 2.759999999999991
+  },
+  {
+    "text": "even more perfect because now you can",
+    "start": 515.08,
+    "duration": 2.1200000000000045
+  },
+  {
+    "text": "actually test the strategy a couple of",
+    "start": 517.2,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "times before you risk any of your own",
+    "start": 518.9590000000001,
+    "duration": 2.0
+  },
+  {
+    "text": "money so give them a try because I think",
+    "start": 520.9590000000001,
+    "duration": 2.280999999999949
+  },
+  {
+    "text": "you'll love it so that's it the strategy",
+    "start": 523.24,
+    "duration": 2.67999999999995
+  },
+  {
+    "text": "I wish I had when I first started out",
+    "start": 525.92,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "with trading and once you understand",
+    "start": 527.8389999999999,
+    "duration": 1.8810000000000855
+  },
+  {
+    "text": "this simple strategy and are making",
+    "start": 529.72,
+    "duration": 1.6789999999999736
+  },
+  {
+    "text": "consistent profits with it you can start",
+    "start": 531.399,
+    "duration": 2.0810000000000173
+  },
+  {
+    "text": "looking at other strategies too that's",
+    "start": 533.48,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "why I made this video in which I break",
+    "start": 535.64,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "down four trading strategies that can",
+    "start": 537.8,
+    "duration": 1.9600000000000364
+  },
+  {
+    "text": "help any beginner make $500 per day so",
+    "start": 539.76,
+    "duration": 3.4400000000000546
+  },
+  {
+    "text": "thanks for watching and I'll see you in",
+    "start": 543.2,
+    "duration": 1.5599999999999454
+  },
+  {
+    "text": "the next video",
+    "start": 544.76,
+    "duration": 0
+  }
+]

@@ -67,8 +67,16 @@ def _fetch_month(sym: str, month: str, key: str) -> pd.DataFrame | None:
         "month": month, "outputsize": "full", "extended_hours": "false",
         "adjusted": "true", "datatype": "csv", "apikey": key,
     }
-    r = requests.get(BASE, params=params, timeout=60)
-    txt = r.text
+    txt = None
+    for net_try in range(5):
+        try:
+            r = requests.get(BASE, params=params, timeout=90)
+            txt = r.text
+            break
+        except requests.exceptions.RequestException:
+            time.sleep(5 * (net_try + 1))   # transient network blip — back off and retry
+    if txt is None:
+        return None                          # all retries failed; caller logs + moves on (self-heals on resume)
     if not txt or txt[:1] in ("{", "<") or "Error" in txt[:200] or "Note" in txt[:200] or "higher API call" in txt or "premium" in txt[:300].lower():
         return ("RATELIMIT" if ("Note" in txt or "higher API call" in txt or "premium" in txt.lower()) else None)  # type: ignore
     try:

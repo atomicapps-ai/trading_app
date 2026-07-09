@@ -1,0 +1,1552 @@
+[
+  {
+    "text": "There are two indicators I use every",
+    "start": 0.16,
+    "duration": 1.84
+  },
+  {
+    "text": "single day. They're incredibly simple,",
+    "start": 2.0,
+    "duration": 2.6399999999999997
+  },
+  {
+    "text": "extremely reliant, and after 6 years of",
+    "start": 4.64,
+    "duration": 2.4000000000000004
+  },
+  {
+    "text": "trading, these two indicators are part",
+    "start": 7.04,
+    "duration": 2.079999999999999
+  },
+  {
+    "text": "of the reason I became a profitable",
+    "start": 9.12,
+    "duration": 1.5190000000000001
+  },
+  {
+    "text": "trader. In this video, I'm going to",
+    "start": 10.639,
+    "duration": 1.2010000000000005
+  },
+  {
+    "text": "expose my complete setup as well as the",
+    "start": 11.84,
+    "duration": 2.4000000000000004
+  },
+  {
+    "text": "rules I use with these indicators. And",
+    "start": 14.24,
+    "duration": 2.1599999999999984
+  },
+  {
+    "text": "then I'm going to show you guys live",
+    "start": 16.4,
+    "duration": 2.16
+  },
+  {
+    "text": "real trades so you can see the execution",
+    "start": 18.56,
+    "duration": 2.4790000000000028
+  },
+  {
+    "text": "with live market data. Before I get",
+    "start": 21.039,
+    "duration": 1.7609999999999992
+  },
+  {
+    "text": "started, just a quick disclaimer. This",
+    "start": 22.8,
+    "duration": 1.2799999999999976
+  },
+  {
+    "text": "is for educational purposes only. I am",
+    "start": 24.08,
+    "duration": 2.400000000000002
+  },
+  {
+    "text": "not guaranteeing any results. I'm just",
+    "start": 26.48,
+    "duration": 2.6389999999999993
+  },
+  {
+    "text": "sharing my journey, what I found, and my",
+    "start": 29.119,
+    "duration": 3.6000000000000014
+  },
+  {
+    "text": "strategy. So, don't take this as",
+    "start": 32.719,
+    "duration": 2.320999999999998
+  },
+  {
+    "text": "financial advice. This is not financial",
+    "start": 35.04,
+    "duration": 1.6000000000000014
+  },
+  {
+    "text": "advice. Now, let's get straight into it.",
+    "start": 36.64,
+    "duration": 1.5989999999999966
+  },
+  {
+    "text": "We're going to go over my complete true",
+    "start": 38.239,
+    "duration": 1.5210000000000008
+  },
+  {
+    "text": "indicator strategy that I use every",
+    "start": 39.76,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "single day. But keep in mind, guys,",
+    "start": 41.6,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "trading is not a get-rich quick",
+    "start": 43.52,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "business. I've been trading for over 6",
+    "start": 44.96,
+    "duration": 1.7590000000000003
+  },
+  {
+    "text": "years, and it took me over two to become",
+    "start": 46.719,
+    "duration": 1.9209999999999994
+  },
+  {
+    "text": "profitable. However, using this",
+    "start": 48.64,
+    "duration": 1.918999999999997
+  },
+  {
+    "text": "strategy, I've been able to do some",
+    "start": 50.559,
+    "duration": 1.7610000000000028
+  },
+  {
+    "text": "pretty cool stuff, including making over",
+    "start": 52.32,
+    "duration": 2.238999999999997
+  },
+  {
+    "text": "$4,000 today. Let me show you. $4,325",
+    "start": 54.559,
+    "duration": 4.081000000000003
+  },
+  {
+    "text": "in the day. So, the goal of this video",
+    "start": 58.64,
+    "duration": 1.519999999999996
+  },
+  {
+    "text": "is to show you the same exact simple",
+    "start": 60.16,
+    "duration": 2.0
+  },
+  {
+    "text": "approach that I use every single day.",
+    "start": 62.16,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "First things first, I want to show you",
+    "start": 64.4,
+    "duration": 1.6799999999999926
+  },
+  {
+    "text": "guys exactly how to set up these",
+    "start": 66.08,
+    "duration": 1.7600000000000051
+  },
+  {
+    "text": "indicators. So, here we're going to pull",
+    "start": 67.84,
+    "duration": 2.1599999999999966
+  },
+  {
+    "text": "up Trading View and I'm going to delete",
+    "start": 70.0,
+    "duration": 1.2800000000000011
+  },
+  {
+    "text": "everything on my chart. As you can see,",
+    "start": 71.28,
+    "duration": 1.9200000000000017
+  },
+  {
+    "text": "I deleted everything on my chart. Now,",
+    "start": 73.2,
+    "duration": 3.200000000000003
+  },
+  {
+    "text": "as you guys can see, this is a blank",
+    "start": 76.4,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "chart. I'm going to show you guys what",
+    "start": 77.84,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "to do step by step. So, you're going to",
+    "start": 79.28,
+    "duration": 2.0
+  },
+  {
+    "text": "search in the first thing volume",
+    "start": 81.28,
+    "duration": 5.039999999999992
+  },
+  {
+    "text": "weighted",
+    "start": 86.32,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "average price or in other words called",
+    "start": 88.4,
+    "duration": 2.239999999999995
+  },
+  {
+    "text": "VWOP.",
+    "start": 90.64,
+    "duration": 2.0
+  },
+  {
+    "text": "Once we have VWOP to your charts, it's",
+    "start": 92.64,
+    "duration": 1.6799999999999926
+  },
+  {
+    "text": "going to look very weird. There's going",
+    "start": 94.32,
+    "duration": 1.0400000000000063
+  },
+  {
+    "text": "to be these three lines in these zones,",
+    "start": 95.36,
+    "duration": 1.6000000000000085
+  },
+  {
+    "text": "but this is not how I use it. So, now",
+    "start": 96.96000000000001,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "once you're at Trading View, we're going",
+    "start": 98.88,
+    "duration": 2.0
+  },
+  {
+    "text": "to click on VWAP.",
+    "start": 100.88,
+    "duration": 2.2390000000000043
+  },
+  {
+    "text": "We're going to click on settings.",
+    "start": 103.119,
+    "duration": 3.521000000000001
+  },
+  {
+    "text": "Then, we're going to go to style. You",
+    "start": 106.64,
+    "duration": 2.0
+  },
+  {
+    "text": "see how it says VWOP upper band lower",
+    "start": 108.64,
+    "duration": 2.478999999999999
+  },
+  {
+    "text": "band fill? You're going to uncheck upper",
+    "start": 111.119,
+    "duration": 3.039999999999992
+  },
+  {
+    "text": "band up. Uncheck lower band. Uncheck",
+    "start": 114.15899999999999,
+    "duration": 3.920000000000016
+  },
+  {
+    "text": "band fill. Stay on VWOP. And you like to",
+    "start": 118.07900000000001,
+    "duration": 2.9609999999999985
+  },
+  {
+    "text": "make it yellow because that's just the",
+    "start": 121.04,
+    "duration": 1.519999999999996
+  },
+  {
+    "text": "color of VWOP. It's got to be yellow. So",
+    "start": 122.56,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "once we have our VWOP, that's it. As",
+    "start": 124.88,
+    "duration": 1.9190000000000111
+  },
+  {
+    "text": "simple as that. We click okay.",
+    "start": 126.799,
+    "duration": 3.120999999999981
+  },
+  {
+    "text": "And we have obviously our extended hours",
+    "start": 129.92,
+    "duration": 2.0
+  },
+  {
+    "text": "and all that. Now we want to add the",
+    "start": 131.92,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "other one. The other one is an EMA. So,",
+    "start": 133.52,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "we're going to put in moving average",
+    "start": 135.84,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "exponential. So, or you can just put in",
+    "start": 138.16,
+    "duration": 2.7990000000000066
+  },
+  {
+    "text": "EMA. It's going to come up moving",
+    "start": 140.959,
+    "duration": 2.080999999999989
+  },
+  {
+    "text": "average exponential.",
+    "start": 143.04,
+    "duration": 2.4000000000000057
+  },
+  {
+    "text": "So, 98. I've said both in videos. I",
+    "start": 145.44,
+    "duration": 3.8400000000000034
+  },
+  {
+    "text": "honestly I've been using the eight. So,",
+    "start": 149.28,
+    "duration": 2.3189999999999884
+  },
+  {
+    "text": "you go to inputs, you go to eight, you",
+    "start": 151.599,
+    "duration": 3.600999999999999
+  },
+  {
+    "text": "click okay. Really no big difference at",
+    "start": 155.2,
+    "duration": 3.119000000000028
+  },
+  {
+    "text": "all. And that's literally all you do.",
+    "start": 158.31900000000002,
+    "duration": 2.559999999999974
+  },
+  {
+    "text": "So, settings, lengths, eight, source,",
+    "start": 160.879,
+    "duration": 3.0410000000000252
+  },
+  {
+    "text": "close, offset, all this stuff. Style, I",
+    "start": 163.92000000000002,
+    "duration": 4.0
+  },
+  {
+    "text": "like to keep it blue.",
+    "start": 167.92000000000002,
+    "duration": 3.1999999999999886
+  },
+  {
+    "text": "And then that's it. Now, we have the",
+    "start": 171.12,
+    "duration": 3.359999999999985
+  },
+  {
+    "text": "VWAP and the 8 EMA on our charts. Again,",
+    "start": 174.48,
+    "duration": 3.7590000000000146
+  },
+  {
+    "text": "eight or 9 EMA, you could use whatever.",
+    "start": 178.239,
+    "duration": 2.400999999999982
+  },
+  {
+    "text": "So, we have these both on our charts,",
+    "start": 180.64,
+    "duration": 1.8400000000000034
+  },
+  {
+    "text": "and these are the two indicators that I",
+    "start": 182.48,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "use. So, now I want to explain what I do",
+    "start": 184.08,
+    "duration": 2.238999999999976
+  },
+  {
+    "text": "with these indicators. So, first off,",
+    "start": 186.319,
+    "duration": 2.241000000000014
+  },
+  {
+    "text": "let's start off with VWOP. VWOP's a",
+    "start": 188.56,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "volume weighted average price. What this",
+    "start": 190.64,
+    "duration": 2.2390000000000043
+  },
+  {
+    "text": "basically means is that VWAP tells us",
+    "start": 192.879,
+    "duration": 1.7609999999999957
+  },
+  {
+    "text": "what the average trading price of the",
+    "start": 194.64,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "day is for a certain stock. This is",
+    "start": 196.159,
+    "duration": 1.761000000000024
+  },
+  {
+    "text": "always a very big area. So I have a very",
+    "start": 197.92000000000002,
+    "duration": 2.559999999999974
+  },
+  {
+    "text": "big rule as well. I never take calls",
+    "start": 200.48,
+    "duration": 2.880000000000024
+  },
+  {
+    "text": "under VWAP and I never take puts over",
+    "start": 203.36,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "VWAP. This helps me identify where",
+    "start": 205.76,
+    "duration": 2.0800000000000125
+  },
+  {
+    "text": "buyers and sellers are as well as VWAP",
+    "start": 207.84,
+    "duration": 2.399000000000001
+  },
+  {
+    "text": "is always a big retest spot. So, if VWAP",
+    "start": 210.239,
+    "duration": 3.4410000000000025
+  },
+  {
+    "text": "is under the pre-market low, then I'm",
+    "start": 213.68,
+    "duration": 2.0
+  },
+  {
+    "text": "looking to take puts on a VWOP retest,",
+    "start": 215.68,
+    "duration": 3.2789999999999964
+  },
+  {
+    "text": "not a pre-market low retest, which I'll",
+    "start": 218.959,
+    "duration": 1.7609999999999957
+  },
+  {
+    "text": "go over the full strategy in a bit. But,",
+    "start": 220.72,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "as you can see here, how VWAP is under",
+    "start": 222.48,
+    "duration": 3.0390000000000157
+  },
+  {
+    "text": "our pre-market low, that means you're",
+    "start": 225.519,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "taking a VWAP retest, not a pre-market",
+    "start": 227.599,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "low retest. Because if it gets above",
+    "start": 229.76,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "VWAP, you can't take puts. That's our",
+    "start": 231.36,
+    "duration": 1.9199999999999875
+  },
+  {
+    "text": "rule. And then the EMA is what I",
+    "start": 233.28,
+    "duration": 2.959000000000003
+  },
+  {
+    "text": "basically use for two different reasons.",
+    "start": 236.239,
+    "duration": 3.9199999999999875
+  },
+  {
+    "text": "The biggest reason is it helps me",
+    "start": 240.159,
+    "duration": 2.320999999999998
+  },
+  {
+    "text": "identify when I should sell a stock or",
+    "start": 242.48,
+    "duration": 1.7590000000000146
+  },
+  {
+    "text": "not. The EMA can help you catch huge",
+    "start": 244.239,
+    "duration": 2.719999999999999
+  },
+  {
+    "text": "wins because what it basically does is",
+    "start": 246.959,
+    "duration": 3.1210000000000093
+  },
+  {
+    "text": "my rule with it is when I'm holding",
+    "start": 250.08,
+    "duration": 2.4799999999999898
+  },
+  {
+    "text": "runners on a stock, as long as the stock",
+    "start": 252.56,
+    "duration": 3.280000000000001
+  },
+  {
+    "text": "stays above the EMA on a 5m minute, then",
+    "start": 255.84,
+    "duration": 2.9589999999999748
+  },
+  {
+    "text": "I'll stay in. So, as we can see on this",
+    "start": 258.799,
+    "duration": 2.0
+  },
+  {
+    "text": "example, say you took a VWAP retest or",
+    "start": 260.799,
+    "duration": 2.6410000000000196
+  },
+  {
+    "text": "something like that, right? You see how",
+    "start": 263.44,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "it just stays under the EMA, under the",
+    "start": 264.96,
+    "duration": 2.2390000000000327
+  },
+  {
+    "text": "EMA, under the EMA until right here.",
+    "start": 267.199,
+    "duration": 2.8009999999999877
+  },
+  {
+    "text": "That means you wouldn't exit your",
+    "start": 270.0,
+    "duration": 1.3600000000000136
+  },
+  {
+    "text": "position until right here. So again,",
+    "start": 271.36,
+    "duration": 3.0399999999999636
+  },
+  {
+    "text": "you'd also trade EMA retest, but those",
+    "start": 274.4,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "are more scalps. I like using it better",
+    "start": 276.56,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "for um holding my trades, but you could",
+    "start": 278.88,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "also trade EMA retests. So recap, VWOP,",
+    "start": 281.44,
+    "duration": 3.519999999999982
+  },
+  {
+    "text": "you could trade retest on it. It also",
+    "start": 284.96,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "tells you if you could buy calls or",
+    "start": 286.8,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "puts. So if a stock's retesting",
+    "start": 288.24,
+    "duration": 2.399000000000001
+  },
+  {
+    "text": "pre-market high, but it's under VWOP,",
+    "start": 290.639,
+    "duration": 2.0
+  },
+  {
+    "text": "we're not going to take calls on it. If",
+    "start": 292.639,
+    "duration": 1.440999999999974
+  },
+  {
+    "text": "a stock is under pre-market low, but",
+    "start": 294.08,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "it's above VWOP, we're not going to take",
+    "start": 296.32,
+    "duration": 1.5989999999999895
+  },
+  {
+    "text": "puts on it. And the EMA helps us know",
+    "start": 297.919,
+    "duration": 1.9210000000000491
+  },
+  {
+    "text": "when to sell or not. So, now that we",
+    "start": 299.84000000000003,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "have these two indicators in place, let",
+    "start": 301.6,
+    "duration": 2.158999999999992
+  },
+  {
+    "text": "me show you some real examples using",
+    "start": 303.759,
+    "duration": 1.7609999999999673
+  },
+  {
+    "text": "these indicator. Before I do that,",
+    "start": 305.52,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "coincidentally, so check this out real",
+    "start": 307.44,
+    "duration": 1.5989999999999895
+  },
+  {
+    "text": "quick. This Apple pre-market high",
+    "start": 309.039,
+    "duration": 1.68100000000004
+  },
+  {
+    "text": "retest. So, we got a Apple pre-market",
+    "start": 310.72,
+    "duration": 2.478999999999985
+  },
+  {
+    "text": "high, 5m minute close above, a little",
+    "start": 313.199,
+    "duration": 2.7199999999999704
+  },
+  {
+    "text": "retest, and then another retest. And",
+    "start": 315.919,
+    "duration": 2.2410000000000423
+  },
+  {
+    "text": "what happened after this retest? Look.",
+    "start": 318.16,
+    "duration": 3.1999999999999886
+  },
+  {
+    "text": "So, we kind of retest this pre-market",
+    "start": 321.36,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "high. We're above VWOP. And then look,",
+    "start": 323.6,
+    "duration": 3.759999999999991
+  },
+  {
+    "text": "it doesn't break under the EMA until",
+    "start": 327.36,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "right here, $4.",
+    "start": 329.44,
+    "duration": 3.1990000000000123
+  },
+  {
+    "text": "Isn't that insane?",
+    "start": 332.639,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "Pretty cool. But now, let me show you",
+    "start": 334.8,
+    "duration": 1.3599999999999568
+  },
+  {
+    "text": "guys another real example. So, this is",
+    "start": 336.15999999999997,
+    "duration": 2.080000000000041
+  },
+  {
+    "text": "an EMA retest. As you can see here,",
+    "start": 338.24,
+    "duration": 3.0399999999999636
+  },
+  {
+    "text": "Apple retests pre-market high. So, we",
+    "start": 341.28,
+    "duration": 2.080000000000041
+  },
+  {
+    "text": "take calls. It's over VWAP, so we're",
+    "start": 343.36,
+    "duration": 2.558999999999969
+  },
+  {
+    "text": "good. And then it doesn't break under",
+    "start": 345.919,
+    "duration": 2.2409999999999854
+  },
+  {
+    "text": "the EMA until right here. So, we don't",
+    "start": 348.15999999999997,
+    "duration": 2.080000000000041
+  },
+  {
+    "text": "sell any of our position until right",
+    "start": 350.24,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "here. Again, it's pretty simple. Like,",
+    "start": 351.84000000000003,
+    "duration": 2.3199999999999363
+  },
+  {
+    "text": "you just use the EMA as a level to tell",
+    "start": 354.15999999999997,
+    "duration": 3.4400000000000546
+  },
+  {
+    "text": "you when to sell your runners a lot. You",
+    "start": 357.6,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "can go to IWM. Even today, I'm pretty",
+    "start": 359.68,
+    "duration": 2.0
+  },
+  {
+    "text": "sure there was an example there. So,",
+    "start": 361.68,
+    "duration": 3.920000000000016
+  },
+  {
+    "text": "IWM,",
+    "start": 365.6,
+    "duration": 1.5989999999999895
+  },
+  {
+    "text": "as you can see, I just showed that",
+    "start": 367.199,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "example, but we got a VWOP retest number",
+    "start": 368.639,
+    "duration": 2.0810000000000173
+  },
+  {
+    "text": "one,",
+    "start": 370.72,
+    "duration": 2.478999999999985
+  },
+  {
+    "text": "and then dump. And you see as it stays",
+    "start": 373.199,
+    "duration": 2.4010000000000105
+  },
+  {
+    "text": "under the EMA and now we're under a",
+    "start": 375.6,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "pre-market low. We got a VWOP retest",
+    "start": 377.52,
+    "duration": 1.920000000000016
+  },
+  {
+    "text": "extremely A+ right here and then we",
+    "start": 379.44,
+    "duration": 2.879000000000019
+  },
+  {
+    "text": "dumped to low a day. But on this one,",
+    "start": 382.319,
+    "duration": 2.4010000000000105
+  },
+  {
+    "text": "you would have taken most your position",
+    "start": 384.72,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "out over here once it got above. We have",
+    "start": 386.24,
+    "duration": 2.399000000000001
+  },
+  {
+    "text": "more examples though. So IWM",
+    "start": 388.639,
+    "duration": 3.440999999999974
+  },
+  {
+    "text": "VWOP retest",
+    "start": 392.08,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "above the EMA doesn't get under the EMA",
+    "start": 394.4,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "till all the way up here. Doesn't get",
+    "start": 396.96,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "much better than that. Now let's send",
+    "start": 399.52,
+    "duration": 2.0
+  },
+  {
+    "text": "another one. Oh, this one. This is NX.",
+    "start": 401.52,
+    "duration": 2.32000000000005
+  },
+  {
+    "text": "This is like an extremely A+ one. When",
+    "start": 403.84000000000003,
+    "duration": 2.3999999999999773
+  },
+  {
+    "text": "you have VWAP lined up with a pre-market",
+    "start": 406.24,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "high or pre-market low, that's where the",
+    "start": 408.56,
+    "duration": 2.0790000000000077
+  },
+  {
+    "text": "magic happens because not only do you",
+    "start": 410.639,
+    "duration": 2.0
+  },
+  {
+    "text": "have one confluence like a pre-market",
+    "start": 412.639,
+    "duration": 1.600999999999999
+  },
+  {
+    "text": "high retest, but you have two",
+    "start": 414.24,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "confluences, a pre-market high retest",
+    "start": 415.759,
+    "duration": 1.7609999999999673
+  },
+  {
+    "text": "and a VWOP retest. So, right here, we",
+    "start": 417.52,
+    "duration": 2.0790000000000077
+  },
+  {
+    "text": "get the pre-market high and the VWOP to",
+    "start": 419.599,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "retest. And then, as you can see, we get",
+    "start": 421.52,
+    "duration": 2.2390000000000327
+  },
+  {
+    "text": "a really nice rip. Then, we fall bel",
+    "start": 423.759,
+    "duration": 3.040999999999997
+  },
+  {
+    "text": "slightly below the EMA, but we're still",
+    "start": 426.8,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "kind of holding it. And then, right here",
+    "start": 428.56,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "is where it really gets under the EMA.",
+    "start": 430.16,
+    "duration": 2.6399999999999864
+  },
+  {
+    "text": "So again, really nice trade there. You",
+    "start": 432.8,
+    "duration": 2.0
+  },
+  {
+    "text": "can take a VWAP retest and a pre-market",
+    "start": 434.8,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "high retest. You hold against the EMA",
+    "start": 436.96,
+    "duration": 1.6790000000000305
+  },
+  {
+    "text": "and let your runners run. Or like I",
+    "start": 438.639,
+    "duration": 2.7210000000000036
+  },
+  {
+    "text": "think this stock did really well today.",
+    "start": 441.36,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "As you could see,",
+    "start": 443.28,
+    "duration": 2.080000000000041
+  },
+  {
+    "text": "riding VWAP off the open, riding the",
+    "start": 445.36,
+    "duration": 2.558999999999969
+  },
+  {
+    "text": "EMA. No reason to sell. No reason to",
+    "start": 447.919,
+    "duration": 2.2410000000000423
+  },
+  {
+    "text": "sell until about right here, which",
+    "start": 450.16,
+    "duration": 2.8789999999999623
+  },
+  {
+    "text": "again, that's a freaking huge trade. So",
+    "start": 453.039,
+    "duration": 2.0810000000000173
+  },
+  {
+    "text": "I'll show you live example. This is how",
+    "start": 455.12,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "I made most of my money today. It was on",
+    "start": 456.56,
+    "duration": 2.63900000000001
+  },
+  {
+    "text": "Palunteer. So let's show you what",
+    "start": 459.199,
+    "duration": 2.3209999999999695
+  },
+  {
+    "text": "happened.",
+    "start": 461.52,
+    "duration": 1.0400000000000205
+  },
+  {
+    "text": "PLTR.",
+    "start": 462.56,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "As we could see,",
+    "start": 464.24,
+    "duration": 2.319999999999993
+  },
+  {
+    "text": "we come down, we retest VWAP, and we're",
+    "start": 466.56,
+    "duration": 2.9599999999999795
+  },
+  {
+    "text": "above pre-market high. We're above",
+    "start": 469.52,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "pre-market high, and then we come and",
+    "start": 472.0,
+    "duration": 1.9189999999999827
+  },
+  {
+    "text": "retest VWAP. So, what does that mean?",
+    "start": 473.919,
+    "duration": 2.1610000000000014
+  },
+  {
+    "text": "This means we're taking calls here. It's",
+    "start": 476.08,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "a VWOP retest, above pre-market high,",
+    "start": 477.52,
+    "duration": 2.5600000000000023
+  },
+  {
+    "text": "one of the strongest stocks of the day.",
+    "start": 480.08,
+    "duration": 2.160000000000025
+  },
+  {
+    "text": "Then, what happens? We get a huge rip.",
+    "start": 482.24,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "We're above the EMA, above the EMA. We",
+    "start": 484.72,
+    "duration": 2.079999999999984
+  },
+  {
+    "text": "don't break under the EMA until right",
+    "start": 486.8,
+    "duration": 1.599999999999966
+  },
+  {
+    "text": "here. That's a really nice trade.",
+    "start": 488.4,
+    "duration": 2.63900000000001
+  },
+  {
+    "text": "doesn't get simpler than that because if",
+    "start": 491.039,
+    "duration": 1.2800000000000296
+  },
+  {
+    "text": "it got under VWAP, we would have just",
+    "start": 492.319,
+    "duration": 1.4399999999999977
+  },
+  {
+    "text": "taken the loss. It didn't though. We",
+    "start": 493.759,
+    "duration": 1.9209999999999923
+  },
+  {
+    "text": "caught a nice win. And on this trade, I",
+    "start": 495.68,
+    "duration": 2.0790000000000077
+  },
+  {
+    "text": "took two trades today. On this trade, I",
+    "start": 497.759,
+    "duration": 3.36099999999999
+  },
+  {
+    "text": "made 3,267",
+    "start": 501.12,
+    "duration": 3.2799999999999727
+  },
+  {
+    "text": "on that one. And then I took one other",
+    "start": 504.4,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "one as well on the Apple that I showed",
+    "start": 506.0,
+    "duration": 1.6800000000000068
+  },
+  {
+    "text": "you. So, really, really, really nice",
+    "start": 507.68,
+    "duration": 2.159999999999968
+  },
+  {
+    "text": "trade here on this VWOP retest. And um",
+    "start": 509.84,
+    "duration": 4.079000000000008
+  },
+  {
+    "text": "yeah, I mean, it doesn't get more A+",
+    "start": 513.919,
+    "duration": 1.5210000000000719
+  },
+  {
+    "text": "than that. So, let's do a little recap.",
+    "start": 515.44,
+    "duration": 2.8799999999999955
+  },
+  {
+    "text": "VWAP we use for retest and to know if we",
+    "start": 518.32,
+    "duration": 2.4799999999999045
+  },
+  {
+    "text": "can buy calls or puts or not. EMA we use",
+    "start": 520.8,
+    "duration": 2.2390000000000327
+  },
+  {
+    "text": "to know if to sell or not. You also",
+    "start": 523.039,
+    "duration": 1.9200000000000728
+  },
+  {
+    "text": "trade EMA retest sometimes. Some of the",
+    "start": 524.9590000000001,
+    "duration": 2.1609999999999445
+  },
+  {
+    "text": "key lessons to remember with these",
+    "start": 527.12,
+    "duration": 1.2789999999999964
+  },
+  {
+    "text": "indicators is that the power of an EMA",
+    "start": 528.399,
+    "duration": 1.8410000000000082
+  },
+  {
+    "text": "is absolutely insane because all you",
+    "start": 530.24,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "have to do is watch the EMA. Watch as",
+    "start": 531.92,
+    "duration": 2.160000000000082
+  },
+  {
+    "text": "the stock rides the EMA and as long as",
+    "start": 534.08,
+    "duration": 1.7589999999999009
+  },
+  {
+    "text": "it doesn't get under the EMA, you could",
+    "start": 535.8389999999999,
+    "duration": 2.241000000000099
+  },
+  {
+    "text": "hold. And it's like a trailing stop loss",
+    "start": 538.08,
+    "duration": 1.8399999999999181
+  },
+  {
+    "text": "for you. But it's like based off real",
+    "start": 539.92,
+    "duration": 2.400000000000091
+  },
+  {
+    "text": "data based off the last 8 days of market",
+    "start": 542.32,
+    "duration": 2.7999999999999545
+  },
+  {
+    "text": "price action. And the VWAP's literally",
+    "start": 545.12,
+    "duration": 2.080000000000041
+  },
+  {
+    "text": "telling you everyone's average price of",
+    "start": 547.2,
+    "duration": 1.599999999999909
+  },
+  {
+    "text": "the day. Think about how psychological",
+    "start": 548.8,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "that is. Because when people go from up",
+    "start": 550.64,
+    "duration": 2.080000000000041
+  },
+  {
+    "text": "a lot to down a lot to up a lot to even",
+    "start": 552.72,
+    "duration": 2.3199999999999363
+  },
+  {
+    "text": "on their positions, like what do you",
+    "start": 555.04,
+    "duration": 1.4400000000000546
+  },
+  {
+    "text": "think they do? They usually buy more. Or",
+    "start": 556.48,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "when people go from down a lot to up,",
+    "start": 559.2,
+    "duration": 3.1989999999999554
+  },
+  {
+    "text": "they usually think, \"Oh, let me sell.\"",
+    "start": 562.399,
+    "duration": 2.0
+  },
+  {
+    "text": "And it just kind of gives you that edge",
+    "start": 564.399,
+    "duration": 1.36099999999999
+  },
+  {
+    "text": "of knowing like, \"Okay, this is the",
+    "start": 565.76,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "market's average.\" So that's why I use",
+    "start": 567.279,
+    "duration": 2.4009999999999536
+  },
+  {
+    "text": "VWOP a lot. And as you can see, like, go",
+    "start": 569.68,
+    "duration": 1.8390000000000555
+  },
+  {
+    "text": "pull up VOP on any chart. Don't just",
+    "start": 571.519,
+    "duration": 1.9210000000000491
+  },
+  {
+    "text": "look at what I'm showing you guys. Go",
+    "start": 573.44,
+    "duration": 1.2799999999999727
+  },
+  {
+    "text": "back test it. It freaking works. And it",
+    "start": 574.72,
+    "duration": 2.3199999999999363
+  },
+  {
+    "text": "shows that simplicity is so much more",
+    "start": 577.04,
+    "duration": 3.1200000000000045
+  },
+  {
+    "text": "than complexity. So, I'll really try and",
+    "start": 580.16,
+    "duration": 2.480000000000018
+  },
+  {
+    "text": "simplify it. And just a reminder, like",
+    "start": 582.64,
+    "duration": 1.6800000000000637
+  },
+  {
+    "text": "these indicators, they won't change your",
+    "start": 584.32,
+    "duration": 1.3599999999999
+  },
+  {
+    "text": "life. They won't change your trading,",
+    "start": 585.68,
+    "duration": 1.5200000000000955
+  },
+  {
+    "text": "but they will help you navigate the",
+    "start": 587.2,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "markets a lot. They're very helpful",
+    "start": 588.88,
+    "duration": 1.5190000000000055
+  },
+  {
+    "text": "tools and they'll help side side by side",
+    "start": 590.399,
+    "duration": 2.2409999999999854
+  },
+  {
+    "text": "with price action. They really will.",
+    "start": 592.64,
+    "duration": 2.3190000000000737
+  },
+  {
+    "text": "Before I end this video, I want to go",
+    "start": 594.9590000000001,
+    "duration": 1.6009999999998854
+  },
+  {
+    "text": "over one last point, and it's that you",
+    "start": 596.56,
+    "duration": 2.32000000000005
+  },
+  {
+    "text": "can have the best trading strategy, you",
+    "start": 598.88,
+    "duration": 1.67999999999995
+  },
+  {
+    "text": "can have the best trading system, you",
+    "start": 600.56,
+    "duration": 1.6000000000000227
+  },
+  {
+    "text": "could be the best trader in the world,",
+    "start": 602.16,
+    "duration": 2.160000000000082
+  },
+  {
+    "text": "but if you're not disciplined, if you",
+    "start": 604.32,
+    "duration": 1.599999999999909
+  },
+  {
+    "text": "don't have patience, and if you're not",
+    "start": 605.92,
+    "duration": 1.5990000000000464
+  },
+  {
+    "text": "able to win the battle of you versus you",
+    "start": 607.519,
+    "duration": 2.6409999999999627
+  },
+  {
+    "text": "every single day, then you're not going",
+    "start": 610.16,
+    "duration": 1.3590000000000373
+  },
+  {
+    "text": "to make it. You're not. But if you're",
+    "start": 611.519,
+    "duration": 2.0810000000000173
+  },
+  {
+    "text": "one of those people that gives it their",
+    "start": 613.6,
+    "duration": 1.2799999999999727
+  },
+  {
+    "text": "all, you wake up every single morning",
+    "start": 614.88,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "ready to crush it, you deserve to win.",
+    "start": 617.6,
+    "duration": 2.7200000000000273
+  },
+  {
+    "text": "It's like you have that feeling like I",
+    "start": 620.32,
+    "duration": 1.599999999999909
+  },
+  {
+    "text": "just had that feeling every single day",
+    "start": 621.92,
+    "duration": 1.5200000000000955
+  },
+  {
+    "text": "where it's like I'm going to be a",
+    "start": 623.44,
+    "duration": 1.4399999999999409
+  },
+  {
+    "text": "profitable trader. I'm going to be a",
+    "start": 624.88,
+    "duration": 2.63900000000001
+  },
+  {
+    "text": "profitable trader. I will do everything",
+    "start": 627.519,
+    "duration": 1.68100000000004
+  },
+  {
+    "text": "I could to be a profitable trader. I",
+    "start": 629.2,
+    "duration": 1.5199999999999818
+  },
+  {
+    "text": "just had that feeling 24/7. It would",
+    "start": 630.72,
+    "duration": 2.3199999999999363
+  },
+  {
+    "text": "never go away. It would be in my head",
+    "start": 633.04,
+    "duration": 1.6800000000000637
+  },
+  {
+    "text": "all day. I couldn't sleep at night",
+    "start": 634.72,
+    "duration": 2.0
+  },
+  {
+    "text": "literally because I would just sit there",
+    "start": 636.72,
+    "duration": 1.6789999999999736
+  },
+  {
+    "text": "in my bed thinking, why am I not a",
+    "start": 638.399,
+    "duration": 1.9210000000000491
+  },
+  {
+    "text": "profitable trader yet? I need to be a",
+    "start": 640.32,
+    "duration": 1.599999999999909
+  },
+  {
+    "text": "profitable trader. And it would just",
+    "start": 641.92,
+    "duration": 1.6800000000000637
+  },
+  {
+    "text": "drive me insane. It would drive me",
+    "start": 643.6,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "insane that I wasn't a profitable",
+    "start": 645.36,
+    "duration": 1.8400000000000318
+  },
+  {
+    "text": "trader. So, if you feel like that and if",
+    "start": 647.2,
+    "duration": 2.0
+  },
+  {
+    "text": "you feel like you need to be a",
+    "start": 649.2,
+    "duration": 1.0399999999999636
+  },
+  {
+    "text": "profitable trader, if you feel destined",
+    "start": 650.24,
+    "duration": 1.3600000000000136
+  },
+  {
+    "text": "to be a profitable trader, then don't",
+    "start": 651.6,
+    "duration": 1.6789999999999736
+  },
+  {
+    "text": "give up because it's not just a feeling,",
+    "start": 653.279,
+    "duration": 2.7210000000000036
+  },
+  {
+    "text": "but it's a calling. It's meant to be.",
+    "start": 656.0,
+    "duration": 2.240000000000009
+  },
+  {
+    "text": "And my goal is to help you guys learn.",
+    "start": 658.24,
+    "duration": 2.0
+  },
+  {
+    "text": "So, if you enjoyed, make sure you like,",
+    "start": 660.24,
+    "duration": 1.759999999999991
+  },
+  {
+    "text": "subscribe, comment, and I'll really,",
+    "start": 662.0,
+    "duration": 2.399000000000001
+  },
+  {
+    "text": "really hope you guys enjoy. Also, follow",
+    "start": 664.399,
+    "duration": 2.3210000000000264
+  },
+  {
+    "text": "me on Instagram link below. Let me know",
+    "start": 666.72,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "if you guys like these videos like this,",
+    "start": 668.64,
+    "duration": 1.919999999999959
+  },
+  {
+    "text": "and I'll see you guys in the next one.",
+    "start": 670.56,
+    "duration": 1.6800000000000637
+  },
+  {
+    "text": "Remember, my goal is to inspire,",
+    "start": 672.24,
+    "duration": 1.2000000000000455
+  },
+  {
+    "text": "motivate, and bring you guys closer to",
+    "start": 673.44,
+    "duration": 1.3599999999999
+  },
+  {
+    "text": "God. Love you guys. Peace.",
+    "start": 674.8,
+    "duration": 0
+  }
+]
