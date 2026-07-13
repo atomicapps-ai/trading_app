@@ -20,8 +20,8 @@
             title="Backtest every strategy in this view to earn its Validated status (runs in the background; a few minutes each)">
       ✓ Validate all
     </button>
-    <button class="btn btn-primary" id="run-all-btn" onclick="runAllStrategies(this)"
-            title="Run every active strategy in this view, one after another → /pending">
+    <button class="btn btn-primary" id="run-all-btn" onclick="enqueueActive(this)"
+            title="Queue every ACTIVE strategy to run in the background → Jobs tray → /pending. You can leave this page.">
       ▶ Run all active
     </button>
   </div>
@@ -87,7 +87,7 @@
                 onclick="toggleFavItem(this)"
                 style="background:none;border:none;cursor:pointer;font-size:16px;line-height:1;color:var(--text-tertiary);padding:2px 4px;"
                 title="Add to Favorites">☆</button>
-        <button class="btn btn-sm" onclick="runStrategy('{{ s.name }}', this)">▶ Run</button>
+        <button class="btn btn-sm" onclick="enqueueStrategy('{{ s.name }}', this)">▶ Run</button>
         <button class="btn btn-sm" onclick="validateStrategy('{{ s.name }}', this)"
                 title="Run a real backtest over historical bars and earn the Validated status">✓ Validate</button>
         <a class="btn btn-sm btn-ghost"
@@ -263,6 +263,49 @@
 </style>
 
 <script>
+// ── Async job queue: enqueue → returns instantly → watch the Jobs tray ──────
+// These replace the old page-bound runStrategy/runAllStrategies loop. The scan
+// runs server-side in the durable queue; you can navigate away immediately.
+function _flashBtn(btn, text, ms) {
+  const orig = btn.dataset._orig || btn.innerHTML;
+  btn.dataset._orig = orig;
+  btn.innerHTML = text;
+  window.setTimeout(function () {
+    btn.innerHTML = btn.dataset._orig;
+    btn.disabled = false;
+  }, ms || 1600);
+}
+
+async function enqueueStrategy(name, btn) {
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Queuing…';
+  try {
+    const r = await fetch('/api/queue/strategy/' + encodeURIComponent(name), { method: 'POST' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    if (window.htmx) htmx.trigger(document.body, 'refresh-jobs');
+    _flashBtn(btn, '✓ Queued');
+  } catch (e) {
+    _flashBtn(btn, '✗ ' + e.message, 2600);
+  }
+}
+
+async function enqueueActive(btn) {
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Queuing…';
+  try {
+    const r = await fetch('/api/queue/run-active', { method: 'POST' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    const n = (j.job_ids || []).length;
+    if (window.htmx) htmx.trigger(document.body, 'refresh-jobs');
+    let msg = '✓ Queued ' + n;
+    if (j.skipped && j.skipped.length) msg += ' (skipped ' + j.skipped.length + ' w/o workflow)';
+    _flashBtn(btn, msg, 2600);
+  } catch (e) {
+    _flashBtn(btn, '✗ ' + e.message, 2600);
+  }
+}
+
 async function runAllStrategies(btn) {
   // Run every active strategy in this view, sequentially, reusing runStrategy
   // (so each card shows its own spinner + result strip).

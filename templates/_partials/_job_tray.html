@@ -1,0 +1,13 @@
+{# Topbar Jobs-tray button label — dot + running/queued counts.
+   Polled into #jobs-tray-btn every few seconds. #}
+{%- set running = counts.get('running', 0) -%}
+{%- set queued = counts.get('queued', 0) -%}
+<span class="dot {{ 'green' if running else ('gray' if not queued else 'gray') }}"
+      {% if running %}style="background: var(--accent-green);"{% elif queued %}style="background: var(--accent-blue);"{% endif %}></span>
+<span>
+  {%- if running or queued -%}
+    {{ running }} running{% if queued %} · {{ queued }} queued{% endif %}
+  {%- else -%}
+    Jobs
+  {%- endif -%}
+</span>
