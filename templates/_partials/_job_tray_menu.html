@@ -1,0 +1,45 @@
+{# Jobs-tray dropdown — recent jobs with live status. Polled into
+   #jobs-tray-menu every few seconds; open/close is CSS display on the parent
+   so a refresh never closes it (same pattern as the account picker menu). #}
+{%- set _pill = {
+  'queued':   ('rgba(148,163,184,0.18)', 'var(--text-secondary)'),
+  'running':  ('rgba(59,130,246,0.18)',  'var(--accent-blue)'),
+  'done':     ('var(--tint-green)',      'var(--accent-green)'),
+  'error':    ('var(--tint-red)',        'var(--accent-red)'),
+  'canceled': ('rgba(148,163,184,0.12)', 'var(--text-tertiary)'),
+} -%}
+<div style="max-height: 380px; overflow-y: auto;">
+  <div style="padding: 8px 10px; border-bottom: 0.5px solid var(--border);
+              display: flex; justify-content: space-between; align-items: center;">
+    <strong style="font-size: 12px;">Background jobs</strong>
+    <a href="/runs" style="font-size: 11px; color: var(--accent-blue); text-decoration: none;">history →</a>
+  </div>
+  {% if not jobs %}
+    <div class="text-secondary text-xs" style="padding: 12px;">No jobs yet. Run a strategy to queue one.</div>
+  {% else %}
+    {% for j in jobs %}
+    {% set colors = _pill.get(j.status, _pill['queued']) %}
+    <div style="padding: 8px 10px; border-bottom: 0.5px solid var(--border);
+                display: flex; gap: 8px; align-items: flex-start;">
+      <span style="flex-shrink: 0; font-size: 10px; text-transform: uppercase;
+                   letter-spacing: 0.04em; padding: 2px 6px; border-radius: 4px;
+                   background: {{ colors[0] }}; color: {{ colors[1] }};">{{ j.status }}</span>
+      <div style="flex: 1; min-width: 0;">
+        <div style="font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ j.label }}</div>
+        <div class="text-secondary text-xs" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ j.summary }}</div>
+      </div>
+      {% if j.status == 'done' and j.result and j.result.runs and j.result.runs[0].result and j.result.runs[0].result.run_id %}
+        <a href="/runs/{{ j.result.runs[0].result.run_id }}"
+           style="flex-shrink: 0; font-size: 11px; color: var(--accent-blue); text-decoration: none;">view</a>
+      {% elif j.status == 'queued' %}
+        <button type="button" class="btn btn-sm btn-ghost" style="padding: 2px 6px;"
+                hx-post="/api/queue/{{ j.job_id }}/cancel" hx-swap="none"
+                title="Cancel this queued job">✕</button>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% endif %}
+</div>
+<div style="padding: 6px 10px;">
+  <a href="/pending" style="font-size: 11px; color: var(--accent-blue); text-decoration: none;">Review pending plans →</a>
+</div>

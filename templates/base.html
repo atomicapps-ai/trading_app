@@ -237,6 +237,30 @@
             <div class="text-secondary text-xs" style="padding: 8px;">Loading…</div>
           </div>
         </div>
+        {# Jobs tray — durable async job queue. Visible on every page; click to
+           see running/queued strategy scans. Launch a run and roam freely. #}
+        <div class="topbar-jobs" style="position: relative;">
+          <button type="button" class="topbar-status" id="jobs-tray-btn"
+                  hx-get="/api/queue/tray"
+                  hx-trigger="load, every 3s, refresh-jobs from:body"
+                  hx-target="this"
+                  hx-swap="innerHTML"
+                  onclick="var m=document.getElementById('jobs-tray-menu'); m.style.display=(m.style.display==='block'?'none':'block');"
+                  style="cursor: pointer; background: none; border: none; color: inherit; font: inherit; display: flex; align-items: center; gap: 6px;"
+                  title="Background jobs — running/queued strategy scans">
+            <span class="dot gray"></span><span>Jobs</span>
+          </button>
+          <div id="jobs-tray-menu"
+               style="display: none; position: absolute; top: 100%; right: 0; margin-top: 6px;
+                      background: var(--surface-2); border: 0.5px solid var(--border);
+                      border-radius: 6px; min-width: 320px; z-index: 50;
+                      box-shadow: 0 4px 12px rgba(0,0,0,0.4);"
+               hx-get="/api/queue/menu"
+               hx-trigger="load, every 3s"
+               hx-swap="innerHTML">
+            <div class="text-secondary text-xs" style="padding: 8px;">Loading…</div>
+          </div>
+        </div>
         <div class="topbar-status"
              hx-get="/api/broker/status"
              hx-trigger="load, every 30s"

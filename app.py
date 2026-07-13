@@ -36,6 +36,7 @@ from routers import (
     pending,
     positions as positions_router,
     pwa as pwa_router,
+    queue as queue_router,
     replay as replay_router,
     research as research_router,
     settings as settings_router,
@@ -112,6 +113,13 @@ async def lifespan(_: FastAPI):
         start_scheduler()
     except Exception as exc:
         logger.error("Scheduler failed to start: %s", exc)
+    try:
+        # Durable async job-queue workers (strategy runs enqueued from the UI).
+        # Recovers any job interrupted by a restart and re-feeds queued jobs.
+        from services import job_queue
+        await job_queue.start_workers(concurrency=2)
+    except Exception as exc:
+        logger.error("Job queue failed to start: %s", exc)
     # Prewarm the SEC ticker→CIK map in the background so the first
     # /trades/{id} render after a fresh checkout doesn't stall on the
     # ~3s SEC download. Fire-and-forget — failures are logged inside
@@ -128,6 +136,11 @@ async def lifespan(_: FastAPI):
         stop_scheduler()
     except Exception as exc:
         logger.warning("Scheduler stop raised: %s", exc)
+    try:
+        from services import job_queue
+        await job_queue.stop_workers()
+    except Exception as exc:
+        logger.warning("Job queue stop raised: %s", exc)
     try:
         adapter = get_adapter()
         if adapter.connected:
@@ -204,6 +217,7 @@ app.include_router(live_status_router.router)
 app.include_router(workflows.router)
 app.include_router(backtest_review.router)
 app.include_router(jobs.router)
+app.include_router(queue_router.router)
 app.include_router(strategies_router.router)
 app.include_router(backtests_router.router)
 app.include_router(strategy_live_router.router)

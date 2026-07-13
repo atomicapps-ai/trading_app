@@ -361,6 +361,24 @@ _SCHEMA = [
         params_json TEXT                -- engine params used
     )
     """,
+    # Durable async job queue (strategy runs enqueued from the UI). Unlike the
+    # transient in-memory run_jobs registry, these survive navigation + restart.
+    """
+    CREATE TABLE IF NOT EXISTS job_queue (
+        job_id TEXT PRIMARY KEY,
+        kind TEXT NOT NULL,             -- 'strategy_run'
+        target TEXT,                    -- strategy name
+        label TEXT,                     -- display label for the tray
+        status TEXT NOT NULL DEFAULT 'queued',  -- queued|running|done|error|canceled
+        batch_id TEXT,                  -- groups a 'run all active' batch
+        created_at TEXT NOT NULL,
+        started_at TEXT,
+        ended_at TEXT,
+        result_json TEXT,               -- the run summary dict
+        error TEXT,
+        params_json TEXT                -- {mode, as_of, refresh}
+    )
+    """,
     # Indexes for the queries we run often
     "CREATE INDEX IF NOT EXISTS idx_validations_strategy ON strategy_validations(strategy, ts DESC)",
     "CREATE INDEX IF NOT EXISTS idx_pending_status ON pending_approvals(status, ts_created DESC)",
@@ -370,6 +388,8 @@ _SCHEMA = [
     "CREATE INDEX IF NOT EXISTS idx_widget_settings_lookup ON user_widget_settings(user_id, widget_id)",
     "CREATE INDEX IF NOT EXISTS idx_dl_alerts_ts ON dl_alerts(ts DESC)",
     "CREATE INDEX IF NOT EXISTS idx_dl_alerts_unack ON dl_alerts(acknowledged_at, ts DESC)",
+    "CREATE INDEX IF NOT EXISTS idx_jobq_status ON job_queue(status, created_at DESC)",
+    "CREATE INDEX IF NOT EXISTS idx_jobq_created ON job_queue(created_at DESC)",
 ]
 
 
@@ -1188,6 +1208,138 @@ async def get_pipeline_run(run_id: str) -> dict | None:
         json.loads(d["plans_blocked_json"]) if d.get("plans_blocked_json") else []
     )
     return d
+
+
+# ---------------------------------------------------------------------- #
+# job_queue — durable async job queue (see services/job_queue.py)
+# ---------------------------------------------------------------------- #
+
+
+async def enqueue_job(
+    *,
+    job_id: str,
+    kind: str,
+    target: str | None = None,
+    label: str | None = None,
+    batch_id: str | None = None,
+    params: dict | None = None,
+) -> None:
+    """Insert a new job row in status 'queued'."""
+    now = datetime.now(timezone.utc).isoformat()
+    async with _dbmod.connect() as db:
+        await db.execute(
+            """
+            INSERT INTO job_queue
+                (job_id, kind, target, label, status, batch_id,
+                 created_at, params_json)
+            VALUES (?,?,?,?, 'queued', ?, ?, ?)
+            """,
+            (job_id, kind, target, label, batch_id, now,
+             json.dumps(params) if params else None),
+        )
+        await db.commit()
+
+
+async def get_job(job_id: str) -> dict | None:
+    async with _dbmod.connect() as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM job_queue WHERE job_id = ?", (job_id,),
+        )
+        row = await cur.fetchone()
+    return dict(row) if row else None
+
+
+async def list_jobs(limit: int = 50) -> list[dict]:
+    """Recent jobs, newest first."""
+    async with _dbmod.connect() as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM job_queue ORDER BY created_at DESC LIMIT ?", (limit,),
+        )
+        rows = await cur.fetchall()
+    return [dict(r) for r in rows]
+
+
+async def count_jobs_by_status() -> dict[str, int]:
+    async with _dbmod.connect() as db:
+        cur = await db.execute(
+            "SELECT status, COUNT(*) FROM job_queue GROUP BY status",
+        )
+        rows = await cur.fetchall()
+    return {str(r[0]): int(r[1]) for r in rows}
+
+
+async def mark_job_running(job_id: str) -> None:
+    now = datetime.now(timezone.utc).isoformat()
+    async with _dbmod.connect() as db:
+        await db.execute(
+            "UPDATE job_queue SET status='running', started_at=? WHERE job_id=?",
+            (now, job_id),
+        )
+        await db.commit()
+
+
+async def mark_job_done(job_id: str, result: dict | None) -> None:
+    now = datetime.now(timezone.utc).isoformat()
+    async with _dbmod.connect() as db:
+        await db.execute(
+            "UPDATE job_queue SET status='done', ended_at=?, result_json=? WHERE job_id=?",
+            (now, json.dumps(result) if result is not None else None, job_id),
+        )
+        await db.commit()
+
+
+async def mark_job_error(job_id: str, error: str) -> None:
+    now = datetime.now(timezone.utc).isoformat()
+    async with _dbmod.connect() as db:
+        await db.execute(
+            "UPDATE job_queue SET status='error', ended_at=?, error=? WHERE job_id=?",
+            (now, error[:2000], job_id),
+        )
+        await db.commit()
+
+
+async def cancel_job(job_id: str) -> bool:
+    """Cancel a job only if it is still queued. Returns True if canceled."""
+    now = datetime.now(timezone.utc).isoformat()
+    async with _dbmod.connect() as db:
+        cur = await db.execute(
+            "UPDATE job_queue SET status='canceled', ended_at=? "
+            "WHERE job_id=? AND status='queued'",
+            (now, job_id),
+        )
+        await db.commit()
+        return cur.rowcount > 0
+
+
+async def requeue_orphaned_jobs() -> list[str]:
+    """On startup, reset any job left 'running' (killed by a restart) back to
+    'queued' so the workers pick it up again. Returns the affected job ids."""
+    async with _dbmod.connect() as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT job_id FROM job_queue WHERE status='running'",
+        )
+        ids = [r["job_id"] for r in await cur.fetchall()]
+        if ids:
+            await db.execute(
+                "UPDATE job_queue SET status='queued', started_at=NULL "
+                "WHERE status='running'",
+            )
+            await db.commit()
+    return ids
+
+
+async def load_queued_job_ids() -> list[str]:
+    """All job ids still queued, oldest first (FIFO re-feed on startup)."""
+    async with _dbmod.connect() as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT job_id FROM job_queue WHERE status='queued' ORDER BY created_at ASC",
+        )
+        rows = await cur.fetchall()
+    return [r["job_id"] for r in rows]
 
 
 # ---------------------------------------------------------------------- #
