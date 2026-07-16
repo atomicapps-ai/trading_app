@@ -220,35 +220,62 @@ async def _intraday_watchlist() -> list[str]:
     return list(seen)
 
 
+async def _record_candle_run(which: str, ts: str, summary: str | None,
+                             error: str | None) -> None:
+    """Persist last-run state for a candle-refresh job so the /jobs page can
+    show it (these jobs don't write to pipeline_runs). Best-effort."""
+    from services import db_service
+    try:
+        await db_service.set_copy_config(f"candle_refresh_{which}_last_ts", ts)
+        await db_service.set_copy_config(f"candle_refresh_{which}_summary", summary or "")
+        await db_service.set_copy_config(f"candle_refresh_{which}_error", error or "")
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("recording candle_refresh_%s run state failed: %s", which, exc)
+
+
+def _candle_summary(res: dict) -> str:
+    return (f"+{res.get('bars_added', 0)} bars "
+            f"({res.get('ok', 0)} ok, {res.get('failed', 0)} failed)")
+
+
 async def _candle_refresh_daily_job() -> None:
     import os
     from services.candle_refresh_service import refresh_many
+    now = datetime.now(timezone.utc).isoformat()
     try:
         symbols = await _active_universe_symbols()
         if not symbols:
             logger.info("candle refresh (daily): no active universe — skipping")
+            await _record_candle_run("daily", now, "skipped: no active universe", None)
             return
         src = os.getenv("CANDLE_REFRESH_DAILY_SOURCE", "yfinance")
-        await refresh_many(symbols, ["1d"], daily_source=src)
+        res = await refresh_many(symbols, ["1d"], daily_source=src)
+        await _record_candle_run("daily", now, _candle_summary(res), None)
     except Exception as exc:  # noqa: BLE001 — must never crash the loop
         logger.warning("candle_refresh_daily raised: %s", exc)
+        await _record_candle_run("daily", now, None, f"{type(exc).__name__}: {exc}")
 
 
 async def _candle_refresh_intraday_job() -> None:
     import os
     from services.candle_refresh_service import refresh_many
+    now = datetime.now(timezone.utc).isoformat()
     try:
         if not _is_market_hours_et():
+            await _record_candle_run("intraday", now, "skipped: outside market hours", None)
             return
         symbols = await _intraday_watchlist()
         if not symbols:
+            await _record_candle_run("intraday", now, "skipped: empty watchlist", None)
             return
         intervals = [iv.strip() for iv in
                      os.getenv("CANDLE_REFRESH_INTERVALS_INTRADAY", "30m,15m,5m").split(",")
                      if iv.strip()]
-        await refresh_many(symbols, intervals)
+        res = await refresh_many(symbols, intervals)
+        await _record_candle_run("intraday", now, _candle_summary(res), None)
     except Exception as exc:  # noqa: BLE001
         logger.warning("candle_refresh_intraday raised: %s", exc)
+        await _record_candle_run("intraday", now, None, f"{type(exc).__name__}: {exc}")
 
 
 # --------------------------------------------------------------------------- #
