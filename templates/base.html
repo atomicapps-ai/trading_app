@@ -194,6 +194,17 @@
         <span class="mode-badge {{ settings.app.mode }}">{{ settings.app.mode }}</span>
       </div>
       <div class="topbar-right">
+        {# ⟳ Refresh & Scan — one click: top up all latest candles, then run
+           every active strategy scan and queue new setups to /pending. #}
+        <button type="button" class="topbar-status refresh-scan-btn"
+                id="refresh-scan-btn" onclick="startRefreshScan()"
+                title="Refresh all candles and run every active strategy scan"
+                style="cursor:pointer;background:var(--surface-2);border:0.5px solid var(--border);
+                       color:inherit;font:inherit;display:flex;align-items:center;gap:6px;
+                       padding:4px 10px;border-radius:6px;">
+          <span id="refresh-scan-icon" style="display:inline-block;line-height:1;">⟳</span>
+          <span id="refresh-scan-label">Refresh &amp; Scan</span>
+        </button>
         {# Market-data freshness — "how current is the data driving trades".
            Green = fresh, red = stale (strategies skip stale symbols so no trade
            is built on old data). Polled every 60s. #}
@@ -303,6 +314,110 @@
           if (kids) kids.style.display = '';
         }
       });
+    })();
+
+    // ── One-click Refresh & Scan ────────────────────────────────────────
+    let _rsPolling = false;
+    function _rsToast(msg, kind) {
+      let t = document.getElementById('rs-toast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'rs-toast';
+        t.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;'
+          + 'max-width:360px;padding:12px 16px;border-radius:8px;font-size:13px;'
+          + 'line-height:1.4;box-shadow:0 4px 16px rgba(0,0,0,0.5);white-space:pre-line;';
+        document.body.appendChild(t);
+      }
+      const colors = {
+        ok:   'background:#12351f;border:0.5px solid #2e7d46;color:#c9f0d4;',
+        err:  'background:#3a1618;border:0.5px solid #a13a3f;color:#f3c9cc;',
+        info: 'background:var(--surface-2);border:0.5px solid var(--border);color:var(--text);',
+      };
+      t.style.cssText += (colors[kind] || colors.info);
+      t.textContent = msg;
+      t.style.display = 'block';
+      if (kind !== 'info') {
+        clearTimeout(t._timer);
+        t._timer = setTimeout(() => { t.style.display = 'none'; }, 9000);
+      }
+    }
+    function _rsSetBusy(busy) {
+      const btn = document.getElementById('refresh-scan-btn');
+      const icon = document.getElementById('refresh-scan-icon');
+      const label = document.getElementById('refresh-scan-label');
+      if (!btn) return;
+      btn.disabled = busy;
+      btn.style.opacity = busy ? '0.7' : '1';
+      btn.style.cursor = busy ? 'progress' : 'pointer';
+      if (icon) icon.style.animation = busy ? 'spin 1s linear infinite' : 'none';
+      if (label && !busy) label.textContent = 'Refresh & Scan';
+    }
+    async function startRefreshScan() {
+      const btn = document.getElementById('refresh-scan-btn');
+      if (btn && btn.disabled) return;
+      _rsSetBusy(true);
+      _rsToast('Starting refresh & scan…', 'info');
+      try {
+        const r = await fetch('/api/refresh-and-scan', { method: 'POST' });
+        const d = await r.json();
+        if (!d.started && d.already_running) _rsToast('A run is already in progress…', 'info');
+        if (!_rsPolling) pollRefreshScan();
+      } catch (e) {
+        _rsSetBusy(false);
+        _rsToast('Failed to start: ' + e, 'err');
+      }
+    }
+    async function pollRefreshScan() {
+      _rsPolling = true;
+      try {
+        const r = await fetch('/api/refresh-and-scan/status');
+        const d = await r.json();
+        const run = d.run;
+        if (!run) { _rsPolling = false; _rsSetBusy(false); return; }
+        const label = document.getElementById('refresh-scan-label');
+        if (d.running) {
+          _rsSetBusy(true);
+          if (label) label.textContent = (run.pct || 0) + '%';
+          _rsToast((run.detail || run.stage || 'working') + '  (' + (run.pct || 0) + '%)', 'info');
+          setTimeout(pollRefreshScan, 1500);
+          return;
+        }
+        // finished
+        _rsPolling = false;
+        _rsSetBusy(false);
+        if (run.status === 'error') {
+          _rsToast('Refresh & Scan failed:\n' + (run.error || 'unknown error'), 'err');
+          return;
+        }
+        const t = run.totals || {};
+        const dl = run.daily || {};
+        const lines = ['✓ Refresh & Scan complete'];
+        lines.push('Candles: +' + (dl.bars_added || 0) + ' daily bars ('
+          + (dl.ok || 0) + '/' + (dl.symbols || 0) + ' symbols)');
+        lines.push('Scans: ' + (t.signals || 0) + ' signals · '
+          + (t.plans || 0) + ' plans · ' + (t.approved || 0) + ' queued');
+        (run.scans || []).forEach(s => {
+          if (s.error) lines.push('  • ' + s.workflow + ': error');
+          else lines.push('  • ' + s.workflow.replace('_scan', '') + ': '
+            + (s.plans || 0) + ' plans');
+        });
+        _rsToast(lines.join('\n'), 'ok');
+        // refresh data-freshness badge + any pending count on the page
+        if (window.htmx) {
+          const badge = document.getElementById('data-freshness-badge');
+          if (badge) window.htmx.trigger(badge, 'load');
+        }
+      } catch (e) {
+        _rsPolling = false;
+        _rsSetBusy(false);
+        _rsToast('Status check failed: ' + e, 'err');
+      }
+    }
+    // Resume polling if a run is already in flight when the page loads.
+    (function () {
+      fetch('/api/refresh-and-scan/status').then(r => r.json()).then(d => {
+        if (d && d.running && !_rsPolling) pollRefreshScan();
+      }).catch(() => {});
     })();
 
     // ── Mobile off-canvas sidebar drawer ────────────────────────────────

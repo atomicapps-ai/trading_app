@@ -130,6 +130,69 @@ async def refresh_symbol(
             "last": last.isoformat() if last is not None else None}
 
 
+async def refresh_daily_batched(
+    symbols: list[str],
+    *,
+    lookback_days: int = 20,
+    chunk: int = 50,
+    progress=None,
+) -> dict:
+    """Top up **daily** bars for many equities fast, via Alpaca's multi-symbol
+    endpoint (one request per ``chunk`` symbols instead of one per symbol).
+
+    Merges the recent tail into each CSV with ``_merge_into_csv`` so deep
+    history is preserved. Best-effort: a failed chunk is logged and skipped,
+    the rest still refresh. Returns a summary dict.
+
+    ``progress`` — optional ``callable(done:int, total:int, note:str)`` for UI.
+    """
+    import asyncio
+
+    from services import hf_data_service as H
+
+    syms = [s.upper() for s in symbols if s and s.upper() not in _FX_SET]
+    start = (date.today() - timedelta(days=max(lookback_days, 3))).isoformat()
+    ok = fail = added = 0
+    total = len(syms)
+    done = 0
+    for i in range(0, total, chunk):
+        batch = syms[i:i + chunk]
+        try:
+            frames = await asyncio.to_thread(
+                H._fetch_batch_alpaca_sync, batch, start, None, "1d",
+            )
+        except Exception as exc:  # noqa: BLE001
+            log.warning("daily batch %d-%d fetch failed: %s", i, i + len(batch), exc)
+            fail += len(batch)
+            done += len(batch)
+            if progress:
+                progress(done, total, f"batch fetch error: {type(exc).__name__}")
+            continue
+        for sym in batch:
+            done += 1
+            df = frames.get(sym)
+            if df is None or getattr(df, "empty", True):
+                # No bars in the window (holiday-only window, or symbol
+                # unknown to Alpaca) — not fatal, keep cached history.
+                ok += 1
+                continue
+            try:
+                await asyncio.to_thread(
+                    _merge_into_csv, HIST_DIR / f"{sym}_1d.csv", df,
+                )
+                ok += 1
+                added += len(df)
+            except Exception as exc:  # noqa: BLE001
+                log.warning("daily merge %s failed: %s", sym, exc)
+                fail += 1
+        if progress:
+            progress(done, total, f"{done}/{total} symbols")
+    summary = {"symbols": total, "interval": "1d", "ok": ok,
+               "failed": fail, "bars_added": added}
+    log.info("daily batched refresh: %s", summary)
+    return summary
+
+
 async def refresh_many(
     symbols: list[str],
     intervals: list[str],

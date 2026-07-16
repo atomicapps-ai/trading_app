@@ -37,6 +37,7 @@ from routers import (
     positions as positions_router,
     pwa as pwa_router,
     queue as queue_router,
+    refresh_scan as refresh_scan_router,
     replay as replay_router,
     research as research_router,
     settings as settings_router,
@@ -216,6 +217,7 @@ app.include_router(positions_router.router)
 app.include_router(live_status_router.router)
 app.include_router(workflows.router)
 app.include_router(backtest_review.router)
+app.include_router(refresh_scan_router.router)
 app.include_router(jobs.router)
 app.include_router(queue_router.router)
 app.include_router(strategies_router.router)
