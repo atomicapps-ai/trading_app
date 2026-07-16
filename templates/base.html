@@ -199,10 +199,11 @@
         <button type="button" class="topbar-status refresh-scan-btn"
                 id="refresh-scan-btn" onclick="startRefreshScan()"
                 title="Refresh all candles and run every active strategy scan"
-                style="cursor:pointer;background:var(--surface-2);border:0.5px solid var(--border);
-                       color:inherit;font:inherit;display:flex;align-items:center;gap:6px;
-                       padding:4px 10px;border-radius:6px;">
-          <span id="refresh-scan-icon" style="display:inline-block;line-height:1;">⟳</span>
+                style="cursor:pointer;background:var(--accent-green);border:none;
+                       color:#04150d;font:inherit;font-weight:700;display:flex;
+                       align-items:center;gap:6px;padding:5px 12px;border-radius:6px;
+                       box-shadow:0 0 10px rgba(29,184,122,0.55);">
+          <span id="refresh-scan-icon" style="display:inline-block;line-height:1;font-size:14px;">⟳</span>
           <span id="refresh-scan-label">Refresh &amp; Scan</span>
         </button>
         {# Market-data freshness — "how current is the data driving trades".
