@@ -45,9 +45,10 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 
 def _categorize(job_id: str) -> str:
-    if job_id.startswith("wf_"):       return "workflow"
-    if job_id.startswith("ct_"):       return "capitol_trades"
-    if job_id.startswith("senate_"):   return "senate"
+    if job_id.startswith("wf_"):              return "workflow"
+    if job_id.startswith("ct_"):              return "capitol_trades"
+    if job_id.startswith("senate_"):          return "senate"
+    if job_id.startswith("candle_refresh"):   return "candle_refresh"
     return "other"
 
 
@@ -85,6 +86,17 @@ async def _last_run_for(job_id: str, runs_by_wf: dict[str, dict],
                 f"{copy_cfg.get('senate_new_filings_count', '0')} cumulative new PTRs"
                 if copy_cfg.get("senate_last_diff_at") else None
             ),
+        }
+    if cat == "candle_refresh":
+        which = "daily" if job_id.endswith("daily") else "intraday"
+        ts = copy_cfg.get(f"candle_refresh_{which}_last_ts")
+        if not ts:
+            return None
+        err = copy_cfg.get(f"candle_refresh_{which}_error")
+        return {
+            "ts": ts,
+            "status": ("error" if err else "ok"),
+            "summary": err or (copy_cfg.get(f"candle_refresh_{which}_summary") or None),
         }
     return None
 
