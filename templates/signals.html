@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Scan Signals — TradeAgent{% endblock %}
+{% block content %}
+<h2 style="font-size: 18px; font-weight: 500; margin-bottom: 4px;">Scan signals</h2>
+<p class="text-secondary text-sm" style="margin-bottom: 16px;">
+  Every setup the scanner produced ({{ total }}) — searchable, and each one can be
+  <strong>backtested forward</strong> from its scan date to see how it would have turned out.
+</p>
+
+<form class="filter-bar"
+      hx-get="/api/signals"
+      hx-target="#signals-table"
+      hx-swap="innerHTML"
+      hx-trigger="submit, change from:.segmented input, change from:select, keyup changed delay:400ms from:input[name=symbol]">
+  <input class="input" type="text" name="symbol" placeholder="Symbol…" autocomplete="off">
+
+  <select class="select" name="strategy">
+    <option value="all">All strategies</option>
+    {% for st in strategies %}
+      <option value="{{ st }}">{{ st }}</option>
+    {% endfor %}
+  </select>
+
+  <div class="segmented">
+    <input type="radio" name="direction" id="dir-all"  value="all"  checked>
+    <label for="dir-all">All</label>
+    <input type="radio" name="direction" id="dir-long" value="long">
+    <label for="dir-long">Long</label>
+    <input type="radio" name="direction" id="dir-short" value="short">
+    <label for="dir-short">Short</label>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+<div class="card">
+  <div id="signals-table"
+       hx-get="/api/signals"
+       hx-trigger="load"
+       hx-swap="innerHTML">
+    <div class="empty">Loading…</div>
+  </div>
+</div>
+{% endblock %}

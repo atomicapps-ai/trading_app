@@ -1,0 +1,38 @@
+{% if r.status == "ok" %}
+<div class="bt-result {% if r.win %}bt-win{% else %}bt-loss{% endif %}">
+  <div class="bt-headline">
+    <span class="bt-verdict">
+      {% if r.exit_reason == 'tp2' %}✓ Hit TP2
+      {% elif r.exit_reason == 'stop' %}✗ Stopped out
+      {% elif r.exit_reason == 'time' %}◷ Time exit{% endif %}
+    </span>
+    <span class="bt-r {% if (r.pnl_r or 0) >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">
+      {{ "%+.2f"|format(r.pnl_r) if r.pnl_r is not none else "—" }}R
+      <span class="text-tertiary">({{ "%+.2f"|format(r.pnl_pct) if r.pnl_pct is not none else "—" }}%)</span>
+    </span>
+    {% if r.tp1_hit %}<span class="badge badge-green">TP1 tagged</span>{% endif %}
+  </div>
+  <div class="bt-grid">
+    <span>Scan <b>{{ r.scan_date }}</b></span>
+    <span>Filled <b>{{ r.fill_date }}</b></span>
+    <span>Exit <b>{{ r.exit_date }}</b> @ <b class="mono">${{ "%.2f"|format(r.exit_price) }}</b></span>
+    <span>Held <b>{{ r.days_held }}</b> days</span>
+    <span>MFE <b class="text-accent-green">{{ "%+.2f"|format(r.mfe_r) if r.mfe_r is not none else "—" }}R</b></span>
+    <span>MAE <b class="text-accent-red">{{ "%+.2f"|format(r.mae_r) if r.mae_r is not none else "—" }}R</b></span>
+  </div>
+  <div class="text-tertiary text-xs bt-note">
+    Daily-bar replay · entry ${{ "%.2f"|format(r.entry) }} · stop ${{ "%.2f"|format(r.stop) }}
+    {% if r.tp2 %}· target ${{ "%.2f"|format(r.tp2) }}{% endif %} · stop-first on same-bar collisions.
+  </div>
+</div>
+{% elif r.status == "no_fill" %}
+<div class="bt-result bt-neutral">
+  <span class="bt-verdict">— Never triggered</span>
+  <span class="text-tertiary text-sm">{{ r.note }} (scan {{ r.scan_date }}, entry ${{ "%.2f"|format(r.entry) }}).</span>
+</div>
+{% else %}
+<div class="bt-result bt-err">
+  <span class="bt-verdict">Can't backtest</span>
+  <span class="text-tertiary text-sm">{{ r.note or r.status }}</span>
+</div>
+{% endif %}

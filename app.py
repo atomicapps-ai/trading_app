@@ -41,6 +41,7 @@ from routers import (
     replay as replay_router,
     research as research_router,
     settings as settings_router,
+    signals as signals_router,
     stock_lists,
     backtests as backtests_router,
     strategies as strategies_router,
@@ -208,6 +209,7 @@ app.include_router(alerts.router)
 app.include_router(pending.router)
 app.include_router(manual_trade_router.router)
 app.include_router(trades.router)
+app.include_router(signals_router.router)
 app.include_router(analysis.router)
 app.include_router(trade_detail.router)
 app.include_router(news_detail.router)
