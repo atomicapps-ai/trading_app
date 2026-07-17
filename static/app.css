@@ -789,6 +789,36 @@ kbd {
 .trade-detail-sub { font-size: 12px; }
 .trade-detail-actions { display: flex; gap: 8px; align-items: center; }
 
+/* Strategy banner — high-visibility "what is this trade based on". */
+.trade-strategy-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 2px 0 6px 0;
+  padding: 4px 10px 4px 6px;
+  background: var(--tint-blue, rgba(74, 158, 255, 0.14));
+  border: 0.5px solid rgba(74, 158, 255, 0.45);
+  border-radius: 8px;
+}
+.trade-strategy-banner .tsb-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #04150d;
+  background: var(--accent-blue);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.trade-strategy-banner .tsb-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-blue);
+  text-decoration: none;
+}
+.trade-strategy-banner a.tsb-name:hover { text-decoration: underline; }
+.trade-strategy-banner .tsb-none { color: var(--text-secondary); font-weight: 500; }
+
 /* Trade detail chart — host card for the ChartTools instance */
 .trade-detail-chart-card { padding-bottom: 0; }
 .trade-detail-chart-mount {
@@ -1558,6 +1588,59 @@ kbd {
   color: var(--accent-red);
   border-color: rgba(239, 68, 68, 0.35);
 }
+/* Horizontally-scrollable chip row + left/right nudge buttons. */
+.live-bar-chips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 1 auto;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;          /* Firefox — hide the bar, use the arrows */
+}
+.live-bar-chips::-webkit-scrollbar { display: none; }
+.live-bar-scroll-btn {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border: 0.5px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.live-bar-scroll-btn:hover { color: var(--text-primary); background: var(--surface-3); }
+
+/* Sidebar account key-values — always-visible equity / cash / P&L. */
+.sidebar-account-panel {
+  padding: 6px 12px 10px;
+  border-bottom: 0.5px solid var(--border);
+  margin-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.sidebar-acct-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+.sidebar-acct-label {
+  color: var(--text-secondary);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.sidebar-acct-val { font-variant-numeric: tabular-nums; font-weight: 500; }
+.sidebar-acct-err { color: var(--accent-red); padding: 2px; }
+
 .live-bar-pos-chip {
   display: inline-flex;
   align-items: center;
@@ -1569,6 +1652,7 @@ kbd {
   text-decoration: none;
   white-space: nowrap;
   transition: filter 100ms;
+  flex: 0 0 auto;
 }
 .live-bar-pos-chip:hover {
   filter: brightness(1.15);

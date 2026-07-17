@@ -1,91 +1,93 @@
-{# Persistent top-of-app live-totals strip. Reloaded every 5s via HTMX.
-   Each chip carries both data-pnl-usd and data-pnl-pct so the toggle
-   JS can swap display without a server round-trip. #}
+{# Persistent live status. Reloaded every 5s via HTMX into #live-status-bar.
+   The TOP strip now holds only the per-position chips (with left/right
+   scrollers for overflow); the account totals are pushed into the sidebar
+   via an out-of-band swap so they're always visible. Each chip carries both
+   data-pnl-usd and data-pnl-pct so the $/% toggle works without a round-trip. #}
 {% if error %}
   <div class="live-bar-row live-bar-error">
     <span class="live-bar-pill">⚠ Live status unavailable</span>
     <span class="text-tertiary text-xs">{{ error }}</span>
   </div>
+  <div id="sidebar-account" hx-swap-oob="true" class="sidebar-account-panel">
+    <div class="sidebar-acct-err text-xs">⚠ broker offline</div>
+  </div>
 {% else %}
+  {# ===== TOP: per-position chips with overflow scrollers ===== #}
   <div class="live-bar-row">
-    {# ===== Account totals (always %/$ ) ===== #}
-    <span class="live-bar-pill live-bar-equity">
-      <span class="live-bar-label">EQUITY</span>
-      <span class="mono">${{ "{:,.2f}".format(equity) }}</span>
-    </span>
-    <span class="live-bar-pill">
-      <span class="live-bar-label">CASH</span>
-      <span class="mono">${{ "{:,.2f}".format(cash) }}</span>
-    </span>
-    <span class="live-bar-pill {{ 'live-bar-pos' if day_pnl_usd >= 0 else 'live-bar-neg' }}"
-          data-toggle-pnl
-          data-pnl-usd="{{ "%.2f"|format(day_pnl_usd) }}"
-          data-pnl-pct="{{ "%.2f"|format(day_pnl_pct) }}"
-          title="Today's change: equity minus prior-day close">
-      <span class="live-bar-label">DAY P&amp;L</span>
-      <span class="mono live-bar-pnl-value">{{ "%+.2f"|format(day_pnl_usd) }}</span>
-    </span>
-    {# open_pnl_* default-guarded so a template reload ahead of the Python
-       reload (pull-without-restart) can't error the whole live bar. #}
-    <span class="live-bar-pill {{ 'live-bar-pos' if (open_pnl_usd|default(0.0)) >= 0 else 'live-bar-neg' }}"
-          data-toggle-pnl
-          data-pnl-usd="{{ "%.2f"|format(open_pnl_usd|default(0.0)) }}"
-          data-pnl-pct="{{ "%.2f"|format(open_pnl_pct|default(0.0)) }}"
-          title="Open P&amp;L: total live unrealized across current positions">
-      <span class="live-bar-label">OPEN P&amp;L</span>
-      <span class="mono live-bar-pnl-value">{{ "%+.2f"|format(open_pnl_usd|default(0.0)) }}</span>
-    </span>
+    <button type="button" class="live-bar-scroll-btn" data-chip-scroll="-1"
+            onclick="scrollChips(-1)" title="Scroll left" aria-label="Scroll left">‹</button>
+    <div class="live-bar-chips" id="live-bar-chips">
+      {% if positions %}
+        {% for p in positions %}
+          <a href="/positions/{{ p.symbol }}"
+             class="live-bar-pos-chip {{ 'live-bar-pos' if p.pnl_usd >= 0 else 'live-bar-neg' }}"
+             data-toggle-pnl
+             data-pnl-usd="{{ "%.2f"|format(p.pnl_usd) }}"
+             data-pnl-pct="{{ "%.2f"|format(p.pnl_pct) }}"
+             title="{{ p.direction|upper }} {{ p.shares }} @ ${{ "%.2f"|format(p.entry) }} → ${{ "%.2f"|format(p.current) }}{% if p.tp_price %} · TP ${{ "%.2f"|format(p.tp_price) }}{% endif %}{% if p.sl_price %} · SL ${{ "%.2f"|format(p.sl_price) }}{% endif %}">
+            {% if p.direction == 'long' %}
+              <span class="live-bar-dir-arrow live-bar-pos">▲</span>
+            {% else %}
+              <span class="live-bar-dir-arrow live-bar-neg">▼</span>
+            {% endif %}
+            <span class="mono live-bar-sym">{{ p.symbol }}</span>
+            <span class="mono live-bar-pnl-value">{{ "%+.2f"|format(p.pnl_usd) }}</span>
+            {% if p.tp_price or p.sl_price %}
+              <span class="live-bar-bracket text-xs mono">
+                {% if p.tp_price %}<span class="live-bar-tp" title="Take profit">T:{{ "%.2f"|format(p.tp_price) }}</span>{% endif %}
+                {% if p.sl_price %}<span class="live-bar-sl" title="Stop loss">S:{{ "%.2f"|format(p.sl_price) }}</span>{% endif %}
+              </span>
+            {% endif %}
+          </a>
+        {% endfor %}
+      {% else %}
+        <span class="text-tertiary text-xs" style="padding:2px 4px;">No open positions</span>
+      {% endif %}
+    </div>
+    <button type="button" class="live-bar-scroll-btn" data-chip-scroll="1"
+            onclick="scrollChips(1)" title="Scroll right" aria-label="Scroll right">›</button>
 
-    {# Divider between account totals and per-position chips. #}
-    <span class="live-bar-divider"></span>
-
-    {# ===== Per-position chips (only symbols with open positions) ===== #}
-    {% if positions %}
-      {% for p in positions %}
-        <a href="/positions/{{ p.symbol }}"
-           class="live-bar-pos-chip {{ 'live-bar-pos' if p.pnl_usd >= 0 else 'live-bar-neg' }}"
-           data-toggle-pnl
-           data-pnl-usd="{{ "%.2f"|format(p.pnl_usd) }}"
-           data-pnl-pct="{{ "%.2f"|format(p.pnl_pct) }}"
-           title="{{ p.direction|upper }} {{ p.shares }} @ ${{ "%.2f"|format(p.entry) }} → ${{ "%.2f"|format(p.current) }}{% if p.tp_price %} · TP ${{ "%.2f"|format(p.tp_price) }}{% endif %}{% if p.sl_price %} · SL ${{ "%.2f"|format(p.sl_price) }}{% endif %}">
-          {% if p.direction == 'long' %}
-            <span class="live-bar-dir-arrow live-bar-pos">▲</span>
-          {% else %}
-            <span class="live-bar-dir-arrow live-bar-neg">▼</span>
-          {% endif %}
-          <span class="mono live-bar-sym">{{ p.symbol }}</span>
-          <span class="mono live-bar-pnl-value">{{ "%+.2f"|format(p.pnl_usd) }}</span>
-          {% if p.tp_price or p.sl_price %}
-            <span class="live-bar-bracket text-xs mono">
-              {% if p.tp_price %}<span class="live-bar-tp" title="Take profit">T:{{ "%.2f"|format(p.tp_price) }}</span>{% endif %}
-              {% if p.sl_price %}<span class="live-bar-sl" title="Stop loss">S:{{ "%.2f"|format(p.sl_price) }}</span>{% endif %}
-            </span>
-          {% endif %}
-        </a>
-      {% endfor %}
-    {% else %}
-      <span class="text-tertiary text-xs">No open positions</span>
-    {% endif %}
-
-    {# ===== Toggle %/$ ===== #}
     <span style="flex: 1;"></span>
-    <button type="button" class="live-bar-toggle"
-            id="live-bar-toggle"
-            onclick="toggleLivePnlMode()"
-            title="Toggle P&L between $ and %">
+    <button type="button" class="live-bar-toggle" id="live-bar-toggle"
+            onclick="toggleLivePnlMode()" title="Toggle P&L between $ and %">
       <span id="live-bar-toggle-label">$</span>
     </button>
+  </div>
+
+  {# ===== Out-of-band: account key-values into the sidebar ===== #}
+  <div id="sidebar-account" hx-swap-oob="true" class="sidebar-account-panel">
+    <div class="sidebar-acct-row">
+      <span class="sidebar-acct-label">Equity</span>
+      <span class="mono sidebar-acct-val">${{ "{:,.2f}".format(equity or 0) }}</span>
+    </div>
+    <div class="sidebar-acct-row">
+      <span class="sidebar-acct-label">Cash</span>
+      <span class="mono sidebar-acct-val">${{ "{:,.2f}".format(cash or 0) }}</span>
+    </div>
+    <div class="sidebar-acct-row {{ 'live-bar-pos' if day_pnl_usd >= 0 else 'live-bar-neg' }}"
+         data-toggle-pnl
+         data-pnl-usd="{{ "%.2f"|format(day_pnl_usd) }}"
+         data-pnl-pct="{{ "%.2f"|format(day_pnl_pct) }}"
+         title="Today's change: equity minus prior-day close">
+      <span class="sidebar-acct-label">Day P&amp;L</span>
+      <span class="mono sidebar-acct-val live-bar-pnl-value">{{ "%+.2f"|format(day_pnl_usd) }}</span>
+    </div>
+    <div class="sidebar-acct-row {{ 'live-bar-pos' if (open_pnl_usd|default(0.0)) >= 0 else 'live-bar-neg' }}"
+         data-toggle-pnl
+         data-pnl-usd="{{ "%.2f"|format(open_pnl_usd|default(0.0)) }}"
+         data-pnl-pct="{{ "%.2f"|format(open_pnl_pct|default(0.0)) }}"
+         title="Open P&amp;L: total live unrealized across current positions">
+      <span class="sidebar-acct-label">Open P&amp;L</span>
+      <span class="mono sidebar-acct-val live-bar-pnl-value">{{ "%+.2f"|format(open_pnl_usd|default(0.0)) }}</span>
+    </div>
   </div>
 {% endif %}
 
 <script>
-  // After every HTMX swap, re-apply the persisted toggle so the user's
-  // preference survives the 5s repaint. localStorage key shared across
-  // every page (single user, single trading account context).
+  // Re-apply the persisted $/% toggle after every HTMX swap.
   (function() {
     const mode = localStorage.getItem('live_bar.mode') || 'usd';
-    if (typeof window.applyLivePnlMode === 'function') {
-      window.applyLivePnlMode(mode);
-    }
+    if (typeof window.applyLivePnlMode === 'function') window.applyLivePnlMode(mode);
+    if (typeof window.updateChipArrows === 'function') window.updateChipArrows();
   })();
 </script>
