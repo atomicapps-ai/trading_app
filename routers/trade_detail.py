@@ -195,6 +195,19 @@ async def trade_detail(
     except Exception as _e:                                       # noqa: BLE001
         logger.warning("trade_detail: technical read failed for %s: %s", trade.symbol, _e)
 
+    # Active-trade switcher — every open position/plan, so the operator can
+    # jump between live trades without going back to the list.
+    active_trades: list[dict] = []
+    try:
+        from services import trade_history_service
+        for r in await trade_history_service._open_rows():
+            active_trades.append({
+                "id": r.get("plan_id"), "symbol": r.get("symbol"),
+                "direction": r.get("direction"), "strategy": r.get("strategy"),
+            })
+    except Exception as e:  # noqa: BLE001
+        logger.warning("trade_detail: active-trade list failed: %s", e)
+
     return templates.TemplateResponse(
         request=request,
         name="trades/detail.html",
@@ -203,6 +216,7 @@ async def trade_detail(
             "app_version": "0.1.0",
             "active_page": "trades",
             "trade": trade,
+            "active_trades": active_trades,
             "company_name": company_name,
             "intel": intel,
             "probability": prob,
