@@ -153,6 +153,40 @@ async def _close_position_job(
             "close_at_time: closed plan=%s broker_order_id=%s",
             plan_id, ack.broker_order_id,
         )
+        # Journal the closed trade (JSONL + trade_memory) so it lands in
+        # /trades with realized P&L. Best-effort — never breaks the close.
+        try:
+            from services import db_service, trade_recorder
+            plan_row = await db_service.get_plan_by_id(plan_id)
+            entry_px = stop_px = None
+            strategy = "manual"
+            ts_entered = None
+            mode = "paper"
+            if plan_row:
+                pj = plan_row.get("plan_json") or {}
+                setup = pj.get("setup", {}) or {}
+                entry_px = (setup.get("entry") or {}).get("price")
+                stop_px = ((setup.get("stop_loss") or {}).get("initial") or {}).get("price")
+                strategy = plan_row.get("strategy") or strategy
+                ts_entered = plan_row.get("execution_ts") or plan_row.get("ts_created")
+                mode = plan_row.get("mode") or mode
+            exit_px = entry_px
+            try:
+                q = await adapter.get_quote(symbol)
+                exit_px = float(getattr(q, "mid", None) or getattr(q, "ask", None)
+                                or getattr(q, "last", None) or entry_px or 0)
+            except Exception:  # noqa: BLE001
+                pass
+            if entry_px and exit_px:
+                await trade_recorder.record_close(
+                    symbol=symbol, direction=direction,
+                    entry_price=entry_px, exit_price=exit_px, shares=qty,
+                    strategy=strategy, mode=mode, broker=adapter.broker_name,
+                    exit_reason="time_stop", plan_id=plan_id,
+                    stop_price=stop_px, ts_entered=ts_entered,
+                )
+        except Exception as e:  # noqa: BLE001
+            logger.warning("close_at_time journaling failed; plan=%s err=%s", plan_id, e)
     else:
         logger.warning(
             "close_at_time: broker rejected close; plan=%s reason=%s",

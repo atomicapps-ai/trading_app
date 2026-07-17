@@ -73,7 +73,11 @@
         <span class="stat-value {% if summary.wr >= 70 %}text-accent-green{% elif summary.wr < 50 %}text-accent-red{% endif %}">
           {{ "%.1f"|format(summary.wr) }}%
         </span>
+        {% if summary.drift_status != "live" %}
         <span class="stat-sub text-tertiary">backtest {{ "%.1f"|format(summary.backtest_wr) }}%</span>
+        {% else %}
+        <span class="stat-sub text-tertiary">live journal</span>
+        {% endif %}
       </div>
       <div class="stat-card">
         <span class="stat-label">Profit factor</span>

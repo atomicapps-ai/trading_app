@@ -145,6 +145,39 @@ async def _flatten_position(symbol: str, *, intent: str) -> dict:
     except Exception as exc:                                          # noqa: BLE001
         logger.warning("alert recording for %s failed: %s", intent, exc)
 
+    # Journal the closed trade into the ML pool (JSONL + trade_memory) so it
+    # shows up in /trades with realized P&L. Best-effort — must never fail the
+    # close. Enrich strategy / stop / plan_id from the originating plan if one
+    # exists (agent-opened positions); manual positions journal as "manual".
+    try:
+        from services import db_service, trade_recorder
+        entry_px = float(getattr(pos, "avg_entry_price", 0) or 0)
+        exit_px = float(getattr(pos, "market_price", 0) or 0)
+        direction = "long" if pos.shares > 0 else "short"
+        strategy = "manual"
+        plan_id = None
+        stop_px = None
+        ts_entered = None
+        try:
+            plan_row = await db_service.get_latest_plan_for_symbol(symbol)
+        except Exception:  # noqa: BLE001
+            plan_row = None
+        if plan_row:
+            strategy = plan_row.get("strategy") or strategy
+            plan_id = plan_row.get("plan_id")
+            stop_px = plan_row.get("stop")
+            ts_entered = plan_row.get("execution_ts") or plan_row.get("ts_created")
+        await trade_recorder.record_close(
+            symbol=symbol, direction=direction,
+            entry_price=entry_px, exit_price=exit_px, shares=qty,
+            strategy=strategy, mode=s.app.mode,
+            broker=adapter.broker_name,
+            exit_reason=("manual_take_profit" if intent == "take_profit" else "manual"),
+            plan_id=plan_id, stop_price=stop_px, ts_entered=ts_entered,
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("trade journaling on close failed for %s: %s", symbol, exc)
+
     return {
         "ok": True,
         "symbol": symbol,

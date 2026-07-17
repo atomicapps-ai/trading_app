@@ -3,16 +3,102 @@
 {% block content %}
 <h2 style="font-size: 18px; font-weight: 500; margin-bottom: 4px;">Trade history</h2>
 <p class="text-secondary text-sm" style="margin-bottom: 16px;">
-  Phase 2 stub data. Real JSONL aggregation across <span class="mono">trade_logs/</span> arrives once trades exist.
+  Realized performance across all closed trades{% if summary.open_count %} · {{ summary.open_count }} open{% endif %}.
 </p>
 
 {% include "_partials/_page_tabs.html" with context %}
 
+{# ── Overall performance summary ─────────────────────────────────────── #}
+{% set net = summary.net_pnl or 0 %}
+<div class="stat-grid" style="margin-bottom: 12px;">
+  <div class="stat-card">
+    <span class="stat-label">Net P&amp;L</span>
+    <span class="stat-value {% if net >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">
+      {{ net|usd_signed }}<span class="text-tertiary" style="font-size:12px;"> USD</span>
+    </span>
+    <span class="stat-sub">{{ summary.n }} closed · expectancy {{ (summary.expectancy_usd or 0)|usd_signed }}/trade</span>
+  </div>
+
+  <div class="stat-card">
+    <span class="stat-label">Win rate</span>
+    <span class="stat-value">{{ summary.win_rate }}%</span>
+    {# win/loss visual bar #}
+    <div style="height:6px;border-radius:3px;overflow:hidden;background:var(--accent-red);margin-top:4px;">
+      <div style="height:100%;width:{{ summary.win_rate }}%;background:var(--accent-green);"></div>
+    </div>
+    <span class="stat-sub">{{ summary.wins }}W · {{ summary.losses }}L</span>
+  </div>
+
+  <div class="stat-card">
+    <span class="stat-label">Profit factor</span>
+    <span class="stat-value {% if summary.profit_factor and summary.profit_factor >= 1 %}text-accent-green{% elif summary.profit_factor %}text-accent-red{% endif %}">
+      {{ "%.2f"|format(summary.profit_factor) if summary.profit_factor is not none else "—" }}
+    </span>
+    <span class="stat-sub">
+      +{{ (summary.gross_profit or 0)|usd }} / −{{ (summary.gross_loss or 0)|usd }}
+    </span>
+  </div>
+
+  <div class="stat-card">
+    <span class="stat-label">Avg R</span>
+    <span class="stat-value {% if summary.avg_r and summary.avg_r >= 0 %}text-accent-green{% elif summary.avg_r %}text-accent-red{% endif %}">
+      {{ "%+.2f"|format(summary.avg_r) if summary.avg_r is not none else "—" }}R
+    </span>
+    <span class="stat-sub">avg win {{ (summary.avg_win or 0)|usd }} · avg loss −{{ (summary.avg_loss or 0)|usd }}</span>
+  </div>
+</div>
+
+{# ── Strategy ranking ────────────────────────────────────────────────── #}
+{% if ranking %}
+<div class="card" style="margin-bottom: 16px;">
+  <div class="card-header"><span class="card-title">Strategy ranking</span>
+    <span class="text-tertiary text-sm">by realized quality (expectancy · profit factor · win rate, sample-weighted)</span>
+  </div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width:36px;">#</th>
+        <th>Strategy</th>
+        <th class="num">Trades</th>
+        <th class="num">Win %</th>
+        <th class="num">PF</th>
+        <th class="num">Avg R</th>
+        <th class="num">Net P&amp;L</th>
+        <th style="width:120px;">Quality</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in ranking %}
+      <tr>
+        <td><span class="badge {% if r.rank == 1 %}badge-green{% elif r.rank <= 3 %}badge-blue{% else %}badge-gray{% endif %}">{{ r.rank }}</span></td>
+        <td class="mono">{{ r.strategy }}{% if r.open_count %} <span class="text-tertiary text-xs">(+{{ r.open_count }} open)</span>{% endif %}</td>
+        <td class="num mono">{{ r.n }}</td>
+        <td class="num mono">{{ r.win_rate }}%</td>
+        <td class="num mono {% if r.profit_factor and r.profit_factor >= 1 %}text-accent-green{% elif r.profit_factor %}text-accent-red{% endif %}">
+          {{ "%.2f"|format(r.profit_factor) if r.profit_factor is not none else "—" }}
+        </td>
+        <td class="num mono {% if r.avg_r and r.avg_r >= 0 %}text-accent-green{% elif r.avg_r %}text-accent-red{% endif %}">
+          {{ "%+.2f"|format(r.avg_r) if r.avg_r is not none else "—" }}
+        </td>
+        <td class="num mono {% if r.net_pnl >= 0 %}text-accent-green{% else %}text-accent-red{% endif %}">{{ r.net_pnl|usd_signed }}</td>
+        <td>
+          <div style="height:6px;border-radius:3px;background:var(--surface-3);overflow:hidden;">
+            <div style="height:100%;width:{{ (r.score * 100)|round(0, 'floor') }}%;background:var(--accent-blue);"></div>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{# ── Filters + table ─────────────────────────────────────────────────── #}
 <form class="filter-bar"
       hx-get="/api/trades"
       hx-target="#trades-table"
       hx-swap="innerHTML"
-      hx-trigger="submit, change from:.segmented input">
+      hx-trigger="submit, change from:.segmented input, change from:select">
   <input class="input" type="text" name="symbol" placeholder="Symbol…" autocomplete="off">
 
   <select class="select" name="strategy">
@@ -25,6 +111,8 @@
   <div class="segmented">
     <input type="radio" name="outcome" id="oc-all"  value="all"  checked>
     <label for="oc-all">All</label>
+    <input type="radio" name="outcome" id="oc-open" value="open">
+    <label for="oc-open">Open</label>
     <input type="radio" name="outcome" id="oc-win"  value="win">
     <label for="oc-win">Wins</label>
     <input type="radio" name="outcome" id="oc-loss" value="loss">
@@ -35,7 +123,6 @@
   <input class="input" type="date" name="date_to"   style="max-width: 160px;">
 
   <button type="submit" class="btn btn-primary">Filter</button>
-  <button type="button" class="btn" disabled title="Coming soon">Export CSV</button>
 </form>
 
 <div class="card">
