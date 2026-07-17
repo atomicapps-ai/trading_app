@@ -1043,6 +1043,34 @@ async def insert_trade_memory(row: dict) -> None:
         await db.commit()
 
 
+async def count_closed_plans() -> int:
+    async with _dbmod.connect() as db:
+        cur = await db.execute(
+            "SELECT COUNT(*) FROM pending_approvals WHERE status = 'closed'")
+        row = await cur.fetchone()
+    return int(row[0]) if row else 0
+
+
+async def delete_closed_plans() -> int:
+    """Remove pending_approvals rows that already closed. Open/executed/approved
+    plans (the live book) are untouched. Returns rows deleted."""
+    async with _dbmod.connect() as db:
+        cur = await db.execute(
+            "DELETE FROM pending_approvals WHERE status = 'closed'")
+        await db.commit()
+        return cur.rowcount
+
+
+async def clear_trade_memory() -> int:
+    """Empty the closed-trade ML pool. Returns rows deleted."""
+    async with _dbmod.connect() as db:
+        cur = await db.execute("SELECT COUNT(*) FROM trade_memory")
+        n = (await cur.fetchone())[0]
+        await db.execute("DELETE FROM trade_memory")
+        await db.commit()
+        return int(n)
+
+
 async def list_trade_memory(limit: int = 2000) -> list[dict]:
     """All closed-trade rows from the ML pool, newest exit first."""
     async with _dbmod.connect() as db:
