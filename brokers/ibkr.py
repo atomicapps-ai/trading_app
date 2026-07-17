@@ -97,6 +97,8 @@ class IbkrAdapter(BrokerAdapter):
         self._client_id = int(client_id or os.getenv("IBKR_CLIENT_ID", "7"))
         self._label = label or f"ibkr_{'paper' if paper else 'live'}"
         self._ib = IB() if IB is not None else None
+        self._pnl = None            # ib_insync PnL subscription (daily P&L)
+        self._pnl_account: str | None = None
 
     @staticmethod
     def _now() -> str:
@@ -157,7 +159,14 @@ class IbkrAdapter(BrokerAdapter):
 
     async def disconnect(self) -> None:
         if self._ib is not None and self._ib.isConnected():
+            try:
+                if self._pnl is not None and self._pnl_account:
+                    self._ib.cancelPnL(self._pnl_account)
+            except Exception:  # noqa: BLE001
+                pass
             self._ib.disconnect()
+        self._pnl = None
+        self._pnl_account = None
 
     @property
     def connected(self) -> bool:
@@ -168,7 +177,24 @@ class IbkrAdapter(BrokerAdapter):
         return self._label
 
     # ── account ──────────────────────────────────────────────────────
+    def _ensure_pnl_sub(self) -> None:
+        """Subscribe once to the account-level PnL feed so we get IBKR's
+        authoritative **daily** P&L (change since the prior close). ib_insync
+        keeps the returned PnL object live; first read may be NaN until the
+        gateway pushes an update (~1s), so callers must NaN-guard."""
+        if self._pnl is not None or self._ib is None:
+            return
+        try:
+            accts = self._ib.managedAccounts()
+            if not accts:
+                return
+            self._pnl_account = accts[0]
+            self._pnl = self._ib.reqPnL(self._pnl_account)
+        except Exception as e:  # noqa: BLE001
+            logger.info("IBKR reqPnL subscribe failed: %s", e)
+
     async def get_account_state(self) -> AccountState:
+        import math
         summ = {r.tag: r.value for r in await self._ib.accountSummaryAsync()}
         # portfolio() carries marketPrice + unrealizedPNL per position; plain
         # positions() does not. Fall back to positions() if the portfolio is
@@ -199,15 +225,36 @@ class IbkrAdapter(BrokerAdapter):
                     unrealized_pnl_usd=0.0,
                 ))
         f = lambda k: float(summ.get(k, 0) or 0)  # noqa: E731
+        equity_val = f("NetLiquidation")
+
+        # Daily P&L, the IBKR way: reqPnL().dailyPnL is the broker's official
+        # change-since-prior-close (realized + today's unrealized change). We
+        # translate it into last_equity so AccountState.day_pnl_usd resolves to
+        # exactly that — instead of the old fallback (realized+unrealized) that
+        # made Day P&L equal Open P&L and never reset overnight.
+        self._ensure_pnl_sub()
+        daily_pnl = None
+        realized_today = 0.0
+        if self._pnl is not None:
+            d = getattr(self._pnl, "dailyPnL", None)
+            if d is not None and not math.isnan(d):
+                daily_pnl = float(d)
+            r = getattr(self._pnl, "realizedPnL", None)
+            if r is not None and not math.isnan(r):
+                realized_today = float(r)
+        last_equity = (equity_val - daily_pnl) if daily_pnl is not None else 0.0
+
         return AccountState(
             account_id=summ.get("AccountType", self._label), broker=self._label, type="margin",
-            equity=f("NetLiquidation"), cash=f("TotalCashValue"),
+            equity=equity_val, cash=f("TotalCashValue"),
             buying_power=f("BuyingPower"), open_positions=positions,
             # The account-summary UnrealizedPnL tag is frequently 0/absent on
             # paper, so sum the per-position unrealized from portfolio() (the
             # same numbers the position chips show); fall back to the tag.
             unrealized_pnl_today=(sum(p.unrealized_pnl_usd for p in positions)
                                   or f("UnrealizedPnL")),
+            realized_pnl_today=realized_today,
+            last_equity=last_equity,
             trading_halted=False,
             ts_snapshot=self._now(),
         )

@@ -30,6 +30,13 @@
     {# ===== Sidebar ===== #}
     <aside class="sidebar">
       <div class="sidebar-logo">TradeAgent</div>
+
+      {# Account key-values — always visible. Updated out-of-band from the
+         same /api/live-status poll that drives the position chips up top. #}
+      <div id="sidebar-account" class="sidebar-account-panel">
+        <div class="text-tertiary text-xs" style="padding:4px 2px;">Loading…</div>
+      </div>
+
       <nav class="sidebar-nav">
         {# nav schema: leaf items have href; parent items have children list (no href).
            active_page is matched against item.key; for parent groups, active_section
@@ -579,6 +586,22 @@
       localStorage.setItem('live_bar.mode', next);
       window.applyLivePnlMode(next);
     };
+
+    // Position-chip overflow scroller. The chips live in a horizontally
+    // scrollable row; the ‹ › buttons nudge it, and hide when everything fits.
+    window.scrollChips = function(dir) {
+      const row = document.getElementById('live-bar-chips');
+      if (row) row.scrollBy({ left: dir * Math.max(240, row.clientWidth * 0.7), behavior: 'smooth' });
+    };
+    window.updateChipArrows = function() {
+      const row = document.getElementById('live-bar-chips');
+      if (!row) return;
+      const overflow = row.scrollWidth > row.clientWidth + 4;
+      document.querySelectorAll('[data-chip-scroll]').forEach(b => {
+        b.style.display = overflow ? '' : 'none';
+      });
+    };
+    window.addEventListener('resize', () => window.updateChipArrows());
 
     // HALT button — always confirm. In LIVE mode the safeguard prompt
     // fires too (so it's a 2-tap action, intentional friction).

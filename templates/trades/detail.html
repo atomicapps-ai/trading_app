@@ -63,10 +63,17 @@
             {{ trade.direction|upper }}
           </span>
         {% endif %}
-        {% if trade.strategy_name %}
-          <span class="badge badge-gray mono">{{ trade.strategy_name }}</span>
-        {% endif %}
       </h2>
+      {# Strategy — front and center: it's the single most important piece of
+         context for a trade, so it gets its own high-visibility banner. #}
+      <div class="trade-strategy-banner">
+        <span class="tsb-label">Strategy</span>
+        {% if trade.strategy_name %}
+          <a href="/strategies/{{ trade.strategy_name }}" class="tsb-name mono">{{ trade.strategy_name }}</a>
+        {% else %}
+          <span class="tsb-name tsb-none mono">manual · no strategy</span>
+        {% endif %}
+      </div>
       <div class="trade-detail-sub text-tertiary text-sm">
         {{ trade.stage|upper }}
         {% if trade.mode %}· mode {{ trade.mode }}{% endif %}
