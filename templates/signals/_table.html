@@ -1,0 +1,52 @@
+{% if rows %}
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Scan date</th>
+      <th>Symbol</th>
+      <th>Dir</th>
+      <th>Strategy</th>
+      <th>Status</th>
+      <th class="num">Entry</th>
+      <th class="num">Stop</th>
+      <th class="num">TP1</th>
+      <th class="num">TP2</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in rows %}
+      <tr>
+        <td class="text-secondary text-sm">{{ s.date_fmt }}</td>
+        <td class="mono"><a href="/trades/{{ s.plan_id }}" class="trade-row-link">{{ s.symbol }}</a></td>
+        <td><span class="badge {% if s.direction == 'long' %}badge-green{% else %}badge-red{% endif %}">{{ s.direction|upper }}</span></td>
+        <td class="text-secondary text-sm">{{ s.strategy }}</td>
+        <td><span class="badge badge-gray">{{ s.status|upper }}</span></td>
+        <td class="num mono">{% if s.entry %}${{ "%.2f"|format(s.entry) }}{% else %}—{% endif %}</td>
+        <td class="num mono text-accent-red">{% if s.stop %}${{ "%.2f"|format(s.stop) }}{% else %}—{% endif %}</td>
+        <td class="num mono text-accent-green">{% if s.tp1 %}${{ "%.2f"|format(s.tp1) }}{% else %}—{% endif %}</td>
+        <td class="num mono text-accent-green">{% if s.tp2 %}${{ "%.2f"|format(s.tp2) }}{% else %}—{% endif %}</td>
+        <td>
+          <button class="btn btn-sm" type="button"
+                  hx-post="/api/signals/{{ s.plan_id }}/backtest"
+                  hx-target="#bt-{{ s.plan_id }}"
+                  hx-swap="innerHTML"
+                  hx-disabled-elt="this">
+            Backtest ▸
+          </button>
+        </td>
+      </tr>
+      <tr class="signals-result-row">
+        <td colspan="10" style="padding:0;"><div id="bt-{{ s.plan_id }}"></div></td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty">
+  No scan signals match.
+  <div class="text-tertiary text-xs" style="margin-top: 6px;">
+    Setups appear here after a scan runs (⟳ Refresh &amp; Scan, or the scheduled jobs).
+  </div>
+</div>
+{% endif %}

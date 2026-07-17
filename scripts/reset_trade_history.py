@@ -1,20 +1,25 @@
-"""reset_trade_history.py — purge closed/historical trades, keep the live book.
+"""reset_trade_history.py — clean-slate the realized-P&L history.
 
-The closed-trade journal accumulated while the close-recording path was broken,
-so those rows are noise and skew the /trades summary + strategy ranking. This
-clears the closed history everywhere it lives:
+The realized-P&L journal accumulated while the close-recording path was broken
+(and while the IBKR balance was inflated), so those numbers are noise. This
+clears the fake realized history:
 
   * trade_logs/*.jsonl          — the JSONL journal
   * trade_memory (SQLite)       — the ML pool
-  * pending_approvals status='closed'
 
-**Open / executed / approved plans are LEFT INTACT** — they are your active
-trades and the only valid history going forward.
+**Scan setups in ``pending_approvals`` are KEPT** — every setup the scanner
+produced stays as a searchable, backtestable archive (see /signals). Pair this
+with an IBKR paper reset to $1M for a true clean slate.
+
+Options:
+  --drop-plans   ALSO wipe every pending_approvals row (nuclear — you lose the
+                 scan archive too). Off by default.
 
 Safe by default: prints what it WOULD delete and exits. Pass --yes to do it.
 
-    python -m scripts.reset_trade_history          # dry run (counts only)
-    python -m scripts.reset_trade_history --yes     # actually delete
+    python -m scripts.reset_trade_history               # dry run (counts only)
+    python -m scripts.reset_trade_history --yes          # clear realized P&L, keep setups
+    python -m scripts.reset_trade_history --yes --drop-plans   # also wipe scan archive
 """
 from __future__ import annotations
 
@@ -45,21 +50,26 @@ def _jsonl_line_count() -> tuple[int, int]:
 async def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--yes", action="store_true", help="actually delete (default: dry run)")
+    ap.add_argument("--drop-plans", action="store_true",
+                    help="ALSO wipe every pending_approvals row (loses the scan archive)")
     args = ap.parse_args()
 
     await db_service.ensure_tables()
 
     n_files, n_lines = _jsonl_line_count()
     n_mem = len(await db_service.list_trade_memory(limit=1_000_000))
-    n_closed = await db_service.count_closed_plans()
+    n_plans = len(await db_service.get_pending_plans(status_filter=None, limit=1_000_000))
 
-    print("Closed/historical trades to remove (open trades are kept):")
-    print(f"  JSONL journal   : {n_lines} records across {n_files} file(s)")
-    print(f"  trade_memory    : {n_mem} rows")
-    print(f"  closed plans    : {n_closed} rows (pending_approvals status='closed')")
+    print("Clean-slate the realized-P&L history:")
+    print(f"  JSONL journal   : {n_lines} records across {n_files} file(s)  → CLEARED")
+    print(f"  trade_memory    : {n_mem} rows  → CLEARED")
+    if args.drop_plans:
+        print(f"  scan setups     : {n_plans} rows  → DELETED (--drop-plans)")
+    else:
+        print(f"  scan setups     : {n_plans} rows  → KEPT (searchable archive at /signals)")
 
     if not args.yes:
-        print("\nDry run — nothing deleted. Re-run with --yes to purge.")
+        print("\nDry run — nothing deleted. Re-run with --yes to apply.")
         return
 
     # 1) JSONL journal — remove the monthly files (keep the dir + .gitkeep).
@@ -75,15 +85,18 @@ async def main() -> None:
     # 2) trade_memory table
     mem_deleted = await db_service.clear_trade_memory()
 
-    # 3) closed pending_approvals rows
-    plans_deleted = await db_service.delete_closed_plans()
+    # 3) scan setups — kept unless explicitly dropped
+    plans_deleted = await db_service.delete_all_plans() if args.drop_plans else 0
 
     print("\nDone.")
     print(f"  JSONL files removed : {removed_files}")
     print(f"  trade_memory rows   : {mem_deleted}")
-    print(f"  closed plans        : {plans_deleted}")
-    print("\nOpen/executed/approved plans were left intact. /trades now reflects "
-          "only your active book (closed history starts fresh).")
+    if args.drop_plans:
+        print(f"  scan setups deleted : {plans_deleted}")
+    else:
+        print("  scan setups kept    : searchable + backtestable at /signals")
+    print("\nRealized-P&L history is now empty. Reset the IBKR paper account to "
+          "$1,000,000 in the Client Portal for the full clean slate.")
 
 
 if __name__ == "__main__":

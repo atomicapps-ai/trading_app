@@ -1061,6 +1061,16 @@ async def delete_closed_plans() -> int:
         return cur.rowcount
 
 
+async def delete_all_plans() -> int:
+    """Nuclear: remove every pending_approvals row (drops the scan archive)."""
+    async with _dbmod.connect() as db:
+        cur = await db.execute("SELECT COUNT(*) FROM pending_approvals")
+        n = (await cur.fetchone())[0]
+        await db.execute("DELETE FROM pending_approvals")
+        await db.commit()
+        return int(n)
+
+
 async def clear_trade_memory() -> int:
     """Empty the closed-trade ML pool. Returns rows deleted."""
     async with _dbmod.connect() as db:
