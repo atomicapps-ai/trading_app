@@ -982,6 +982,77 @@ async def record_execution(plan_id: str, execution: dict) -> bool:
         return cur.rowcount > 0
 
 
+async def mark_plan_closed(
+    plan_id: str,
+    *,
+    exit_price: float | None = None,
+    pnl_usd: float | None = None,
+    exit_reason: str | None = None,
+) -> bool:
+    """Flip a plan to 'closed' when its position is exited. Exit facts are
+    stashed in execution_json alongside the entry-order details so the row
+    keeps a complete lifecycle without a schema change."""
+    async with _dbmod.connect() as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT execution_json FROM pending_approvals WHERE plan_id = ?",
+            (plan_id,),
+        )
+        row = await cur.fetchone()
+        if row is None:
+            return False
+        try:
+            exec_obj = json.loads(row["execution_json"]) if row["execution_json"] else {}
+        except Exception:  # noqa: BLE001
+            exec_obj = {}
+        exec_obj["exit"] = {
+            "exit_price": exit_price, "pnl_usd": pnl_usd,
+            "exit_reason": exit_reason,
+            "ts": datetime.now(timezone.utc).isoformat(),
+        }
+        cur = await db.execute(
+            "UPDATE pending_approvals SET status = 'closed', execution_json = ? "
+            "WHERE plan_id = ?",
+            (json.dumps(exec_obj), plan_id),
+        )
+        await db.commit()
+        return cur.rowcount > 0
+
+
+_TRADE_MEMORY_COLS = (
+    "trade_id", "plan_id", "symbol", "strategy_name", "sector", "direction",
+    "win", "pnl_r_multiple", "mfe_r", "mae_r", "rsi_14_at_entry",
+    "atr_pct_at_entry", "vix_at_entry", "vix_regime", "sma50_distance_pct",
+    "sma200_distance_pct", "volume_vs_avg_ratio", "spy_trend_20d",
+    "entry_features_json", "learning_tags_json", "ts_entered", "ts_exited", "mode",
+)
+
+
+async def insert_trade_memory(row: dict) -> None:
+    """Insert one closed-trade row into the trade_memory ML pool. Only the
+    known columns are written; anything else in ``row`` is ignored. Idempotent
+    on trade_id (INSERT OR REPLACE)."""
+    vals = [row.get(c) for c in _TRADE_MEMORY_COLS]
+    placeholders = ",".join("?" for _ in _TRADE_MEMORY_COLS)
+    cols = ",".join(_TRADE_MEMORY_COLS)
+    async with _dbmod.connect() as db:
+        await db.execute(
+            f"INSERT OR REPLACE INTO trade_memory ({cols}) VALUES ({placeholders})",
+            vals,
+        )
+        await db.commit()
+
+
+async def list_trade_memory(limit: int = 2000) -> list[dict]:
+    """All closed-trade rows from the ML pool, newest exit first."""
+    async with _dbmod.connect() as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM trade_memory ORDER BY ts_exited DESC LIMIT ?", (limit,),
+        )
+        return [dict(r) for r in await cur.fetchall()]
+
+
 async def update_plan_json(plan_id: str, plan: dict) -> bool:
     """Overwrite the stored TradePlan for ``plan_id`` with ``plan``.
 

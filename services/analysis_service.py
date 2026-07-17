@@ -202,13 +202,22 @@ def summary(df: pd.DataFrame, backtest_wr: float = 82.4,
     losses = -pnls[pnls < 0].sum()
     pf = (wins / losses) if losses > 0 else float("inf")
     wr = float(df["win"].mean() * 100)
-    drift = wr - backtest_wr
-    if wr >= backtest_wr:
-        drift_status = "above-backtest"
-    elif wr >= backtest_ci_lo:
-        drift_status = "within-ci"
+    # The 82.4% backtest baseline is the double_lock (DL) research claim — it
+    # only makes sense against the DL dump. For the live journal (jsonl) the
+    # book is a mix of strategies, so a single DL baseline would mislead; show
+    # a neutral "live" status and no baseline comparison.
+    src = df["source"].iloc[0] if "source" in df.columns else ""
+    if str(src).startswith("jsonl"):
+        drift = None
+        drift_status = "live"
     else:
-        drift_status = "below-ci"        # alarm — strategy may have broken
+        drift = wr - backtest_wr
+        if wr >= backtest_wr:
+            drift_status = "above-backtest"
+        elif wr >= backtest_ci_lo:
+            drift_status = "within-ci"
+        else:
+            drift_status = "below-ci"        # alarm — strategy may have broken
     return dict(
         n=len(df),
         wr=round(wr, 1),
@@ -217,7 +226,7 @@ def summary(df: pd.DataFrame, backtest_wr: float = 82.4,
         sum=round(float(pnls.sum()), 2),
         backtest_wr=backtest_wr,
         backtest_ci_lo=backtest_ci_lo,
-        drift=round(drift, 1),
+        drift=round(drift, 1) if drift is not None else None,
         drift_status=drift_status,
         source=df["source"].iloc[0] if "source" in df.columns else "—",
     )
