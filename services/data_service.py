@@ -48,7 +48,7 @@ log = logging.getLogger(__name__)
 
 HISTORICAL_DIR: Path = DATA_DIR / "historical"
 
-Interval = Literal["1d", "1h", "30m", "15m", "5m"]
+Interval = Literal["1d", "1h", "30m", "15m", "5m", "1m"]
 
 # yfinance download windows per interval. Hourly data from Yahoo is
 # only reliably available for the last ~730 days. Sub-hourly bars cap
@@ -60,6 +60,7 @@ _DEFAULT_PERIOD: dict[Interval, str] = {
     "30m": "60d",
     "15m": "60d",
     "5m": "60d",
+    "1m": "7d",
 }
 
 # Minimum bars the caller must actually receive before we call the
