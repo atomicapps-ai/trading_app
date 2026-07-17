@@ -36,7 +36,7 @@
   // minutes, upper-case for hour/day/week/month). Also the source of the
   // "is this a sub-daily interval?" test used to toggle the time axis.
   const TF_LABELS = {
-    '5m': '5m', '10m': '10m', '15m': '15m', '30m': '30m',
+    '1m': '1m', '5m': '5m', '10m': '10m', '15m': '15m', '30m': '30m',
     '1h': '1H', '2h': '2H', '4h': '4H',
     '1d': '1D', '1w': '1W', '1mo': '1M',
   };
@@ -105,6 +105,18 @@
   font-size:11px;font-weight:500;cursor:pointer;font-family:var(--font-mono);}
 .ct-tf:hover{background:var(--surface-3);color:var(--text-primary);}
 .ct-tf.active{background:var(--accent-blue);border-color:var(--accent-blue);color:#fff;}
+.ct-live{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;
+  border:1px solid var(--border);border-radius:4px;background:var(--surface-2);
+  color:var(--text-secondary);font-size:11px;font-weight:600;cursor:pointer;
+  font-family:var(--font-mono);flex:0 0 auto;}
+.ct-live:hover{color:var(--text-primary);border-color:var(--text-tertiary);}
+.ct-live .ct-live-dot{width:7px;height:7px;border-radius:50%;
+  background:var(--text-tertiary);flex:0 0 auto;}
+.ct-live.active{background:rgba(224,82,82,0.14);border-color:var(--accent-red);
+  color:var(--accent-red);}
+.ct-live.active .ct-live-dot{background:var(--accent-red);
+  animation:ct-live-pulse 1.4s ease-in-out infinite;}
+@keyframes ct-live-pulse{0%,100%{opacity:1;}50%{opacity:0.25;}}
 .ct-chips{display:flex;gap:3px;flex-wrap:wrap;flex:1 1 auto;justify-content:flex-end;}
 .ct-chip{padding:3px 8px;border:1px solid var(--border);border-radius:10px;
   background:var(--surface-2);color:var(--text-tertiary);
@@ -246,9 +258,59 @@
       this._vlineWrap = null;   // overlay holding the vertical event bars
       this._vlines = [];
       this._vshade = null;      // shaded valid-window rectangle (window mode)
+      this._live = false;       // ● Live toggle state
+      this._liveTimer = null;   // setInterval handle for the live poll
+      this._liveMs = this.opts.liveIntervalMs || 12000;  // poll cadence
       injectStyles();
       this._buildShell();
       this.loadData();
+    }
+
+    // ── ● Live: passive broker-feed polling ─────────────────────────────
+    toggleLive() { this._live ? this.stopLive() : this.startLive(); }
+
+    startLive() {
+      this._live = true;
+      if (this._liveBtn) this._liveBtn.classList.add('active');
+      this._pollLive();                       // immediate first tick
+      clearInterval(this._liveTimer);
+      this._liveTimer = setInterval(() => this._pollLive(), this._liveMs);
+    }
+
+    stopLive() {
+      this._live = false;
+      if (this._liveBtn) this._liveBtn.classList.remove('active');
+      clearInterval(this._liveTimer);
+      this._liveTimer = null;
+    }
+
+    async _pollLive() {
+      if (!this._live) return;
+      const limit = this.opts.limit || (this.interval === '1d' ? 365 : 300);
+      try {
+        const r = await fetch(
+          `/api/bars/${this.symbol}/live?interval=${this.interval}&limit=${limit}`
+        );
+        if (!r.ok) return;                    // keep last good candles
+        const data = await r.json();
+        const bars = (data.bars || []).filter(b =>
+          b && b.time != null &&
+          Number.isFinite(b.open) && Number.isFinite(b.high) &&
+          Number.isFinite(b.low) && Number.isFinite(b.close)
+        );
+        if (!bars.length) return;
+        this.bars = bars;
+        this.priceSeries.setData(bars.map(b => ({
+          time: b.time, open: b.open, high: b.high,
+          low: b.low, close: b.close,
+        })));
+        try { this._applyTradeMarkers(); } catch (_) {}
+        this.refreshIndicators();
+        if (this._liveBtn) {
+          const t = new Date().toLocaleTimeString();
+          this._liveBtn.title = `Live — last update ${t}`;
+        }
+      } catch (_) { /* transient — try again next tick */ }
     }
 
     _loadPrefs(defaults) {
@@ -291,7 +353,7 @@
         // the operator zoom into the price action around entry/stop on a
         // fresh setup, or zoom out for higher-timeframe structure.
         const frames = this.opts.timeframes ||
-          ['5m', '10m', '15m', '30m', '1h', '4h', '1d', '1w', '1mo'];
+          ['1m', '5m', '10m', '15m', '30m', '1h', '4h', '1d', '1w', '1mo'];
         frames.forEach(iv => {
           const b = document.createElement('button');
           b.className = 'ct-tf' + (iv === this.interval ? ' active' : '');
@@ -301,6 +363,20 @@
           tfWrap.appendChild(b);
         });
         head.appendChild(tfWrap);
+      }
+
+      // ● Live toggle — passive/opt-in. When on, polls the broker feed
+      // (Alpaca equities / IBKR FX), updates the forming candle, and warms
+      // the cache as it loads. Off by default so nothing streams unasked.
+      if (this.opts.showLive !== false) {
+        const live = document.createElement('button');
+        live.className = 'ct-live';
+        live.type = 'button';
+        live.title = 'Live: poll the broker feed and update the current candle';
+        live.innerHTML = '<span class="ct-live-dot"></span>Live';
+        live.addEventListener('click', () => this.toggleLive());
+        head.appendChild(live);
+        this._liveBtn = live;
       }
 
       if (this.opts.showChips !== false) {
@@ -879,6 +955,7 @@
     }
 
     destroy() {
+      try { clearInterval(this._liveTimer); } catch (_) {}
       try { this._ro && this._ro.disconnect(); } catch (_) {}
       try { this.priceChart.remove(); } catch (_) {}
       Object.values(this.subPanes).forEach(sp => {
