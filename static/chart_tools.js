@@ -44,6 +44,22 @@
   const DAILY_PLUS = new Set(['1d', '1w', '1mo']);
   const isIntraday = iv => !DAILY_PLUS.has(iv);
 
+  // ── Keyboard zoom ───────────────────────────────────────────────────
+  // The mouse wheel no longer zooms the chart (it scrolls the page). Instead,
+  // ArrowUp / ArrowDown zoom the chart the cursor is over. Scoped to the
+  // hovered chart so arrow keys behave normally everywhere else.
+  let _hoveredChart = null;
+  let _zoomKeysInstalled = false;
+  function _installZoomKeys() {
+    if (_zoomKeysInstalled) return;
+    _zoomKeysInstalled = true;
+    document.addEventListener('keydown', (e) => {
+      if (!_hoveredChart) return;
+      if (e.key === 'ArrowUp') { e.preventDefault(); _hoveredChart.zoomTime(0.82); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); _hoveredChart.zoomTime(1.22); }
+    });
+  }
+
   // ── Indicator catalog ───────────────────────────────────────────────
   // Each indicator has a stable `id` (sent to /api/indicators), a
   // human label (chip text), a kind ('overlay' = on price chart;
@@ -340,6 +356,13 @@
       this.container.classList.add('ct-chart-root');
       this.container.innerHTML = '';
 
+      // Track hover so the ArrowUp/ArrowDown zoom keys target THIS chart.
+      this.container.addEventListener('mouseenter', () => { _hoveredChart = this; });
+      this.container.addEventListener('mouseleave', () => {
+        if (_hoveredChart === this) _hoveredChart = null;
+      });
+      _installZoomKeys();
+
       // Header bar
       const head = document.createElement('div');
       head.className = 'ct-chart-head';
@@ -454,9 +477,28 @@
         rightPriceScale:  { borderColor: '#2a2d37', minimumWidth: 60 },
         crosshair:        { mode: LightweightCharts.CrosshairMode.Normal },
         autoSize:         false,
-        handleScale:      true,
-        handleScroll:     true,
+        // Mouse WHEEL must NOT zoom/scroll the chart — it stole the page
+        // scroll and "stretched" the chart. Wheel now scrolls the page; use
+        // the ArrowUp/ArrowDown keys (while hovering a chart) to zoom, and
+        // drag to pan.
+        handleScale:  { mouseWheel: false, pinch: true,
+                        axisPressedMouseMove: true, axisDoubleClickReset: true },
+        handleScroll: { mouseWheel: false, pressedMouseMove: true,
+                        horzTouchDrag: true, vertTouchDrag: true },
       };
+    }
+
+    // Zoom the time axis around the visible center. factor <1 zooms in,
+    // >1 zooms out. Bound to ArrowUp / ArrowDown while a chart is hovered.
+    zoomTime(factor) {
+      try {
+        const ts = this.priceChart.timeScale();
+        const r = ts.getVisibleLogicalRange();
+        if (!r) return;
+        const center = (r.from + r.to) / 2;
+        const half = Math.max(2, ((r.to - r.from) / 2) * factor);
+        ts.setVisibleLogicalRange({ from: center - half, to: center + half });
+      } catch (_) { /* chart not ready */ }
     }
 
     _resize() {

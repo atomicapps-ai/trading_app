@@ -4,6 +4,52 @@
 
 <div class="trade-detail-page">
 
+  {# ===== Breadcrumb — back to wherever the user came from ===== #}
+  <nav class="trade-crumb text-sm" style="margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+    <a href="/trades" id="trade-back-link" class="text-accent-blue">‹ Back</a>
+    {% if active_trades and active_trades|length > 1 %}
+      <span class="text-tertiary">·</span>
+      <label class="text-tertiary" for="active-trade-switch">Active trade</label>
+      <select id="active-trade-switch" class="select" style="max-width:220px;padding:3px 8px;"
+              onchange="if(this.value) location.href='/trades/'+this.value;">
+        {% for a in active_trades %}
+          <option value="{{ a.id }}" {% if a.id == trade.id %}selected{% endif %}>
+            {{ a.symbol }} · {{ (a.direction or '')|upper }}{% if a.strategy %} · {{ a.strategy }}{% endif %}
+          </option>
+        {% endfor %}
+      </select>
+    {% endif %}
+  </nav>
+  <script>
+    // Point the breadcrumb at wherever the user clicked in from.
+    (function () {
+      const link = document.getElementById('trade-back-link');
+      if (!link) return;
+      const LABELS = [
+        [/^\/pending/,           'Trade List'],
+        [/^\/positions/,         'Positions'],
+        [/^\/trades\/analysis/,  'Analysis'],
+        [/^\/trades(\/|\?|$)/,   'Trade History'],
+        [/^\/strategies/,        'Strategies'],
+        [/^\/dashboard|^\/$/,    'Dashboard'],
+      ];
+      let href = '/trades', label = 'Trade History';
+      try {
+        const ref = document.referrer;
+        if (ref) {
+          const u = new URL(ref);
+          if (u.origin === location.origin && u.pathname !== location.pathname) {
+            href = u.pathname + u.search;
+            label = 'Back';
+            for (const [re, name] of LABELS) { if (re.test(u.pathname)) { label = name; break; } }
+          }
+        }
+      } catch (_) { /* keep defaults */ }
+      link.setAttribute('href', href);
+      link.textContent = '‹ ' + label;
+    })();
+  </script>
+
   {# ===== Top bar — symbol, stage, direction, edit/close affordances ===== #}
   <div class="trade-detail-head">
     <div>
@@ -56,7 +102,7 @@
       <div class="card trade-detail-chart-card">
         <div class="card-header">
           <span class="card-title">Chart</span>
-          <span class="text-tertiary text-sm">two synced panes · drag a pane's bottom edge to resize</span>
+          <span class="text-tertiary text-sm">two synced panes · drag a pane's bottom edge to resize · <kbd>↑</kbd>/<kbd>↓</kbd> to zoom</span>
           <button type="button" class="btn btn-sm" id="toggle-right-col"
                   style="margin-left:auto;"
                   onclick="var c=document.getElementById('trade-detail-cols');
