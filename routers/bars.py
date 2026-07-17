@@ -95,13 +95,20 @@ async def get_bars_json(
 
     out = []
     for ts, row in df.iterrows():
+        o, h, l, c = row["open"], row["high"], row["low"], row["close"]
+        # Skip rows with a NaN in any OHLC field: pandas gaps / partial live
+        # bars produce NaN, which would either 500 the JSON encode (allow_nan
+        # is off) or reach the chart as a null and throw "Value is null".
+        if pd.isna(o) or pd.isna(h) or pd.isna(l) or pd.isna(c):
+            continue
+        vol = row["volume"]
         out.append({
             "time": int(ts.timestamp()),
-            "open": float(row["open"]),
-            "high": float(row["high"]),
-            "low": float(row["low"]),
-            "close": float(row["close"]),
-            "volume": float(row["volume"]),
+            "open": float(o),
+            "high": float(h),
+            "low": float(l),
+            "close": float(c),
+            "volume": 0.0 if pd.isna(vol) else float(vol),
         })
     return {
         "symbol": symbol.upper(),

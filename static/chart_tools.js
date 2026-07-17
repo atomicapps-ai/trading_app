@@ -416,7 +416,14 @@
           return;
         }
         const data = await r.json();
-        const bars = (data.bars || []).map(b => ({
+        // Drop any malformed bar (null time or non-finite OHLC). Lightweight
+        // Charts throws "Value is null" on a single bad point and takes the
+        // whole chart down — one null bar from the live feed must not do that.
+        const bars = (data.bars || []).filter(b =>
+          b && b.time != null &&
+          Number.isFinite(b.open) && Number.isFinite(b.high) &&
+          Number.isFinite(b.low) && Number.isFinite(b.close)
+        ).map(b => ({
           time: b.time, open: b.open, high: b.high,
           low: b.low, close: b.close, volume: b.volume,
         }));
@@ -432,7 +439,8 @@
         // Note: price lines on a series persist across setData() — no
         // need to re-create them after every reload.
         this.priceChart.timeScale().fitContent();
-        this._applyTradeMarkers();
+        try { this._applyTradeMarkers(); }
+        catch (e) { console.warn('trade markers failed', e); }
         await this.refreshIndicators();
       } catch (err) {
         this._showError('Load failed: ' + err);
