@@ -1061,6 +1061,31 @@ async def delete_closed_plans() -> int:
         return cur.rowcount
 
 
+_OPEN_PLAN_STATUSES = ("executed", "open", "approved", "filled", "awaiting_fill")
+
+
+async def count_open_plans() -> int:
+    q = ",".join("?" for _ in _OPEN_PLAN_STATUSES)
+    async with _dbmod.connect() as db:
+        cur = await db.execute(
+            f"SELECT COUNT(*) FROM pending_approvals WHERE status IN ({q})",
+            _OPEN_PLAN_STATUSES)
+        return int((await cur.fetchone())[0])
+
+
+async def close_open_plans() -> int:
+    """Mark every app-'open' plan closed — used to reconcile the open book to
+    the broker after an external flatten (e.g. an IBKR paper reset). The rows
+    stay in the /signals archive; they just leave the open book. Returns count."""
+    q = ",".join("?" for _ in _OPEN_PLAN_STATUSES)
+    async with _dbmod.connect() as db:
+        cur = await db.execute(
+            f"UPDATE pending_approvals SET status = 'closed' WHERE status IN ({q})",
+            _OPEN_PLAN_STATUSES)
+        await db.commit()
+        return cur.rowcount
+
+
 async def delete_all_plans() -> int:
     """Nuclear: remove every pending_approvals row (drops the scan archive)."""
     async with _dbmod.connect() as db:
