@@ -52,6 +52,9 @@ async def main() -> None:
     ap.add_argument("--yes", action="store_true", help="actually delete (default: dry run)")
     ap.add_argument("--drop-plans", action="store_true",
                     help="ALSO wipe every pending_approvals row (loses the scan archive)")
+    ap.add_argument("--close-open", action="store_true",
+                    help="mark app-'open' plans closed — reconcile the open book to the "
+                         "broker after an external flatten (e.g. IBKR paper reset)")
     args = ap.parse_args()
 
     await db_service.ensure_tables()
@@ -59,6 +62,7 @@ async def main() -> None:
     n_files, n_lines = _jsonl_line_count()
     n_mem = len(await db_service.list_trade_memory(limit=1_000_000))
     n_plans = len(await db_service.get_pending_plans(status_filter=None, limit=1_000_000))
+    n_open = await db_service.count_open_plans()
 
     print("Clean-slate the realized-P&L history:")
     print(f"  JSONL journal   : {n_lines} records across {n_files} file(s)  → CLEARED")
@@ -67,6 +71,11 @@ async def main() -> None:
         print(f"  scan setups     : {n_plans} rows  → DELETED (--drop-plans)")
     else:
         print(f"  scan setups     : {n_plans} rows  → KEPT (searchable archive at /signals)")
+    if args.close_open:
+        print(f"  open plans       : {n_open} rows  → CLOSED (reconcile to broker)")
+    elif n_open:
+        print(f"  open plans       : {n_open} rows  → LEFT OPEN "
+              "(add --close-open to reconcile after an IBKR reset/flatten)")
 
     if not args.yes:
         print("\nDry run — nothing deleted. Re-run with --yes to apply.")
@@ -88,6 +97,11 @@ async def main() -> None:
     # 3) scan setups — kept unless explicitly dropped
     plans_deleted = await db_service.delete_all_plans() if args.drop_plans else 0
 
+    # 4) reconcile the open book to the broker (post-flatten) if asked
+    open_closed = 0
+    if args.close_open and not args.drop_plans:
+        open_closed = await db_service.close_open_plans()
+
     print("\nDone.")
     print(f"  JSONL files removed : {removed_files}")
     print(f"  trade_memory rows   : {mem_deleted}")
@@ -95,6 +109,8 @@ async def main() -> None:
         print(f"  scan setups deleted : {plans_deleted}")
     else:
         print("  scan setups kept    : searchable + backtestable at /signals")
+        if args.close_open:
+            print(f"  open plans closed   : {open_closed} (open book now matches the broker)")
     print("\nRealized-P&L history is now empty. Reset the IBKR paper account to "
           "$1,000,000 in the Client Portal for the full clean slate.")
 
