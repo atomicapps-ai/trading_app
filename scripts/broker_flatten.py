@@ -10,6 +10,10 @@ flatten if the positions are real.
     python -m scripts.broker_flatten            # DIAGNOSE — print account + positions, no orders
     python -m scripts.broker_flatten --flatten --yes   # close every open position at market
 
+The running app already holds IBKR clientId 7, so this script connects with its
+OWN id (default 11) to avoid an "id already in use" clash — no need to stop the
+app. Override with --client-id if 11 is taken too.
+
 IMPORTANT: flattening SELLS the positions, so their value moves into CASH — it
 does NOT reduce equity. If your equity is inflated by leftover positions and you
 want a clean $100k, the fix is to RE-RUN the IBKR paper reset (which removes the
@@ -20,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import os
 import sys
 from pathlib import Path
 from uuid import uuid4
@@ -32,17 +37,23 @@ from services.settings_service import ENV_FILE  # noqa: E402
 
 load_dotenv(ENV_FILE, override=False)
 
-from models.account import Order  # noqa: E402
-from services import broker_service  # noqa: E402
-
 
 async def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--flatten", action="store_true", help="place closing orders")
     ap.add_argument("--yes", action="store_true", help="required with --flatten")
+    ap.add_argument("--client-id", type=int, default=11,
+                    help="IBKR API clientId for THIS script (default 11; the app uses 7)")
     args = ap.parse_args()
 
-    adapter = await broker_service.get_adapter_async()
+    # Use a distinct clientId so we don't clash with the running app (clientId 7).
+    # IbkrAdapter reads IBKR_CLIENT_ID at build time; build a fresh adapter after.
+    os.environ["IBKR_CLIENT_ID"] = str(args.client_id)
+
+    from models.account import Order  # noqa: E402  (imported late, after env set)
+    from services import broker_service  # noqa: E402
+
+    adapter = await broker_service.build_adapter()
     if not adapter.connected:
         await adapter.connect()
     if not adapter.connected:
