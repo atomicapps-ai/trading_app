@@ -59,7 +59,16 @@ async def main() -> None:
     if not adapter.connected:
         print("Broker not connected — is IB Gateway up with the API enabled?")
         return
+    try:
+        await _run(adapter, args, Order)
+    finally:
+        try:
+            await adapter.disconnect()
+        except Exception:  # noqa: BLE001
+            pass
 
+
+async def _run(adapter, args, Order) -> None:
     state = await adapter.get_account_state()
     print(f"Broker      : {adapter.broker_name}")
     print(f"Account     : {state.account_id}")
