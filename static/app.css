@@ -789,6 +789,14 @@ kbd {
 .trade-detail-sub { font-size: 12px; }
 .trade-detail-actions { display: flex; gap: 8px; align-items: center; }
 
+/* Per-trade image thumbnails in the history table. */
+.ti-thumb {
+  width: 88px; height: 50px; object-fit: cover;
+  border-radius: 4px; border: 0.5px solid var(--border);
+  display: block; cursor: zoom-in;
+}
+.ti-img-cell { min-width: 92px; }
+
 /* Signals archive — per-setup backtest result card (inline under the row). */
 .bt-result {
   margin: 2px 8px 10px;

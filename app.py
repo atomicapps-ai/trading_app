@@ -43,6 +43,7 @@ from routers import (
     settings as settings_router,
     signals as signals_router,
     stock_lists,
+    trade_images as trade_images_router,
     backtests as backtests_router,
     strategies as strategies_router,
     strategy_live as strategy_live_router,
@@ -186,6 +187,12 @@ _BT_IMG_DIR = DATA_DIR / "backtest_images"
 _BT_IMG_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/bt-images", StaticFiles(directory=str(_BT_IMG_DIR)), name="bt-images")
 
+# Per-trade chart images generated in-browser (Option B) + stored by
+# routers/trade_images.py — served here for the history thumbnails/lightbox.
+_TRADE_IMG_DIR = DATA_DIR / "trade_images"
+_TRADE_IMG_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/trade-images", StaticFiles(directory=str(_TRADE_IMG_DIR)), name="trade-images")
+
 
 @app.middleware("http")
 async def _static_revalidate(request, call_next):
@@ -210,6 +217,7 @@ app.include_router(pending.router)
 app.include_router(manual_trade_router.router)
 app.include_router(trades.router)
 app.include_router(signals_router.router)
+app.include_router(trade_images_router.router)
 app.include_router(analysis.router)
 app.include_router(trade_detail.router)
 app.include_router(news_detail.router)
