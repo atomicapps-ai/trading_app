@@ -147,3 +147,5 @@ data/historical_1m/
 
 # Backtest review images (regenerable from ledgers on demand)
 data/backtest_images/
+# Per-trade chart images generated in-browser (regenerable on demand)
+data/trade_images/
