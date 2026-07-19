@@ -125,6 +125,11 @@
   <button type="submit" class="btn btn-primary">Filter</button>
 </form>
 
+<div class="ti-toolbar" style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+  <button type="button" class="btn btn-sm" onclick="tiGenerateSelected()">◲ Generate images (selected)</button>
+  <span id="ti-status" class="text-tertiary text-sm"></span>
+</div>
+
 <div class="card">
   <div id="trades-table"
        hx-get="/api/trades"
@@ -133,4 +138,16 @@
     <div class="empty">Loading…</div>
   </div>
 </div>
+
+{# Lightbox for viewing a generated trade image full-size #}
+<div id="ti-lightbox" onclick="this.style.display='none'"
+     style="display:none;position:absolute;inset:0;z-index:1000;background:rgba(0,0,0,0.8);
+            align-items:center;justify-content:center;padding:24px;">
+  <img id="ti-lightbox-img" src="" alt="trade chart"
+       style="max-width:92%;max-height:92%;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.6);">
+</div>
+
+<script src="/static/lightweight-charts.standalone.production.js?v={{ asset_v }}"></script>
+<script src="/static/chart_tools.js?v={{ asset_v }}"></script>
+<script src="/static/trade_images.js?v={{ asset_v }}"></script>
 {% endblock %}

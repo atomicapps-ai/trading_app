@@ -17,10 +17,28 @@ import logging
 from datetime import datetime
 
 from services import db_service, log_service
+from services.settings_service import DATA_DIR
 
 logger = logging.getLogger(__name__)
 
 _OPEN_STATUSES = {"executed", "approved", "open", "filled", "awaiting_fill"}
+TRADE_IMG_DIR = DATA_DIR / "trade_images"
+
+
+def _source_for(mode: str | None) -> str:
+    """Classify a trade's provenance for the history 'Source' column."""
+    m = (mode or "").lower()
+    if m == "research":
+        return "backtest"
+    if m == "live":
+        return "live"
+    return "paper"
+
+
+def _has_image(trade_id: str | None) -> bool:
+    if not trade_id:
+        return False
+    return (TRADE_IMG_DIR / f"{trade_id}.png").exists()
 
 
 def _hold_seconds(ts_a: str, ts_b: str) -> int:
@@ -50,6 +68,7 @@ async def _closed_rows() -> list[dict]:
         outc = r.outcome or {}
         ts_entered = lc.get("ts_entered") or lc.get("ts_planned") or ""
         ts_exited = lc.get("ts_exited_last") or lc.get("ts_exited_first") or ""
+        tps = setup.get("take_profit") or []
         rows.append({
             "trade_id": r.trade_id,
             "plan_id": r.plan_id,
@@ -58,6 +77,9 @@ async def _closed_rows() -> list[dict]:
             "strategy": setup.get("strategy_name", "") or "manual",
             "entry": execn.get("avg_entry_price") or execn.get("entry_price_actual"),
             "exit_avg": execn.get("avg_exit_price") or execn.get("exit_price_actual"),
+            "stop": setup.get("stop_price_planned"),
+            "tp1": (tps[0].get("price") if len(tps) >= 1 else setup.get("tp1_price_planned")),
+            "tp2": (tps[1].get("price") if len(tps) >= 2 else setup.get("tp2_price_planned")),
             "pnl_usd": outc.get("pnl_usd", 0.0) or 0.0,
             "pnl_r": outc.get("pnl_r_multiple"),
             "mfe_r": outc.get("mfe_r_multiple"),
@@ -65,6 +87,8 @@ async def _closed_rows() -> list[dict]:
             "hold_seconds": _hold_seconds(ts_entered, ts_exited),
             "exit_reason": outc.get("exit_reason", ""),
             "mode": r.mode,
+            "source": _source_for(r.mode),
+            "has_image": _has_image(r.trade_id),
             "ts_entered": ts_entered,
             "ts_exited": ts_exited,
             "status": "closed",
@@ -92,6 +116,9 @@ async def _open_rows() -> list[dict]:
             "strategy": p.get("strategy", "") or "manual",
             "entry": p.get("entry"),
             "exit_avg": None,
+            "stop": p.get("stop"),
+            "tp1": p.get("tp1"),
+            "tp2": p.get("tp2"),
             "pnl_usd": None,
             "pnl_r": None,
             "mfe_r": None,
@@ -99,6 +126,8 @@ async def _open_rows() -> list[dict]:
             "hold_seconds": 0,
             "exit_reason": "",
             "mode": p.get("mode"),
+            "source": _source_for(p.get("mode")),
+            "has_image": _has_image(p.get("plan_id")),
             "ts_entered": p.get("execution_ts") or p.get("ts_created") or "",
             "ts_exited": "",
             "status": p.get("status", "open"),
