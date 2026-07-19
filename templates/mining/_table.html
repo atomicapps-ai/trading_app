@@ -1,0 +1,42 @@
+{% if rows %}
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Video</th>
+      <th>Lane</th>
+      <th>Status</th>
+      <th>Reason / notes</th>
+      <th class="num">Min</th>
+      <th class="num">Frames</th>
+      <th>Reviewed</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in rows %}
+      <tr>
+        <td class="mono">
+          <a href="{{ r.url }}" target="_blank" rel="noopener" class="text-accent-blue">{{ r.id }} ↗</a>
+        </td>
+        <td class="text-secondary text-sm">{{ r.lane }}</td>
+        <td>
+          {% if r.status == 'passed' %}<span class="badge badge-green">PASSED</span>
+          {% elif r.status == 'rejected' %}<span class="badge badge-red">REJECTED</span>
+          {% elif r.status == 'pending' %}<span class="badge badge-amber">PENDING</span>
+          {% else %}<span class="badge badge-gray">NEW</span>{% endif %}
+        </td>
+        <td class="text-secondary text-sm">{{ r.reason or '—' }}</td>
+        <td class="num mono text-tertiary text-sm">{% if r.duration_s %}{{ (r.duration_s / 60)|round(0, 'floor')|int }}{% else %}—{% endif %}</td>
+        <td class="num mono text-tertiary text-sm">{{ r.frames or '—' }}</td>
+        <td class="text-tertiary text-xs">{{ r.processed_at[:10] if r.processed_at else '—' }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty">
+  No videos match.
+  <div class="text-tertiary text-xs" style="margin-top:6px;">
+    Add one above, or run <span class="mono">python -m scripts.video_discover</span> to shortlist candidates.
+  </div>
+</div>
+{% endif %}

@@ -32,6 +32,7 @@ from routers import (
     jobs,
     live_status as live_status_router,
     manual_trade as manual_trade_router,
+    mining as mining_router,
     news_detail,
     pending,
     positions as positions_router,
@@ -218,6 +219,7 @@ app.include_router(manual_trade_router.router)
 app.include_router(trades.router)
 app.include_router(signals_router.router)
 app.include_router(trade_images_router.router)
+app.include_router(mining_router.router)
 app.include_router(analysis.router)
 app.include_router(trade_detail.router)
 app.include_router(news_detail.router)
