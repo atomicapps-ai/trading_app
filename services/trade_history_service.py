@@ -35,10 +35,9 @@ def _source_for(mode: str | None) -> str:
     return "paper"
 
 
-def _has_image(trade_id: str | None) -> bool:
-    if not trade_id:
-        return False
-    return (TRADE_IMG_DIR / f"{trade_id}.png").exists()
+def _img_status(trade_id: str | None) -> dict:
+    from services import trade_image_index
+    return trade_image_index.status(trade_id)
 
 
 def _hold_seconds(ts_a: str, ts_b: str) -> int:
@@ -69,6 +68,7 @@ async def _closed_rows() -> list[dict]:
         ts_entered = lc.get("ts_entered") or lc.get("ts_planned") or ""
         ts_exited = lc.get("ts_exited_last") or lc.get("ts_exited_first") or ""
         tps = setup.get("take_profit") or []
+        img = _img_status(r.trade_id)
         rows.append({
             "trade_id": r.trade_id,
             "plan_id": r.plan_id,
@@ -88,7 +88,8 @@ async def _closed_rows() -> list[dict]:
             "exit_reason": outc.get("exit_reason", ""),
             "mode": r.mode,
             "source": _source_for(r.mode),
-            "has_image": _has_image(r.trade_id),
+            "has_image": img["exists"],
+            "image_stale": img["stale"],
             "ts_entered": ts_entered,
             "ts_exited": ts_exited,
             "status": "closed",
@@ -127,7 +128,8 @@ async def _open_rows() -> list[dict]:
             "exit_reason": "",
             "mode": p.get("mode"),
             "source": _source_for(p.get("mode")),
-            "has_image": _has_image(p.get("plan_id")),
+            "has_image": _img_status(p.get("plan_id"))["exists"],
+            "image_stale": _img_status(p.get("plan_id"))["stale"],
             "ts_entered": p.get("execution_ts") or p.get("ts_created") or "",
             "ts_exited": "",
             "status": p.get("status", "open"),

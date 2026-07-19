@@ -311,11 +311,13 @@ function renderTable(trades) {
       ? `<a href="/trades/${t.trade_id}" class="text-accent-blue mono" style="text-decoration:none;">${t.symbol}</a>`
       : `<span class="mono">${t.symbol}</span>`;
     const a = v => (v === null || v === undefined ? '' : v);
+    const imgState = t.image_url ? (t.image_stale ? 'stale' : 'ok') : 'none';
     const imgCell = t.image_url
-      ? `<a href="${t.image_url}" onclick="tiLightbox(event, this.href)"><img class="ti-thumb" src="${t.image_url}" loading="lazy" alt="chart"></a>`
+      ? `<a href="${t.image_url}" onclick="tiLightbox(event, this.href)"><img class="ti-thumb ${t.image_stale ? 'ti-stale' : ''}" src="${t.image_url}" loading="lazy" alt="chart"></a>`
+        + (t.image_stale ? ` <button type="button" class="btn btn-sm ti-gen-one" title="Renderer changed — regenerate" onclick="tiGenerateRow(this.closest('tr'))">↻</button>` : '')
       : `<button type="button" class="btn btn-sm ti-gen-one" onclick="tiGenerateRow(this.closest('tr'))">Generate</button>`;
     rows +=
-      `<tr class="ti-row" data-trade-id="${a(t.image_key)}" data-symbol="${a(t.symbol)}"` +
+      `<tr class="ti-row" data-img-state="${imgState}" data-trade-id="${a(t.image_key)}" data-symbol="${a(t.symbol)}"` +
       ` data-direction="${a(t.direction)}" data-entry="${a(t.entry)}" data-stop="${a(t.stop)}"` +
       ` data-tp1="${a(t.tp)}" data-tp2="" data-exit="${a(t.exit)}"` +
       ` data-entered="${a(t.date)}" data-exited="">` +
@@ -338,6 +340,8 @@ function renderTable(trades) {
   results.innerHTML =
     '<div class="ti-toolbar" style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
     '<button type="button" class="btn btn-sm" onclick="tiGenerateSelected()">◲ Generate images (selected)</button>' +
+    '<button type="button" class="btn btn-sm" onclick="tiGenerateView()" ' +
+    'title="Generate only rows with no image or an outdated one (skips up-to-date)">↻ Missing / outdated (this range)</button>' +
     '<span id="ti-status" class="text-tertiary text-sm"></span></div>' +
     '<table class="data-table"><thead><tr>' +
     '<th style="width:26px;"><input type="checkbox" onclick="tiToggleAll(this)" title="Select all"></th>' +

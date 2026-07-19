@@ -30,7 +30,8 @@
           data-tp2="{{ t.tp2 or '' }}"
           data-exit="{{ t.exit_avg or '' }}"
           data-entered="{{ t.ts_entered or '' }}"
-          data-exited="{{ t.ts_exited or '' }}">
+          data-exited="{{ t.ts_exited or '' }}"
+          data-img-state="{% if t.has_image and t.image_stale %}stale{% elif t.has_image %}ok{% else %}none{% endif %}">
         <td><input type="checkbox" class="ti-check"></td>
         <td class="text-secondary text-sm">{{ t.date_fmt }}</td>
         <td class="mono"><a href="/trades/{{ t.trade_id }}" class="trade-row-link">{{ t.symbol }}</a></td>
@@ -60,8 +61,12 @@
         <td class="ti-img-cell">
           {% if t.has_image %}
             <a href="/trade-images/{{ t.trade_id }}.png" onclick="tiLightbox(event, this.href)">
-              <img class="ti-thumb" src="/trade-images/{{ t.trade_id }}.png" loading="lazy" alt="chart">
+              <img class="ti-thumb {% if t.image_stale %}ti-stale{% endif %}" src="/trade-images/{{ t.trade_id }}.png" loading="lazy" alt="chart">
             </a>
+            {% if t.image_stale %}
+              <button type="button" class="btn btn-sm ti-gen-one" title="Chart renderer changed — regenerate"
+                      onclick="tiGenerateRow(this.closest('tr'))">↻</button>
+            {% endif %}
           {% else %}
             <button type="button" class="btn btn-sm ti-gen-one" onclick="tiGenerateRow(this.closest('tr'))">Generate</button>
           {% endif %}

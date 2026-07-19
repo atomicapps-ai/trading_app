@@ -795,7 +795,8 @@ kbd {
   border-radius: 4px; border: 0.5px solid var(--border);
   display: block; cursor: zoom-in;
 }
-.ti-img-cell { min-width: 92px; }
+.ti-img-cell { min-width: 92px; display: flex; align-items: center; gap: 4px; }
+.ti-thumb.ti-stale { opacity: 0.5; outline: 1px dashed var(--accent-amber); }
 
 /* Signals archive — per-setup backtest result card (inline under the row). */
 .bt-result {
