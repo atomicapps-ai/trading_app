@@ -302,16 +302,24 @@ function renderTable(trades) {
     const usd = cap * pnl / 100;
     const pnlClass = (t.win ? 'text-accent-green' : 'text-accent-red');
     const sourceBadge = t.source === 'actual'
-      ? '<span class="badge badge-green text-xs" title="Real broker fill from trade journal">ACTUAL</span>'
-      : '<span class="badge badge-blue text-xs" title="Counterfactual replay — what would have happened">SIM</span>';
+      ? '<span class="badge badge-green text-xs" title="Real broker fill from trade journal">PAPER/LIVE</span>'
+      : '<span class="badge badge-blue text-xs" title="Counterfactual replay — what would have happened">BACKTEST</span>';
     const dirBadge = t.direction === 'long'
       ? '<span class="text-accent-green">▲</span>'
       : '<span class="text-accent-red">▼</span>';
     const tradeLink = t.trade_id
       ? `<a href="/trades/${t.trade_id}" class="text-accent-blue mono" style="text-decoration:none;">${t.symbol}</a>`
       : `<span class="mono">${t.symbol}</span>`;
+    const a = v => (v === null || v === undefined ? '' : v);
+    const imgCell = t.image_url
+      ? `<a href="${t.image_url}" onclick="tiLightbox(event, this.href)"><img class="ti-thumb" src="${t.image_url}" loading="lazy" alt="chart"></a>`
+      : `<button type="button" class="btn btn-sm ti-gen-one" onclick="tiGenerateRow(this.closest('tr'))">Generate</button>`;
     rows +=
-      `<tr>` +
+      `<tr class="ti-row" data-trade-id="${a(t.image_key)}" data-symbol="${a(t.symbol)}"` +
+      ` data-direction="${a(t.direction)}" data-entry="${a(t.entry)}" data-stop="${a(t.stop)}"` +
+      ` data-tp1="${a(t.tp)}" data-tp2="" data-exit="${a(t.exit)}"` +
+      ` data-entered="${a(t.date)}" data-exited="">` +
+      `<td><input type="checkbox" class="ti-check"></td>` +
       `<td>${sourceBadge}</td>` +
       `<td class="mono text-secondary">${t.date}</td>` +
       `<td class="mono text-secondary">${t.trigger_et || '—'}</td>` +
@@ -324,13 +332,18 @@ function renderTable(trades) {
       `<td class="num mono ${pnlClass}">${(pnl >= 0 ? '+' : '') + pnl.toFixed(2)}%</td>` +
       `<td class="num mono ${pnlClass}" style="font-weight:600;">${fmtUsd(usd, true)}</td>` +
       `<td>${t.win ? '<span class="badge badge-green text-xs">W</span>' : '<span class="badge badge-red text-xs">L</span>'}</td>` +
+      `<td class="ti-img-cell">${imgCell}</td>` +
       `</tr>`;
   });
   results.innerHTML =
+    '<div class="ti-toolbar" style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
+    '<button type="button" class="btn btn-sm" onclick="tiGenerateSelected()">◲ Generate images (selected)</button>' +
+    '<span id="ti-status" class="text-tertiary text-sm"></span></div>' +
     '<table class="data-table"><thead><tr>' +
+    '<th style="width:26px;"><input type="checkbox" onclick="tiToggleAll(this)" title="Select all"></th>' +
     '<th>Source</th><th>Date</th><th>Trigger ET</th><th>Symbol</th>' +
     '<th class="num">Entry</th><th class="num">TP</th><th class="num">Stop</th><th class="num">Exit</th>' +
-    '<th>Exit reason</th><th class="num">P&L %</th><th class="num">P&L $</th><th>W/L</th>' +
+    '<th>Exit reason</th><th class="num">P&L %</th><th class="num">P&L $</th><th>W/L</th><th>Image</th>' +
     '</tr></thead><tbody>' + rows + '</tbody></table>';
 }
 
@@ -366,4 +379,16 @@ if (window.location.search.includes('since=') &&
   setTimeout(() => runHistory(), 100);
 }
 </script>
+
+{# Lightbox for viewing a generated trade image full-size #}
+<div id="ti-lightbox" onclick="this.style.display='none'"
+     style="display:none;position:absolute;inset:0;z-index:1000;background:rgba(0,0,0,0.8);
+            align-items:center;justify-content:center;padding:24px;">
+  <img id="ti-lightbox-img" src="" alt="trade chart"
+       style="max-width:92%;max-height:92%;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.6);">
+</div>
+
+<script src="/static/lightweight-charts.standalone.production.js?v={{ asset_v }}"></script>
+<script src="/static/chart_tools.js?v={{ asset_v }}"></script>
+<script src="/static/trade_images.js?v={{ asset_v }}"></script>
 {% endblock %}

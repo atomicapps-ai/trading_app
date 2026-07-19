@@ -675,6 +675,24 @@ async def strategy_history_data(
         reverse=True,
     )
 
+    # Stable per-row image key so a rendered chart can be stored + shown as a
+    # thumbnail. Actual trades key on trade_id; simulated (backtest) trades key
+    # deterministically on strategy+symbol+date+direction. Attach image_url when
+    # a PNG already exists (data/trade_images/<key>.png, served at /trade-images).
+    import re as _re
+
+    from services.settings_service import DATA_DIR as _DATA_DIR
+    _img_dir = _DATA_DIR / "trade_images"
+    for row in merged:
+        if row.get("source") == "actual" and row.get("trade_id"):
+            key = str(row["trade_id"])
+        else:
+            raw = f"bt_{name}_{row.get('symbol','')}_{row.get('date','')}_{row.get('direction','')}"
+            key = _re.sub(r"[^A-Za-z0-9._-]", "-", raw)[:120]
+        row["image_key"] = key
+        row["image_url"] = (f"/trade-images/{key}.png"
+                            if (_img_dir / f"{key}.png").exists() else None)
+
     # Aggregate stats
     n_actual = sum(1 for r in merged if r["source"] == "actual")
     n_sim = sum(1 for r in merged if r["source"] == "simulated")
