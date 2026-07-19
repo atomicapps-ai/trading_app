@@ -9,6 +9,7 @@
       <th class="num">Min</th>
       <th class="num">Frames</th>
       <th>Reviewed</th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
@@ -28,6 +29,7 @@
         <td class="num mono text-tertiary text-sm">{% if r.duration_s %}{{ (r.duration_s / 60)|round(0, 'floor')|int }}{% else %}—{% endif %}</td>
         <td class="num mono text-tertiary text-sm">{{ r.frames or '—' }}</td>
         <td class="text-tertiary text-xs">{{ r.processed_at[:10] if r.processed_at else '—' }}</td>
+        <td><button type="button" class="btn btn-sm" onclick="openAssess('{{ r.id }}')" {% if not r.ingested %}disabled title="Ingest first"{% endif %}>⚙ Assess</button></td>
       </tr>
     {% endfor %}
   </tbody>

@@ -99,6 +99,94 @@ def load_library() -> list[dict]:
     return rows
 
 
+def _find_dir(vid: str) -> Path | None:
+    """Locate a video's folder (flat at root or under a style lane)."""
+    if not LIB.exists() or not _VID_RE.match(vid or ""):
+        return None
+    if (LIB / vid).is_dir():
+        return LIB / vid
+    for lane in LIB.iterdir():
+        if lane.is_dir() and not lane.name.startswith("_") and (lane / vid).is_dir():
+            return lane / vid
+    return None
+
+
+def get_detail(vid: str) -> dict:
+    """Everything the Assess panel needs: transcript, frames, saved spec, status."""
+    hist = _load_hist().get(vid, {})
+    d = _find_dir(vid)
+    lane, transcript, frames, spec = "—", "", [], None
+    if d is not None:
+        lane = d.parent.name if d.parent != LIB else "root"
+        tp = d / "transcript.md"
+        if tp.exists():
+            transcript = tp.read_text(encoding="utf-8", errors="ignore")
+        fdir = d / "frames"
+        if fdir.is_dir():
+            names = sorted(p.name for p in fdir.glob("*.jpg"))
+            prefix = f"/video-lib/{lane}/{vid}" if lane != "root" else f"/video-lib/{vid}"
+            frames = [f"{prefix}/frames/{n}" for n in names]
+        sp = d / "spec.json"
+        if sp.exists():
+            try:
+                spec = json.loads(sp.read_text())
+            except Exception:  # noqa: BLE001
+                spec = None
+    return {
+        "id": vid,
+        "url": hist.get("url") or f"https://www.youtube.com/watch?v={vid}",
+        "lane": lane,
+        "status": hist.get("status") or ("pending" if d else "new"),
+        "reason": hist.get("reason") or "",
+        "transcript": transcript,
+        "frames": frames,
+        "spec": spec,
+    }
+
+
+# The mechanical setup fields — "how the trade is identified" — shown/edited on
+# the Assess panel BEFORE any backtest runs.
+SPEC_FIELDS = [
+    "instrument", "timeframe", "session", "direction",
+    "indicators", "entry_trigger", "filters", "stop", "targets", "summary",
+]
+
+
+def save_spec(vid: str, spec: dict) -> bool:
+    d = _find_dir(vid)
+    if d is None:
+        return False
+    clean = {k: (spec.get(k) or "").strip() for k in SPEC_FIELDS}
+    (d / "spec.json").write_text(json.dumps(clean, indent=2))
+    return True
+
+
+def set_verdict(vid: str, status: str, reason: str = "") -> bool:
+    """Record pass/reject in _history.json (+ status.json). Non-destructive —
+    unlike the CLI retire, it keeps artifacts so a verdict can be revisited."""
+    if status not in ("passed", "rejected", "pending"):
+        return False
+    from datetime import datetime, timezone
+    hist = _load_hist()
+    h = hist.get(vid, {"url": f"https://www.youtube.com/watch?v={vid}"})
+    h.update({"status": status, "reason": reason,
+              "retired_at": datetime.now(timezone.utc).isoformat()})
+    hist[vid] = h
+    try:
+        HIST.write_text(json.dumps(hist, indent=2))
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("set_verdict write failed for %s: %s", vid, exc)
+        return False
+    d = _find_dir(vid)
+    if d is not None:
+        try:
+            (d / "status.json").write_text(json.dumps(
+                {"video_id": vid, "status": status, "reason": reason}, indent=2))
+        except Exception:  # noqa: BLE001
+            pass
+    return True
+
+
 def summary(rows: list[dict]) -> dict:
     by = {"passed": 0, "rejected": 0, "pending": 0, "new": 0}
     for r in rows:

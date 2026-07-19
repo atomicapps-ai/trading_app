@@ -70,6 +70,54 @@
   </div>
 </div>
 
+{# Assess modal #}
+<div id="assess-modal" onclick="if(event.target===this) closeAssess()"
+     style="display:none;position:absolute;inset:0;z-index:900;background:rgba(0,0,0,0.6);padding:24px;overflow:auto;">
+  <div class="assess-sheet">
+    <div id="assess-body"><div class="empty">Loading…</div></div>
+  </div>
+</div>
+
+<script>
+function openAssess(id) {
+  const modal = document.getElementById('assess-modal');
+  const body = document.getElementById('assess-body');
+  body.innerHTML = '<div class="empty">Loading…</div>';
+  modal.style.display = 'block';
+  fetch('/api/mining/' + encodeURIComponent(id) + '/assess')
+    .then(r => r.text()).then(h => { body.innerHTML = h; })
+    .catch(e => { body.innerHTML = '<div class="empty">Failed: ' + e + '</div>'; });
+}
+function closeAssess() { document.getElementById('assess-modal').style.display = 'none'; }
+async function saveSpec(ev, id) {
+  ev.preventDefault();
+  const st = document.getElementById('spec-status');
+  st.textContent = 'saving…';
+  try {
+    const r = await fetch('/api/mining/' + encodeURIComponent(id) + '/spec',
+      { method: 'POST', body: new FormData(ev.target) });
+    st.textContent = r.ok ? '✓ saved' : '⚠ save failed';
+  } catch (e) { st.textContent = '⚠ ' + e; }
+}
+async function setVerdict(id, status) {
+  const reason = (document.getElementById('verdict-reason') || {}).value || '';
+  if (status === 'rejected' && !reason.trim()) {
+    document.getElementById('verdict-status').textContent = 'Give a reason to reject.'; return;
+  }
+  const st = document.getElementById('verdict-status');
+  st.textContent = 'saving…';
+  const fd = new FormData(); fd.set('status', status); fd.set('reason', reason);
+  try {
+    const r = await fetch('/api/mining/' + encodeURIComponent(id) + '/verdict', { method: 'POST', body: fd });
+    if (r.ok) {
+      st.textContent = '✓ ' + status;
+      if (window.htmx) window.htmx.trigger(document.getElementById('mining-table'), 'load');
+      setTimeout(closeAssess, 700);
+    } else { st.textContent = '⚠ failed'; }
+  } catch (e) { st.textContent = '⚠ ' + e; }
+}
+</script>
+
 <script>
 async function miningAdd(ev) {
   ev.preventDefault();

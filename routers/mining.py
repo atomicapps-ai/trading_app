@@ -74,3 +74,33 @@ async def mining_add(
 @router.get("/api/mining/add/status")
 async def mining_add_status() -> JSONResponse:
     return JSONResponse({"run": vlib.add_status(), "running": vlib.is_adding()})
+
+
+# ----------------------------------------------------------------------- #
+# Assess one video: setup logic (spec) → verdict
+# ----------------------------------------------------------------------- #
+
+
+@router.get("/api/mining/{vid}/assess", response_class=HTMLResponse)
+async def mining_assess(vid: str, request: Request):
+    d = vlib.get_detail(vid)
+    return templates.TemplateResponse(
+        request=request, name="mining/_assess.html",
+        context={"d": d, "fields": vlib.SPEC_FIELDS},
+    )
+
+
+@router.post("/api/mining/{vid}/spec")
+async def mining_save_spec(vid: str, request: Request) -> JSONResponse:
+    form = await request.form()
+    spec = {k: str(form.get(k, "")) for k in vlib.SPEC_FIELDS}
+    ok = vlib.save_spec(vid, spec)
+    return JSONResponse({"ok": ok}, status_code=200 if ok else 404)
+
+
+@router.post("/api/mining/{vid}/verdict")
+async def mining_verdict(
+    vid: str, status: str = Form(...), reason: str = Form(""),
+) -> JSONResponse:
+    ok = vlib.set_verdict(vid, status, reason)
+    return JSONResponse({"ok": ok, "status": status}, status_code=200 if ok else 400)
