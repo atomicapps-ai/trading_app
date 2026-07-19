@@ -194,6 +194,11 @@ _TRADE_IMG_DIR = DATA_DIR / "trade_images"
 _TRADE_IMG_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/trade-images", StaticFiles(directory=str(_TRADE_IMG_DIR)), name="trade-images")
 
+# Video-mining library (transcripts + frames) for the /mining Assess panel.
+_VLIB_DIR = PROJECT_ROOT / "research" / "video_library"
+if _VLIB_DIR.exists():
+    app.mount("/video-lib", StaticFiles(directory=str(_VLIB_DIR)), name="video-lib")
+
 
 @app.middleware("http")
 async def _static_revalidate(request, call_next):

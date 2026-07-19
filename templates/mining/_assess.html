@@ -1,0 +1,88 @@
+{# Assess panel for one video: source material (transcript + frames) and the
+   SETUP LOGIC spec (how the trade is identified) — reviewed before any backtest. #}
+{% set s = d.spec or {} %}
+<div class="assess-head">
+  <div>
+    <span class="mono" style="font-size:15px;font-weight:600;">{{ d.id }}</span>
+    <a href="{{ d.url }}" target="_blank" rel="noopener" class="text-accent-blue text-sm">open on YouTube ↗</a>
+    <span class="text-tertiary text-sm">· lane {{ d.lane }} · status
+      <span class="badge {% if d.status=='passed' %}badge-green{% elif d.status=='rejected' %}badge-red{% elif d.status=='pending' %}badge-amber{% else %}badge-gray{% endif %}">{{ d.status|upper }}</span>
+    </span>
+  </div>
+  <button type="button" class="btn btn-sm" onclick="closeAssess()">✕ Close</button>
+</div>
+
+<div class="assess-grid">
+  {# ── LEFT: setup logic (the point) + verdict ── #}
+  <div class="assess-col">
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-header"><span class="card-title">Setup logic — how the trade is identified</span>
+        <span class="text-tertiary text-xs">read the transcript/frames, then fill this in. Backtest comes after.</span></div>
+      <form id="assess-spec" onsubmit="saveSpec(event, '{{ d.id }}')">
+        <div class="assess-spec-grid">
+          <label>Instrument<input class="input" name="instrument" value="{{ s.instrument or '' }}" placeholder="US stock / EURUSD / XAUUSD"></label>
+          <label>Timeframe<input class="input" name="timeframe" value="{{ s.timeframe or '' }}" placeholder="1m / 5m / 15m / 30m"></label>
+          <label>Session / window<input class="input" name="session" value="{{ s.session or '' }}" placeholder="9:30–11:00 ET / London killzone"></label>
+          <label>Direction<input class="input" name="direction" value="{{ s.direction or '' }}" placeholder="long / short / both"></label>
+        </div>
+        <label class="assess-wide">Indicators used
+          <input class="input" name="indicators" value="{{ s.indicators or '' }}" placeholder="e.g. VWAP, EMA20, RSI14, opening-range">
+        </label>
+        <label class="assess-wide">Entry trigger — what makes the trade fire
+          <textarea class="input" name="entry_trigger" rows="3" placeholder="e.g. price reclaims VWAP after a 5m higher-low in the first hour, RSI>50">{{ s.entry_trigger or '' }}</textarea>
+        </label>
+        <div class="assess-spec-grid">
+          <label>Regime / filters<input class="input" name="filters" value="{{ s.filters or '' }}" placeholder="trend up, ATR>x, no news"></label>
+          <label>Stop<input class="input" name="stop" value="{{ s.stop or '' }}" placeholder="below OR low / 1×ATR"></label>
+          <label>Targets / exit<input class="input" name="targets" value="{{ s.targets or '' }}" placeholder="2R / VWAP / EOD flat"></label>
+        </div>
+        <label class="assess-wide">One-line summary
+          <input class="input" name="summary" value="{{ s.summary or '' }}" placeholder="e.g. first-hour VWAP-reclaim continuation on 5m">
+        </label>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+          <button type="submit" class="btn btn-primary btn-sm">Save setup</button>
+          <span id="spec-status" class="text-tertiary text-sm"></span>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-title">Verdict</span>
+        <span class="text-tertiary text-xs">PASS bar: OOS PF ≥ 1.3 · avg-R &gt; 0 · ~100+ trades · beats control · corr &lt; 0.60</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <input class="input" id="verdict-reason" placeholder="reason / numbers (required for reject)" style="flex:1 1 260px;">
+        <button type="button" class="btn btn-sm" style="background:var(--accent-green);color:#04150d;font-weight:600;"
+                onclick="setVerdict('{{ d.id }}','passed')">✓ Pass</button>
+        <button type="button" class="btn btn-sm" style="background:var(--accent-red);color:#fff;font-weight:600;"
+                onclick="setVerdict('{{ d.id }}','rejected')">✗ Reject</button>
+        <span id="verdict-status" class="text-tertiary text-sm"></span>
+      </div>
+      <p class="text-tertiary text-xs" style="margin-top:8px;">
+        Backtest the saved setup on <a href="/strategies" class="text-accent-blue">Strategies</a> /
+        replay, generate trade images, then record the verdict here. Pass ≠ live — wiring in is a separate step.
+      </p>
+    </div>
+  </div>
+
+  {# ── RIGHT: source material ── #}
+  <div class="assess-col">
+    {% if d.frames %}
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-header"><span class="card-title">Frames ({{ d.frames|length }})</span></div>
+      <div class="assess-frames">
+        {% for f in d.frames %}
+          <a href="{{ f }}" target="_blank" rel="noopener"><img loading="lazy" src="{{ f }}" alt="frame"></a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    <div class="card">
+      <div class="card-header"><span class="card-title">Transcript</span></div>
+      {% if d.transcript %}
+        <pre class="assess-transcript">{{ d.transcript }}</pre>
+      {% else %}
+        <div class="empty">No transcript ingested yet. Add/ingest this video first.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
