@@ -54,13 +54,15 @@ async def save_trade_image(key: str, request: Request) -> JSONResponse:
         raise HTTPException(413, "image too large")
     TRADE_IMG_DIR.mkdir(parents=True, exist_ok=True)
     path.write_bytes(raw)
+    # Stamp it with the current generator version for the staleness check.
+    from services import trade_image_index
+    trade_image_index.record(key)
     logger.info("trade image stored: %s (%d bytes)", path.name, len(raw))
     return JSONResponse({"ok": True, "url": f"/trade-images/{key}.png"})
 
 
 @router.get("/api/trade-images/{key}")
 async def get_trade_image(key: str) -> JSONResponse:
-    path = _path_for(key)
-    exists = path.exists()
-    return JSONResponse({"exists": exists,
-                         "url": f"/trade-images/{key}.png" if exists else None})
+    _path_for(key)   # validate key shape
+    from services import trade_image_index
+    return JSONResponse(trade_image_index.status(key))

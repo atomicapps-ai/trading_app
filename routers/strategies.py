@@ -681,17 +681,17 @@ async def strategy_history_data(
     # a PNG already exists (data/trade_images/<key>.png, served at /trade-images).
     import re as _re
 
-    from services.settings_service import DATA_DIR as _DATA_DIR
-    _img_dir = _DATA_DIR / "trade_images"
+    from services import trade_image_index
     for row in merged:
         if row.get("source") == "actual" and row.get("trade_id"):
             key = str(row["trade_id"])
         else:
             raw = f"bt_{name}_{row.get('symbol','')}_{row.get('date','')}_{row.get('direction','')}"
             key = _re.sub(r"[^A-Za-z0-9._-]", "-", raw)[:120]
+        st = trade_image_index.status(key)
         row["image_key"] = key
-        row["image_url"] = (f"/trade-images/{key}.png"
-                            if (_img_dir / f"{key}.png").exists() else None)
+        row["image_url"] = st["url"]
+        row["image_stale"] = st["stale"]
 
     # Aggregate stats
     n_actual = sum(1 for r in merged if r["source"] == "actual")

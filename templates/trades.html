@@ -127,6 +127,8 @@
 
 <div class="ti-toolbar" style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
   <button type="button" class="btn btn-sm" onclick="tiGenerateSelected()">◲ Generate images (selected)</button>
+  <button type="button" class="btn btn-sm" onclick="tiGenerateView()"
+          title="Generate only rows that have no image or an outdated one (skips up-to-date)">↻ Missing / outdated (in view)</button>
   <span id="ti-status" class="text-tertiary text-sm"></span>
 </div>
 

@@ -102,6 +102,7 @@
       cell.innerHTML = '<a href="' + url + '" onclick="tiLightbox(event, this.href)">'
         + '<img class="ti-thumb" src="' + url + '?t=' + Date.now() + '" alt="chart"></a>';
     }
+    tr.dataset.imgState = 'ok';   // freshly generated at the current version
   }
 
   async function _generate(t) {
@@ -133,9 +134,27 @@
     if (status) status.textContent = `Done — ${done} generated${fail ? `, ${fail} failed` : ''}.`;
   }
 
+  // Regenerate only what's missing or outdated in the current view (the loaded
+  // date range / filter). Up-to-date images (data-img-state="ok") are skipped —
+  // this is the "regenerate the range, but cached unless the version changed".
+  async function tiGenerateView() {
+    const rows = [...document.querySelectorAll('.ti-row')]
+      .filter(tr => (tr.dataset.imgState || 'none') !== 'ok');
+    const status = document.getElementById('ti-status');
+    if (!rows.length) { if (status) status.textContent = 'All images in view are up to date.'; return; }
+    let done = 0, fail = 0;
+    for (const tr of rows) {
+      if (status) status.textContent = `Regenerating ${done + fail + 1}/${rows.length} (missing/outdated)…`;
+      try { await _generate(_rowData(tr)); done++; }
+      catch (e) { fail++; console.warn(e); }
+    }
+    if (status) status.textContent = `Done — ${done} generated${fail ? `, ${fail} failed` : ''}, up-to-date skipped.`;
+  }
+
   // expose
   window.tiToggleAll = tiToggleAll;
   window.tiLightbox = tiLightbox;
   window.tiGenerateRow = tiGenerateRow;
   window.tiGenerateSelected = tiGenerateSelected;
+  window.tiGenerateView = tiGenerateView;
 })();
