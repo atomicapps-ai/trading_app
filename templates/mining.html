@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Video Mining — TradeAgent{% endblock %}
+{% block content %}
+<h2 style="font-size: 18px; font-weight: 500; margin-bottom: 4px;">Video mining</h2>
+<p class="text-secondary text-sm" style="margin-bottom: 16px;">
+  The YouTube strategy-research library — every video mined, what's been reviewed, and add more.
+</p>
+
+{# ── Summary tiles ───────────────────────────────────────────────────── #}
+<div class="stat-grid" style="margin-bottom:12px;">
+  <div class="stat-card"><span class="stat-label">Library</span>
+    <span class="stat-value">{{ summary.total }}</span>
+    <span class="stat-sub">{{ summary.ingested }} ingested</span></div>
+  <div class="stat-card"><span class="stat-label">Reviewed</span>
+    <span class="stat-value">{{ summary.reviewed }}</span>
+    <span class="stat-sub"><span class="text-accent-green">{{ summary.passed }} passed</span> · {{ summary.rejected }} rejected</span></div>
+  <div class="stat-card"><span class="stat-label">Pending review</span>
+    <span class="stat-value text-accent-amber">{{ summary.pending }}</span>
+    <span class="stat-sub">ingested, not assessed</span></div>
+  <div class="stat-card"><span class="stat-label">Not ingested</span>
+    <span class="stat-value">{{ summary.new }}</span>
+    <span class="stat-sub">queued / discovered</span></div>
+</div>
+
+{# ── Add a video ─────────────────────────────────────────────────────── #}
+<div class="card" style="margin-bottom:14px;">
+  <div class="card-header"><span class="card-title">Add a video</span>
+    <span class="text-tertiary text-sm">paste a YouTube URL — pulls the transcript into the library</span></div>
+  <form id="add-form" onsubmit="miningAdd(event)" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    <input class="input" type="text" name="url" placeholder="https://www.youtube.com/watch?v=…"
+           autocomplete="off" style="flex:1 1 340px;">
+    <select class="select" name="lane" style="max-width:150px;">
+      <option value="swing">swing</option>
+      <option value="day_intra">day_intra</option>
+      <option value="scalp">scalp</option>
+    </select>
+    <label class="text-tertiary text-sm" style="display:flex;align-items:center;gap:5px;">
+      <input type="checkbox" name="transcript_only" checked> transcript only
+    </label>
+    <button type="submit" class="btn btn-primary">Add</button>
+    <span id="add-status" class="text-tertiary text-sm"></span>
+  </form>
+  <p class="text-tertiary text-xs" style="margin-top:6px;">
+    Runs <span class="mono">scripts.video_ingest</span> (yt-dlp). If YouTube bot-checks, pass cookies on the CLI
+    (<span class="mono">--cookies cookies.txt</span>). Transcript-only is lightest and avoids frame IP-blocks.
+  </p>
+</div>
+
+{# ── Filters + table ─────────────────────────────────────────────────── #}
+<form class="filter-bar"
+      hx-get="/api/mining/videos" hx-target="#mining-table" hx-swap="innerHTML"
+      hx-trigger="submit, change from:.segmented input, change from:select, keyup changed delay:400ms from:input[name=q]">
+  <input class="input" type="text" name="q" placeholder="Search id / reason…" autocomplete="off">
+  <select class="select" name="lane">
+    <option value="all">All lanes</option>
+    {% for l in lanes %}<option value="{{ l }}">{{ l }}</option>{% endfor %}
+  </select>
+  <div class="segmented">
+    <input type="radio" name="status" id="st-all" value="all" checked><label for="st-all">All</label>
+    <input type="radio" name="status" id="st-passed" value="passed"><label for="st-passed">Passed</label>
+    <input type="radio" name="status" id="st-rejected" value="rejected"><label for="st-rejected">Rejected</label>
+    <input type="radio" name="status" id="st-pending" value="pending"><label for="st-pending">Pending</label>
+  </div>
+  <button type="submit" class="btn btn-primary">Filter</button>
+</form>
+
+<div class="card">
+  <div id="mining-table" hx-get="/api/mining/videos" hx-trigger="load" hx-swap="innerHTML">
+    <div class="empty">Loading…</div>
+  </div>
+</div>
+
+<script>
+async function miningAdd(ev) {
+  ev.preventDefault();
+  const f = ev.target;
+  const fd = new FormData(f);
+  if (!fd.get('transcript_only')) fd.set('transcript_only', 'false'); else fd.set('transcript_only', 'true');
+  const status = document.getElementById('add-status');
+  status.textContent = 'starting…';
+  try {
+    const r = await fetch('/api/mining/add', { method: 'POST', body: fd });
+    const d = await r.json();
+    if (d.status === 'error' && !d.video_id) { status.textContent = '⚠ ' + (d.error || 'bad URL'); return; }
+    pollAdd();
+  } catch (e) { status.textContent = '⚠ ' + e; }
+}
+async function pollAdd() {
+  const status = document.getElementById('add-status');
+  try {
+    const r = await fetch('/api/mining/add/status');
+    const d = await r.json();
+    const run = d.run;
+    if (!run) { status.textContent = ''; return; }
+    if (d.running) { status.textContent = '⏳ ' + (run.video_id || '') + ' · ' + (run.line || ''); setTimeout(pollAdd, 1500); return; }
+    if (run.status === 'done') {
+      status.textContent = '✓ ingested ' + (run.video_id || '') + ' — reloading…';
+      if (window.htmx) window.htmx.trigger(document.getElementById('mining-table'), 'load');
+    } else {
+      status.textContent = '⚠ ' + (run.error || 'ingest failed');
+    }
+  } catch (e) { status.textContent = '⚠ ' + e; }
+}
+</script>
+{% endblock %}
