@@ -14,3 +14,10 @@ Status: PENDING — spec extracted, awaiting backtest (PF>=1.3 bar).
   "targets": "2R (2x stop distance), fixed",
   "summary": "50-EMA reclaim + micro-pullback breakout continuation, ATR chandelier stop, 2R target (creator claim 65% WR, unverified)"
 }
+
+## Backtest result (scripts/backtest_prospects.py, ema_reclaim_pullback)
+- FX 5m, 2015-01-01 → 2025-03, IS<2022≤OOS, AUD/GBP/EUR pooled.
+- **Gross:** OOS PF 0.95 · WR 34.1% · avgR -0.045 · N=10,260
+- **Net:** net of 0.7-pip cost: OOS PF 0.86 · avgR -0.114
+- Baseline: control_with_trend OOS PF 0.97 net 0.85
+- **Verdict: REJECTED** — Mechanical backtest (FX 5m AUD/GBP/EUR, 2015-2025): OOS PF 0.95 gross / 0.86 net, WR 34%, ~10,260 trades — net loser, worse than a fixed-2:1 with-trend control. The ATR-chandelier stop + 2R target bleeds out. Reject.

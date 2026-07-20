@@ -1,0 +1,5 @@
+{
+  "video_id": "Bdgev1or-7M",
+  "status": "rejected",
+  "reason": "Mechanical backtest of the ICT AMD spec (Asian 00-07 range -> London 07-12 sweep -> NY 12-17 engulfing reversal, FX 5m EUR/GBP/AUD, 2015-2025): OOS PF 0.95 gross / 0.87 net, WR 37.5%, ~1,530 trades \u2014 net loser. The creator's 72-86% / 330-trade claim did not reproduce mechanically. Reject. (A discretionary zone/HTF-bias version may differ, but the burden is on it.)"
+}

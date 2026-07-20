@@ -1,0 +1,5 @@
+{
+  "video_id": "7Ds9djcEKB4",
+  "status": "rejected",
+  "reason": "Mechanical backtest (FX 5m AUD/GBP/EUR, 2015-2025): OOS PF 0.95 gross / 0.86 net, WR 34%, ~10,260 trades \u2014 net loser, worse than a fixed-2:1 with-trend control. The ATR-chandelier stop + 2R target bleeds out. Reject."
+}
