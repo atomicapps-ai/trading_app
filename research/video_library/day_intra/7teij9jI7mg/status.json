@@ -1,5 +1,6 @@
 {
   "video_id": "7teij9jI7mg",
   "status": "rejected",
-  "reason": "Basic-ORB parameter hunt (scripts/hunt_orb.py) on gold/euro/major FX 5m: best config (EURUSD, London open, 30m range, R:R 1.5) reached OOS net PF 1.18 but per-year stability shows it is REGIME-DEPENDENT \u2014 net-losing in-sample 2015-2021 (2018 PF 0.72, 2019 0.78), positive only in the 2022-2025 OOS window. Full-period net ~breakeven. Never clears PF>=1.3. No robust FX edge. Equity-native RTH re-test remains the only (low-priority) way it could be salvaged."
+  "reason": "REJECTED (equity-native re-test complete, 2026-07-20). The 'needs an RTH-equity re-test' caveat rested on a false premise that the project had no 5m equity data; it has 21 years of RTH 5m for SPY/QQQ/IWM/DIA. Re-tested faithfully on those (09:30 ET anchor, entry at next bar's open, flat 15:55 ET, 2bp round-turn, stop wins a both-touched bar): n=14,664, WR 42.7%, OOS PF 0.984 against a direction-randomised control of 0.986 - zero directional edge. Per-year PF oscillates 0.63-1.18 across 21 years with no IS/OOS drift. Trades were rendered and inspected: opening range, break, retest, far-side stop and 2R target all match the extracted spec, so this is a strategy verdict, not a harness artifact. Supersedes the earlier PENDING. See research/video_library/PROCESS_AUDIT.md.",
+  "tier": "informative"
 }
