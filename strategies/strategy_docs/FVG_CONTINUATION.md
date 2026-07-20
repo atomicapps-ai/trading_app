@@ -90,3 +90,59 @@ project that a strategy's signal is real predictive skill, not favorable payoff 
 - **Open follow-ups:** finish the full disp×target×stop sweep on all 9 pairs/full history; test on the
   creator's actual instrument (XAUUSD/gold) once gold data is sourced; forward paper-trade on OANDA
   practice to confirm live fills match the backtest.
+
+## Gold (XAUUSD) validation — 2026-07 (resolves the deferred follow-up)
+
+Ran `python -m scripts.compare_fvg_intervals --symbols XAUUSD --intervals 30m,5m
+--since 2015-01-01` (+`--control`) on the cached XAUUSD candles (2015→2026).
+
+| interval | trades | WR | PF | net | vs random-dir control |
+|---|--:|--:|--:|--:|---|
+| **30m** | 521 | 49% | **1.36** | +17.6% | control PF 0.84 → clean edge |
+| 5m | 1,440 | 37% | 1.09 | +11.0% | weaker; 5m adds noise |
+
+**Findings**
+- **Gold works at 30m (PF 1.36)** — clears the PF ≥ 1.3 bar and beats the
+  random-direction control (0.84) decisively. Same continuation edge as the FX
+  book (FX PF ~1.48), now confirmed on the creator's actual instrument.
+- **The "faithful" 5m-gold version is WORSE (PF 1.09)** — answers the long-standing
+  question from CLAUDE.md's DEFERRED TASK: dropping to 5m does *not* help; 30m is the
+  keeper. The E3Mc 5m detail was not the source of the edge.
+- **Action:** gold (XAUUSD) is a viable **new instrument to add to the
+  `fvg_continuation` universe at 30m.** Before wiring: confirm the PF is net of the
+  gold spread (wider than FX) and check per-year OOS stability, same bar as everything
+  else. Left `active:false`/manual pending that + the FX-broker/intraday-workflow gap.
+
+### Gold OOS stability + cost sensitivity (2026-07 — passes the bar)
+Per-year PF, XAUUSD 30m, net of the built-in 2-pip cost:
+
+| 2015 | 2016 | 2017 | 2018 | 2019 | 2020 || 2021 | 2022 | 2023 | 2024 | 2025 |
+|--|--|--|--|--|--||--|--|--|--|--|
+|0.79|2.42|0.82|1.18|1.33|1.26||1.46|1.62|2.23|1.42|1.12|
+
+- **FULL PF 1.36 · IS(<2021) 1.24 · OOS(≥2021) 1.60** — OOS is *stronger* than IS
+  (the opposite of the ORB mirage). 9 of 11 years > 1.0; only early 2015/2017 weak.
+- **Cost-robust:** at a doubled ~4-pip gold spread, OOS PF still 1.46.
+- **Verdict: PASSES the bar** (PF ≥ 1.3 net · beats control 0.84 · 521 trades ·
+  IS/OOS-stable). Same strategy family already validated on FX, so the correlation
+  gate is moot — this extends an existing edge to a new instrument.
+- **Wired:** XAUUSD added to `strategy_configs/fvg_continuation.yaml` universe.
+  Still replay/paper only (no live money) pending the FX/metals broker + intraday
+  workflow; the IBKR XAUUSD CMDTY contract path already exists (see CLAUDE.md).
+
+### Gold param robustness (2026-07 — params generalize, not fragile)
+XAUUSD 30m, OOS(≥2021) PF across displacement × target-R (net of 2-pip cost):
+
+| disp \ tR | 2.0 | 2.5 | 3.0 | 4.0 |
+|---|--|--|--|--|
+| **1.3** | 1.59 | 1.65 | 1.62 | 1.66 |
+| **1.5** (config) | 1.52 | 1.60 | 1.60 | 1.60 |
+| **2.0** | 1.52 | 1.54 | 1.52 | 1.48 |
+
+- **Every combo clears the bar** (OOS PF ≥ 1.48; FULL ≥ 1.34) — the edge is not a
+  tuned point. The FX-inherited `disp 1.5 / 3R` is validated on gold as-is.
+- Gold mildly prefers `disp 1.3` (more setups: 223 vs 193 OOS trades, PF ~1.62). Left
+  the global param at 1.5 so FX is untouched; a per-instrument override is a later option.
+
+**Validation status: COMPLETE on cached data.** Remaining work to go live is plumbing +
+a go/no-go decision, not more backtesting (see BROKER_INTEGRATION.md).

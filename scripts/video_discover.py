@@ -83,6 +83,37 @@ INCLUDE_INTRADAY = re.compile(r"day ?trad|intraday|scalp|opening range|\borb\b|v
                               r"9 ?30|open|strateg|rules|backtest|setup|system|"
                               r"stock|spy|qqq|nasdaq|index", re.I)
 
+# --- STRINGENT INTRADAY mode (--mode intraday_strict) ---
+# See research/video_library/DAY_TRADE_MINING_WORKFLOW.md. Fishes for RIGOR + NOVEL
+# mechanism, and title-level drops everything we've already backtested to death.
+QUERIES_INTRADAY_STRICT = [
+    "intraday trading strategy 1000 trades backtest results python",
+    "day trading strategy positive expectancy backtested proof",
+    "relative volume RVOL intraday momentum strategy rules backtest",
+    "intraday trend continuation strategy R multiple let winners run backtest",
+    "quant intraday trading strategy backtest sharpe out of sample",
+    "day trading strategy walk forward backtest out of sample results",
+    "volatility expansion intraday breakout continuation strategy backtest",
+    "order flow imbalance intraday strategy rules backtest",
+    "statistical edge intraday strategy backtest expectancy stocks",
+    "mechanical day trading system backtest 500 trades win rate",
+    "intraday strategy backtest realistic slippage commission results",
+    "futures intraday strategy backtest NQ ES rules statistical edge",
+]
+# Deny-list: drop the mechanisms proven to fail (ORB/VWAP/first-candle/gap/EMA-cross/
+# SMC/ICT/simple-scalp) + promo/beginner fluff, at the title level, before ingest.
+EXCLUDE_INTRADAY_STRICT = re.compile(
+    r"crypto|bitcoin|ethereum|\boption(s)?\b|"
+    r"opening range|\borb\b|9 ?30|first candle|vwap|"
+    r"gap ?(and|&)? ?go|gap fill|ema cross|moving average cross|"
+    r"\bict\b|smart money|\bsmc\b|liquidity sweep|"
+    r"prop ?firm|funded account|for beginners|beginner|simple|easy|"
+    r"get rich|\$\d|made \$|per day|a day\b", re.I)
+INCLUDE_INTRADAY_STRICT = re.compile(
+    r"backtest|expectancy|edge|rules|system|mechanical|quant|"
+    r"walk ?forward|out of sample|R multiple|profit factor|sharpe|"
+    r"day ?trad|intraday|continuation|momentum|relative volume|rvol|order flow", re.I)
+
 
 def known_ids() -> set[str]:
     """Dedupe across ALL lanes (swing/day_intra/scalp) so a video is never re-farmed."""
@@ -125,12 +156,17 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--per-query", type=int, default=25)
     ap.add_argument("--top", type=int, default=40)
-    ap.add_argument("--mode", choices=["daily", "intraday"], default="daily")
+    ap.add_argument("--mode", choices=["daily", "intraday", "intraday_strict"],
+                    default="daily")
     args = ap.parse_args()
 
-    queries = QUERIES_INTRADAY if args.mode == "intraday" else QUERIES
-    exclude = EXCLUDE_INTRADAY if args.mode == "intraday" else EXCLUDE
-    include = INCLUDE_INTRADAY if args.mode == "intraday" else INCLUDE
+    if args.mode == "intraday_strict":
+        queries, exclude, include = (QUERIES_INTRADAY_STRICT,
+                                     EXCLUDE_INTRADAY_STRICT, INCLUDE_INTRADAY_STRICT)
+    elif args.mode == "intraday":
+        queries, exclude, include = QUERIES_INTRADAY, EXCLUDE_INTRADAY, INCLUDE_INTRADAY
+    else:
+        queries, exclude, include = QUERIES, EXCLUDE, INCLUDE
 
     known = known_ids()
     seen: set[str] = set()

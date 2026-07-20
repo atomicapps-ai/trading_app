@@ -1,0 +1,12 @@
+{
+  "instrument": "FX majors (EURUSD etc.)",
+  "timeframe": "5m",
+  "session": "New York session (execution); reads Asian + London sessions",
+  "direction": "both (counter to London push)",
+  "indicators": "Session ranges (Asian/London/NY), liquidity sweeps, engulfing candle, support/resistance zones",
+  "entry_trigger": "AMD model: tight Asian range (accumulation) -> aggressive London push (manipulation) sweeps the Asian high or low -> expect NY-session REVERSAL (distribution) sweeping the other side. If London swept the Asian LOW -> look for BUYS on the NY reversal (and mirror). Entry model 1: at a support/resistance zone after the sweep, enter on a bullish/bearish ENGULFING candle.",
+  "filters": "No trade if the Asian range is too wide (accumulation failed) or London gives no aggressive push (manipulation failed) -> switch pairs.",
+  "stop": "Beyond the swept liquidity / zone",
+  "targets": "opposite side of range / 2R (creator: 3 entry models tested 72-86% on 330 trades, unverified)",
+  "summary": "ICT AMD: Asian range -> London sweep -> NY-session reversal, engulfing entry at S/R (FX 5m) \u2014 genuine FX intraday candidate"
+}

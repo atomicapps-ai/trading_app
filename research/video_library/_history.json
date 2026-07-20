@@ -1169,205 +1169,227 @@
   },
   "aobHuNcI1QM": {
     "url": "https://www.youtube.com/watch?v=aobHuNcI1QM",
-    "processed_at": "2026-07-08T21:06:16.699518+00:00",
-    "duration_s": 32620,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "9-hour 'complete beginner day-trading tutorial 2025' (TJR) \u2014 general education compilation, not a single mechanical strategy to extract.",
+    "purged_at": "2026-07-20T16:30:18.809984+00:00"
   },
   "FEmD-hK1-yU": {
     "url": "https://www.youtube.com/watch?v=FEmD-hK1-yU",
-    "processed_at": "2026-07-08T21:52:02.330420+00:00",
-    "duration_s": 984,
-    "frames": 21,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "already mined -> one_box_scalper (built + backtested, see data/research/strategy_results); duplicate video",
+    "purged_at": "2026-07-20T16:30:18.788924+00:00"
   },
   "jq-fpkPv3-A": {
     "url": "https://www.youtube.com/watch?v=jq-fpkPv3-A",
-    "processed_at": "2026-07-08T22:35:15.672837+00:00",
-    "duration_s": 1105,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "'9:30am one-candle scalping' = first-candle/ORB variant; redundant.",
+    "purged_at": "2026-07-20T16:30:18.815051+00:00"
   },
   "FOVhnNiP8AI": {
     "url": "https://www.youtube.com/watch?v=FOVhnNiP8AI",
-    "processed_at": "2026-07-08T22:35:24.915788+00:00",
-    "duration_s": 997,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "another ORB + retest explainer (3 rules); redundant with existing ORB research",
+    "purged_at": "2026-07-20T16:30:18.792397+00:00"
   },
   "UFjajYgJBHg": {
     "url": "https://www.youtube.com/watch?v=UFjajYgJBHg",
     "processed_at": "2026-07-08T22:35:34.376007+00:00",
     "duration_s": 966,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "10-yr ORB backtest study, not a tradeable setup \u2014 meta-analysis of ORB variants we already research. Kept as evidence (see notes.md): confirms ORB 'secrets' fail OOS, gold/euro>ES/NQ, basic-ORB wins, R:R<1:2, 15m range.",
+    "retired_at": "2026-07-20T02:52:02.804703+00:00"
   },
   "lxg-6QdBI6k": {
     "url": "https://www.youtube.com/watch?v=lxg-6QdBI6k",
-    "processed_at": "2026-07-08T22:35:41.830689+00:00",
-    "duration_s": 396,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "ICT AMD (accumulation-manipulation-distribution) 10:00-11:30 ET liquidity-sweep reversal. Same core mechanic as the FX AMD candidate (Bdgev1or-7M) \u2014 kept the cleaner FX version; this equity/10am variant is a correlation-gate duplicate.",
+    "purged_at": "2026-07-20T16:30:18.818169+00:00"
   },
   "RyTlRkMujuk": {
     "url": "https://www.youtube.com/watch?v=RyTlRkMujuk",
     "processed_at": "2026-07-08T22:35:54.765737+00:00",
     "duration_s": 411,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Mechanical backtest of the extracted spec (FX 5m AUD/GBP/EUR, 2015-2025): OOS PF 1.01 gross / 0.89 net (0.7-pip cost), WR 38%, ~9,900 trades \u2014 below the 1.3 bar and net-negative after realistic spread. Only marginally beats the with-trend control. Creator's ~70-75% WR claim did not hold (mechanical WR 38% at 2:1). Reject for live wiring.",
+    "retired_at": "2026-07-20T04:23:35.611731+00:00"
   },
   "TksyFwpNQ1g": {
     "url": "https://www.youtube.com/watch?v=TksyFwpNQ1g",
-    "processed_at": "2026-07-08T22:36:00.410835+00:00",
-    "duration_s": 1200,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "RSI overbought/oversold 'premium reversal' on 1H; generic RSI reversal, overlaps rsi_divergence/rsi_pullback. Discretionary.",
+    "purged_at": "2026-07-20T16:30:18.804961+00:00"
   },
   "Bdgev1or-7M": {
     "url": "https://www.youtube.com/watch?v=Bdgev1or-7M",
     "processed_at": "2026-07-08T22:36:06.641869+00:00",
     "duration_s": 641,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Mechanical backtest of the ICT AMD spec (Asian 00-07 range -> London 07-12 sweep -> NY 12-17 engulfing reversal, FX 5m EUR/GBP/AUD, 2015-2025): OOS PF 0.95 gross / 0.87 net, WR 37.5%, ~1,530 trades \u2014 net loser. The creator's 72-86% / 330-trade claim did not reproduce mechanically. Reject. (A discretionary zone/HTF-bias version may differ, but the burden is on it.)",
+    "retired_at": "2026-07-20T04:23:35.615804+00:00"
   },
   "ptcscbVgFC8": {
     "url": "https://www.youtube.com/watch?v=ptcscbVgFC8",
-    "processed_at": "2026-07-08T22:36:13.783536+00:00",
-    "duration_s": 1171,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "'First 15-min candle' strategy; another ORB/opening-candle variant, redundant.",
+    "purged_at": "2026-07-20T16:30:19.047236+00:00"
   },
   "P7LSBkiHNAY": {
     "url": "https://www.youtube.com/watch?v=P7LSBkiHNAY",
-    "processed_at": "2026-07-08T22:36:21.727238+00:00",
-    "duration_s": 1189,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "1-min Heikin-Ashi EMA-pullback scalp. HA candles repaint (not faithfully backtestable at fill prices) + overlaps the 50-EMA pullback candidate (7Ds9djcEKB4).",
+    "purged_at": "2026-07-20T16:30:18.796048+00:00"
   },
   "EoQDQVblmMY": {
     "url": "https://www.youtube.com/watch?v=EoQDQVblmMY",
-    "processed_at": "2026-07-08T22:36:29.974646+00:00",
-    "duration_s": 1403,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "box theory = prior-day high/low premium/discount bias only; no defined entry/stop/target, not directly testable",
+    "purged_at": "2026-07-20T16:30:18.784867+00:00"
   },
   "dI4vQqDPM2E": {
     "url": "https://www.youtube.com/watch?v=dI4vQqDPM2E",
-    "processed_at": "2026-07-08T22:36:36.227685+00:00",
-    "duration_s": 1308,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "Mark first 5-min candle high/low, drop to 1m, trade the break \u2014 literally a 5-min ORB with a 1-min entry. Redundant + heavy course promo.",
+    "purged_at": "2026-07-20T16:30:18.811515+00:00"
   },
   "QEIYxl8XTiI": {
     "url": "https://www.youtube.com/watch?v=QEIYxl8XTiI",
-    "processed_at": "2026-07-08T22:36:42.678184+00:00",
-    "duration_s": 723,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "Explicitly 'opening range break and retest' 2:1 \u2014 redundant with ORB variants already researched/rejected.",
+    "purged_at": "2026-07-20T16:30:18.799806+00:00"
   },
   "seH8Y0RLyjA": {
     "url": "https://www.youtube.com/watch?v=seH8Y0RLyjA",
-    "processed_at": "2026-07-08T22:36:50.318608+00:00",
-    "duration_s": 1036,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "15-min ORB for SPY/SPX options; redundant ORB, discretionary 1-min execution.",
+    "purged_at": "2026-07-20T16:30:19.050877+00:00"
   },
   "lYThcYGUw7I": {
     "url": "https://www.youtube.com/watch?v=lYThcYGUw7I",
-    "processed_at": "2026-07-08T22:36:58.348505+00:00",
-    "duration_s": 859,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "'First candle scalping' = mark first-candle high/low for 90-min direction; redundant with our opening-candle research + ORB.",
+    "purged_at": "2026-07-20T16:30:18.816627+00:00"
   },
   "voB7nFbpzxc": {
     "url": "https://www.youtube.com/watch?v=voB7nFbpzxc",
-    "processed_at": "2026-07-08T22:37:07.471041+00:00",
-    "duration_s": 1220,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "'Fabulous Four' confluence framework (200SMA/20SMA/prior close/prior late-day range). A discretionary location/context framework, not a defined entry/stop/target system.",
+    "purged_at": "2026-07-20T16:30:19.052420+00:00"
   },
   "7Ds9djcEKB4": {
     "url": "https://www.youtube.com/watch?v=7Ds9djcEKB4",
     "processed_at": "2026-07-08T22:37:13.637103+00:00",
     "duration_s": 544,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Mechanical backtest (FX 5m AUD/GBP/EUR, 2015-2025): OOS PF 0.95 gross / 0.86 net, WR 34%, ~10,260 trades \u2014 net loser, worse than a fixed-2:1 with-trend control. The ATR-chandelier stop + 2R target bleeds out. Reject.",
+    "retired_at": "2026-07-20T04:23:35.614099+00:00"
   },
   "N7uP9V0Iktc": {
     "url": "https://www.youtube.com/watch?v=N7uP9V0Iktc",
-    "processed_at": "2026-07-08T22:37:22.427194+00:00",
-    "duration_s": 674,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "VWAP + 8EMA options day-trade; VWAP-retest entry overlaps existing vwap_reclaim. Discretionary, options-context.",
+    "purged_at": "2026-07-20T16:30:18.794229+00:00"
   },
   "7teij9jI7mg": {
     "url": "https://www.youtube.com/watch?v=7teij9jI7mg",
     "processed_at": "2026-07-08T22:37:31.913446+00:00",
     "duration_s": 944,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Basic-ORB parameter hunt (scripts/hunt_orb.py) on gold/euro/major FX 5m: best config (EURUSD, London open, 30m range, R:R 1.5) reached OOS net PF 1.18 but per-year stability shows it is REGIME-DEPENDENT \u2014 net-losing in-sample 2015-2021 (2018 PF 0.72, 2019 0.78), positive only in the 2022-2025 OOS window. Full-period net ~breakeven. Never clears PF>=1.3. No robust FX edge. Equity-native RTH re-test remains the only (low-priority) way it could be salvaged.",
+    "retired_at": "2026-07-20T05:22:33.264801+00:00"
   },
   "RAMgdqP4gr4": {
     "url": "https://www.youtube.com/watch?v=RAMgdqP4gr4",
-    "processed_at": "2026-07-08T22:37:40.785098+00:00",
-    "duration_s": 1129,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "Generic price-action break-and-retest beginner guide; discretionary 'clean structure', no mechanical trigger/stop/target.",
+    "purged_at": "2026-07-20T16:30:18.803236+00:00"
   },
   "QUagyNxYlKg": {
     "url": "https://www.youtube.com/watch?v=QUagyNxYlKg",
-    "processed_at": "2026-07-08T22:37:46.452326+00:00",
-    "duration_s": 870,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "VWAP + 9EMA day-trade \u2014 duplicate of N7uP9V0Iktc; overlaps existing vwap_reclaim.",
+    "purged_at": "2026-07-20T16:30:18.801479+00:00"
   },
   "F3dCfO6ME7M": {
     "url": "https://www.youtube.com/watch?v=F3dCfO6ME7M",
-    "processed_at": "2026-07-08T22:37:54.377101+00:00",
-    "duration_s": 746,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "another ORB explainer + discretionary smart-money-concepts entry; redundant with existing ORB research",
+    "purged_at": "2026-07-20T16:30:18.787182+00:00"
   },
   "iLmF1DSP2Ls": {
     "url": "https://www.youtube.com/watch?v=iLmF1DSP2Ls",
-    "processed_at": "2026-07-08T22:38:00.186623+00:00",
-    "duration_s": 1033,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "Explicitly the 15-min opening-range breakout; redundant with ORB research.",
+    "purged_at": "2026-07-20T16:30:18.813330+00:00"
   },
   "TmiovtZxcKE": {
     "url": "https://www.youtube.com/watch?v=TmiovtZxcKE",
-    "processed_at": "2026-07-08T22:38:09.237688+00:00",
-    "duration_s": 815,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "NQ session-levels single-candle reversal (mark key/Asia levels, react at tag). Discretionary level selection + overlaps the ICT AMD liquidity candidate (Bdgev1or-7M).",
+    "purged_at": "2026-07-20T16:30:18.806608+00:00"
   },
   "9v_-z6aNkek": {
     "url": "https://www.youtube.com/watch?v=9v_-z6aNkek",
-    "processed_at": "2026-07-08T22:38:16.059350+00:00",
-    "duration_s": 415,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "indicator promo; generic 30m ORB, no novel edge, redundant with existing ORB research",
+    "purged_at": "2026-07-20T16:30:18.778802+00:00"
   },
   "VnDWzRSuJxQ": {
     "url": "https://www.youtube.com/watch?v=VnDWzRSuJxQ",
-    "processed_at": "2026-07-08T22:38:22.747724+00:00",
-    "duration_s": 1197,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "Futures (NQ/ES) scalping, heavy prop-firm promo (Topstep/Project X); discretionary range breakout, no mechanical rules.",
+    "purged_at": "2026-07-20T16:30:18.808234+00:00"
   },
   "PdJ5X0exfdU": {
     "url": "https://www.youtube.com/watch?v=PdJ5X0exfdU",
-    "processed_at": "2026-07-08T22:38:31.920131+00:00",
-    "duration_s": 596,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "'9 EMA three ways' = plain MA crossover (parked as ma_crossover); no defined edge over a moving-average cross tutorial.",
+    "purged_at": "2026-07-20T16:30:18.797620+00:00"
   },
   "s0mPbbzc0CU": {
     "url": "https://www.youtube.com/watch?v=s0mPbbzc0CU",
-    "processed_at": "2026-07-08T22:38:41.408960+00:00",
-    "duration_s": 739,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "'What is the London session' explainer + a session indicator; no entry/stop/target. Not a mechanical setup.",
+    "purged_at": "2026-07-20T16:30:19.049157+00:00"
+  },
+  "xTTDH5iRhJc": {
+    "url": "https://www.youtube.com/watch?v=xTTDH5iRhJc",
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "'Break and bounce' multi-timeframe daily-box -> 15m -> 5m; discretionary 'bounce' entry, another break-retest/box variant, not clearly novel.",
+    "purged_at": "2026-07-20T16:30:19.054062+00:00"
   }
 }
