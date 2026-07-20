@@ -8,7 +8,11 @@ description: >
   (see strategies/strategy_docs/FVG_CONTINUATION.md). Derived from the E3Mc video; the
   retrace version it teaches is a fill mirage that loses.
 asset_class: forex
-universe: [EURUSD, USDJPY, EURJPY, GBPJPY, AUDJPY, EURAUD, EURCAD, GBPUSD, AUDUSD]
+# FX majors (validated PF ~1.48) + XAUUSD gold at 30m (validated 2026-07:
+# PF 1.36 net, OOS 1.60, cost-robust, beats a 0.84 control — see strategy_docs/
+# FVG_CONTINUATION.md "Gold OOS stability"). Replay/paper only until the FX/metals
+# broker + intraday workflow are wired; IBKR XAUUSD CMDTY contract path exists.
+universe: [EURUSD, USDJPY, EURJPY, GBPJPY, AUDJPY, EURAUD, EURCAD, GBPUSD, AUDUSD, XAUUSD]
 mode: paper
 active: true
 holding_period: intraday
