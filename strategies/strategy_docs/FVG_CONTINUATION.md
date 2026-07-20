@@ -90,3 +90,25 @@ project that a strategy's signal is real predictive skill, not favorable payoff 
 - **Open follow-ups:** finish the full disp×target×stop sweep on all 9 pairs/full history; test on the
   creator's actual instrument (XAUUSD/gold) once gold data is sourced; forward paper-trade on OANDA
   practice to confirm live fills match the backtest.
+
+## Gold (XAUUSD) validation — 2026-07 (resolves the deferred follow-up)
+
+Ran `python -m scripts.compare_fvg_intervals --symbols XAUUSD --intervals 30m,5m
+--since 2015-01-01` (+`--control`) on the cached XAUUSD candles (2015→2026).
+
+| interval | trades | WR | PF | net | vs random-dir control |
+|---|--:|--:|--:|--:|---|
+| **30m** | 521 | 49% | **1.36** | +17.6% | control PF 0.84 → clean edge |
+| 5m | 1,440 | 37% | 1.09 | +11.0% | weaker; 5m adds noise |
+
+**Findings**
+- **Gold works at 30m (PF 1.36)** — clears the PF ≥ 1.3 bar and beats the
+  random-direction control (0.84) decisively. Same continuation edge as the FX
+  book (FX PF ~1.48), now confirmed on the creator's actual instrument.
+- **The "faithful" 5m-gold version is WORSE (PF 1.09)** — answers the long-standing
+  question from CLAUDE.md's DEFERRED TASK: dropping to 5m does *not* help; 30m is the
+  keeper. The E3Mc 5m detail was not the source of the edge.
+- **Action:** gold (XAUUSD) is a viable **new instrument to add to the
+  `fvg_continuation` universe at 30m.** Before wiring: confirm the PF is net of the
+  gold spread (wider than FX) and check per-year OOS stability, same bar as everything
+  else. Left `active:false`/manual pending that + the FX-broker/intraday-workflow gap.
