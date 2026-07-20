@@ -1172,7 +1172,10 @@
     "processed_at": "2026-07-08T21:06:16.699518+00:00",
     "duration_s": 32620,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "9-hour 'complete beginner day-trading tutorial 2025' (TJR) \u2014 general education compilation, not a single mechanical strategy to extract.",
+    "retired_at": "2026-07-20T02:52:02.807904+00:00"
   },
   "FEmD-hK1-yU": {
     "url": "https://www.youtube.com/watch?v=FEmD-hK1-yU",
@@ -1189,7 +1192,10 @@
     "processed_at": "2026-07-08T22:35:15.672837+00:00",
     "duration_s": 1105,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "'9:30am one-candle scalping' = first-candle/ORB variant; redundant.",
+    "retired_at": "2026-07-20T02:52:02.805742+00:00"
   },
   "FOVhnNiP8AI": {
     "url": "https://www.youtube.com/watch?v=FOVhnNiP8AI",
@@ -1206,14 +1212,20 @@
     "processed_at": "2026-07-08T22:35:34.376007+00:00",
     "duration_s": 966,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "10-yr ORB backtest study, not a tradeable setup \u2014 meta-analysis of ORB variants we already research. Kept as evidence (see notes.md): confirms ORB 'secrets' fail OOS, gold/euro>ES/NQ, basic-ORB wins, R:R<1:2, 15m range.",
+    "retired_at": "2026-07-20T02:52:02.804703+00:00"
   },
   "lxg-6QdBI6k": {
     "url": "https://www.youtube.com/watch?v=lxg-6QdBI6k",
     "processed_at": "2026-07-08T22:35:41.830689+00:00",
     "duration_s": 396,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "ICT AMD (accumulation-manipulation-distribution) 10:00-11:30 ET liquidity-sweep reversal. Same core mechanic as the FX AMD candidate (Bdgev1or-7M) \u2014 kept the cleaner FX version; this equity/10am variant is a correlation-gate duplicate.",
+    "retired_at": "2026-07-20T02:52:02.803516+00:00"
   },
   "RyTlRkMujuk": {
     "url": "https://www.youtube.com/watch?v=RyTlRkMujuk",
@@ -1227,7 +1239,10 @@
     "processed_at": "2026-07-08T22:36:00.410835+00:00",
     "duration_s": 1200,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "RSI overbought/oversold 'premium reversal' on 1H; generic RSI reversal, overlaps rsi_divergence/rsi_pullback. Discretionary.",
+    "retired_at": "2026-07-20T02:52:02.802111+00:00"
   },
   "Bdgev1or-7M": {
     "url": "https://www.youtube.com/watch?v=Bdgev1or-7M",
@@ -1241,14 +1256,20 @@
     "processed_at": "2026-07-08T22:36:13.783536+00:00",
     "duration_s": 1171,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "'First 15-min candle' strategy; another ORB/opening-candle variant, redundant.",
+    "retired_at": "2026-07-20T02:52:02.800891+00:00"
   },
   "P7LSBkiHNAY": {
     "url": "https://www.youtube.com/watch?v=P7LSBkiHNAY",
     "processed_at": "2026-07-08T22:36:21.727238+00:00",
     "duration_s": 1189,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "1-min Heikin-Ashi EMA-pullback scalp. HA candles repaint (not faithfully backtestable at fill prices) + overlaps the 50-EMA pullback candidate (7Ds9djcEKB4).",
+    "retired_at": "2026-07-20T02:52:02.785585+00:00"
   },
   "EoQDQVblmMY": {
     "url": "https://www.youtube.com/watch?v=EoQDQVblmMY",
@@ -1265,35 +1286,50 @@
     "processed_at": "2026-07-08T22:36:36.227685+00:00",
     "duration_s": 1308,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Mark first 5-min candle high/low, drop to 1m, trade the break \u2014 literally a 5-min ORB with a 1-min entry. Redundant + heavy course promo.",
+    "retired_at": "2026-07-20T02:52:02.799487+00:00"
   },
   "QEIYxl8XTiI": {
     "url": "https://www.youtube.com/watch?v=QEIYxl8XTiI",
     "processed_at": "2026-07-08T22:36:42.678184+00:00",
     "duration_s": 723,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Explicitly 'opening range break and retest' 2:1 \u2014 redundant with ORB variants already researched/rejected.",
+    "retired_at": "2026-07-20T02:52:02.786711+00:00"
   },
   "seH8Y0RLyjA": {
     "url": "https://www.youtube.com/watch?v=seH8Y0RLyjA",
     "processed_at": "2026-07-08T22:36:50.318608+00:00",
     "duration_s": 1036,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "15-min ORB for SPY/SPX options; redundant ORB, discretionary 1-min execution.",
+    "retired_at": "2026-07-20T02:52:02.798111+00:00"
   },
   "lYThcYGUw7I": {
     "url": "https://www.youtube.com/watch?v=lYThcYGUw7I",
     "processed_at": "2026-07-08T22:36:58.348505+00:00",
     "duration_s": 859,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "'First candle scalping' = mark first-candle high/low for 90-min direction; redundant with our opening-candle research + ORB.",
+    "retired_at": "2026-07-20T02:52:02.796655+00:00"
   },
   "voB7nFbpzxc": {
     "url": "https://www.youtube.com/watch?v=voB7nFbpzxc",
     "processed_at": "2026-07-08T22:37:07.471041+00:00",
     "duration_s": 1220,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "'Fabulous Four' confluence framework (200SMA/20SMA/prior close/prior late-day range). A discretionary location/context framework, not a defined entry/stop/target system.",
+    "retired_at": "2026-07-20T02:52:02.795408+00:00"
   },
   "7Ds9djcEKB4": {
     "url": "https://www.youtube.com/watch?v=7Ds9djcEKB4",
@@ -1307,7 +1343,10 @@
     "processed_at": "2026-07-08T22:37:22.427194+00:00",
     "duration_s": 674,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "VWAP + 8EMA options day-trade; VWAP-retest entry overlaps existing vwap_reclaim. Discretionary, options-context.",
+    "retired_at": "2026-07-20T02:52:02.782485+00:00"
   },
   "7teij9jI7mg": {
     "url": "https://www.youtube.com/watch?v=7teij9jI7mg",
@@ -1321,14 +1360,20 @@
     "processed_at": "2026-07-08T22:37:40.785098+00:00",
     "duration_s": 1129,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Generic price-action break-and-retest beginner guide; discretionary 'clean structure', no mechanical trigger/stop/target.",
+    "retired_at": "2026-07-20T02:52:02.794144+00:00"
   },
   "QUagyNxYlKg": {
     "url": "https://www.youtube.com/watch?v=QUagyNxYlKg",
     "processed_at": "2026-07-08T22:37:46.452326+00:00",
     "duration_s": 870,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "VWAP + 9EMA day-trade \u2014 duplicate of N7uP9V0Iktc; overlaps existing vwap_reclaim.",
+    "retired_at": "2026-07-20T02:52:02.792731+00:00"
   },
   "F3dCfO6ME7M": {
     "url": "https://www.youtube.com/watch?v=F3dCfO6ME7M",
@@ -1345,14 +1390,20 @@
     "processed_at": "2026-07-08T22:38:00.186623+00:00",
     "duration_s": 1033,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Explicitly the 15-min opening-range breakout; redundant with ORB research.",
+    "retired_at": "2026-07-20T02:52:02.791412+00:00"
   },
   "TmiovtZxcKE": {
     "url": "https://www.youtube.com/watch?v=TmiovtZxcKE",
     "processed_at": "2026-07-08T22:38:09.237688+00:00",
     "duration_s": 815,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "NQ session-levels single-candle reversal (mark key/Asia levels, react at tag). Discretionary level selection + overlaps the ICT AMD liquidity candidate (Bdgev1or-7M).",
+    "retired_at": "2026-07-20T02:52:02.790354+00:00"
   },
   "9v_-z6aNkek": {
     "url": "https://www.youtube.com/watch?v=9v_-z6aNkek",
@@ -1369,20 +1420,35 @@
     "processed_at": "2026-07-08T22:38:22.747724+00:00",
     "duration_s": 1197,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Futures (NQ/ES) scalping, heavy prop-firm promo (Topstep/Project X); discretionary range breakout, no mechanical rules.",
+    "retired_at": "2026-07-20T02:52:02.789186+00:00"
   },
   "PdJ5X0exfdU": {
     "url": "https://www.youtube.com/watch?v=PdJ5X0exfdU",
     "processed_at": "2026-07-08T22:38:31.920131+00:00",
     "duration_s": 596,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "'9 EMA three ways' = plain MA crossover (parked as ma_crossover); no defined edge over a moving-average cross tutorial.",
+    "retired_at": "2026-07-20T02:52:02.784277+00:00"
   },
   "s0mPbbzc0CU": {
     "url": "https://www.youtube.com/watch?v=s0mPbbzc0CU",
     "processed_at": "2026-07-08T22:38:41.408960+00:00",
     "duration_s": 739,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "'What is the London session' explainer + a session indicator; no entry/stop/target. Not a mechanical setup.",
+    "retired_at": "2026-07-20T02:52:02.787968+00:00"
+  },
+  "xTTDH5iRhJc": {
+    "url": "https://www.youtube.com/watch?v=xTTDH5iRhJc",
+    "status": "rejected",
+    "reason": "'Break and bounce' multi-timeframe daily-box -> 15m -> 5m; discretionary 'bounce' entry, another break-retest/box variant, not clearly novel.",
+    "retired_at": "2026-07-20T02:52:02.806924+00:00"
   }
 }
