@@ -21,3 +21,7 @@ Status: PENDING — spec extracted, awaiting backtest (PF>=1.3 bar).
 - **Net:** net of 0.7-pip cost: OOS PF 1.00 (breakeven)
 - Baseline: control_with_trend OOS PF 0.97 net 0.85
 - **Verdict: PENDING** — Mechanical backtest as an FX stand-in (London-open opening range, 5m, 2015-2025): OOS PF 1.11 gross / 1.00 net, WR 43%, ~1,885 trades — the only prospect that holds breakeven net and clearly beats the control; EURUSD OOS PF 1.23 gross. Still under the 1.3 bar. It is equity/index-native (SPY/QQQ/ES) and we have no cached 5m equity data — needs a faithful RTH-equity re-test before a verdict. KEEP pending.
+
+## ORB hunt follow-up
+- Basic-ORB parameter hunt (scripts/hunt_orb.py) on gold/euro/major FX 5m: best config (EURUSD, London open, 30m range, R:R 1.5) reached OOS net PF 1.18 but per-year stability shows it is REGIME-DEPENDENT — net-losing in-sample 2015-2021 (2018 PF 0.72, 2019 0.78), positive only in the 2022-2025 OOS window. Full-period net ~breakeven. Never clears PF>=1.3. No robust FX edge. Equity-native RTH re-test remains the only (low-priority) way it could be salvaged.
+- Full sweep + per-year table: research/video_library/ORB_HUNT.md
