@@ -1,0 +1,5 @@
+{
+  "video_id": "P7LSBkiHNAY",
+  "status": "rejected",
+  "reason": "1-min Heikin-Ashi EMA-pullback scalp. HA candles repaint (not faithfully backtestable at fill prices) + overlaps the 50-EMA pullback candidate (7Ds9djcEKB4)."
+}
