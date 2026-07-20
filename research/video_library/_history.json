@@ -1362,7 +1362,10 @@
     "processed_at": "2026-07-08T22:37:31.913446+00:00",
     "duration_s": 944,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "Basic-ORB parameter hunt (scripts/hunt_orb.py) on gold/euro/major FX 5m: best config (EURUSD, London open, 30m range, R:R 1.5) reached OOS net PF 1.18 but per-year stability shows it is REGIME-DEPENDENT \u2014 net-losing in-sample 2015-2021 (2018 PF 0.72, 2019 0.78), positive only in the 2022-2025 OOS window. Full-period net ~breakeven. Never clears PF>=1.3. No robust FX edge. Equity-native RTH re-test remains the only (low-priority) way it could be salvaged.",
+    "retired_at": "2026-07-20T05:22:33.264801+00:00"
   },
   "RAMgdqP4gr4": {
     "url": "https://www.youtube.com/watch?v=RAMgdqP4gr4",
