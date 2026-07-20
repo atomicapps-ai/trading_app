@@ -1,5 +1,0 @@
-{
-  "video_id": "N7uP9V0Iktc",
-  "status": "rejected",
-  "reason": "VWAP + 8EMA options day-trade; VWAP-retest entry overlaps existing vwap_reclaim. Discretionary, options-context."
-}
