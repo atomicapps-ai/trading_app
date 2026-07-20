@@ -83,6 +83,9 @@ data/hf_cache/
 data/optimization_results.db
 # FAISS index + parquet metadata (regenerable from random_search_trials)
 data/state_memory/
+# Ad-hoc backtest report outputs (default --out of scripts/backtest_prospects.py);
+# the committed copy lives in research/video_library/PROSPECT_BACKTEST.md
+data/research/
 
 # --- Claude Code ------------------------------------------------------------
 # settings.local.json holds per-machine allow-lists with absolute paths;
