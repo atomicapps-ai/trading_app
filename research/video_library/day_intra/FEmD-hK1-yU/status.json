@@ -1,12 +1,5 @@
 {
   "video_id": "FEmD-hK1-yU",
-  "strategy": "one_box_scalper",
-  "channel": "Scarface Trades",
-  "archetype": "opening_range / first_candle_box",
-  "backtest": {"universe": "20yr SPY/QQQ 1-min", "n": 7517, "win_pct": 32.8, "gross_pf": 0.97, "net": "losing"},
-  "status": "exception",
-  "verdict": "RETAINED — failed aggregate backtest but operator identified a clear winner-vs-loser visual pattern; kept as a selection-filter candidate. Do not retire.",
-  "next": "quantify the winner/loser feature -> re-backtest the filtered subset vs PASS bar (OOS PF>=1.2, beats control)",
-  "images": "data/backtest_images/one_box_scalper/",
-  "marked": "2026-07-08"
+  "status": "rejected",
+  "reason": "already mined -> one_box_scalper (built + backtested, see data/research/strategy_results); duplicate video"
 }

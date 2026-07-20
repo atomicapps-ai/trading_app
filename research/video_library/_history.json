@@ -1179,7 +1179,10 @@
     "processed_at": "2026-07-08T21:52:02.330420+00:00",
     "duration_s": 984,
     "frames": 21,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "already mined -> one_box_scalper (built + backtested, see data/research/strategy_results); duplicate video",
+    "retired_at": "2026-07-20T02:44:05.311995+00:00"
   },
   "jq-fpkPv3-A": {
     "url": "https://www.youtube.com/watch?v=jq-fpkPv3-A",
@@ -1193,7 +1196,10 @@
     "processed_at": "2026-07-08T22:35:24.915788+00:00",
     "duration_s": 997,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "another ORB + retest explainer (3 rules); redundant with existing ORB research",
+    "retired_at": "2026-07-20T02:44:05.313236+00:00"
   },
   "UFjajYgJBHg": {
     "url": "https://www.youtube.com/watch?v=UFjajYgJBHg",
@@ -1249,7 +1255,10 @@
     "processed_at": "2026-07-08T22:36:29.974646+00:00",
     "duration_s": 1403,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "box theory = prior-day high/low premium/discount bias only; no defined entry/stop/target, not directly testable",
+    "retired_at": "2026-07-20T02:44:05.308918+00:00"
   },
   "dI4vQqDPM2E": {
     "url": "https://www.youtube.com/watch?v=dI4vQqDPM2E",
@@ -1326,7 +1335,10 @@
     "processed_at": "2026-07-08T22:37:54.377101+00:00",
     "duration_s": 746,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "another ORB explainer + discretionary smart-money-concepts entry; redundant with existing ORB research",
+    "retired_at": "2026-07-20T02:44:05.310715+00:00"
   },
   "iLmF1DSP2Ls": {
     "url": "https://www.youtube.com/watch?v=iLmF1DSP2Ls",
@@ -1347,7 +1359,10 @@
     "processed_at": "2026-07-08T22:38:16.059350+00:00",
     "duration_s": 415,
     "frames": 0,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "indicator promo; generic 30m ORB, no novel edge, redundant with existing ORB research",
+    "retired_at": "2026-07-20T02:42:58.649941+00:00"
   },
   "VnDWzRSuJxQ": {
     "url": "https://www.youtube.com/watch?v=VnDWzRSuJxQ",

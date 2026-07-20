@@ -1,0 +1,16 @@
+# 7teij9jI7mg
+
+Status: PENDING — spec extracted, awaiting backtest (PF>=1.3 bar).
+
+{
+  "instrument": "Liquid equities/indices (SPY,QQQ,TSLA), ES/NQ futures",
+  "timeframe": "15m opening range, 5m execution",
+  "session": "first 15 min RTH then intraday",
+  "direction": "both",
+  "indicators": "Opening range (first 15m = 3x 5m candles), volume",
+  "entry_trigger": "Mark high/low of first 15 min. Wait for a 5m candle to CLOSE beyond the range (confirms direction). Then wait for a pullback/retest of the broken level; ENTER on rejection from the level with volume confirmation.",
+  "filters": "Skip initial-breakout entries (wait for the retest). Volume/VPA confirmation on the rejection.",
+  "stop": "Just beyond the opposite side of the opening range",
+  "targets": ">=2R; take partials at 2R, move stop to BE, let runners run",
+  "summary": "15m ORB + retest-rejection entry, stop=OR width, 2R+ runners (overlaps existing ORB research; check correlation)"
+}
