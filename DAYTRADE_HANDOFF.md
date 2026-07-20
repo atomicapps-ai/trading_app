@@ -124,3 +124,52 @@ recent window — this is not a tuned point. VM 1.25-1.5 is the sweet spot.
 ### ⏭ NEXT ACTION (replaces the fill test)
 Rebuild `control_OOS` as a genuine direction-randomised re-simulation, then run the
 correlation gate.
+
+## ✅ RESOLVED (2026-07-20) — the control is now a real re-simulation, and the edge holds
+
+`control_OOS` previously flipped the sign of realised returns
+(`x * random.choice([1,-1])`). That is invalid here: the exit is direction-dependent (the
+VWAP trail), so the trade the opposite call would have taken exits at a *different bar*.
+A flipped return describes a trade that never happened.
+
+Replaced with a genuine **direction-randomised re-simulation** (`--control-seeds`, default
+5): identical marks, identical bands, identical VWAP-trailing exit and EOD flat — only the
+long/short call becomes a coin flip. Per `PROCESS_AUDIT.md` D1 this is the only control
+that isolates directional skill from payoff geometry.
+
+**Result (VM=1.5, next_open fill, SPY+QQQ):**
+
+| | n | win% | net OOS PF |
+|---|--:|--:|--:|
+| strategy | 6,261 | 37.6 | **1.18** |
+| control (5-seed re-sim) | ~4,610 | 42.1 | **0.95** (range 0.92–1.00) |
+| | | | **edge +0.23 PF** |
+
+**The control's trade count differs from the strategy's (4,610 vs 6,261) — which is itself
+proof the old sign-flip was wrong**, since that method assumed an identical ledger.
+
+Two things worth understanding about this result:
+1. **The control loses money (PF 0.95).** A coin flip on these setups is a net loser after
+   cost, so the strategy is overcoming a negative baseline — same signature as
+   `fvg_continuation`. The direction call is doing real work.
+2. **The edge is not hit-rate — it's payoff.** The control actually *wins more often*
+   (42.1% vs 37.6%) yet still loses. The strategy wins less often and makes money, because
+   when the directional call is right the VWAP trail rides it further. Consistent with the
+   rig's recurring lesson: edge is payoff geometry, not prediction accuracy.
+
+### Honest scoring against the bar
+- ✅ beats a properly-constructed control by +0.23 PF, control is net-losing
+- ✅ regime-consistent (5y 1.22 / 10y 1.20 / 20y 1.14), VM plateau 1.0–1.5, fill-robust
+- ✅ clears the project's earlier net-PF ≥ 1.2 bar on the 5y and 10y windows
+- ❌ does **not** clear PF ≥ 1.3 net, and the +0.23 margin is a hair under the +0.25 the
+  amended PASS bar asks for
+- ⚠ the edge is THIN — avgR +0.005 (~0.025%/trade net)
+
+**Verdict: a real but small edge.** Defensible as a diversifying component sized modestly;
+not a standalone. All three robustness questions that were blocking it are now answered.
+
+### ⏭ NEXT ACTION
+Correlation gate vs the live book (`scripts/strategy_correlation_gate.py`). If corr < 0.60,
+wire `active:false` for human review. Note it is intraday SPY/QQQ while the live book is
+daily equities, so correlation should be low — that is the argument for including it
+despite the modest PF.

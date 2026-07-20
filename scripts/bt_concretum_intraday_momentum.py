@@ -48,7 +48,17 @@ def load_1m_et(sym):
     return df.tz_convert("America/New_York").between_time(time(9, 30), time(16, 0), inclusive="left")
 
 
-def backtest(sym):
+def backtest(sym, ctrl_rng: random.Random | None = None):
+    """Run the strategy over one symbol's 1-minute history.
+
+    `ctrl_rng` turns this into the **control**: every entry fires on exactly the same
+    trigger, at the same mark, with the same band and the same VWAP-trailing exit — only
+    the long/short call becomes a coin flip. That isolates directional skill from payoff
+    geometry. It must be a re-simulation rather than a sign-flip of realised returns,
+    because the exit rule is direction-dependent: the trade the opposite call would have
+    taken exits at a different bar, so flipping a return's sign describes a trade that
+    never existed. See research/video_library/PROCESS_AUDIT.md D1.
+    """
     df = load_1m_et(sym)
     if df is None or len(df) < 5000:
         return []
@@ -109,9 +119,9 @@ def backtest(sym):
             fpx = fill_px(i)
             if pos == 0:
                 if price > upper:
-                    pos = 1; entry = fpx; entry_i = i
+                    pos = _dir(1, ctrl_rng); entry = fpx; entry_i = i
                 elif price < lower:
-                    pos = -1; entry = fpx; entry_i = i
+                    pos = _dir(-1, ctrl_rng); entry = fpx; entry_i = i
             else:
                 exit_now = False
                 if pos == 1 and price < max(upper, vw):
@@ -125,11 +135,17 @@ def backtest(sym):
                     trades.append(_mk(sym, d, g, entry_i, entry, i, fpx, pos, ret))
                     pos = 0; entry = None
                     if rev:
-                        pos = 1 if price > upper else -1; entry = fpx; entry_i = i
+                        pos = _dir(1 if price > upper else -1, ctrl_rng)
+                        entry = fpx; entry_i = i
         if pos != 0:                              # flat at close
             price = c[-1]; ret = (price - entry) / entry * pos
             trades.append(_mk(sym, d, g, entry_i, entry, len(c) - 1, price, pos, ret))
     return trades
+
+
+def _dir(signal_dir: int, rng: random.Random | None) -> int:
+    """The strategy's directional call, or a coin flip when running the control."""
+    return signal_dir if rng is None else (1 if rng.random() < 0.5 else -1)
 
 
 def _mk(sym, d, g, ei, entry, xi, xpx, pos, ret):
@@ -160,6 +176,8 @@ def main():
     ap.add_argument("--symbols", nargs="*", default=["SPY", "QQQ"])
     ap.add_argument("--vm", type=float, default=1.0)
     ap.add_argument("--tag", default="concretum_intraday_momentum")
+    ap.add_argument("--control-seeds", type=int, default=5,
+                    help="direction-randomised re-simulations to average for the control")
     ap.add_argument("--fill", choices=("close", "next_open"), default="close",
                     help="'close' fills at the decision bar's close (optimistic — you "
                          "cannot trade a close you haven't seen); 'next_open' keeps the "
@@ -179,14 +197,39 @@ def main():
     (OUT / f"{args.tag}_ledger.json").write_text(json.dumps(allt, indent=2))
     gross = [t["r_gross"] for t in allt]; net = [t["r_net"] for t in allt]; mid = len(net) // 2
     ly = max(int(t["date"][:4]) for t in allt) if allt else 2026
+
+    # Control: re-simulate with a coin-flip direction, averaged over seeds. NOT a
+    # sign-flip of realised returns — the VWAP-trailing exit is direction-dependent, so a
+    # flipped return describes a trade that never happened (PROCESS_AUDIT.md D1).
+    ctrl_runs = []
+    for seed in range(args.control_seeds):
+        cnet = []
+        for sym in args.symbols:
+            cf = cost_model.roundtrip_frac(sym)
+            for t in backtest(sym, ctrl_rng=random.Random(seed * 977 + hash(sym) % 977)):
+                cnet.append(round(t["r_gross"] - cf / RF, 3))
+        if cnet:
+            ctrl_runs.append(_stats(cnet[len(cnet) // 2:]))
+        print(f"  control seed {seed}: n={ctrl_runs[-1]['n']} PF={ctrl_runs[-1]['PF']}")
+    ctrl = {"PF": round(statistics.mean(c["PF"] for c in ctrl_runs), 3),
+            "PF_range": [float(min(c["PF"] for c in ctrl_runs)),
+                         float(max(c["PF"] for c in ctrl_runs))],
+            "n_mean": int(statistics.mean(c["n"] for c in ctrl_runs)),
+            "win": round(statistics.mean(c["win"] for c in ctrl_runs), 1),
+            "avgR": round(statistics.mean(c["avgR"] for c in ctrl_runs), 4),
+            "seeds": args.control_seeds, "method": "direction-randomised re-simulation"}
+
     summary = {"n": len(allt), "gross": _stats(gross), "net": _stats(net),
-               "net_OOS": _stats(net[mid:]), "control_OOS": _stats([x * random.choice([1, -1]) for x in net[mid:]]),
+               "net_OOS": _stats(net[mid:]), "control_OOS": ctrl,
+               "fill": args.fill, "vm": args.vm,
                "windows": [_window(allt, ly, y) for y in (5, 10, 20)]}
     (OUT / f"{args.tag}.json").write_text(json.dumps(summary, indent=2))
     g = summary["gross"]; na = summary["net"]; oo = summary["net_OOS"]; ct = summary["control_OOS"]
     print(f"\n=== Concretum Intraday Momentum ===")
     print(f"n={summary['n']}  GROSS win {g.get('win')}% PF {g.get('PF')} avgR {g.get('avgR')}")
-    print(f"   NET win {na.get('win')}% PF {na.get('PF')}  OOS PF {oo.get('PF')} avgR {oo.get('avgR')}  ctrl {ct.get('PF')}")
+    print(f"   NET win {na.get('win')}% PF {na.get('PF')}  OOS PF {oo.get('PF')} avgR {oo.get('avgR')}")
+    print(f"   CONTROL (re-sim, {ct.get('seeds')} seeds) PF {ct.get('PF')} "
+          f"range {ct.get('PF_range')} win {ct.get('win')}%  ->  edge {round(oo.get('PF', 0) - ct.get('PF', 0), 3)} PF")
     for w in summary["windows"]:
         print(f"   last {w['yrs']:>2}y: n={w.get('n')}  win {w.get('win')}%  net PF {w.get('PF')}  net avgR {w.get('avgR')}")
 
