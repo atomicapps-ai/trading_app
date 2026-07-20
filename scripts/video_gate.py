@@ -41,9 +41,21 @@ MONEY = re.compile(
     r"funded (account|me)|passed (my|the|prop)|been profitable|consistent(ly)? profit|"
     r"changed my (life|trading)|this works|works (great|well|like)|"
     r"up \d|green (day|week|month)|first profitable", re.I)
-# Obvious spam/scam comment noise to ignore when scoring (promo bots, tg handles).
-SPAM = re.compile(r"t\.me/|telegram|whats ?app|dm me|contact (me|mr|mrs)|"
-                  r"@\w+ on (ig|insta|telegram)|expert|account manager", re.I)
+# Bot/scam comment noise to exclude when scoring — see BOT_DETECTION.md.
+# Contact-solicitation, signal-seller/mentor promos, crypto-pivot, recovery scams,
+# and sob-story-bot markers. Add new patterns here + to BOT_DETECTION.md.
+SPAM = re.compile(
+    r"t\.me/|telegram|whats ?app|dm me|contact (me|mr|mrs|him|her)|reach out|"
+    r"@\w+ on (ig|insta|telegram|x)|account manager|"
+    r"signals?\b|copy (the )?pro|copy professionals|mentor|coach|tutelage|"
+    r"expert trader|recover(y| funds| my)|owed the bank|laid off|god is good|"
+    r"anesaurus|under the guidance|guru|his strategy changed my life|"
+    r"bitcoin|crypto|forex expert|financial (advisor|freedom coach)", re.I)
+
+
+def _norm(t: str) -> str:
+    """Normalize a comment for cross-video duplicate detection."""
+    return re.sub(r"[^a-z0-9 ]", "", t.lower()).strip()[:120]
 
 
 def _known() -> set[str]:
@@ -114,19 +126,23 @@ def fetch(vid: str, max_comments: int, cookies: str | None) -> dict | None:
         return None
 
 
-def score(info: dict, sia) -> dict:
-    subs = info.get("channel_follower_count") or 0
-    comments = [c.get("text", "") for c in (info.get("comments") or [])
-                if c.get("text") and not SPAM.search(c.get("text", ""))]
-    comments = comments[:info.get("_max", 50)]
-    comps = [sia.polarity_scores(t)["compound"] for t in comments]
+def score(info: dict, sia, dupes: set[str]) -> dict:
+    """dupes = normalized comment texts seen on >=2 videos (cross-video bots)."""
+    raw = [c.get("text", "") for c in (info.get("comments") or []) if c.get("text")]
+    raw = raw[:info.get("_max", 50)]
+    n_raw = len(raw)
+    # authentic = not spam AND not a cross-video duplicate bot
+    clean = [t for t in raw if not SPAM.search(t) and _norm(t) not in dupes]
+    comps = [sia.polarity_scores(t)["compound"] for t in clean]
     avg = round(statistics.mean(comps), 3) if comps else 0.0
     pos_frac = round(sum(c > 0.2 for c in comps) / len(comps), 2) if comps else 0.0
-    money = [t for t in comments if MONEY.search(t)]
+    money = [t for t in clean if MONEY.search(t)]
     return {
         "id": info.get("id"), "title": (info.get("title") or "")[:70],
         "channel": (info.get("channel") or info.get("uploader") or "")[:24],
-        "subs": subs, "n_comments": len(comments),
+        "subs": info.get("channel_follower_count") or 0,
+        "n_comments": len(clean), "n_raw": n_raw,
+        "bot_frac": round((n_raw - len(clean)) / n_raw, 2) if n_raw else 0.0,
         "avg_sentiment": avg, "pos_frac": pos_frac,
         "money_hits": len(money),
         "money_samples": [re.sub(r"\s+", " ", t)[:100] for t in money[:3]],
@@ -140,6 +156,8 @@ def main() -> None:
     ap.add_argument("--min-subs", type=int, default=100_000)
     ap.add_argument("--min-sentiment", type=float, default=0.15)
     ap.add_argument("--min-pos-frac", type=float, default=0.40)
+    ap.add_argument("--min-money", type=int, default=0,
+                    help="min CLEAN money-testimonials to pass (0 = no floor)")
     ap.add_argument("--max-comments", type=int, default=50)
     ap.add_argument("--top", type=int, default=25)
     ap.add_argument("--cookies", default="")
@@ -157,22 +175,39 @@ def main() -> None:
           f"pos-frac>={args.min_pos_frac}) ...", file=sys.stderr)
 
     sia = _analyzer()
-    scored = []
+    # ---- pass 1: fetch all, so we can detect cross-video duplicate bots ----
+    infos = []
+    from collections import Counter
+    norm_counts: Counter = Counter()
     for i, (vid, _t, _u) in enumerate(rows, 1):
         info = fetch(vid, args.max_comments, args.cookies or None)
         if not info:
+            print(f"  [{i}/{len(rows)}] (no data) {vid}", file=sys.stderr)
             continue
         info["_max"] = args.max_comments
-        s = score(info, sia)
+        infos.append(info)
+        for c in (info.get("comments") or [])[:args.max_comments]:
+            t = c.get("text", "")
+            if t:
+                norm_counts[_norm(t)] += 1
+    # a normalized comment seen on/across >=2 places is a bot ring
+    dupes = {k for k, n in norm_counts.items() if n >= 2 and len(k) >= 15}
+    print(f"cross-video duplicate bot phrases: {len(dupes)}", file=sys.stderr)
+
+    # ---- pass 2: score with bots removed ----
+    scored = []
+    for info in infos:
+        s = score(info, sia, dupes)
         passed = (s["subs"] >= args.min_subs
                   and s["avg_sentiment"] >= args.min_sentiment
                   and s["pos_frac"] >= args.min_pos_frac
+                  and s["money_hits"] >= args.min_money
                   and s["n_comments"] >= 5)
         s["pass"] = passed
         scored.append(s)
         flag = "PASS" if passed else "skip"
-        print(f"  [{i}/{len(rows)}] {flag} {vid} subs={s['subs']:>9,} "
-              f"sent={s['avg_sentiment']:+.2f} money={s['money_hits']}", file=sys.stderr)
+        print(f"  {flag} {s['id']} subs={s['subs']:>9,} sent={s['avg_sentiment']:+.2f} "
+              f"bot={int(s['bot_frac']*100)}% money={s['money_hits']}", file=sys.stderr)
 
     winners = [s for s in scored if s["pass"]]
     # rank: money testimonials first (the gold signal), then sentiment, then subs
@@ -183,11 +218,11 @@ def main() -> None:
              f"{len(winners)} passed of {len(scored)} fetched — "
              f"subs>={args.min_subs:,}, avg VADER sentiment>={args.min_sentiment}, "
              f"pos-frac>={args.min_pos_frac}. Ranked by money-testimonials, then sentiment.", "",
-             "| subs | sent | pos% | 💰money | channel | title | url |",
-             "|---|---|---|---|---|---|---|"]
+             "| subs | sent | pos% | bot% | 💰money | channel | title | url |",
+             "|---|---|---|---|---|---|---|---|"]
     for s in winners:
         lines.append(f"| {s['subs']:,} | {s['avg_sentiment']:+.2f} | {int(s['pos_frac']*100)}% | "
-                     f"{s['money_hits']} | {s['channel']} | {s['title']} | "
+                     f"{int(s['bot_frac']*100)}% | {s['money_hits']} | {s['channel']} | {s['title']} | "
                      f"https://youtube.com/watch?v={s['id']} |")
     lines += ["", "## Sample \"made me money\" comments (top winners)"]
     for s in winners[:12]:
