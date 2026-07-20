@@ -115,3 +115,28 @@ python scripts/video_ingest.py --ingest "<url1>" "<url2>"     # the KEEP picks, 
 python scripts/video_retire.py <id> --purge --reason "redundant ORB clone"   # noise
 python scripts/video_retire.py --purge-noise                                  # batch clean
 ```
+
+---
+
+## The filtering funnel — explicit stages (this is the process we agree on)
+
+The point: **stop rejecting on titles/gut.** Each stage has one job and an explicit
+rule. Rejection gets *stricter* as we go — cheap filters first, the expensive
+transcript+backtest last.
+
+| Stage | Job | Rule (explicit) | Who |
+|---|---|---|---|
+| 1. **Discover** | build the pool | farm YouTube; dedupe vs library + tombstones + processed. Pool can be 100s. | operator |
+| 2. **Social-proof gate** | credibility | `video_gate.py`: subs ≥ 100k · recent-50 comments net-positive · ≥ `--min-money` clean testimonials | operator |
+| 3. **Bot scrub** | trustworthy signal | remove cross-video-duplicate + scam comments (BOT_DETECTION.md) BEFORE counting money-testimonials; report `bot%` | gate (auto) |
+| 4. **Mechanism triage** | drop only the *dead* ones | **Reject ONLY if the title/desc is an EXACT known-fail mechanism** (ORB, VWAP+EMA, plain first-candle, gap, MA-cross, discretionary SMC/S&D, FVG-we-already-have) **or clearly not a strategy** (pure tutorial, livestream recap, "how to backtest"). **Everything novel / unknown / rigor-claiming → KEEP.** | me |
+| 5. **Ingest + assess** | the real filter | read transcript → extract a mechanical spec, or reject with reason | operator ingests, me assess |
+| 6. **Backtest gate** | proof | PF ≥ 1.3 net · avg-R > 0 · ~100+ trades · beats control · IS/OOS-stable · corr < 0.60 | me |
+
+**Key agreement (why "6" was wrong):** stage 4 must reject *only exact known-fail
+mechanisms*, not "looks like a scalp." Under this rule the last run's 25 → **~13 keep**,
+not 6. Titles no longer kill a candidate — the transcript (stage 5) does.
+
+**Pool is expandable:** stages dedupe against everything already seen (library +
+tombstones + processed), so re-running discover with a bigger `--top` just adds *new*
+candidates — we can grow the pool by ~100 at a time without re-reviewing anything.
