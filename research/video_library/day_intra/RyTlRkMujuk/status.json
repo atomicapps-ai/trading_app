@@ -1,0 +1,5 @@
+{
+  "video_id": "RyTlRkMujuk",
+  "status": "rejected",
+  "reason": "Mechanical backtest of the extracted spec (FX 5m AUD/GBP/EUR, 2015-2025): OOS PF 1.01 gross / 0.89 net (0.7-pip cost), WR 38%, ~9,900 trades \u2014 below the 1.3 bar and net-negative after realistic spread. Only marginally beats the with-trend control. Creator's ~70-75% WR claim did not hold (mechanical WR 38% at 2:1). Reject for live wiring."
+}

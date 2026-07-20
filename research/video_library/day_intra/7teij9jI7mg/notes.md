@@ -14,3 +14,10 @@ Status: PENDING — spec extracted, awaiting backtest (PF>=1.3 bar).
   "targets": ">=2R; take partials at 2R, move stop to BE, let runners run",
   "summary": "15m ORB + retest-rejection entry, stop=OR width, 2R+ runners (overlaps existing ORB research; check correlation)"
 }
+
+## Backtest result (scripts/backtest_prospects.py, orb_retest)
+- FX 5m, 2015-01-01 → 2025-03, IS<2022≤OOS, AUD/GBP/EUR pooled.
+- **Gross:** OOS PF 1.11 · WR 42.8% · avgR +0.052 · N=1,885 (EURUSD OOS PF 1.23)
+- **Net:** net of 0.7-pip cost: OOS PF 1.00 (breakeven)
+- Baseline: control_with_trend OOS PF 0.97 net 0.85
+- **Verdict: PENDING** — Mechanical backtest as an FX stand-in (London-open opening range, 5m, 2015-2025): OOS PF 1.11 gross / 1.00 net, WR 43%, ~1,885 trades — the only prospect that holds breakeven net and clearly beats the control; EURUSD OOS PF 1.23 gross. Still under the 1.3 bar. It is equity/index-native (SPY/QQQ/ES) and we have no cached 5m equity data — needs a faithful RTH-equity re-test before a verdict. KEEP pending.
