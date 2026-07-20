@@ -12,6 +12,7 @@ aiosqlite>=0.20.0
 pandas>=2.2.0
 numpy>=1.26.0
 yfinance>=0.2.40
+matplotlib>=3.8.0   # scripts/render_backtest_images.py — per-trade candlestick PNGs for /backtest-review
 # ---- Phase 4 ----
 # Finviz scraper + EDGAR RSS + Alpaca News primary feed + VADER sentiment
 requests>=2.32.0
