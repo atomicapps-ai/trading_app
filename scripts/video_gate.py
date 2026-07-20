@@ -66,9 +66,34 @@ def _ids_from_candidates() -> list[tuple[str, str, str]]:
     return out
 
 
+class _LiteAnalyzer:
+    """Fallback if vaderSentiment isn't installed — a tiny lexicon good enough
+    to gate comment praise. Same interface as VADER (polarity_scores→compound)."""
+    POS = {"great", "amazing", "love", "best", "profit", "profitable", "works",
+           "worked", "clear", "helpful", "thank", "thanks", "gold", "excellent",
+           "awesome", "perfect", "easy", "consistent", "winning", "won", "green",
+           "made", "gain", "gains", "up", "passed", "banked", "goat", "legend"}
+    NEG = {"scam", "bad", "worst", "lost", "loss", "losing", "waste", "trash",
+           "useless", "fake", "doesnt", "didnt", "hate", "confusing", "wrong",
+           "blew", "red", "down", "terrible", "garbage", "misleading"}
+
+    def polarity_scores(self, text: str) -> dict:
+        words = re.findall(r"[a-z']+", text.lower())
+        if not words:
+            return {"compound": 0.0}
+        p = sum(w in self.POS for w in words)
+        n = sum(w in self.NEG for w in words)
+        return {"compound": max(-1.0, min(1.0, (p - n) / max(3, len(words) ** 0.5)))}
+
+
 def _analyzer():
-    from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-    return SentimentIntensityAnalyzer()
+    try:
+        from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+        return SentimentIntensityAnalyzer()
+    except ModuleNotFoundError:
+        print("  (vaderSentiment not installed — using lite lexicon fallback; "
+              "`pip install vaderSentiment` for better scoring)", file=sys.stderr)
+        return _LiteAnalyzer()
 
 
 def fetch(vid: str, max_comments: int, cookies: str | None) -> dict | None:
