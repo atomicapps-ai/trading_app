@@ -1394,101 +1394,107 @@
   },
   "4pYxq6gt3oQ": {
     "url": "https://youtube.com/watch?v=4pYxq6gt3oQ",
-    "processed_at": "2026-07-20T18:45:37.815402+00:00",
-    "duration_s": 947,
-    "frames": 11,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "Discretionary SMC/VWAP; not mechanical.",
+    "purged_at": "2026-07-20T19:18:49.158058+00:00"
   },
   "ZTMregh_428": {
     "url": "https://youtube.com/watch?v=ZTMregh_428",
-    "processed_at": "2026-07-20T18:45:43.337697+00:00",
-    "duration_s": 479,
-    "frames": 5,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "FVG+gann/BOS; FVG we run + discretionary.",
+    "purged_at": "2026-07-20T19:18:49.175449+00:00"
   },
   "xesrK4KAzfM": {
     "url": "https://youtube.com/watch?v=xesrK4KAzfM",
-    "processed_at": "2026-07-20T18:45:58.705639+00:00",
-    "duration_s": 2924,
-    "frames": 32,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "Anchored-VWAP tape-read bounce; not mechanical.",
+    "purged_at": "2026-07-20T19:18:49.161543+00:00"
   },
   "1gpdZhV-rzg": {
     "url": "https://youtube.com/watch?v=1gpdZhV-rzg",
-    "processed_at": "2026-07-20T18:46:04.707121+00:00",
-    "duration_s": 452,
-    "frames": 5,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "VWAP+EMA pullback; deny-list, curve-fit.",
+    "purged_at": "2026-07-20T19:18:49.192213+00:00"
   },
   "2WmeKqsGTQk": {
     "url": "https://youtube.com/watch?v=2WmeKqsGTQk",
     "processed_at": "2026-07-20T18:46:13.693569+00:00",
     "duration_s": 949,
     "frames": 11,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "false_break_fade backtested FX+gold: pooled OOS net PF 0.96, beats control, EURUSD net +1.08, below 1.3 bar. Reject.",
+    "retired_at": "2026-07-20T19:18:49.156484+00:00"
   },
   "0jwDCloVsTA": {
     "url": "https://youtube.com/watch?v=0jwDCloVsTA",
-    "processed_at": "2026-07-20T18:46:22.784439+00:00",
-    "duration_s": 775,
-    "frames": 9,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "5m opening-range breakout+retest; deny-list.",
+    "purged_at": "2026-07-20T19:18:49.185137+00:00"
   },
   "BqgSXU-TZNo": {
     "url": "https://youtube.com/watch?v=BqgSXU-TZNo",
-    "processed_at": "2026-07-20T18:46:26.590419+00:00",
-    "duration_s": 1114,
-    "frames": 0,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "FVG+discretionary SMC; deny-list.",
+    "purged_at": "2026-07-20T19:18:49.177631+00:00"
   },
   "gddYspvW0_w": {
     "url": "https://youtube.com/watch?v=gddYspvW0_w",
-    "processed_at": "2026-07-20T18:46:34.106671+00:00",
-    "duration_s": 1618,
-    "frames": 18,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "20-SMA respect pullback; no defined rule.",
+    "purged_at": "2026-07-20T19:18:49.168986+00:00"
   },
   "Z52d-_p5DXM": {
     "url": "https://youtube.com/watch?v=Z52d-_p5DXM",
-    "processed_at": "2026-07-20T18:46:42.618113+00:00",
-    "duration_s": 1142,
-    "frames": 13,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "5m ORB + FVG retest; deny-list.",
+    "purged_at": "2026-07-20T19:18:49.179513+00:00"
   },
   "6WfTIyJ-YzQ": {
     "url": "https://youtube.com/watch?v=6WfTIyJ-YzQ",
     "processed_at": "2026-07-20T18:46:52.535699+00:00",
     "duration_s": 1535,
     "frames": 17,
-    "transcript": true
+    "transcript": true,
+    "status": "rejected",
+    "reason": "opening_range_fade backtested FX+gold: pooled OOS net PF 0.78-0.88, net loser vs control. Reject.",
+    "retired_at": "2026-07-20T19:18:49.153770+00:00"
   },
   "FhSoXkSVFEI": {
     "url": "https://youtube.com/watch?v=FhSoXkSVFEI",
-    "processed_at": "2026-07-20T18:47:02.133970+00:00",
-    "duration_s": 820,
-    "frames": 9,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "Hand-drawn S/R rejection; discretionary.",
+    "purged_at": "2026-07-20T19:18:49.166386+00:00"
   },
   "NtgZQr6ZbFI": {
     "url": "https://youtube.com/watch?v=NtgZQr6ZbFI",
-    "processed_at": "2026-07-20T18:47:13.339364+00:00",
-    "duration_s": 1789,
-    "frames": 20,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "9:30 first-candle/15m ORB; deny-list.",
+    "purged_at": "2026-07-20T19:18:49.182085+00:00"
   },
   "juZlrecsIts": {
     "url": "https://youtube.com/watch?v=juZlrecsIts",
-    "processed_at": "2026-07-20T18:47:20.000081+00:00",
-    "duration_s": 584,
-    "frames": 6,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "Triple-EMA + fractal 1m scalp; deny-list.",
+    "purged_at": "2026-07-20T19:18:49.188995+00:00"
   },
   "p1W8Mjl4kWs": {
     "url": "https://youtube.com/watch?v=p1W8Mjl4kWs",
-    "processed_at": "2026-07-20T18:47:36.556439+00:00",
-    "duration_s": 3439,
-    "frames": 38,
-    "transcript": true
+    "status": "rejected",
+    "tier": "noise",
+    "reason": "Low-float level-2 tape momentum; not codeable.",
+    "purged_at": "2026-07-20T19:18:49.171670+00:00"
   },
   "VI-rzf3nfJc": {
     "url": "https://youtube.com/watch?v=VI-rzf3nfJc",
