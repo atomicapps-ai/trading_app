@@ -1,0 +1,16 @@
+# 7Ds9djcEKB4
+
+Status: PENDING — spec extracted, awaiting backtest (PF>=1.3 bar).
+
+{
+  "instrument": "FX majors + liquid equities",
+  "timeframe": "5m/15m (intraday); creator demoed 4H",
+  "session": "RTH / any",
+  "direction": "both",
+  "indicators": "50 EMA, Chandelier Exit (ATR trailing stop)",
+  "entry_trigger": "LONG: price below 50EMA, then a candle CLOSES back above 50EMA (reclaim); wait for a pullback of >=2 consecutive red candles; draw a horizontal line at the swing high before the pullback; BUY when a candle BODY closes above that line. SHORT = mirror below 50EMA.",
+  "filters": "Invalid if the pullback closes back below the 50EMA before the line breaks. Skip if the breakout candle is >3-4x the average candle size (unsustainable).",
+  "stop": "Chandelier Exit level (ATR-based)",
+  "targets": "2R (2x stop distance), fixed",
+  "summary": "50-EMA reclaim + micro-pullback breakout continuation, ATR chandelier stop, 2R target (creator claim 65% WR, unverified)"
+}
