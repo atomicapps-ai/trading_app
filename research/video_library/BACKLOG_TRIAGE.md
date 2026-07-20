@@ -13,7 +13,7 @@ Titles resolved via web search (can't read transcripts). Classified for the
 ## 🎯 Day-trade leads worth ingesting (novel or unclear mechanism)
 | id | title | note |
 |---|---|---|
-| qkChxbuUqvU | This Gap Trading Strategy Prints You Money (Gap Up/Down/Fill) | **Gap fill = genuinely intraday and NOT in our book.** Best new lead. Testable on cached equity data directly. |
+| ~~qkChxbuUqvU~~ | ~~Gap Trading Prints You Money (Gap Up/Down/Fill)~~ | ❌ **TESTED → REJECTED.** Backtested directly on 595 equities / 20y / up-to-564k trades: every config net-negative (best net PF 0.92). No edge. See GAP_BACKTEST.md. |
 | R5paDQRdk0c | The PROVEN 1-Hour Trading Strategy 85% Win Rate | intraday (1H); 85% WR claim is hype but mechanism unknown — worth a look |
 | H-2T8Uh7Nfw | Try This Simple Pullback Trading Strategy - 75% Win Rate | pullback; may be intraday |
 
