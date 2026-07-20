@@ -78,3 +78,49 @@ Closest-to-alive retail: ema9_20_cross (5y net 1.01). Full map: `research/video_
 `strategies/strategy_docs/INTRADAY_STRATEGY_CATALOG.md` (all day-trades tested) ·
 `INTRADAY_SOURCED.md` (Concretum specs) · `INTRADAY_STRATEGY_SPECS.md` (4 families + overnight) ·
 `INTRADAY_FINDINGS.md` · `research/video_library/day_intra/_PROCESSING.md` (27-video map).
+
+---
+
+## ✅ RESOLVED (2026-07-20) — the pending next-open fill test PASSES
+
+The blocking robustness test above ("re-run Concretum entering at the **next bar's open**")
+has been run. Added `--fill {close,next_open}` to `scripts/bt_concretum_intraday_momentum.py`:
+the signal still fires on the :00/:30 mark's close, but the order fills at the following
+1-minute bar's open — what a real order sent on that signal would actually get.
+
+**The edge is not a fill artifact.** VM=1.5, SPY+QQQ, n=6,261 (identical trade count):
+
+| fill | gross PF | net PF | net OOS PF | 5y | 10y | 20y |
+|---|--:|--:|--:|--:|--:|--:|
+| close (original) | 1.23 | 1.11 | 1.18 | 1.22 | 1.20 | 1.13 |
+| **next_open (conservative)** | **1.24** | **1.12** | **1.18** | **1.22** | **1.20** | **1.14** |
+
+Every window is unchanged or marginally *better*. The one-bar fill delay costs nothing,
+which makes sense mechanically: the strategy enters on a band breakout and holds for a
+VWAP-trailing exit, so it is not harvesting the signal bar's own close.
+
+**Parameter robustness** (next_open fill, net OOS PF / last-5y net PF):
+
+| VM | 1.0 | 1.25 | 1.5 | 1.75 | 2.0 |
+|---|--:|--:|--:|--:|--:|
+| net OOS PF | 1.15 | 1.20 | **1.18** | 1.09 | 1.09 |
+| last 5y net PF | 1.16 | 1.23 | 1.22 | 1.17 | 1.14 |
+
+A plateau from VM 1.0-1.5 rather than a spike, and every setting is net-positive on the
+recent window — this is not a tuned point. VM 1.25-1.5 is the sweet spot.
+
+### Remaining caveats before promoting (unchanged in importance)
+1. **The edge is still THIN** — avgR ~+0.005 (~0.025%/trade net). Fine as a portfolio
+   component, fragile as a standalone.
+2. **The control is an approximation.** `control_OOS` flips the sign of realised returns
+   (`x * random.choice([1,-1])`) rather than re-simulating with a random direction. Because
+   the exit is direction-dependent (VWAP trail), a sign-flip does not produce the trade the
+   opposite call would actually have taken. Per `research/video_library/PROCESS_AUDIT.md`
+   §D1 this is the exact defect class that invalidated the `false_break_fade` verdict —
+   **rebuild this as a true re-simulation before promoting.** It is currently the weakest
+   number in the result.
+3. Then: correlation gate vs the live book → wire `active:false` for human review.
+
+### ⏭ NEXT ACTION (replaces the fill test)
+Rebuild `control_OOS` as a genuine direction-randomised re-simulation, then run the
+correlation gate.

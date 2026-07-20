@@ -31,6 +31,11 @@ OUT = ROOT / "data" / "research" / "strategy_results"; OUT.mkdir(parents=True, e
 RF = 0.05                          # nominal R for reporting (no fixed stop)
 VM = 1.0                           # volatility multiplier (band width); overridable via --vm
 MARKS = [time(h, m) for h in range(10, 16) for m in (0, 30)]   # 10:00 .. 15:30
+# Fill model. "close" prices every entry/exit at the decision bar's own close — you cannot
+# know a bar's close in time to trade it, so that is mildly optimistic. "next_open" keeps
+# the SIGNAL on the mark's close but fills at the next 1-min bar's open, which is what an
+# order sent on the signal would actually get. Overridable via --fill.
+FILL = "close"
 
 
 def load_1m_et(sym):
@@ -75,6 +80,13 @@ def backtest(sym):
         t = np.array([x.time() for x in g.index])
         c = g["close"].values.astype(float); h = g["high"].values.astype(float)
         l = g["low"].values.astype(float); v = g["volume"].values.astype(float)
+        o_ = g["open"].values.astype(float)
+
+        def fill_px(i: int) -> float:
+            """Price actually obtainable for a decision taken at bar i."""
+            if FILL == "next_open" and i + 1 < len(o_):
+                return float(o_[i + 1])
+            return float(c[i])
         tp = (h + l + c) / 3.0
         cumv = np.cumsum(np.where(v > 0, v, 0.0)); cumpv = np.cumsum(tp * np.where(v > 0, v, 0.0))
         vwap = np.where(cumv > 0, cumpv / np.maximum(cumv, 1e-9), c)
@@ -93,11 +105,13 @@ def backtest(sym):
                 continue
             sigma = float(np.nanmean(moves))
             upper = max(o930, pc) * (1 + VM * sigma); lower = min(o930, pc) * (1 - VM * sigma)
+            # `price` (the mark's close) decides; `fpx` is what the order actually gets.
+            fpx = fill_px(i)
             if pos == 0:
                 if price > upper:
-                    pos = 1; entry = price; entry_i = i
+                    pos = 1; entry = fpx; entry_i = i
                 elif price < lower:
-                    pos = -1; entry = price; entry_i = i
+                    pos = -1; entry = fpx; entry_i = i
             else:
                 exit_now = False
                 if pos == 1 and price < max(upper, vw):
@@ -107,11 +121,11 @@ def backtest(sym):
                 # opposite-band reversal
                 rev = (pos == 1 and price < lower) or (pos == -1 and price > upper)
                 if exit_now or rev:
-                    ret = (price - entry) / entry * pos
-                    trades.append(_mk(sym, d, g, entry_i, entry, i, price, pos, ret))
+                    ret = (fpx - entry) / entry * pos
+                    trades.append(_mk(sym, d, g, entry_i, entry, i, fpx, pos, ret))
                     pos = 0; entry = None
                     if rev:
-                        pos = 1 if price > upper else -1; entry = price; entry_i = i
+                        pos = 1 if price > upper else -1; entry = fpx; entry_i = i
         if pos != 0:                              # flat at close
             price = c[-1]; ret = (price - entry) / entry * pos
             trades.append(_mk(sym, d, g, entry_i, entry, len(c) - 1, price, pos, ret))
@@ -146,9 +160,14 @@ def main():
     ap.add_argument("--symbols", nargs="*", default=["SPY", "QQQ"])
     ap.add_argument("--vm", type=float, default=1.0)
     ap.add_argument("--tag", default="concretum_intraday_momentum")
+    ap.add_argument("--fill", choices=("close", "next_open"), default="close",
+                    help="'close' fills at the decision bar's close (optimistic — you "
+                         "cannot trade a close you haven't seen); 'next_open' keeps the "
+                         "signal on that close but fills at the next 1-min bar's open")
     args = ap.parse_args()
-    global VM
+    global VM, FILL
     VM = args.vm
+    FILL = args.fill
     allt = []
     for sym in args.symbols:
         tr = backtest(sym)
