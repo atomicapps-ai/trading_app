@@ -9,9 +9,11 @@ you can eyeball whether the mechanical setup matches the video's intent.
 Artifacts land under data/ (gitignored) -> run this on the machine that serves the app,
 then open /backtest-review. Needs matplotlib (`pip install matplotlib`).
 
-    python scripts/build_candidate_review.py                 # all 6, ~5 trades/side
-    python scripts/build_candidate_review.py --per-side 5 --since 2018-01-01
-    python scripts/build_candidate_review.py --only false_break_fade
+Must be run as a module (the script imports `agents.` / `services.` from the repo root):
+
+    python -m scripts.build_candidate_review                 # all 6, ~5 trades/side
+    python -m scripts.build_candidate_review --per-side 5 --since 2018-01-01
+    python -m scripts.build_candidate_review --only false_break_fade
 """
 from __future__ import annotations
 
@@ -29,7 +31,11 @@ from scripts.backtest_prospects import (
     amd_session_reversal, orb_retest,
 )
 from scripts.backtest_fade_candidates import false_break_fade, opening_range_fade
+from scripts.backtest_prospects import _apply_cost
 from services.settings_service import DATA_DIR
+
+# round-turn spread+commission in pips, per instrument — the same cost the backtests use.
+COST_PIPS = {"XAUUSD": 2.0, "EURUSD": 0.7, "GBPUSD": 0.8, "AUDUSD": 0.8}
 
 LEDGER_DIR = DATA_DIR / "research" / "strategy_results"
 ET = "America/New_York"
@@ -59,7 +65,10 @@ def build_ledger(name: str, since: str) -> Path:
         pip = PIP.get(sym, 0.0001)
         sigs = fn(bars, pip, **kw)
         trades = simulate_trades(bars, sigs)
-        for t in trades:
+        # net ledger: same trades with the round-turn cost deducted, so `r_net` on the
+        # review page is genuinely net rather than a copy of the gross R.
+        net = _apply_cost(trades, COST_PIPS.get(sym, 0.8), pip)
+        for t, tn in zip(trades, net):
             en = t.entry_ts.tz_convert(ET); ex = t.exit_ts.tz_convert(ET)
             rows.append({
                 "symbol": sym,
@@ -73,7 +82,7 @@ def build_ledger(name: str, since: str) -> Path:
                 "entry_time": en.strftime("%H:%M"),
                 "exit_time": ex.strftime("%H:%M"),
                 "r_gross": round(t.pnl_r, 2),
-                "r_net": round(t.pnl_r, 2),
+                "r_net": round(tn.pnl_r, 2),
                 "exit_reason": t.exit_reason,
                 "outcome": "win" if t.pnl_pct > 0 else "loss",
             })
@@ -87,9 +96,11 @@ def build_ledger(name: str, since: str) -> Path:
 
 
 def render(name: str, ledger: Path, per_side: int) -> None:
+    # every candidate here runs on FX/metals, which trade ~24h — clipping the chart to
+    # equity RTH would crop off the range formation the setup is built on.
     cmd = [sys.executable, "-m", "scripts.render_backtest_images",
            "--strategy", name, "--ledger", str(ledger),
-           "--interval", "5m", "--max-per-side", str(per_side),
+           "--interval", "5m", "--max-per-side", str(per_side), "--session", "all",
            "--source-note", "video-mined day-trade candidate (review)"]
     r = subprocess.run(cmd, capture_output=True, text=True)
     tail = (r.stdout or r.stderr).strip().splitlines()[-1:] or [""]

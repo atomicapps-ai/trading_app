@@ -60,14 +60,18 @@ def _load(sym: str, interval: str) -> pd.DataFrame | None:
 _INTRADAY = {"1m", "5m", "15m", "30m", "1h", "60min"}
 
 
-def _window(sym, date, interval, pad_days):
+def _window(sym, date, interval, pad_days, session=None):
     df = _load(sym, interval)
     if df is None:
         return None
     d = pd.Timestamp(date).date()
     if interval in _INTRADAY:
-        # render the trade's own session (RTH), not a multi-day window
-        s = df[df["_d"] == d].between_time(time(9, 30), time(16, 0), inclusive="left")
+        # Render the trade's own session. Default to US equity RTH, but a 24h instrument
+        # (FX, metals) must pass its own window or the range formation the setup is built
+        # on gets cropped off the chart — see PROCESS_AUDIT.md D4.
+        s = df[df["_d"] == d]
+        if session is not None:
+            s = s.between_time(session[0], session[1], inclusive="left")
         return s if len(s) else None
     dates = sorted(set(df["_d"]))
     if d not in dates:
@@ -194,7 +198,14 @@ def main():
     ap.add_argument("--max-per-side", type=int, default=40)
     ap.add_argument("--source-note", default="")
     ap.add_argument("--vwap", action="store_true", help="overlay session VWAP (trailing-exit reference)")
+    ap.add_argument("--session", default="09:30-16:00",
+                    help="intraday chart window HH:MM-HH:MM, or 'all' for 24h instruments "
+                         "(FX/metals — the equity RTH default crops their range formation)")
     args = ap.parse_args()
+    session = None
+    if args.session and args.session.lower() != "all":
+        lo, hi = args.session.split("-")
+        session = (time(*map(int, lo.split(":"))), time(*map(int, hi.split(":"))))
     global _VWAP_OVERLAY
     _VWAP_OVERLAY = args.vwap
 
@@ -220,7 +231,7 @@ def main():
                 "n_total": len(ledger), "n_win": len(wins), "n_loss": len(losses), "trades": []}
     done = 0
     for side, t in picks:
-        bars = _window(t["symbol"], t["date"], args.interval, args.pad_days)
+        bars = _window(t["symbol"], t["date"], args.interval, args.pad_days, session)
         if bars is None or len(bars) < 5:
             continue
         # intraday: focus the chart on the TRADE — a short lead-in before entry through exit + a little after
