@@ -167,6 +167,15 @@ async def _do_run(settings: Settings) -> None:
             run["scans"].append(entry)
             run["pct"] = 55 + int(45 * ((i + 1) / n))
 
+        # ---------- Stage 4: dedup + expire stale pending setups ----------
+        # A re-scan re-evaluates the same setups; collapse any duplicate rows and
+        # drop stale ones so the pending queue never accretes the same trade twice.
+        try:
+            from services import db_service
+            run["cleanup"] = await db_service.dedupe_pending_plans()
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("refresh_scan: dedupe_pending_plans failed: %s", exc)
+
         run["stage"] = "done"
         run["status"] = "done"
         run["detail"] = "complete"

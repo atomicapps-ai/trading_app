@@ -398,7 +398,16 @@ _SCHEMA = [
 _PENDING_EXPECTED_COLUMNS = {
     "ack_json", "execution_json", "broker_order_id",
     "execution_ts", "execution_reject_reason",
+    # Dedup + freshness: a scan re-evaluates the same setup every run. We key a
+    # setup by (strategy, symbol, session_key); refreshed_at is bumped when an
+    # unchanged, still-valid setup is seen again instead of inserting a dup row.
+    "session_key", "refreshed_at",
 }
+
+# A pending setup whose session is older than this many days is "stale" — the
+# entry opportunity has passed, so on the next scan we remove it rather than
+# keep re-listing it. (Intraday day-trade setups don't survive to the next day.)
+STALE_PENDING_DAYS = 2
 
 # universe_presets columns added after initial schema (col -> SQL type/default)
 _UNIVERSE_EXPECTED_COLUMNS = {
@@ -796,6 +805,41 @@ def _preset_row_to_dict(row: Any) -> dict:
 # ---------------------------------------------------------------------- #
 
 
+def _plan_session_date(plan: dict) -> str:
+    """The trading session a plan targets — its dedup identity within a strategy.
+    Prefers an explicit thesis.session_date; falls back to the plan's creation
+    date (a daily strategy fires at most one setup per symbol per day)."""
+    sd = (plan.get("thesis") or {}).get("session_date")
+    if sd:
+        return str(sd)[:10]
+    ts = plan.get("ts_created") or datetime.now(timezone.utc).isoformat()
+    return str(ts)[:10]
+
+
+def _plan_is_stale(plan: dict, session_date: str,
+                   stale_days: int = STALE_PENDING_DAYS) -> bool:
+    """True if the entry opportunity has passed. Prefers the plan's own deadline
+    (entry.valid_until / time_stop.deadline as an ISO datetime); otherwise falls
+    back to the session being older than ``stale_days``."""
+    now = datetime.now(timezone.utc)
+    setup = plan.get("setup") or {}
+    for path in (((setup.get("entry") or {}).get("valid_until")),
+                 (((setup.get("stop_loss") or {}).get("time_stop") or {}).get("deadline"))):
+        if isinstance(path, str) and path not in ("session_close", "gtc", ""):
+            try:
+                dl = datetime.fromisoformat(path.replace("Z", "+00:00"))
+                if dl.tzinfo is None:
+                    dl = dl.replace(tzinfo=timezone.utc)
+                return dl < now
+            except ValueError:
+                pass
+    try:
+        sd = datetime.fromisoformat(session_date).replace(tzinfo=timezone.utc)
+        return sd.date() < (now - timedelta(days=stale_days)).date()
+    except ValueError:
+        return False
+
+
 async def upsert_pending_plan(
     plan: dict,
     *,
@@ -804,37 +848,125 @@ async def upsert_pending_plan(
     status: str = "pending",
     strategy: str = "swing_momentum",
 ) -> None:
-    """Write a plan + its verdicts to pending_approvals (insert or replace)."""
+    """Write a plan to pending_approvals, deduped by (strategy, symbol, session).
+
+    A scan re-evaluates the same setup on every run. Without a natural key this
+    inserted a fresh row each time (plan_id is a new uuid per scan), piling up
+    duplicates. Now:
+      * existing row for this setup + still valid  -> bump refreshed_at (+ refresh
+        verdicts/plan while it's still pending), keep the SAME row. No duplicate.
+      * existing row + stale (entry window passed)  -> delete it if still pending
+        (leave acted-on rows as history).
+      * no existing row + stale                     -> skip (don't queue a dead setup).
+      * no existing row + valid                     -> insert new.
+    """
     plan_id = plan["plan_id"]
     symbol = plan["instrument"]["symbol"]
     direction = plan["setup"]["direction"]
     conviction = float(plan["thesis"].get("conviction", 0.0))
     ts_created = plan.get("ts_created") or datetime.now(timezone.utc).isoformat()
     mode = plan.get("mode", "paper")
+    session_date = _plan_session_date(plan)
+    session_key = f"{symbol.upper()}|{session_date}"
+    stale = _plan_is_stale(plan, session_date)
+    now = datetime.now(timezone.utc).isoformat()
+    cv = json.dumps(compliance_verdict) if compliance_verdict else None
+    rv = json.dumps(risk_verdict) if risk_verdict else None
 
     async with _dbmod.connect() as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT plan_id, status FROM pending_approvals "
+            "WHERE strategy = ? AND UPPER(symbol) = ? AND session_key = ? "
+            "ORDER BY ts_created DESC LIMIT 1",
+            (strategy, symbol.upper(), session_key),
+        )
+        existing = await cur.fetchone()
+
+        if existing is not None:
+            if stale and existing["status"] == "pending":
+                await db.execute("DELETE FROM pending_approvals WHERE plan_id = ?",
+                                 (existing["plan_id"],))
+                await db.commit()
+                logger.info("pending: removed stale setup %s (%s)", session_key, strategy)
+                return
+            # still valid (or already acted on): refresh in place, never duplicate
+            if existing["status"] == "pending":
+                await db.execute(
+                    "UPDATE pending_approvals SET refreshed_at = ?, plan_json = ?, "
+                    "compliance_verdict_json = ?, risk_verdict_json = ?, conviction = ? "
+                    "WHERE plan_id = ?",
+                    (now, json.dumps(plan), cv, rv, conviction, existing["plan_id"]),
+                )
+            else:
+                await db.execute(
+                    "UPDATE pending_approvals SET refreshed_at = ? WHERE plan_id = ?",
+                    (now, existing["plan_id"]),
+                )
+            await db.commit()
+            return
+
+        if stale:
+            return  # don't queue a setup whose window already passed
+
         await db.execute(
             """
             INSERT INTO pending_approvals
                 (plan_id, ts_created, symbol, direction, strategy, conviction,
                  plan_json, compliance_verdict_json, risk_verdict_json,
-                 status, mode)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?)
+                 status, mode, session_key, refreshed_at)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
             ON CONFLICT(plan_id) DO UPDATE SET
                 compliance_verdict_json = excluded.compliance_verdict_json,
                 risk_verdict_json = excluded.risk_verdict_json,
-                status = excluded.status
+                status = excluded.status,
+                refreshed_at = excluded.refreshed_at
             """,
-            (
-                plan_id, ts_created, symbol, direction, strategy, conviction,
-                json.dumps(plan),
-                json.dumps(compliance_verdict) if compliance_verdict else None,
-                json.dumps(risk_verdict) if risk_verdict else None,
-                status,
-                mode,
-            ),
+            (plan_id, ts_created, symbol, direction, strategy, conviction,
+             json.dumps(plan), cv, rv, status, mode, session_key, now),
         )
         await db.commit()
+
+
+async def dedupe_pending_plans(stale_days: int = STALE_PENDING_DAYS) -> dict[str, int]:
+    """One-off / periodic cleanup of the pending_approvals table:
+      * collapse duplicate (strategy, symbol, session) setups to the newest row,
+      * remove stale pending setups (entry window passed),
+      * backfill session_key for legacy rows.
+    Only 'pending' rows are touched — acted-on rows (approved/executed/rejected)
+    are kept as history. Returns {removed_dupes, removed_stale}."""
+    removed_dupes = removed_stale = 0
+    async with _dbmod.connect() as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT plan_id, strategy, symbol, status, plan_json, ts_created, session_key "
+            "FROM pending_approvals WHERE status = 'pending' ORDER BY ts_created DESC"
+        )
+        rows = await cur.fetchall()
+        seen: set[tuple[str, str, str]] = set()
+        for r in rows:
+            try:
+                plan = json.loads(r["plan_json"]) if r["plan_json"] else {}
+            except Exception:  # noqa: BLE001
+                plan = {}
+            sdate = _plan_session_date(plan) if plan else str(r["ts_created"])[:10]
+            skey = r["session_key"] or f"{r['symbol'].upper()}|{sdate}"
+            if not r["session_key"]:
+                await db.execute("UPDATE pending_approvals SET session_key = ? WHERE plan_id = ?",
+                                 (skey, r["plan_id"]))
+            key = (r["strategy"], r["symbol"].upper(), skey)
+            if key in seen:                       # older duplicate of a setup we kept
+                await db.execute("DELETE FROM pending_approvals WHERE plan_id = ?", (r["plan_id"],))
+                removed_dupes += 1
+                continue
+            seen.add(key)
+            if plan and _plan_is_stale(plan, sdate, stale_days):
+                await db.execute("DELETE FROM pending_approvals WHERE plan_id = ?", (r["plan_id"],))
+                removed_stale += 1
+        await db.commit()
+    if removed_dupes or removed_stale:
+        logger.info("dedupe_pending_plans: removed %d dup + %d stale", removed_dupes, removed_stale)
+    return {"removed_dupes": removed_dupes, "removed_stale": removed_stale}
 
 
 async def get_pending_plans(

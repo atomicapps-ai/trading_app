@@ -438,6 +438,13 @@ async def run_fvg_scan(settings: Settings | None = None,
     logger.info("fvg_scan: %d symbols, %d setups, %d queued, %d blocked, "
                 "%d already-seen (deduped)",
                 len(symbols), proposed, approved, len(blocked), seen_before)
+
+    # Collapse any duplicate rows and drop stale pending setups so re-runs never
+    # accrete the same trade twice.
+    try:
+        await db_service.dedupe_pending_plans()
+    except Exception as e:  # noqa: BLE001
+        logger.warning("fvg_scan: dedupe_pending_plans failed: %s", e)
     return {
         "strategy": STRATEGY, "run_id": run_id,
         "symbols_scanned": len(symbols),
