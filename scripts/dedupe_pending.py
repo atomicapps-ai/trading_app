@@ -19,12 +19,35 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 
+async def _show(db_service) -> None:
+    """Print every pending row's setup identity so duplicates are visible."""
+    from services import db as _dbmod
+    import json
+    async with _dbmod.connect() as db:
+        import aiosqlite
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT plan_id, strategy, symbol, direction, status, setup_fp, "
+            "ts_created, plan_json FROM pending_approvals WHERE status='pending' "
+            "ORDER BY strategy, setup_fp, ts_created")
+        rows = await cur.fetchall()
+    print(f"{len(rows)} pending rows:\n")
+    print(f"{'strategy':22} {'fingerprint (symbol|dir|entry|stop|target)':46} {'created':20}")
+    for r in rows:
+        fp = r["setup_fp"] or db_service._setup_fp(json.loads(r["plan_json"] or "{}"))
+        print(f"{r['strategy'][:22]:22} {fp[:46]:46} {str(r['ts_created'])[:19]}")
+
+
 async def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--stale-days", type=int, default=None)
+    ap.add_argument("--show", action="store_true", help="list pending setups, don't modify")
     a = ap.parse_args()
     from services import db_service
-    await db_service.ensure_tables()          # applies the session_key/refreshed_at migration
+    await db_service.ensure_tables()          # applies the setup_fp/refreshed_at migration
+    if a.show:
+        await _show(db_service)
+        return
     before = await db_service.get_pending_count("pending")
     kw = {} if a.stale_days is None else {"stale_days": a.stale_days}
     res = await db_service.dedupe_pending_plans(**kw)
