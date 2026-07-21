@@ -399,9 +399,10 @@ _PENDING_EXPECTED_COLUMNS = {
     "ack_json", "execution_json", "broker_order_id",
     "execution_ts", "execution_reject_reason",
     # Dedup + freshness: a scan re-evaluates the same setup every run. We key a
-    # setup by (strategy, symbol, session_key); refreshed_at is bumped when an
-    # unchanged, still-valid setup is seen again instead of inserting a dup row.
-    "session_key", "refreshed_at",
+    # setup by (strategy, setup_fp) = symbol+direction+entry/stop/target levels;
+    # refreshed_at is bumped when an unchanged, still-valid setup is seen again
+    # instead of inserting a dup row. session_key kept for staleness/legacy.
+    "session_key", "refreshed_at", "setup_fp",
 }
 
 # A pending setup whose session is older than this many days is "stale" — the
@@ -806,14 +807,35 @@ def _preset_row_to_dict(row: Any) -> dict:
 
 
 def _plan_session_date(plan: dict) -> str:
-    """The trading session a plan targets — its dedup identity within a strategy.
-    Prefers an explicit thesis.session_date; falls back to the plan's creation
-    date (a daily strategy fires at most one setup per symbol per day)."""
+    """The trading session a plan targets — used for staleness.
+    Prefers an explicit thesis.session_date; falls back to the plan's creation date."""
     sd = (plan.get("thesis") or {}).get("session_date")
     if sd:
         return str(sd)[:10]
     ts = plan.get("ts_created") or datetime.now(timezone.utc).isoformat()
     return str(ts)[:10]
+
+
+def _setup_fp(plan: dict) -> str:
+    """Fingerprint of the SETUP itself — what makes two trades "the same exact
+    trade": symbol + direction + entry/stop/target levels. Two pending plans
+    with the same fingerprint are duplicates regardless of when they were
+    scanned (a scan re-lists the same setup every run). Levels are rounded so
+    trivial float noise doesn't split a duplicate."""
+    setup = plan.get("setup") or {}
+    sym = str((plan.get("instrument") or {}).get("symbol", "")).upper()
+    direction = str(setup.get("direction", ""))
+
+    def _r(x):
+        try:
+            return f"{float(x):.5f}"
+        except (TypeError, ValueError):
+            return "na"
+    entry = _r((setup.get("entry") or {}).get("price"))
+    stop = _r(((setup.get("stop_loss") or {}).get("initial") or {}).get("price"))
+    tps = setup.get("take_profit") or []
+    target = _r(tps[0].get("price")) if tps else "na"
+    return f"{sym}|{direction}|{entry}|{stop}|{target}"
 
 
 def _plan_is_stale(plan: dict, session_date: str,
@@ -868,6 +890,7 @@ async def upsert_pending_plan(
     mode = plan.get("mode", "paper")
     session_date = _plan_session_date(plan)
     session_key = f"{symbol.upper()}|{session_date}"
+    setup_fp = _setup_fp(plan)
     stale = _plan_is_stale(plan, session_date)
     now = datetime.now(timezone.utc).isoformat()
     cv = json.dumps(compliance_verdict) if compliance_verdict else None
@@ -875,11 +898,12 @@ async def upsert_pending_plan(
 
     async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
+        # "Same exact trade" = same strategy + setup fingerprint (levels).
         cur = await db.execute(
             "SELECT plan_id, status FROM pending_approvals "
-            "WHERE strategy = ? AND UPPER(symbol) = ? AND session_key = ? "
+            "WHERE strategy = ? AND setup_fp = ? "
             "ORDER BY ts_created DESC LIMIT 1",
-            (strategy, symbol.upper(), session_key),
+            (strategy, setup_fp),
         )
         existing = await cur.fetchone()
 
@@ -914,8 +938,8 @@ async def upsert_pending_plan(
             INSERT INTO pending_approvals
                 (plan_id, ts_created, symbol, direction, strategy, conviction,
                  plan_json, compliance_verdict_json, risk_verdict_json,
-                 status, mode, session_key, refreshed_at)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+                 status, mode, session_key, refreshed_at, setup_fp)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             ON CONFLICT(plan_id) DO UPDATE SET
                 compliance_verdict_json = excluded.compliance_verdict_json,
                 risk_verdict_json = excluded.risk_verdict_json,
@@ -923,39 +947,43 @@ async def upsert_pending_plan(
                 refreshed_at = excluded.refreshed_at
             """,
             (plan_id, ts_created, symbol, direction, strategy, conviction,
-             json.dumps(plan), cv, rv, status, mode, session_key, now),
+             json.dumps(plan), cv, rv, status, mode, session_key, now, setup_fp),
         )
         await db.commit()
 
 
 async def dedupe_pending_plans(stale_days: int = STALE_PENDING_DAYS) -> dict[str, int]:
     """One-off / periodic cleanup of the pending_approvals table:
-      * collapse duplicate (strategy, symbol, session) setups to the newest row,
+      * collapse duplicate setups — same (strategy, setup fingerprint) = same
+        symbol+direction+entry/stop/target — to the newest row,
       * remove stale pending setups (entry window passed),
-      * backfill session_key for legacy rows.
+      * backfill setup_fp / session_key for legacy rows.
     Only 'pending' rows are touched — acted-on rows (approved/executed/rejected)
     are kept as history. Returns {removed_dupes, removed_stale}."""
     removed_dupes = removed_stale = 0
     async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
-            "SELECT plan_id, strategy, symbol, status, plan_json, ts_created, session_key "
-            "FROM pending_approvals WHERE status = 'pending' ORDER BY ts_created DESC"
+            "SELECT plan_id, strategy, symbol, status, plan_json, ts_created, "
+            "session_key, setup_fp FROM pending_approvals "
+            "WHERE status = 'pending' ORDER BY ts_created DESC"
         )
         rows = await cur.fetchall()
-        seen: set[tuple[str, str, str]] = set()
+        seen: set[tuple[str, str]] = set()
         for r in rows:
             try:
                 plan = json.loads(r["plan_json"]) if r["plan_json"] else {}
             except Exception:  # noqa: BLE001
                 plan = {}
             sdate = _plan_session_date(plan) if plan else str(r["ts_created"])[:10]
+            fp = r["setup_fp"] or (_setup_fp(plan) if plan else f"{r['symbol'].upper()}||")
             skey = r["session_key"] or f"{r['symbol'].upper()}|{sdate}"
-            if not r["session_key"]:
-                await db.execute("UPDATE pending_approvals SET session_key = ? WHERE plan_id = ?",
-                                 (skey, r["plan_id"]))
-            key = (r["strategy"], r["symbol"].upper(), skey)
-            if key in seen:                       # older duplicate of a setup we kept
+            if not r["setup_fp"] or not r["session_key"]:
+                await db.execute(
+                    "UPDATE pending_approvals SET setup_fp = ?, session_key = ? WHERE plan_id = ?",
+                    (fp, skey, r["plan_id"]))
+            key = (r["strategy"], fp)
+            if key in seen:                       # older duplicate of the same exact trade
                 await db.execute("DELETE FROM pending_approvals WHERE plan_id = ?", (r["plan_id"],))
                 removed_dupes += 1
                 continue
