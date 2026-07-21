@@ -41,14 +41,31 @@ whose setup reduces to any of them is rejected at triage, before ingest:
    equities/ETFs (20y daily + ~2y 1h). Crypto/options-only → deprioritize (can't
    validate cleanly here).
 
-## 3. The PASS bar (backtest gate) — unchanged, applied per candidate
+## 3. The PASS bar (backtest gate) — applied per candidate
 
 - **PF ≥ 1.3 net of costs** (spread+commission modeled per instrument),
 - **avg-R > 0**, **~100+ trades**,
-- **beats a with-trend / random-direction control**,
+- **PF ≥ control + 0.25**, where the control is the **same strategy with the direction
+  randomised** (≥3 seeds, averaged) — *not* a differently-shaped baseline. Amended
+  2026-07-20: the old fade control traded 1:1 against 2R strategies, which made
+  `false_break_fade` look like it "beat the control" when it sat exactly on its coin-flip
+  baseline. PF is only comparable between runs of identical payoff geometry.
+- **cost must be < ~10% of the risk unit** — report median risk-in-bps next to PF. A
+  6-bps stop against a 2-bps cost is not a tradeable setup and its PF is not a verdict
+  (this is what produced `opening_range_fade`'s 0.35).
+- **entry at the next bar's open**, never the signal bar's close; stops/targets checked
+  intrabar on High/Low, stop wins a both-touched bar.
 - **stable across IS/OOS** — check per-year PF, reject regime artifacts
   (this is what killed the best ORB config: great 2022-25, losing 2015-21),
 - **corr < 0.60** to the live book (`scripts/strategy_correlation_gate.py`).
+- **eyeball the trades before trusting the number** —
+  `python -m scripts.build_equity_review` (equities) or
+  `python -m scripts.build_candidate_review` (FX/metals), then `/backtest-review`.
+
+**Retired rejection reasons** (both were unsound — see `PROCESS_AUDIT.md` §3):
+"out of scope: intraday/futures" (rested on a false data-availability belief) and "a daily
+analog is already live" (an intraday version is a different trade with different costs and
+correlation — judge it on the measured correlation gate, not on family resemblance).
 
 Only survivors get wired `active:false` for human review.
 

@@ -39,23 +39,50 @@ retail cost on majors. On 10–20-pip scalps this is decisive.
   Net-negative. Reject.
 - **ema_reclaim_pullback** and **amd_session_reversal** — net losers, worse than the
   naive with-trend control. Reject.
-- **orb_retest** — the lone survivor at breakeven-net (EURUSD OOS PF 1.23 gross). But
-  it's SPY/QQQ/ES-native and we have **no cached 5m equity data**, so this FX stand-in
-  isn't a faithful test. Kept **pending** for a proper RTH-equity re-run.
+- **orb_retest** — the lone survivor at breakeven-net (EURUSD OOS PF 1.23 gross). It is
+  SPY/QQQ/ES-native, so this FX stand-in was not a faithful test and it was kept
+  **pending** an RTH-equity re-run. **That re-run has now happened and closes it as a
+  rejection** — see the correction below.
 
 This is consistent with the whole intraday pass and with the **UFjajYgJBHg** evidence
 video (10-yr cost-adjusted ORB study): opening-range / EMA / session scalps do not
 survive out-of-sample once transaction costs are honest.
 
+## CORRECTION (2026-07-20) — the "equity data gap" was false; orb_retest is now rejected
+
+This page claimed the project had **no cached 5m equity data**. It does: 522 `*_5m.csv`
+files, including **21 years of RTH bars for SPY / QQQ / IWM / DIA** (2005-01-03 →
+2026-07-07, ~421k bars each). The FX stand-in was never necessary.
+
+Re-tested on the native instrument via `scripts/bt_equity_open_setups.py` — 09:30 ET
+anchor, **entry at the next bar's open**, flat 15:55 ET, 2bp round-turn cost, stop
+resolved first when a bar touches both stop and target, and a control that is the same
+strategy with the **direction randomised** (5 seeds):
+
+| detector | N | WR% | OOS PF | matched control | verdict |
+|---|--:|--:|--:|--:|---|
+| orb_retest | 14,664 | 42.7 | **0.984** | 0.986 | ❌ reject — no edge |
+| false_break_fade | 40,483 | 36.8 | 0.750 | 0.751 | ❌ reject — no edge |
+| opening_range_fade (fair geometry) | 7,168 | 39.2 | 0.890 | 0.877 | ❌ reject — no edge |
+
+`orb_retest` per-year PF across 21 years oscillates around its control and never
+establishes a trend (0.63 – 1.18, no IS/OOS drift). Trades were rendered and inspected
+individually (`python -m scripts.build_equity_review --strategy orb_retest`): the opening
+range, the break, the retest, the stop on the far range side and the 2R target all match
+`7teij9jI7mg/spec.json`. **The mechanics are faithful and the setup has no directional
+content** — this is a strategy verdict, not a harness artifact. `orb_retest` moves from
+PENDING to REJECTED.
+
+Note also that the `control_with_trend` used on this page is a fixed 10/20-pip geometry
+while the detectors use ATR-scaled stops, so "beats the control" comparisons above are
+not like-for-like. See `PROCESS_AUDIT.md` §D1.
+
 ## Caveats / how to push further
 - **Costs dominate.** Re-run with `--cost-pips` to see the sensitivity; anything under
   ~PF 1.3 gross is unlikely to net out on a sub-20-pip target.
 - **No parameter search.** These are the creators' stated parameters. `orb_retest` is
-  the only one worth a small sweep (range TF, R:R < 2:1, cutoff time) — mirroring the
-  UFjajYgJBHg finding that basic-ORB + 15m range + R:R < 1:2 was the best surviving
-  combo, and on **gold/euro**, not index futures.
-- **Equity data gap.** To test `orb_retest` faithfully, cache 5m bars for SPY/QQQ/ES
-  (Alpaca `/data-fetch` supports 5m ~5y) and re-run with a 09:30 ET open anchor.
+  the only one that looked worth a sweep — the equity re-test above removes the reason to
+  run one.
 
 Reproduce:
 ```bash

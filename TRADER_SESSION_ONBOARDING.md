@@ -75,8 +75,11 @@ timestamp) cannot be honestly backtested — say so.
    → `routers/backtest_review.py` → `/backtest-review`. Run the builder, open the page,
    and *look at the trades*.
 7. **Data on disk** — `data/historical/{SYM}_{5m,30m,1d,1h}.csv`. You have **deep FX 5m +
-   gold 5m (2000–2025)** and **~20y daily equities**, but **NO 5m equity data** (that gap
-   matters — pull it via `/data-fetch` if an equity-native setup needs it).
+   gold 5m (2000–2025)**, **~20y daily equities**, and — contrary to what earlier docs
+   claimed — **522 `*_5m.csv` equity files, including 21 years of RTH 5m for SPY / QQQ /
+   IWM / DIA (2005-01-03 → 2026-07-07, ~421k bars each)**. Equity-native intraday setups
+   can and should be tested on equities directly; the "no 5m equity data" belief is what
+   sent `orb_retest` to an FX stand-in and left it un-verdicted. See `PROCESS_AUDIT.md` §D2.
 
 ## PART 3 — What's already been done (and what to distrust)
 

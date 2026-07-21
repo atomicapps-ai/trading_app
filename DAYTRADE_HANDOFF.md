@@ -78,3 +78,135 @@ Closest-to-alive retail: ema9_20_cross (5y net 1.01). Full map: `research/video_
 `strategies/strategy_docs/INTRADAY_STRATEGY_CATALOG.md` (all day-trades tested) ·
 `INTRADAY_SOURCED.md` (Concretum specs) · `INTRADAY_STRATEGY_SPECS.md` (4 families + overnight) ·
 `INTRADAY_FINDINGS.md` · `research/video_library/day_intra/_PROCESSING.md` (27-video map).
+
+---
+
+## ✅ RESOLVED (2026-07-20) — the pending next-open fill test PASSES
+
+The blocking robustness test above ("re-run Concretum entering at the **next bar's open**")
+has been run. Added `--fill {close,next_open}` to `scripts/bt_concretum_intraday_momentum.py`:
+the signal still fires on the :00/:30 mark's close, but the order fills at the following
+1-minute bar's open — what a real order sent on that signal would actually get.
+
+**The edge is not a fill artifact.** VM=1.5, SPY+QQQ, n=6,261 (identical trade count):
+
+| fill | gross PF | net PF | net OOS PF | 5y | 10y | 20y |
+|---|--:|--:|--:|--:|--:|--:|
+| close (original) | 1.23 | 1.11 | 1.18 | 1.22 | 1.20 | 1.13 |
+| **next_open (conservative)** | **1.24** | **1.12** | **1.18** | **1.22** | **1.20** | **1.14** |
+
+Every window is unchanged or marginally *better*. The one-bar fill delay costs nothing,
+which makes sense mechanically: the strategy enters on a band breakout and holds for a
+VWAP-trailing exit, so it is not harvesting the signal bar's own close.
+
+**Parameter robustness** (next_open fill, net OOS PF / last-5y net PF):
+
+| VM | 1.0 | 1.25 | 1.5 | 1.75 | 2.0 |
+|---|--:|--:|--:|--:|--:|
+| net OOS PF | 1.15 | 1.20 | **1.18** | 1.09 | 1.09 |
+| last 5y net PF | 1.16 | 1.23 | 1.22 | 1.17 | 1.14 |
+
+A plateau from VM 1.0-1.5 rather than a spike, and every setting is net-positive on the
+recent window — this is not a tuned point. VM 1.25-1.5 is the sweet spot.
+
+### Remaining caveats before promoting (unchanged in importance)
+1. **The edge is still THIN** — avgR ~+0.005 (~0.025%/trade net). Fine as a portfolio
+   component, fragile as a standalone.
+2. **The control is an approximation.** `control_OOS` flips the sign of realised returns
+   (`x * random.choice([1,-1])`) rather than re-simulating with a random direction. Because
+   the exit is direction-dependent (VWAP trail), a sign-flip does not produce the trade the
+   opposite call would actually have taken. Per `research/video_library/PROCESS_AUDIT.md`
+   §D1 this is the exact defect class that invalidated the `false_break_fade` verdict —
+   **rebuild this as a true re-simulation before promoting.** It is currently the weakest
+   number in the result.
+3. Then: correlation gate vs the live book → wire `active:false` for human review.
+
+### ⏭ NEXT ACTION (replaces the fill test)
+Rebuild `control_OOS` as a genuine direction-randomised re-simulation, then run the
+correlation gate.
+
+## ✅ RESOLVED (2026-07-20) — the control is now a real re-simulation, and the edge holds
+
+`control_OOS` previously flipped the sign of realised returns
+(`x * random.choice([1,-1])`). That is invalid here: the exit is direction-dependent (the
+VWAP trail), so the trade the opposite call would have taken exits at a *different bar*.
+A flipped return describes a trade that never happened.
+
+Replaced with a genuine **direction-randomised re-simulation** (`--control-seeds`, default
+5): identical marks, identical bands, identical VWAP-trailing exit and EOD flat — only the
+long/short call becomes a coin flip. Per `PROCESS_AUDIT.md` D1 this is the only control
+that isolates directional skill from payoff geometry.
+
+**Result (VM=1.5, next_open fill, SPY+QQQ):**
+
+| | n | win% | net OOS PF |
+|---|--:|--:|--:|
+| strategy | 6,261 | 37.6 | **1.18** |
+| control (5-seed re-sim) | ~4,610 | 42.1 | **0.95** (range 0.92–1.00) |
+| | | | **edge +0.23 PF** |
+
+**The control's trade count differs from the strategy's (4,610 vs 6,261) — which is itself
+proof the old sign-flip was wrong**, since that method assumed an identical ledger.
+
+Two things worth understanding about this result:
+1. **The control loses money (PF 0.95).** A coin flip on these setups is a net loser after
+   cost, so the strategy is overcoming a negative baseline — same signature as
+   `fvg_continuation`. The direction call is doing real work.
+2. **The edge is not hit-rate — it's payoff.** The control actually *wins more often*
+   (42.1% vs 37.6%) yet still loses. The strategy wins less often and makes money, because
+   when the directional call is right the VWAP trail rides it further. Consistent with the
+   rig's recurring lesson: edge is payoff geometry, not prediction accuracy.
+
+### Honest scoring against the bar
+- ✅ beats a properly-constructed control by +0.23 PF, control is net-losing
+- ✅ regime-consistent (5y 1.22 / 10y 1.20 / 20y 1.14), VM plateau 1.0–1.5, fill-robust
+- ✅ clears the project's earlier net-PF ≥ 1.2 bar on the 5y and 10y windows
+- ❌ does **not** clear PF ≥ 1.3 net, and the +0.23 margin is a hair under the +0.25 the
+  amended PASS bar asks for
+- ⚠ the edge is THIN — avgR +0.005 (~0.025%/trade net)
+
+**Verdict: a real but small edge.** Defensible as a diversifying component sized modestly;
+not a standalone. All three robustness questions that were blocking it are now answered.
+
+### ⏭ NEXT ACTION
+Correlation gate vs the live book (`scripts/strategy_correlation_gate.py`). If corr < 0.60,
+wire `active:false` for human review. Note it is intraday SPY/QQQ while the live book is
+daily equities, so correlation should be low — that is the argument for including it
+despite the modest PF.
+
+## ✅ RESOLVED (2026-07-20) — correlation gate: DIVERSIFIER, and the cleanest in the book
+
+Added ledger-sourced books to `scripts/strategy_correlation_gate.py` (intraday strategies
+can't be re-run by the swing suite, which loads daily bars only) and ran the gate over 400
+symbols / 259 months.
+
+| | max abs corr to live | verdict |
+|---|--:|---|
+| **cand:concretum_intraday(SPY/QQQ)** | **0.13** (MomentumBreakout) | **DIVERSIFIER** |
+| cand:hidden_divergence | 0.23 | DIVERSIFIER |
+| cand:ma_crossover | 0.32 | DIVERSIFIER |
+| cand:rsi_pullback | 0.43 | DIVERSIFIER |
+| cand:band_extreme_fade | 0.55 | DIVERSIFIER |
+| cand:donchian_breakout | 0.70 | redundant |
+| cand:band_rsi_reversion | 0.75 | redundant |
+
+Correlation to each live anchor: MomentumBreakout **-0.13**, FearDip **-0.01**, MACD_run
+**-0.05** — *negative to all three*, and the lowest of any candidate ever gated (next best
+is 0.23). Expected: it is intraday SPY/QQQ against a daily single-name equity book, so it
+is picking up a different return stream entirely.
+
+**This is the argument for including it despite the modest PF.** A PF 1.18 strategy at
+-0.13 correlation contributes more to a portfolio's risk-adjusted return than a PF 1.4
+strategy at 0.6 correlation, because it earns when the rest of the book is flat. Judge it
+on that basis, not on standalone PF.
+
+### Status: all three blockers cleared
+1. ✅ next-open fill — edge unchanged (1.18)
+2. ✅ true direction-randomised control — 0.95, edge +0.23 PF
+3. ✅ correlation gate — 0.13, DIVERSIFIER
+
+### ⏭ NEXT ACTION — human review, then wire `active:false`
+Remaining honest caveats before any capital: avgR is thin (+0.005, ~0.025%/trade net); it
+is a backtest, not live; SPY/QQQ only (breadth across more liquid ETFs would strengthen
+it); and it does not clear PF >= 1.3, so it belongs as a small diversifying sleeve rather
+than a core strategy. Size accordingly.
