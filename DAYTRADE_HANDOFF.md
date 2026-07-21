@@ -173,3 +173,40 @@ Correlation gate vs the live book (`scripts/strategy_correlation_gate.py`). If c
 wire `active:false` for human review. Note it is intraday SPY/QQQ while the live book is
 daily equities, so correlation should be low — that is the argument for including it
 despite the modest PF.
+
+## ✅ RESOLVED (2026-07-20) — correlation gate: DIVERSIFIER, and the cleanest in the book
+
+Added ledger-sourced books to `scripts/strategy_correlation_gate.py` (intraday strategies
+can't be re-run by the swing suite, which loads daily bars only) and ran the gate over 400
+symbols / 259 months.
+
+| | max abs corr to live | verdict |
+|---|--:|---|
+| **cand:concretum_intraday(SPY/QQQ)** | **0.13** (MomentumBreakout) | **DIVERSIFIER** |
+| cand:hidden_divergence | 0.23 | DIVERSIFIER |
+| cand:ma_crossover | 0.32 | DIVERSIFIER |
+| cand:rsi_pullback | 0.43 | DIVERSIFIER |
+| cand:band_extreme_fade | 0.55 | DIVERSIFIER |
+| cand:donchian_breakout | 0.70 | redundant |
+| cand:band_rsi_reversion | 0.75 | redundant |
+
+Correlation to each live anchor: MomentumBreakout **-0.13**, FearDip **-0.01**, MACD_run
+**-0.05** — *negative to all three*, and the lowest of any candidate ever gated (next best
+is 0.23). Expected: it is intraday SPY/QQQ against a daily single-name equity book, so it
+is picking up a different return stream entirely.
+
+**This is the argument for including it despite the modest PF.** A PF 1.18 strategy at
+-0.13 correlation contributes more to a portfolio's risk-adjusted return than a PF 1.4
+strategy at 0.6 correlation, because it earns when the rest of the book is flat. Judge it
+on that basis, not on standalone PF.
+
+### Status: all three blockers cleared
+1. ✅ next-open fill — edge unchanged (1.18)
+2. ✅ true direction-randomised control — 0.95, edge +0.23 PF
+3. ✅ correlation gate — 0.13, DIVERSIFIER
+
+### ⏭ NEXT ACTION — human review, then wire `active:false`
+Remaining honest caveats before any capital: avgR is thin (+0.005, ~0.025%/trade net); it
+is a backtest, not live; SPY/QQQ only (breadth across more liquid ETFs would strengthen
+it); and it does not clear PF >= 1.3, so it belongs as a small diversifying sleeve rather
+than a core strategy. Size accordingly.

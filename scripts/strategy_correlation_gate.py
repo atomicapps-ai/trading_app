@@ -25,6 +25,31 @@ import bt_ma_crossover, bt_turtle, bt_supertrend, bt_4candles
 from bt_macd_exits import macd_variant
 
 
+# Books that come from a saved ledger rather than a re-run detector. Intraday strategies
+# live here because re-running them needs 1-minute data the swing suite doesn't load.
+#   name -> (family, ledger filename, summary filename)
+LEDGER_BOOKS = {
+    "cand:concretum_intraday(SPY/QQQ)": (
+        "intraday", "concretum_vm15_truectrl_ledger.json", "concretum_vm15_truectrl.json"),
+}
+RESULTS = Path(__file__).resolve().parent.parent / "data" / "research" / "strategy_results"
+
+
+def monthly_R_from_ledger(fname: str) -> pd.Series:
+    """Monthly summed net-R from a saved ledger (date + r_net per trade)."""
+    p = RESULTS / fname
+    if not p.exists():
+        return pd.Series(dtype=float)
+    led = json.loads(p.read_text())
+    if not led:
+        return pd.Series(dtype=float)
+    df = pd.DataFrame({
+        "ts": pd.to_datetime([t["date"] for t in led], utc=True),
+        "r": [max(-25.0, min(25.0, float(t.get("r_net", t.get("r_gross", 0.0))))) for t in led],
+    })
+    return df.set_index("ts")["r"].resample("ME").sum()
+
+
 def monthly_R(trades) -> pd.Series:
     if not trades:
         return pd.Series(dtype=float)
@@ -73,12 +98,27 @@ def main():
     fam = {k: v[0] for k, v in books.items()}
     pf = {k: oos_pf(v[1]) for k, v in books.items()}
     n = {k: len(v[1]) for k, v in books.items()}
+
+    # ---- ledger-sourced books (intraday) ----
+    for name, (family, ledger, summary) in LEDGER_BOOKS.items():
+        s = monthly_R_from_ledger(ledger)
+        if s.empty:
+            print(f"  !! {name}: ledger {ledger} missing/empty, skipping")
+            continue
+        series[name] = s
+        fam[name] = family
+        n[name] = len(json.loads((RESULTS / ledger).read_text()))
+        sp = RESULTS / summary
+        pf[name] = (json.loads(sp.read_text()).get("net_OOS", {}).get("PF", float("nan"))
+                    if sp.exists() else float("nan"))
     M = pd.DataFrame(series).fillna(0.0)
     M = M.loc[(M != 0).any(axis=1)]
     C = M.corr()
 
-    live = [k for k in books if k.startswith("LIVE:")]
-    cands = [k for k in books if k.startswith("cand:")]
+    # draw from the correlation matrix, not `books` — ledger-sourced candidates
+    # (LEDGER_BOOKS) are in the matrix but never entered `books`.
+    live = [k for k in C.columns if k.startswith("LIVE:")]
+    cands = [k for k in C.columns if k.startswith("cand:")]
 
     out = {"n_symbols": len(sl), "months": len(M), "threshold_vs_live": THRESH,
            "fam_dedup_threshold": FAM_THRESH,
