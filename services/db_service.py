@@ -952,24 +952,32 @@ async def upsert_pending_plan(
         await db.commit()
 
 
-async def dedupe_pending_plans(stale_days: int = STALE_PENDING_DAYS) -> dict[str, int]:
+# Statuses the scan REGENERATES every run (so they accrete duplicates and are
+# safe to collapse). Acted-on rows carry real history and are left alone.
+_DEDUP_STATUSES = ("pending", "rejected", "blocked")
+
+
+async def dedupe_pending_plans(stale_days: int = STALE_PENDING_DAYS,
+                               statuses: tuple[str, ...] = _DEDUP_STATUSES) -> dict[str, int]:
     """One-off / periodic cleanup of the pending_approvals table:
       * collapse duplicate setups — same (strategy, setup fingerprint) = same
-        symbol+direction+entry/stop/target — to the newest row,
+        symbol+direction+entry/stop/target — to the newest row, PER status,
       * remove stale pending setups (entry window passed),
       * backfill setup_fp / session_key for legacy rows.
-    Only 'pending' rows are touched — acted-on rows (approved/executed/rejected)
-    are kept as history. Returns {removed_dupes, removed_stale}."""
+    Only scan-regenerated statuses (pending / rejected / blocked) are collapsed;
+    approved / executed / filled rows are kept as history. Returns counts."""
     removed_dupes = removed_stale = 0
+    placeholders = ",".join("?" for _ in statuses)
     async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
             "SELECT plan_id, strategy, symbol, status, plan_json, ts_created, "
-            "session_key, setup_fp FROM pending_approvals "
-            "WHERE status = 'pending' ORDER BY ts_created DESC"
+            f"session_key, setup_fp FROM pending_approvals WHERE status IN ({placeholders}) "
+            "ORDER BY ts_created DESC",
+            statuses,
         )
         rows = await cur.fetchall()
-        seen: set[tuple[str, str]] = set()
+        seen: set[tuple[str, str, str]] = set()   # (status, strategy, fingerprint)
         for r in rows:
             try:
                 plan = json.loads(r["plan_json"]) if r["plan_json"] else {}
@@ -982,13 +990,13 @@ async def dedupe_pending_plans(stale_days: int = STALE_PENDING_DAYS) -> dict[str
                 await db.execute(
                     "UPDATE pending_approvals SET setup_fp = ?, session_key = ? WHERE plan_id = ?",
                     (fp, skey, r["plan_id"]))
-            key = (r["strategy"], fp)
+            key = (r["status"], r["strategy"], fp)
             if key in seen:                       # older duplicate of the same exact trade
                 await db.execute("DELETE FROM pending_approvals WHERE plan_id = ?", (r["plan_id"],))
                 removed_dupes += 1
                 continue
             seen.add(key)
-            if plan and _plan_is_stale(plan, sdate, stale_days):
+            if r["status"] == "pending" and plan and _plan_is_stale(plan, sdate, stale_days):
                 await db.execute("DELETE FROM pending_approvals WHERE plan_id = ?", (r["plan_id"],))
                 removed_stale += 1
         await db.commit()
