@@ -28,8 +28,23 @@ from __future__ import annotations
 
 import os
 import sqlite3
+from pathlib import Path
 
 from services.settings_service import LOCAL_DB_PATH
+
+# Load .env at import so the BACKEND CHOICE is identical for every entrypoint —
+# the app AND one-off scripts (dedupe/diagnostics). Without this, the app (which
+# calls load_dotenv in app.py) connected to the shared Turso cloud DB while a
+# bare `python scripts/…` invocation, having no TURSO_DATABASE_URL in its env,
+# silently fell back to the LOCAL sqlite file. That split-brain is why cleaning
+# "the database" from a script never affected what the running app served. This
+# load is idempotent with app.py's (override=False → already-set env wins).
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=False)
+except Exception:  # noqa: BLE001 — dotenv missing shouldn't break local sqlite use
+    pass
 
 
 def turso_enabled() -> bool:

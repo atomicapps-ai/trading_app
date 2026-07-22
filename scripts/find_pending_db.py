@@ -58,11 +58,65 @@ def _inspect(db_path: Path) -> None:
         con.close()
 
 
+def _turso_report() -> bool:
+    """If the app is configured for the shared Turso cloud DB, the pending queue
+    lives THERE — no local .db file is involved. Report that first; scanning
+    local files would otherwise point at a file the app never reads (the exact
+    trap that made this bug look unfixable). Returns True if Turso is active."""
+    try:
+        import services.db as _dbmod  # importing this loads .env (override=False)
+    except Exception as exc:  # noqa: BLE001
+        print(f"(note: could not import services.db [{exc}]; skipping Turso check)")
+        return False
+    if not _dbmod.turso_enabled():
+        return False
+    import asyncio
+    import os
+
+    host = os.getenv("TURSO_DATABASE_URL", "").split("//")[-1].split("/")[0]
+    print("=" * 70)
+    print("BACKEND: TURSO CLOUD (shared libSQL) — the app does NOT use a local .db")
+    print(f"    host: {host}")
+    print("    Local *.db files below are IRRELEVANT to the running app; the")
+    print("    pending queue lives in the remote DB shown here.")
+    print("=" * 70)
+
+    async def _q() -> None:
+        import aiosqlite  # noqa: F401 — Row factory type
+        async with _dbmod.connect() as db:
+            cur = await db.execute(
+                "SELECT status, COUNT(*) FROM pending_approvals GROUP BY status ORDER BY status")
+            print("by status: " + ", ".join(f"{s}={n}" for s, n in await cur.fetchall()))
+            cur = await db.execute(
+                "SELECT strategy, symbol, COUNT(*) c FROM pending_approvals "
+                "WHERE status='pending' GROUP BY strategy, symbol ORDER BY c DESC, symbol")
+            pend = await cur.fetchall()
+            if pend:
+                print("PENDING rows (what the queue shows):")
+                for strat, sym, c in pend:
+                    flag = "  <-- DUP" if c > 1 else ""
+                    print(f"    {str(strat):18} {str(sym):8} x{c}{flag}")
+            else:
+                print("0 pending rows")
+
+    try:
+        asyncio.run(_q())
+    except Exception as exc:  # noqa: BLE001 — network/creds
+        print(f"    (could not query Turso: {exc})")
+    print("=" * 70)
+    return True
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", action="append", default=None,
                     help="extra directory to scan (repeatable)")
     a = ap.parse_args()
+
+    # If the app talks to Turso cloud, that IS the database — report it and stop
+    # implying a local file is authoritative. Still scan local files afterward
+    # (secondary: stale copies from before Turso was enabled).
+    on_turso = _turso_report()
 
     # Resolve the same path the app uses, WITHOUT importing the app (so this
     # diagnostic works even when deps aren't installed). Mirrors
@@ -108,9 +162,14 @@ def main() -> None:
         print()
 
     print("=" * 70)
-    print("If a file OTHER than the marked one shows the pending dups, the app is")
-    print("running from that directory. Launch the app from the same folder this")
-    print("script reports as PROJECT_ROOT, or run dedupe against that DB.")
+    if on_turso:
+        print("NOTE: the app is on TURSO CLOUD (see the top of this report). The local")
+        print("files above are NOT what the app serves — run dedupe against Turso, which")
+        print("happens automatically now that services.db loads .env for every entrypoint.")
+    else:
+        print("If a file OTHER than the marked one shows the pending dups, the app is")
+        print("running from that directory. Launch the app from the same folder this")
+        print("script reports as PROJECT_ROOT, or run dedupe against that DB.")
 
 
 if __name__ == "__main__":
