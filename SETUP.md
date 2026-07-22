@@ -99,9 +99,40 @@ up changes.
 | **`.env` (creds, ports, `BROKER_PROVIDER`)** | ❌ (`.env.example` is) | setup seeds it from `.env.example`; then you edit it |
 | **SQLite DB** (`data/*.db`) | ❌ | auto-created on first startup; migrations run automatically |
 | Active broker selection | ❌ (it's a DB row) | set `BROKER_PROVIDER=ibkr` in `.env` so it's the same on every machine without re-adding an account |
-| Bar cache (`data/historical/`) | ❌ | regenerate: `python -m scripts.fetch_fvg_data` (FX/gold), or the app auto-downloads equity bars on first strategy run |
-| FVG raw parquet (`data/fx_hist/`) | ❌ | `python -m scripts.fetch_fvg_data` |
+| Bar cache (`data/historical/`) | ❌ | regenerate: `python -m scripts.fetch_fvg_data` (FX/gold), or the app auto-downloads equity bars on first strategy run — **or** sync via Google Drive, see below |
+| FVG raw parquet (`data/fx_hist/`) | ❌ | `python -m scripts.fetch_fvg_data` — **or** sync via Google Drive, see below |
 | Trade logs (`trade_logs/`) | ❌ | copy across machines if you want to preserve the ML data pool |
+
+## Sharing candle data between machines (Google Drive)
+
+Re-downloading `data/historical/` (equity bars, ~1.8GB) and `data/fx_hist/`
+(IBKR FX/gold parquet, ~730MB) on a fresh machine works, but it's slow and the
+FX/gold pull needs a running IB Gateway session. If both machines have
+**Google Drive for desktop** installed in **Mirror files** mode (Settings →
+Preferences → Google Drive → "Mirror files" — not "Stream files", which has no
+real local path to `robocopy` into), `scripts/sync_candles.ps1` mirrors the
+candle caches through a shared Drive folder instead:
+
+```powershell
+# On the machine that already has the candles:
+powershell -ExecutionPolicy Bypass -File scripts\sync_candles.ps1 -Push
+
+# Wait for the Google Drive tray icon to go idle (cloud upload finished), then
+# on the second machine, once Drive has synced the folder back down locally:
+powershell -ExecutionPolicy Bypass -File scripts\sync_candles.ps1 -Pull
+```
+
+- Default shared location: `%USERPROFILE%\My Drive\TradeAgentBackups\candles`
+  (same parent folder `backup_trade_logs.ps1` already uses for trade logs). If
+  your Drive mounts as a drive letter instead (classic Drive File Stream, e.g.
+  `G:\`), pass `-DriveFolder "G:\My Drive\TradeAgentBackups\candles"`.
+- `-DryRun` previews file counts/sizes without copying anything.
+- `-IncludeRaw` also syncs `data/fx_raw/` (HistData's raw download cache) —
+  skip this by default, it's just an intermediate cache, not read by the app.
+- This is a manual, run-when-you-want-to-sync step, not continuous — Google
+  Drive's own client handles the actual cloud transfer in the background; the
+  script only mirrors between `data\` and your local Drive folder.
+- Restart the app after a `-Pull` so `data_service` picks up the new cache.
 
 ## Python version
 
