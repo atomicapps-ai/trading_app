@@ -377,7 +377,7 @@ async def main() -> int:
         f"{len(executed)} executed, "
         f"{len(rejected)} rejected"
     )
-    print("  Ready for: http://localhost:5000/pending")
+    print("  Ready for: https://app.tindex.ai/pending  (or http://localhost:5000/pending on the box)")
     return 0
 
 

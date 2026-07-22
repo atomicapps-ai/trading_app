@@ -23,7 +23,8 @@ git clone <repo> && cd trading_app
 ./run dev
 ```
 
-Then open http://127.0.0.1:5000.
+Then open **https://app.tindex.ai** (Cloudflare tunnel), or `http://127.0.0.1:5000`
+when you're on the box. `python -m scripts.app_url` prints whichever is reachable.
 
 > **You don't need to activate the venv or type its Python path.** The `run`
 > launcher (`run.cmd` on Windows, `run` on macOS/Linux) always uses the

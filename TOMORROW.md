@@ -49,7 +49,7 @@ Verify on the Broker page → Open orders panel is empty.
 - Tap **+** → topic `trading-agent-julius` → server `https://ntfy.sh`.
 - Test from PowerShell:
   ```
-  Invoke-RestMethod -Method POST http://127.0.0.1:5000/api/alerts/test
+  Invoke-RestMethod -Method POST https://app.tindex.ai/api/alerts/test   # or http://127.0.0.1:5000 on the box
   ```
 - Tap the notification → it should deep-link to the app's pending page.
 
@@ -66,7 +66,7 @@ deferred to a future session):
 Never / Sleep: Never (or at least until 11:00 ET tomorrow).
 
 ### 4. Pre-flight check — `/system-health`
-Open `http://localhost:5000/system-health` and confirm:
+Open `https://app.tindex.ai/system-health` (or `http://localhost:5000/system-health` on the box) and confirm:
 - Top banner = green **OK**
 - Scheduler = running, job_count ≥ 6 (workflows + DL Lock 1 scout + ct_poll
   + senate_daily_diff)
