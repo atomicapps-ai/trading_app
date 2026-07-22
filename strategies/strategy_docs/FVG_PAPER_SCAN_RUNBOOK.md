@@ -17,17 +17,22 @@ Both are satisfied by connecting the **IBKR paper account** — nothing else to 
 
 ## ▶ RUN THIS (on your machine, once IBKR Gateway/paper is up)
 
+Base URL: **https://app.tindex.ai** (the Cloudflare tunnel) — works from anywhere.
+When you're on the box or the tunnel is down, `http://localhost:5000` also works.
+Not sure which is up? `python -m scripts.app_url` prints the reachable one.
+
 1. Start the app and confirm the broker dot is green:
    ```
-   python run.py dev          # http://localhost:5000
+   python run.py dev          # serves locally; public at https://app.tindex.ai
    ```
-   Broker page (`/broker`) → IBKR paper connected, equity showing.
+   Broker page (`https://app.tindex.ai/broker`) → IBKR paper connected, equity showing.
 
 2. Trigger the scan (either way):
-   - **UI:** open `/strategies`, find **fvg_continuation**, click **▶ Run**.
+   - **UI:** open `https://app.tindex.ai/strategies`, find **fvg_continuation**, click **▶ Run**.
    - **CLI:**
      ```
-     curl -X POST "http://localhost:5000/api/strategies/fvg_continuation/run?mode=paper"
+     curl -X POST "https://app.tindex.ai/api/strategies/fvg_continuation/run?mode=paper"
+     # or target whatever is up:  BASE=$(python -m scripts.app_url); curl -X POST "$BASE/api/strategies/fvg_continuation/run?mode=paper"
      ```
 
 3. The scan evaluates the latest completed NY session for **XAUUSD + 9 FX majors**,

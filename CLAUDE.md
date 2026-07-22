@@ -1348,3 +1348,10 @@ python run.py prod   # 2 workers, warning logging → http://localhost:5000
 ```
 
 Binds to `127.0.0.1:5000` (not `0.0.0.0` — Windows firewall blocks that port on 0.0.0.0).
+
+**Public base URL:** the app is exposed via a Cloudflare tunnel at
+**`https://app.tindex.ai`** — use that for links/API from anywhere; `http://localhost:5000`
+works on the box (or when the tunnel is down). `PUBLIC_BASE_URL` in `.env` feeds
+`settings.app.public_base_url` (used for phone-push links). To target whichever is up,
+`python -m scripts.app_url` probes `/health` and prints the reachable base
+(`services/app_url.resolve_base_url()` for code).

@@ -1443,7 +1443,7 @@ Phase 5 and return.
    - `BROKER_PROVIDER=alpaca` (or `tradestation`)
 5. `cp settings.example.yaml settings.yaml` and edit
 6. Copy `trade_logs/*.jsonl` from backup if available
-7. `python run.py dev` — server at http://localhost:5000
+7. `python run.py dev` — server local; public at https://app.tindex.ai (or http://localhost:5000 on the box)
 
 ---
 
