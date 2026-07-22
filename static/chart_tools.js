@@ -133,6 +133,13 @@
 .ct-live.active .ct-live-dot{background:var(--accent-red);
   animation:ct-live-pulse 1.4s ease-in-out infinite;}
 @keyframes ct-live-pulse{0%,100%{opacity:1;}50%{opacity:0.25;}}
+.ct-center{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;
+  border:1px solid var(--border);border-radius:4px;background:var(--surface-2);
+  color:var(--text-secondary);font-size:11px;font-weight:600;cursor:pointer;
+  font-family:var(--font-mono);flex:0 0 auto;}
+.ct-center:hover{color:var(--accent-blue);border-color:var(--accent-blue);}
+.ct-center:active{background:var(--surface-3);}
+.ct-center svg{flex:0 0 auto;}
 .ct-chips{display:flex;gap:3px;flex-wrap:wrap;flex:1 1 auto;justify-content:flex-end;}
 .ct-chip{padding:3px 8px;border:1px solid var(--border);border-radius:10px;
   background:var(--surface-2);color:var(--text-tertiary);
@@ -402,6 +409,30 @@
         this._liveBtn = live;
       }
 
+      // ⊕ Center on the current candle. Interval / scale changes leave the
+      // latest bar off-screen; this snaps it back to the middle at the
+      // current zoom rather than making the operator drag the chart.
+      if (this.opts.showCenter !== false) {
+        const ctr = document.createElement('button');
+        ctr.className = 'ct-center';
+        ctr.type = 'button';
+        ctr.title = 'Center current price — put the latest candle mid-screen';
+        ctr.setAttribute('aria-label', 'Center current price');
+        ctr.innerHTML =
+          '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" ' +
+          'stroke="currentColor" stroke-width="2" stroke-linecap="round">' +
+          '<circle cx="12" cy="12" r="7"></circle>' +
+          '<circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"></circle>' +
+          '<line x1="12" y1="1.5" x2="12" y2="5"></line>' +
+          '<line x1="12" y1="19" x2="12" y2="22.5"></line>' +
+          '<line x1="1.5" y1="12" x2="5" y2="12"></line>' +
+          '<line x1="19" y1="12" x2="22.5" y2="12"></line>' +
+          '</svg><span>Center</span>';
+        ctr.addEventListener('click', () => this.centerLatest());
+        head.appendChild(ctr);
+        this._centerBtn = ctr;
+      }
+
       if (this.opts.showChips !== false) {
         const chipWrap = document.createElement('div');
         chipWrap.className = 'ct-chips';
@@ -486,6 +517,36 @@
         handleScroll: { mouseWheel: false, pressedMouseMove: true,
                         horzTouchDrag: true, vertTouchDrag: true },
       };
+    }
+
+    // Re-centre the view on the candle containing `time` (epoch seconds),
+    // keeping the current zoom (bar-count width) instead of refitting. Also
+    // re-arms price autoscale so the candle is vertically in frame too.
+    // Sub-panes follow via the bidirectional time-scale sync.
+    centerOnTime(time) {
+      try {
+        const idx = this._containingBarIndex(time);
+        if (idx < 0) return;
+        this.centerOnIndex(idx);
+      } catch (_) { /* chart not ready */ }
+    }
+
+    centerOnIndex(idx) {
+      try {
+        const ts = this.priceChart.timeScale();
+        const r = ts.getVisibleLogicalRange();
+        const width = r && (r.to - r.from) > 0 ? (r.to - r.from) : 120;
+        ts.setVisibleLogicalRange({ from: idx - width / 2, to: idx + width / 2 });
+        this.priceChart.priceScale('right').applyOptions({ autoScale: true });
+      } catch (_) { /* chart not ready */ }
+    }
+
+    // "Center current price" — puts the most recent (right-most) candle in the
+    // middle of the pane at the current zoom. Saves dragging the chart back
+    // every time the interval or scale changes.
+    centerLatest() {
+      if (!this.bars || !this.bars.length) return;
+      this.centerOnIndex(this.bars.length - 1);
     }
 
     // Zoom the time axis around the visible center. factor <1 zooms in,

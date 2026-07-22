@@ -38,9 +38,21 @@ async def push(
     priority: str = "default",
     tags: Iterable[str] | None = None,
     click_url: str | None = None,
+    actions: list[dict] | None = None,
     timeout_seconds: float = 5.0,
 ) -> bool:
     """Send a push notification. Returns True on success, False on any failure.
+
+    ``actions`` is a list of ntfy action buttons (max 3). Each is a dict in
+    ntfy's JSON shape, e.g.::
+
+        {"action": "view", "label": "Open plan", "url": "https://…", "clear": true}
+        {"action": "http", "label": "Approve", "method": "POST", "url": "https://…",
+         "headers": {"Content-Type": "application/x-www-form-urlencoded"},
+         "body": "action=approve", "clear": true}
+
+    See https://docs.ntfy.sh/publish/#action-buttons. ntfy silently ignores
+    the action array beyond the third entry, so callers should cap at 3.
 
     Never raises — alert recording must not break because ntfy is down.
     """
@@ -68,6 +80,10 @@ async def push(
         payload["tags"] = list(tags)
     if click_url:
         payload["click"] = click_url
+    if actions:
+        # ntfy caps at 3 action buttons; extra entries are ignored server-side
+        # but we trim explicitly so behaviour is predictable.
+        payload["actions"] = list(actions)[:3]
 
     url = ntfy.server.rstrip("/")
     try:

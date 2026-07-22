@@ -215,8 +215,15 @@ async def run_workflow_by_id(
         # miss the 10:30 fire while looking at another tab.
         try:
             from services import alert_service
-            entry_dict = (plan_dict.get("setup") or {}).get("entry") or {}
+            setup_dict = plan_dict.get("setup") or {}
+            entry_dict = setup_dict.get("entry") or {}
+            risk_dict = plan_dict.get("risk") or {}
             entry_price = entry_dict.get("price")
+            stop_price = (
+                (setup_dict.get("stop_loss") or {}).get("initial") or {}
+            ).get("price")
+            tp_legs = setup_dict.get("take_profit") or []
+            tp_prices = [leg.get("price") for leg in tp_legs if leg.get("price")]
             await alert_service.record_alert(
                 kind="armed",
                 strategy=strategy,
@@ -234,11 +241,16 @@ async def run_workflow_by_id(
                 ),
                 payload={
                     "entry_price": entry_price,
+                    "stop_price": stop_price,
+                    "tp_prices": tp_prices,
                     "valid_until": entry_dict.get("valid_until"),
-                    "risk_usd": (plan_dict.get("risk") or {}).get(
-                        "position_risk_usd"),
-                    "shares": (plan_dict.get("risk") or {}).get(
-                        "position_size_shares"),
+                    "risk_usd": risk_dict.get("position_risk_usd"),
+                    "shares": risk_dict.get("position_size_shares"),
+                    "notional_usd": risk_dict.get("position_notional_usd"),
+                    "rr_tp1": risk_dict.get("r_multiple_to_tp1"),
+                    "rr_tp2": risk_dict.get("r_multiple_to_tp2"),
+                    "conviction": plan.thesis.get("conviction"),
+                    "mode": plan_dict.get("mode"),
                     "ts_created": plan.ts_created,
                 },
             )

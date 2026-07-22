@@ -57,6 +57,147 @@ def _now() -> str:
 
 
 # --------------------------------------------------------------------------- #
+# Phone-push formatting helpers
+# --------------------------------------------------------------------------- #
+
+
+def _resolve_base_url(s: Any) -> str:
+    """Public origin for deep links. Prefer the reachable public URL; fall
+    back to the tailnet host (only resolves on the tailnet with MagicDNS)."""
+    base = (getattr(s.app, "public_base_url", None) or "").rstrip("/")
+    if base:
+        return base
+    host = getattr(s.app, "tailscale_hostname", None) or "127.0.0.1"
+    return f"http://{host}:{s.app.port}"
+
+
+def _fmt_price(v: Any) -> str | None:
+    """'$128.40' from a number, else None."""
+    try:
+        return f"${float(v):,.2f}"
+    except (TypeError, ValueError):
+        return None
+
+
+def _fmt_valid_until(v: Any) -> str:
+    """'10:45 ET' from an iso8601 deadline; pass through short tokens; '' on
+    anything unparseable."""
+    if not v or not isinstance(v, str):
+        return ""
+    try:
+        from zoneinfo import ZoneInfo
+        dt = datetime.fromisoformat(v.replace("Z", "+00:00"))
+        et = dt.astimezone(ZoneInfo("America/New_York"))
+        return f"{et:%H:%M} ET"
+    except Exception:  # noqa: BLE001 — non-iso value, show nothing
+        return ""
+
+
+def _pct_from_entry(price: Any, entry: Any, direction: str | None) -> str:
+    """Signed % move from entry to price, oriented so a favourable move
+    (toward a long's TP, or a short's TP) reads positive. Empty on bad input."""
+    try:
+        p, e = float(price), float(entry)
+        if e == 0:
+            return ""
+        raw = (p - e) / e * 100.0
+        return f"  ({raw:+.1f}%)"
+    except (TypeError, ValueError):
+        return ""
+
+
+def _rich_armed_body(
+    strategy: str,
+    direction: str | None,
+    payload: dict[str, Any],
+) -> str:
+    """Multi-line trade card for an ARMED alert. Everything the operator
+    needs to decide is on the notification itself — entry, protective stop,
+    targets, sizing, risk, R:R, conviction — so they rarely need to open
+    the app to triage."""
+    entry = payload.get("entry_price")
+    stop = payload.get("stop_price")
+    tps = payload.get("tp_prices") or []
+    lines: list[str] = []
+
+    dir_label = (direction or "").upper()
+    lines.append(f"{dir_label} · {strategy}".strip(" ·"))
+
+    e_str = _fmt_price(entry)
+    if e_str:
+        lines.append(f"Entry  {e_str}")
+    s_str = _fmt_price(stop)
+    if s_str:
+        lines.append(f"Stop   {s_str}{_pct_from_entry(stop, entry, direction)}")
+    for i, tp in enumerate(tps[:2], start=1):
+        t_str = _fmt_price(tp)
+        if t_str:
+            lines.append(f"TP{i}    {t_str}{_pct_from_entry(tp, entry, direction)}")
+
+    rr1, rr2 = payload.get("rr_tp1"), payload.get("rr_tp2")
+    if rr1 or rr2:
+        rr_bits = [str(x) for x in (rr1, rr2) if x]
+        lines.append(f"R:R    {' / '.join(rr_bits)}")
+
+    shares = payload.get("shares")
+    notional = _fmt_price(payload.get("notional_usd"))
+    if shares or notional:
+        size = f"Size   {shares or '?'} sh"
+        if notional:
+            size += f" · {notional}"
+        lines.append(size)
+
+    risk = _fmt_price(payload.get("risk_usd"))
+    if risk:
+        lines.append(f"Risk   {risk}")
+
+    conv = payload.get("conviction")
+    if conv is not None:
+        try:
+            lines.append(f"Conv   {float(conv):.0%}")
+        except (TypeError, ValueError):
+            pass
+
+    valid = _fmt_valid_until(payload.get("valid_until"))
+    if valid:
+        lines.append(f"Valid  {valid}")
+
+    return "\n".join(lines)
+
+
+def _build_actions(
+    kind: str,
+    plan_id: str | None,
+    base: str,
+    mode: str | None,
+) -> list[dict]:
+    """Notification action buttons (max 3). ARMED plans get a deep link to
+    the plan page and — in PAPER mode only — a one-tap Approve that POSTs the
+    ack straight to the pipeline. Live mode deliberately omits Approve: the
+    human ack must happen on the plan screen where the full setup is visible
+    (CLAUDE.md non-negotiable)."""
+    actions: list[dict] = []
+    if kind == "armed" and plan_id:
+        actions.append({
+            "action": "view",
+            "label": "Open plan ↗",
+            "url": f"{base}/pending/{plan_id}",
+            "clear": False,
+        })
+        if (mode or "").lower() == "paper":
+            actions.append({
+                "action": "http",
+                "label": "Approve ✓",
+                "method": "POST",
+                "url": f"{base}/pending/{plan_id}/ack",
+                "headers": {"Content-Type": "application/x-www-form-urlencoded"},
+                "body": "action=approve",
+                "clear": True,
+            })
+    return actions
+
+
+# --------------------------------------------------------------------------- #
 # Writes
 # --------------------------------------------------------------------------- #
 
@@ -137,20 +278,31 @@ async def record_alert(
         # specific pending approval; everything else lands on the dashboard.
         # Prefer the public origin (e.g. https://app.tindex.ai) when deployed
         # so tapping the push opens the real site, not an unreachable LAN host.
-        base = (s.app.public_base_url or "").rstrip("/")
-        if not base:
-            base = f"http://{s.app.tailscale_hostname or '127.0.0.1'}:{s.app.port}"
+        base = _resolve_base_url(s)
         if kind == "armed" and plan_id:
             click_url = f"{base}/pending/{plan_id}"
         else:
             click_url = f"{base}/"
 
+        # Richer body: ARMED plans get a full trade card built from the
+        # payload (entry/stop/TP/R:R/size/risk/conviction). Other kinds keep
+        # whatever the caller passed. Action buttons (Open plan / paper-only
+        # Approve) come from _build_actions.
+        payload = payload or {}
+        if kind == "armed":
+            push_body = _rich_armed_body(strategy, direction, payload)
+        else:
+            push_body = body or f"{kind} · {symbol or strategy}"
+
+        actions = _build_actions(kind, plan_id, base, payload.get("mode"))
+
         await ntfy_service.push(
             title=title,
-            body=body or f"{kind} · {symbol or strategy}",
+            body=push_body,
             priority=priority,
             tags=tags,
             click_url=click_url,
+            actions=actions,
         )
     except Exception as exc:  # noqa: BLE001
         logger.warning("ntfy hook failed (alert recorded successfully): %s", exc)
