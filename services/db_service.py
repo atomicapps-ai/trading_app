@@ -817,25 +817,14 @@ def _plan_session_date(plan: dict) -> str:
 
 
 def _setup_fp(plan: dict) -> str:
-    """Fingerprint of the SETUP itself — what makes two trades "the same exact
-    trade": symbol + direction + entry/stop/target levels. Two pending plans
-    with the same fingerprint are duplicates regardless of when they were
-    scanned (a scan re-lists the same setup every run). Levels are rounded so
-    trivial float noise doesn't split a duplicate."""
-    setup = plan.get("setup") or {}
+    """Dedup identity of a setup: symbol + direction. There is at most ONE live
+    setup per (strategy, symbol, direction) — a scan re-evaluating it each run
+    (with slightly drifting entry/stop as price moves) is the SAME trade, so we
+    key on symbol|direction, NOT the exact levels (which would split a duplicate
+    every time the price ticked)."""
     sym = str((plan.get("instrument") or {}).get("symbol", "")).upper()
-    direction = str(setup.get("direction", ""))
-
-    def _r(x):
-        try:
-            return f"{float(x):.5f}"
-        except (TypeError, ValueError):
-            return "na"
-    entry = _r((setup.get("entry") or {}).get("price"))
-    stop = _r(((setup.get("stop_loss") or {}).get("initial") or {}).get("price"))
-    tps = setup.get("take_profit") or []
-    target = _r(tps[0].get("price")) if tps else "na"
-    return f"{sym}|{direction}|{entry}|{stop}|{target}"
+    direction = str((plan.get("setup") or {}).get("direction", ""))
+    return f"{sym}|{direction}"
 
 
 def _plan_is_stale(plan: dict, session_date: str,
@@ -898,12 +887,14 @@ async def upsert_pending_plan(
 
     async with _dbmod.connect() as db:
         db.row_factory = aiosqlite.Row
-        # "Same exact trade" = same strategy + setup fingerprint (levels).
+        # One live row per (strategy, symbol|direction, status): a re-scan of the
+        # same setup updates it in place instead of inserting a duplicate. Scoped
+        # by status so a fresh signal isn't merged into an executed position.
         cur = await db.execute(
             "SELECT plan_id, status FROM pending_approvals "
-            "WHERE strategy = ? AND setup_fp = ? "
+            "WHERE strategy = ? AND setup_fp = ? AND status = ? "
             "ORDER BY ts_created DESC LIMIT 1",
-            (strategy, setup_fp),
+            (strategy, setup_fp, status),
         )
         existing = await cur.fetchone()
 
